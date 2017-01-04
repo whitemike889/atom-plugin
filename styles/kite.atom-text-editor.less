@@ -1,4 +1,21 @@
 @import "variables";
+@import "ui-variables";
+
+kite-hover {
+  display: inline-block;
+  background: @base-background-color;
+  border: 1px solid @base-border-color;
+  padding: (@component-padding / 2) @component-padding;
+  border-radius: @component-border-radius;
+
+  div:empty {
+    display: none;
+  }
+
+  div:last-child {
+    margin-left: @component-padding;
+  }
+}
 
 // Note: no default styling is provided for highlight decorations.
 .highlight-green .region {
