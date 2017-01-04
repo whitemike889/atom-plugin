@@ -1,70 +1,72 @@
-const http = require('http')
-const proc = require('child_process')
-const {StateController} = require('kite-installer')
+'use strict';
 
-function fakeStream () {
-  let streamCallback
-  function stream (data) {
-    streamCallback && streamCallback(data)
+const http = require('http');
+const proc = require('child_process');
+const {StateController} = require('kite-installer');
+
+function fakeStream() {
+  let streamCallback;
+  function stream(data) {
+    streamCallback && streamCallback(data);
   }
 
   stream.on = (evt, callback) => {
-    if (evt === 'data') { streamCallback = callback }
-  }
+    if (evt === 'data') { streamCallback = callback; }
+  };
 
-  return stream
+  return stream;
 }
 
-function fakeProcesses (processes) {
+function fakeProcesses(processes) {
   spyOn(proc, 'spawn').andCallFake((process, options) => {
-    const mock = processes[process]
+    const mock = processes[process];
     const ps = {
       stdout: fakeStream(),
       stderr: fakeStream(),
       on: (evt, callback) => {
-        if (evt === 'close') { callback(mock ? mock(ps, options) : 1) }
-      }
-    }
+        if (evt === 'close') { callback(mock ? mock(ps, options) : 1); }
+      },
+    };
 
-    return ps
-  })
+    return ps;
+  });
 
   spyOn(proc, 'spawnSync').andCallFake((process, options) => {
-    const mock = processes[process]
+    const mock = processes[process];
 
-    const ps = {}
+    const ps = {};
     ps.status = mock ? mock({
-      stdout (data) { ps.stdout = data },
-      stderr (data) { ps.stderr = data },
-    }, options) : 1
+      stdout(data) { ps.stdout = data; },
+      stderr(data) { ps.stderr = data; },
+    }, options) : 1;
 
-    return ps
-  })
+    return ps;
+  });
 }
 
-function fakeResponse (statusCode, data, props) {
-  data = data || ''
-  props = props || {}
+function fakeResponse(statusCode, data, props) {
+  data = data || '';
+  props = props || {};
 
   const resp = {
     statusCode,
     on: (event, callback) => {
       switch (event) {
         case 'data':
-          callback(data)
+          callback(data);
           break;
         case 'end':
-          callback()
+          callback();
           break;
       }
-    }
-  }
-  for (let k in props) { resp[k] = props[k] }
-  resp.headers = resp.headers || {}
-  return resp
+    },
+  };
+  for (let k in props) { resp[k] = props[k]; }
+  resp.headers = resp.headers || {};
+  return resp;
 }
 
-function fakeRequestMethod (resp) {
+function fakeRequestMethod(resp) {
   if (resp) {
     switch (typeof resp) {
       case 'boolean':
@@ -81,84 +83,183 @@ function fakeRequestMethod (resp) {
 
   return (opts, callback) => ({
     on: (type, cb) => {
-      if (!resp && type === 'error') { cb({}) }
+      switch (type) {
+        case 'error':
+          if (!resp) { cb({}); }
+          break;
+        case 'response':
+          if (resp) { cb(typeof resp == 'function' ? resp(opts) : resp); }
+          break;
+      }
     },
     end: () => {
       if (resp) {
         typeof resp == 'function'
           ? callback(resp(opts))
-          : callback(resp)
+          : callback(resp);
       }
     },
-    write: (data) => {}
-  })
+    write: (data) => {},
+  });
 }
 
-function fakeKiteInstallPaths () {
-  let safePaths
+function fakeKiteInstallPaths() {
+  let safePaths;
   beforeEach(() => {
-    safePaths = StateController.KITE_APP_PATH
-    StateController.KITE_APP_PATH = { installed: '/path/to/Kite.app' }
-  })
+    safePaths = StateController.KITE_APP_PATH;
+    StateController.KITE_APP_PATH = { installed: '/path/to/Kite.app' };
+  });
 
   afterEach(() => {
-    StateController.KITE_APP_PATH = safePaths
-  })
+    StateController.KITE_APP_PATH = safePaths;
+  });
 }
 
-function withKiteInstalled () {
-  beforeEach(() => {
-    StateController.KITE_APP_PATH = { installed: __filename }
-  })
+function fakeRouter(routes) {
+  return (opts) => {
+    for (let i = 0; i < routes.length; i++) {
+      const [predicate, handler] = routes[i];
+      if (predicate(opts)) { return handler(opts); }
+    }
+    return fakeResponse(200);
+  };
 }
 
-function withKiteRunning () {
-  withKiteInstalled()
+function withKiteInstalled(block) {
+  describe('with kite installed', () => {
+    fakeKiteInstallPaths();
 
-  beforeEach(() => {
-    fakeProcesses({
-      '/bin/ps': (ps) => {
-        ps.stdout('Kite')
-        return 0
-      }
-    })
-  })
+    beforeEach(() => {
+      StateController.KITE_APP_PATH = { installed: __filename };
+    });
+
+    block();
+  });
 }
 
-function withKiteNotRunning () {
-  withKiteInstalled()
+function withKiteRunning(block) {
+  withKiteInstalled(() => {
+    describe(', running', () => {
+      beforeEach(() => {
+        fakeProcesses({
+          ls: (ps) => ps.stdout('kite'),
+          '/bin/ps': (ps) => {
+            ps.stdout('Kite');
+            return 0;
+          },
+        });
+      });
 
-  beforeEach(() => {
-    fakeProcesses({
-      '/bin/ps': (ps) => {
-        ps.stdout('')
-        return 0
-      },
-      defaults: () => 0,
-      open: () => 0,
-    })
-  })
+      block();
+    });
+  });
 }
 
-function withKiteReachable () {
-  withKiteRunning()
+function withKiteNotRunning(block) {
+  withKiteInstalled(() => {
+    describe(', not running', () => {
+      beforeEach(() => {
+        fakeProcesses({
+          '/bin/ps': (ps) => {
+            ps.stdout('');
+            return 0;
+          },
+          defaults: () => 0,
+          open: () => 0,
+        });
+      });
 
-  beforeEach(() => {
-    spyOn(http, 'request').andCallFake(fakeRequestMethod(true))
-  })
+      block();
+    });
+  });
 }
 
-function withKiteNotReachable () {
-  withKiteRunning()
+function withKiteReachable(routes, block) {
+  if (typeof routes == 'function') {
+    block = routes;
+    routes = [];
+  }
 
-  beforeEach(() => {
-    spyOn(http, 'request').andCallFake(fakeRequestMethod(false))
-  })
+  routes.push([
+    o => true,
+    o => fakeResponse(404),
+  ]);
+
+
+  withKiteRunning(() => {
+    describe(', reachable', () => {
+      beforeEach(function() {
+        this.routes = routes.concat();
+        const router = fakeRouter(this.routes);
+        spyOn(http, 'request').andCallFake(fakeRequestMethod(router));
+      });
+
+      block();
+    });
+  });
+}
+
+function withKiteNotReachable(block) {
+  withKiteRunning(() => {
+    describe(', not reachable', () => {
+      beforeEach(() => {
+        spyOn(http, 'request').andCallFake(fakeRequestMethod(false));
+      });
+
+      block();
+    });
+  });
+}
+
+function withKiteAuthenticated(routes, block) {
+  if (typeof routes == 'function') {
+    block = routes;
+    routes = [];
+  }
+
+  routes.push([
+    o => /^\/api\/account\/authenticated/.test(o.path),
+    o => fakeResponse(200, 'authenticated'),
+  ]);
+
+  withKiteReachable(routes, () => {
+    describe(', authenticated', () => {
+      block();
+    });
+  });
+}
+
+function withKiteWhitelistedPaths(paths, block) {
+  if (typeof paths == 'function') {
+    block = paths;
+    paths = [];
+  }
+
+  const routes = [
+    [
+      o => /^\/clientapi\/settings\/inclusions/.test(o.path),
+      o => fakeResponse(200, JSON.stringify(paths)),
+    ],
+  ];
+
+  withKiteAuthenticated(routes, () => {
+    describe('with whitelisted paths', () => {
+      block();
+    });
+  });
+}
+
+function withRoutes(routes) {
+  beforeEach(function() {
+    this.routes = routes.concat(this.routes);
+  });
 }
 
 module.exports = {
   fakeProcesses, fakeRequestMethod, fakeResponse, fakeKiteInstallPaths,
   withKiteInstalled,
   withKiteRunning, withKiteNotRunning,
-  withKiteReachable, withKiteNotReachable
-}
+  withKiteReachable, withKiteNotReachable,
+  withKiteAuthenticated, withKiteWhitelistedPaths,
+  withRoutes,
+};
