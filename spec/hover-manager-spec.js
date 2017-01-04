@@ -131,6 +131,7 @@ describe('HoverManager', () => {
           beforeEach(() => {
             waitsForPromise(() =>
               HoverManager.showHoverAtPosition(editor, [0, 1]));
+            waitsFor(() => editorQuery('kite-hover'));
           });
 
           it('destroys the previous decoration and creates a new one', () => {
