@@ -4,6 +4,11 @@ const http = require('http');
 const proc = require('child_process');
 const {StateController} = require('kite-installer');
 
+function sleep(duration) {
+  const t = new Date();
+  waitsFor(`${duration}ms`, () => { return new Date() - t > duration; });
+}
+
 function fakeStream() {
   let streamCallback;
   function stream(data) {
@@ -262,4 +267,5 @@ module.exports = {
   withKiteReachable, withKiteNotReachable,
   withKiteAuthenticated, withKiteWhitelistedPaths,
   withRoutes,
+  sleep,
 };

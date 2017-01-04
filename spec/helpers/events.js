@@ -1,5 +1,3 @@
-'use strict';
-
 function mouseEvent(type, properties) {
   let defaults = {
     bubbles: true,
