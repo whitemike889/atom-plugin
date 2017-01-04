@@ -18,5 +18,7 @@ test = B('foo')
 test2 = B(5)
 test3 = B(55)
 
+test2.increment(2)
+
 if __name__ == "__main__":
     hello()
