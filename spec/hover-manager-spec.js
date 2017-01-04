@@ -12,6 +12,7 @@ const {
 } = require('./spec-helpers');
 
 const projectPath = path.join(__dirname, 'fixtures');
+const noShadowDOM = () => parseFloat(atom.getVersion()) >= 1.13;
 
 // By enabling this constant, it's possible to visually debug a test.
 // It should only be used when a single test is focused as it will make every
@@ -22,8 +23,19 @@ const projectPath = path.join(__dirname, 'fixtures');
 const VISUAL_DEBUG = false;
 let jasmineContent;
 
-fdescribe('HoverManager', () => {
-  let editor;
+describe('HoverManager', () => {
+  let editor, editorElement;
+
+  const editorQuery = (selector) =>
+    noShadowDOM()
+      ? editorElement.querySelector(selector)
+      : editorElement.shadowRoot.querySelector(selector);
+
+  // const editorQueryAll = (selector) =>
+  //   noShadowDOM()
+  //     ? editorElement.querySelectorAll(selector)
+  //     : editorElement.shadowRoot.querySelectorAll(selector);
+
   beforeEach(() => {
     jasmineContent = !VISUAL_DEBUG
       ? document.body.querySelector('#jasmine-content')
@@ -48,6 +60,7 @@ fdescribe('HoverManager', () => {
     waitsForPromise(() => atom.packages.activatePackage('language-python'));
     waitsForPromise(() => atom.workspace.open('sample.py').then(e => {
       editor = e;
+      editorElement = atom.views.getView(editor);
     }));
   });
 
@@ -67,20 +80,42 @@ fdescribe('HoverManager', () => {
 
     describe('.showHoverAtPosition()', () => {
       it('triggers a request for the editor at the given position', () => {
-        HoverManager.showHoverAtPosition(editor, [3, 8]);
+        HoverManager.showHoverAtPosition(editor, [2, 8]);
 
         expect(http.request.mostRecentCall.args[0].path)
-        .toEqual(hoverPath(editor, [[3, 5], [3, 10]]));
+        .toEqual(hoverPath(editor, [[2, 4], [2, 9]]));
       });
 
       describe('when the position match the position of a token', () => {
         withRoutes([
           [
             o => /^\/api\/buffer\/atom/.test(o.path),
-            o => fakeResponse(200, fs.readFileSync('./fixtures/hello.json')),
+            o => fakeResponse(200, fs.readFileSync(path.resolve(__dirname, 'fixtures/hello.json'))),
           ],
         ]);
 
+        beforeEach(() => {
+          waitsForPromise(() =>
+            HoverManager.showHoverAtPosition(editor, [2, 8]));
+        });
+
+        it('displays an overlay decoration with the results from the API', () => {
+          const hover = editorQuery('kite-hover');
+          expect(hover).toExist();
+          expect(hover.textContent.trim()).toEqual('hello');
+        });
+      });
+
+      describe('when the position does not match the position of a token', () => {
+        beforeEach(() => {
+          waitsForPromise(() =>
+            HoverManager.showHoverAtPosition(editor, [2, 8]));
+        });
+
+        it('does not displays an overlay decoration', () => {
+          const hover = editorQuery('kite-hover');
+          expect(hover).not.toExist();
+        });
       });
     });
   });
