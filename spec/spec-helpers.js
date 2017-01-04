@@ -251,7 +251,7 @@ function withKiteWhitelistedPaths(paths, block) {
 
 function withRoutes(routes) {
   beforeEach(function() {
-    this.routes = routes.concat(this.routes);
+    routes.reverse().forEach(route => this.routes.unshift(route));
   });
 }
 
