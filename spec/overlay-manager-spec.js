@@ -151,5 +151,85 @@ describe('OverlayManager', () => {
         });
       });
     });
+
+    describe('.showExpandAtPosition()', () => {
+      describe('when the position matches a word', () => {
+        it('triggers a request for the editor at the given position', () => {
+          OverlayManager.showExpandAtPosition(editor, [2, 8]);
+
+          expect(http.request.mostRecentCall.args[0].path)
+          .toEqual(hoverPath(editor, [[2, 4], [2, 9]]));
+        });
+      });
+
+      describe('when the position does not match a word', () => {
+        it('does not triggers a request', () => {
+          OverlayManager.showExpandAtPosition(editor, [1, 0]);
+
+          expect(http.request.mostRecentCall.args[0].path)
+          .not.toEqual(hoverPath(editor, [[1, 0], [1, 0]]));
+        });
+      });
+
+      describe('when the position match the position of a token', () => {
+        let expand;
+
+        withRoutes([
+          [
+            o => /^\/api\/buffer\/atom/.test(o.path),
+            o => fakeResponse(200, fs.readFileSync(path.resolve(__dirname, 'fixtures/hello.json'))),
+          ],
+        ]);
+
+        beforeEach(() => {
+          waitsForPromise(() =>
+            OverlayManager.showExpandAtPosition(editor, [2, 8]));
+          runs(() => expand = editorQuery('kite-expand'));
+        });
+
+        it('displays an overlay decoration with the results from the API', () => {
+          expect(expand).toExist();
+        });
+
+        describe('querying the same range again', () => {
+          beforeEach(() => {
+            waitsForPromise(() =>
+              OverlayManager.showExpandAtPosition(editor, [2, 7]));
+          });
+
+          it('leaves the previous decoration in place', () => {
+            const newExpand = editorQuery('kite-expand');
+            expect(newExpand).toBe(expand);
+          });
+
+        });
+
+        describe('querying a different range', () => {
+          beforeEach(() => {
+            waitsForPromise(() =>
+              OverlayManager.showExpandAtPosition(editor, [0, 1]));
+          });
+
+          it('destroys the previous decoration and creates a new one', () => {
+            expect(editorQueryAll('kite-expand').length).toEqual(1);
+
+            const newExpand = editorQuery('kite-expand');
+            expect(newExpand).not.toBe(expand);
+          });
+        });
+      });
+
+      describe('when the position does not match the position of a token', () => {
+        beforeEach(() => {
+          waitsForPromise(() =>
+            OverlayManager.showExpandAtPosition(editor, [2, 8]));
+        });
+
+        it('does not displays an overlay decoration', () => {
+          const expand = editorQuery('kite-expand');
+          expect(expand).not.toExist();
+        });
+      });
+    });
   });
 });

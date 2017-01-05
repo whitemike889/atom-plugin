@@ -1,13 +1,15 @@
 @import "variables";
 @import "ui-variables";
 
-kite-hover {
+kite-hover, kite-expand {
   display: inline-block;
   background: @base-background-color;
   border: 1px solid @base-border-color;
   padding: (@component-padding / 2) @component-padding;
   border-radius: @component-border-radius;
+}
 
+kite-hover {
   div:empty {
     display: none;
   }
