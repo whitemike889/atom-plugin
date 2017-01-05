@@ -71,10 +71,10 @@ describe('HoverManager', () => {
       waitsForPromise(() => ready.ensure());
     });
 
-    describe('.showHoverAtPosition()', () => {
+    describe('.showAtPosition()', () => {
       describe('when the position matches a word', () => {
         it('triggers a request for the editor at the given position', () => {
-          HoverManager.showHoverAtPosition(editor, [2, 8]);
+          HoverManager.showAtPosition(editor, [2, 8]);
 
           expect(http.request.mostRecentCall.args[0].path)
           .toEqual(hoverPath(editor, [[2, 4], [2, 9]]));
@@ -83,7 +83,7 @@ describe('HoverManager', () => {
 
       describe('when the position does not match a word', () => {
         it('does not triggers a request', () => {
-          HoverManager.showHoverAtPosition(editor, [1, 0]);
+          HoverManager.showAtPosition(editor, [1, 0]);
 
           expect(http.request.mostRecentCall.args[0].path)
           .not.toEqual(hoverPath(editor, [[1, 0], [1, 0]]));
@@ -102,7 +102,7 @@ describe('HoverManager', () => {
 
         beforeEach(() => {
           waitsForPromise(() =>
-            HoverManager.showHoverAtPosition(editor, [2, 8]));
+            HoverManager.showAtPosition(editor, [2, 8]));
           runs(() => hover = editorQuery('kite-hover'));
         });
 
@@ -114,7 +114,7 @@ describe('HoverManager', () => {
         describe('querying the same range again', () => {
           beforeEach(() => {
             waitsForPromise(() =>
-              HoverManager.showHoverAtPosition(editor, [2, 7]));
+              HoverManager.showAtPosition(editor, [2, 7]));
           });
 
           it('leaves the previous decoration in place', () => {
@@ -127,7 +127,7 @@ describe('HoverManager', () => {
         describe('querying a different range', () => {
           beforeEach(() => {
             waitsForPromise(() =>
-              HoverManager.showHoverAtPosition(editor, [0, 1]));
+              HoverManager.showAtPosition(editor, [0, 1]));
           });
 
           it('destroys the previous decoration and creates a new one', () => {
@@ -142,7 +142,7 @@ describe('HoverManager', () => {
       describe('when the position does not match the position of a token', () => {
         beforeEach(() => {
           waitsForPromise(() =>
-            HoverManager.showHoverAtPosition(editor, [2, 8]));
+            HoverManager.showAtPosition(editor, [2, 8]));
         });
 
         it('does not displays an overlay decoration', () => {
