@@ -19,7 +19,7 @@ describe('HoverGesture', () => {
   describe('without any modifier', () => {
     beforeEach(() => {
       spy = jasmine.createSpy();
-      gesture = new HoverGesture(editorElement);
+      gesture = new HoverGesture(editor);
 
       gesture.onDidActivate(spy);
     });
@@ -45,7 +45,7 @@ describe('HoverGesture', () => {
   describe('with modifiers', () => {
     beforeEach(() => {
       spy = jasmine.createSpy();
-      gesture = new HoverGesture(editorElement, {
+      gesture = new HoverGesture(editor, {
         altKey: true,
       });
 

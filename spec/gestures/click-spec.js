@@ -18,7 +18,7 @@ describe('ClickGesture', () => {
   describe('without any modifier', () => {
     beforeEach(() => {
       spy = jasmine.createSpy();
-      gesture = new ClickGesture(editorElement);
+      gesture = new ClickGesture(editor);
 
       gesture.onDidActivate(spy);
     });
@@ -37,7 +37,7 @@ describe('ClickGesture', () => {
   describe('with modifiers', () => {
     beforeEach(() => {
       spy = jasmine.createSpy();
-      gesture = new ClickGesture(editorElement, {
+      gesture = new ClickGesture(editor, {
         altKey: true,
       });
 
