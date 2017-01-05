@@ -25,7 +25,11 @@ describe('LinkScheme', () => {
       });
 
       it('emits a did-click-link event', () => {
-        expect(spy).toHaveBeenCalled();
+        expect(spy).toHaveBeenCalledWith({
+          uri: 'kite-atom-internal://dummy/path',
+          path: 'dummy/path',
+          target: link,
+        });
       });
     });
 
