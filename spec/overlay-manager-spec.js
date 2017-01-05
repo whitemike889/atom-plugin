@@ -5,8 +5,8 @@ const path = require('path');
 const http = require('http');
 const ready = require('../lib/ready.js');
 const metrics = require('../lib/metrics.js');
-const HoverManager = require('../lib/hover-manager');
-const {hoverPath, editorRoot} = require('../lib/utils');
+const OverlayManager = require('../lib/overlay-manager');
+const {hoverPath} = require('../lib/utils');
 const {
   withKiteWhitelistedPaths, withRoutes, fakeResponse,
 } = require('./spec-helpers');
@@ -22,7 +22,7 @@ const projectPath = path.join(__dirname, 'fixtures');
 const VISUAL_DEBUG = false;
 let jasmineContent;
 
-describe('HoverManager', () => {
+describe('OverlayManager', () => {
   let editor, editorElement;
 
   const editorQuery = (selector) => editorElement.querySelector(selector);
@@ -71,10 +71,10 @@ describe('HoverManager', () => {
       waitsForPromise(() => ready.ensure());
     });
 
-    describe('.showAtPosition()', () => {
+    describe('.showHoverAtPosition()', () => {
       describe('when the position matches a word', () => {
         it('triggers a request for the editor at the given position', () => {
-          HoverManager.showAtPosition(editor, [2, 8]);
+          OverlayManager.showHoverAtPosition(editor, [2, 8]);
 
           expect(http.request.mostRecentCall.args[0].path)
           .toEqual(hoverPath(editor, [[2, 4], [2, 9]]));
@@ -83,7 +83,7 @@ describe('HoverManager', () => {
 
       describe('when the position does not match a word', () => {
         it('does not triggers a request', () => {
-          HoverManager.showAtPosition(editor, [1, 0]);
+          OverlayManager.showHoverAtPosition(editor, [1, 0]);
 
           expect(http.request.mostRecentCall.args[0].path)
           .not.toEqual(hoverPath(editor, [[1, 0], [1, 0]]));
@@ -102,7 +102,7 @@ describe('HoverManager', () => {
 
         beforeEach(() => {
           waitsForPromise(() =>
-            HoverManager.showAtPosition(editor, [2, 8]));
+            OverlayManager.showHoverAtPosition(editor, [2, 8]));
           runs(() => hover = editorQuery('kite-hover'));
         });
 
@@ -114,7 +114,7 @@ describe('HoverManager', () => {
         describe('querying the same range again', () => {
           beforeEach(() => {
             waitsForPromise(() =>
-              HoverManager.showAtPosition(editor, [2, 7]));
+              OverlayManager.showHoverAtPosition(editor, [2, 7]));
           });
 
           it('leaves the previous decoration in place', () => {
@@ -127,7 +127,7 @@ describe('HoverManager', () => {
         describe('querying a different range', () => {
           beforeEach(() => {
             waitsForPromise(() =>
-              HoverManager.showAtPosition(editor, [0, 1]));
+              OverlayManager.showHoverAtPosition(editor, [0, 1]));
           });
 
           it('destroys the previous decoration and creates a new one', () => {
@@ -142,7 +142,7 @@ describe('HoverManager', () => {
       describe('when the position does not match the position of a token', () => {
         beforeEach(() => {
           waitsForPromise(() =>
-            HoverManager.showAtPosition(editor, [2, 8]));
+            OverlayManager.showHoverAtPosition(editor, [2, 8]));
         });
 
         it('does not displays an overlay decoration', () => {
