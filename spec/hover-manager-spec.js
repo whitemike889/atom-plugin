@@ -13,7 +13,6 @@ const {
 
 const projectPath = path.join(__dirname, 'fixtures');
 
-
 // By enabling this constant, it's possible to visually debug a test.
 // It should only be used when a single test is focused as it will make every
 // test last for one minute before completing.
@@ -26,11 +25,9 @@ let jasmineContent;
 describe('HoverManager', () => {
   let editor, editorElement;
 
-  const editorQuery = (selector) =>
-    editorRoot(editorElement).querySelector(selector);
+  const editorQuery = (selector) => editorElement.querySelector(selector);
 
-  const editorQueryAll = (selector) =>
-    editorRoot(editorElement).querySelectorAll(selector);
+  const editorQueryAll = (selector) => editorElement.querySelectorAll(selector);
 
   beforeEach(() => {
     jasmineContent = !VISUAL_DEBUG
@@ -131,7 +128,6 @@ describe('HoverManager', () => {
           beforeEach(() => {
             waitsForPromise(() =>
               HoverManager.showHoverAtPosition(editor, [0, 1]));
-            waitsFor(() => editorQuery('kite-hover'));
           });
 
           it('destroys the previous decoration and creates a new one', () => {
