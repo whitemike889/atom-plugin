@@ -14,27 +14,67 @@ describe('HoverGesture', () => {
       editor = e;
       editorElement = atom.views.getView(editor);
     }));
-    runs(() => {
+  });
+
+  describe('without any modifier', () => {
+    beforeEach(() => {
       spy = jasmine.createSpy();
       gesture = new HoverGesture(editorElement);
 
       gesture.onDidActivate(spy);
     });
+
+    describe('when the mouse is moved', () => {
+      beforeEach(() => {
+        mousemove(editorElement, {x: 5, y: 5});
+      });
+
+      it('does not triggers a did-activate instantly', () => {
+        expect(spy).not.toHaveBeenCalled();
+      });
+
+      it('triggers a did-activate event after 50ms', (done) => {
+        sleep(60);
+        runs(() => {
+          expect(spy).toHaveBeenCalled();
+        });
+      });
+    });
   });
 
-  describe('when the mouse is moved', () => {
+  describe('with modifiers', () => {
     beforeEach(() => {
-      mousemove(editorElement, {x: 5, y: 5});
+      spy = jasmine.createSpy();
+      gesture = new HoverGesture(editorElement, {
+        altKey: true,
+      });
+
+      gesture.onDidActivate(spy);
     });
 
-    it('does not triggers a did-activate instantly', () => {
-      expect(spy).not.toHaveBeenCalled();
+    describe('when the mouse is moved without modifier', () => {
+      beforeEach(() => {
+        mousemove(editorElement, {x: 5, y: 5});
+      });
+
+      it('does not trigger a did-activate event after 50ms', (done) => {
+        sleep(60);
+        runs(() => {
+          expect(spy).not.toHaveBeenCalled();
+        });
+      });
     });
 
-    it('triggers a did-activate event after 50ms', (done) => {
-      sleep(60);
-      runs(() => {
-        expect(spy).toHaveBeenCalled();
+    describe('when the mouse is moved with the proper modifier', () => {
+      beforeEach(() => {
+        mousemove(editorElement, {x: 5, y: 5, altKey: true});
+      });
+
+      it('triggers a did-activate event after 50ms', (done) => {
+        sleep(60);
+        runs(() => {
+          expect(spy).toHaveBeenCalled();
+        });
       });
     });
   });

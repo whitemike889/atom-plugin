@@ -1,3 +1,12 @@
+function merge(a, b) {
+  const c = {};
+
+  for (let k in a) { c[k] = a[k]; }
+  for (let k in b) { c[k] = b[k]; }
+
+  return c;
+}
+
 function mouseEvent(type, properties) {
   let defaults = {
     bubbles: true,
@@ -62,7 +71,14 @@ function exists(value) {
 module.exports = {objectCenterCoordinates, mouseEvent};
 
 ['mousedown', 'mousemove', 'mouseup', 'click'].forEach((key) => {
-  module.exports[key] = function(obj, {x, y, cx, cy, btn} = {}) {
+  module.exports[key] = function(obj, options = {}) {
+    let {x, y, cx, cy, btn} = options;
+    delete options.x;
+    delete options.y;
+    delete options.cx;
+    delete options.cy;
+    delete options.btn;
+
     if (x == null && y == null) {
       let o = objectCenterCoordinates(obj);
       x = o.x;
@@ -74,9 +90,9 @@ module.exports = {objectCenterCoordinates, mouseEvent};
       cy = y;
     }
 
-    obj.dispatchEvent(mouseEvent(key, {
+    obj.dispatchEvent(mouseEvent(key, merge(options, {
       pageX: x, pageY: y, clientX: cx, clientY: cy, button: btn,
-    }));
+    })));
   };
 });
 
