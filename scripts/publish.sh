@@ -1,5 +1,5 @@
 npm run publish:prepare &&
 npm run package:public &&
 npm run commit:public &&
-eval "apm publish $1" &&
+eval "cd public; apm publish $1; cd ..;" &&
 npm run commit:private;
