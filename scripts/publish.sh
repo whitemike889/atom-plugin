@@ -1,5 +1,4 @@
-npm run copy &&
-npm run obfuscate &&
+npm run publish:prepare &&
 npm run package:public &&
 npm run commit:public &&
 eval "apm publish $1" &&
