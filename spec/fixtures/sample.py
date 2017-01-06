@@ -1,3 +1,5 @@
+import os
+
 variable = 10
 
 def hello():
