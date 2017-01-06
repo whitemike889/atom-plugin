@@ -10,6 +10,15 @@
     "atom": ">=1.0.0 <2.0.0"
   },
   "scripts": {
+    "setup": "sh ./scripts/setup.sh",
+    "obfuscate": "sh ./scripts/obfuscate.sh",
+    "copy": "sh ./scripts/copy.sh",
+    "commit:private": "node ./scripts/update-version-and-tag.js",
+    "commit:public": "cd public; git add -A; git commit -am \"Prepare release\"",
+    "package:public": "node ./scripts/update-package-json.js",
+    "publish:patch": "sh ./scripts/publish.sh patch",
+    "publish:minor": "sh ./scripts/publish.sh minor",
+    "publish:major": "sh ./scripts/publish.sh major",
     "lint": "eslint .",
     "lint:fix": "eslint --fix ."
   },
@@ -55,6 +64,7 @@
     "eslint-plugin-jasmine": "^2.2.0",
     "eslint-plugin-prefer-object-spread": "^1.1.0",
     "eslint-plugin-react": "^6.8.0",
-    "fbjs": "^0.8.6"
+    "fbjs": "^0.8.6",
+    "javascript-obfuscator": "^0.8.3"
   }
 }
