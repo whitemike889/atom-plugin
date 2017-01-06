@@ -16,6 +16,7 @@
     "commit:private": "node ./scripts/update-version-and-tag.js",
     "commit:public": "cd public; git add -A; git commit -am \"Prepare release\"",
     "package:public": "node ./scripts/update-package-json.js",
+    "publish:prepare": "npm run copy && npm run obfuscate",
     "publish:patch": "sh ./scripts/publish.sh patch",
     "publish:minor": "sh ./scripts/publish.sh minor",
     "publish:major": "sh ./scripts/publish.sh major",
