@@ -128,50 +128,52 @@ kite-expand {
     }
 
   }
+}
 
-  .expand-footer {
-    margin-top: @component-padding;
-    text-align: right;
+kite-expand-navigation {
+  display: block;
+  margin-top: @component-padding;
+  margin-bottom: -@component-padding;
+  margin-left: -@component-padding;
+  margin-right: -@component-padding;
+  padding: @component-padding;
+  border-top: 1px solid @base-border-color;
+  background: @app-background-color;
+}
 
-    a {
+kite-open-link {
+  display: block;
+  margin-top: @component-padding;
+  text-align: right;
+
+  a {
+    text-transform: uppercase;
+    display: inline-block;
+
+    &, &:active, &:hover, &:focus {
       color: @text-color;
-      text-transform: uppercase;
+      text-decoration: none;
+    }
+
+    kbd {
+      font-size: 1.6em;
+      font-weight: lighter;
+      font-family: @font-family;
+      margin-left: @component-padding;
+      margin-right: @component-padding;
+    }
+
+    span, svg {
+      vertical-align: middle;
       display: inline-block;
+    }
 
-      kbd {
-        font-size: 1.6em;
-        font-weight: lighter;
-        font-family: @font-family;
-        margin-left: @component-padding;
-        margin-right: @component-padding;
-      }
+    svg {
+      width: 2em;
 
-      span, svg {
-        vertical-align: middle;
-        display: inline-block;
-      }
-
-      svg {
-        width: 2em;
-
-        path {
-          fill: @text-color-highlight;
-        }
-      }
-
-      &, &:active, &:hover {
-        text-decoration: none;
+      path {
+        fill: @text-color-highlight;
       }
     }
-  }
-
-  .expand-footer-navigation {
-    margin-top: @component-padding;
-    margin-bottom: -@component-padding;
-    margin-left: -@component-padding;
-    margin-right: -@component-padding;
-    padding: @component-padding;
-    border-top: 1px solid @base-border-color;
-    background: @app-background-color;
   }
 }
