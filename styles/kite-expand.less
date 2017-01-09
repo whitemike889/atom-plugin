@@ -1,5 +1,8 @@
 @import "ui-variables";
 
+@half-padding: @component-padding / 2;
+@double-padding: @component-padding * 2;
+
 kite-expand {
   display: inline-block;
   color: @text-color;
@@ -40,7 +43,7 @@ kite-expand {
     }
 
     & + .split-line {
-      margin-top: @component-padding / 2;
+      margin-top: @half-padding;
     }
   }
 
@@ -74,10 +77,74 @@ kite-expand {
       cursor: pointer;
     }
 
+    ul {
+      margin: 0 0 @double-padding;
+      padding: 0;
+      list-style: none;
+
+      li {
+        overflow: hidden;
+
+        & + li {
+          margin-top: @half-padding;
+        }
+
+        .icon::before {
+          margin: 0;
+        }
+
+        > .icon, > .file, > .example {
+          display: inline-block;
+          vertical-align: middle;
+        }
+
+        .file, .example {
+          font-size: 1.1em;
+          font-weight: 300;
+          color: @text-color-highlight;
+
+          .icon {
+            color: @text-color;
+            font-weight: 0.8em;
+          }
+        }
+
+        .icon-file-code::before {
+          color: @text-color-info;
+          font-size: 1.2em;
+        }
+
+        .icon-code::before {
+          color: @text-color-success;
+          font-size: 1.2em;
+        }
+
+        a.pull-right {
+          color: @text-color;
+          text-transform: uppercase;
+          font-size: 0.8em;
+          line-height: 1em;
+          font-weight: 100;
+
+          .icon::before {
+            color: @text-color-highlight;
+            font-size: 2em;
+            vertical-align: bottom;
+          }
+        }
+
+        pre {
+          clear: both;
+          margin-top: @half-padding;
+          margin-left: @double-padding;
+        }
+      }
+    }
+
     dl {
-      padding-left: @component-padding * 2;
+      padding-left: @double-padding;
       padding-right: @component-padding * 8;
-      margin: @component-padding 0 (@component-padding * 2);
+      margin: @component-padding 0 @double-padding;
 
       dt {
         color: @text-color-highlight;
@@ -124,7 +191,7 @@ kite-expand {
       }
 
       & + pre {
-        margin-top: @component-padding / 2;
+        margin-top: @half-padding;
       }
     }
 
