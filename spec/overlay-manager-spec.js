@@ -23,13 +23,15 @@ const VISUAL_DEBUG = false;
 let jasmineContent;
 
 describe('OverlayManager', () => {
-  let editor, editorElement;
+  let editor, editorElement, showSpy, dismissSpy;
 
   const editorQuery = (selector) => editorElement.querySelector(selector);
 
   const editorQueryAll = (selector) => editorElement.querySelectorAll(selector);
 
   beforeEach(() => {
+    showSpy = jasmine.createSpy();
+    dismissSpy = jasmine.createSpy();
     jasmineContent = !VISUAL_DEBUG
       ? document.body.querySelector('#jasmine-content')
       : document.body;
@@ -72,6 +74,11 @@ describe('OverlayManager', () => {
     });
 
     describe('.showHoverAtPosition()', () => {
+      beforeEach(() => {
+        OverlayManager.onDidShowHover(showSpy);
+        OverlayManager.onDidDismiss(dismissSpy);
+      });
+
       describe('when the position matches a word', () => {
         it('triggers a request for the editor at the given position', () => {
           OverlayManager.showHoverAtPosition(editor, [2, 8]);
@@ -109,6 +116,8 @@ describe('OverlayManager', () => {
         it('displays an overlay decoration with the results from the API', () => {
           expect(hover).toExist();
           expect(hover.textContent.trim()).toEqual('hello');
+
+          expect(showSpy).toHaveBeenCalled();
         });
 
         describe('querying the same range again', () => {
@@ -132,6 +141,7 @@ describe('OverlayManager', () => {
 
           it('destroys the previous decoration and creates a new one', () => {
             expect(editorQueryAll('kite-hover').length).toEqual(1);
+            expect(dismissSpy).toHaveBeenCalled();
 
             const newHover = editorQuery('kite-hover');
             expect(newHover).not.toBe(hover);
@@ -153,6 +163,10 @@ describe('OverlayManager', () => {
     });
 
     describe('.showExpandAtPosition()', () => {
+      beforeEach(() => {
+        OverlayManager.onDidShowExpand(showSpy);
+        OverlayManager.onDidDismiss(dismissSpy);
+      });
       describe('when the position matches a word', () => {
         it('triggers a request for the editor at the given position', () => {
           OverlayManager.showExpandAtPosition(editor, [2, 8]);
@@ -168,6 +182,8 @@ describe('OverlayManager', () => {
 
           expect(http.request.mostRecentCall.args[0].path)
           .not.toEqual(hoverPath(editor, [[1, 0], [1, 0]]));
+
+          expect(showSpy).not.toHaveBeenCalled();
         });
       });
 
@@ -189,6 +205,7 @@ describe('OverlayManager', () => {
 
         it('displays an overlay decoration with the results from the API', () => {
           expect(expand).toExist();
+          expect(showSpy).toHaveBeenCalled();
         });
 
         describe('querying the same range again', () => {
@@ -212,6 +229,7 @@ describe('OverlayManager', () => {
 
           it('destroys the previous decoration and creates a new one', () => {
             expect(editorQueryAll('kite-expand').length).toEqual(1);
+            expect(dismissSpy).toHaveBeenCalled();
 
             const newExpand = editorQuery('kite-expand');
             expect(newExpand).not.toBe(expand);
