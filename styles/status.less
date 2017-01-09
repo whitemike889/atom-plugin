@@ -1,24 +1,29 @@
-.kite-status {
-	background-size: 16px 16px;
-	background-repeat: no-repeat;
-	background-position: center center;
-	width: 16px;
-	height: 32px;
-	vertical-align: middle;
-}
+kite-status {
+  kite-logo svg {
+    width: 16px;
+  }
 
-.kite-status-unknown {
-	background-image: url("atom://kite/assets/kite-gray.png");
-}
+  &[status="unknown"] {
+    kite-logo svg polygon {
+      fill: #999;
+    }
+  }
 
-.kite-status-ready {
-	background-image: url("atom://kite/assets/kite-blue.png");
-}
+  &[status="ready"] {
+    kite-logo svg polygon {
+      fill: @text-color-info;
+    }
+  }
 
-.kite-status-not-whitelisted {
-	background-image: url("atom://kite/assets/kite-orange.png");
-}
+  &[status="not-whitelisted"] {
+    kite-logo svg polygon {
+      fill: @text-color-warning;
+    }
+  }
 
-.kite-status-error {
-	background-image: url("atom://kite/assets/kite-red.png");
+  &[status="error"] {
+    kite-logo svg polygon {
+      fill: @text-color-error;
+    }
+  }
 }
