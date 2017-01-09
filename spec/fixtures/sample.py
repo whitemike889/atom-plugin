@@ -1,9 +1,9 @@
-import os
-
 variable = 10
 
 def hello():
     print("Hello World!")
+
+import os
 
 class A:
     def __init__(self, foo):
