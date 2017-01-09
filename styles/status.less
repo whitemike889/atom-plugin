@@ -1,3 +1,5 @@
+@import "ui-variables";
+
 kite-status {
   kite-logo svg {
     width: 16px;
@@ -5,7 +7,7 @@ kite-status {
 
   &[status="unknown"] {
     kite-logo svg polygon {
-      fill: #999;
+      fill: @text-color;
     }
   }
 
