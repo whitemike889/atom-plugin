@@ -9,20 +9,58 @@
         {
           "id": "sample:Test.increment",
           "kind": "function",
+          "type": "FunctionType",
+          "type_id": "types.FunctionType",
           "repr": "function:sample:Test.increment",
-          "class": "",
-          "class_id": "",
-          "module": "Test",
-          "module_id": "",
           "synopsis": "synopsis here",
           "detail": {
-            "receiver": "self",
-            "parameters": ["n:int"],
+            "receiver": {
+              "name": "self",
+              "default_value": null,
+              "inferred_value": [
+                {
+                  "id": "",
+                  "kind": "instance",
+                  "repr": "instance:sample:Test",
+                  "type": "sample:Test",
+                  "type_id": "sample:Test"
+                }
+              ],
+              "annotation": null,
+              "keyword_only": false,
+              "synopsis": ""
+            },
+            "parameters": [
+              {
+                "name": "n",
+                "default_value": null,
+                "inferred_value": [
+                  {
+                    "id": "",
+                    "kind": "instance",
+                    "repr": "2",
+                    "type": "int",
+                    "type_id": "__builtin__.int"
+                  }
+                ],
+                "annotation": null,
+                "keyword_only": false,
+                "synopsis": ""
+              }
+            ],
+            "return_value": [
+              {
+                "id": "",
+                "kind": "instance",
+                "repr": "int",
+                "type": "int",
+                "type_id": "__builtin__.int"
+              }
+            ],
+            "return_annotation": null,
             "vararg": "*args",
             "kwarg": "**kwargs",
             "discovered_kwargs": [],
-            "return_value": "int",
-            "return_annotation": "",
             "class": "",
             "class_id": "",
             "module": "",

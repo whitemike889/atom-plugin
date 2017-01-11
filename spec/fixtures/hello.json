@@ -7,18 +7,20 @@
       "namespace": null,
       "value": [
         {
-          "id": "sample:hello",
+          "id": "",
           "kind": "function",
           "repr": "function:sample:hello",
-          "class": "",
-          "class_id": "",
-          "module": "",
-          "module_id": "",
-          "synopsis": "synopsis here",
-          "detail": null
+          "type": "FunctionType",
+          "type_id": "types.FunctionType",
+          "synopsis": "",
+          "detail": {
+            "parameters": [],
+            "return_value": null,
+            "return_annotation": null
+          }
         }
       ],
-      "synopsis": "synopsis here"
+      "synopsis": "symbol `hello`"
     }
   ],
   "report": {

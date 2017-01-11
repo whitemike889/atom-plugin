@@ -11,20 +11,26 @@
           "kind": "instance",
           "repr": "10",
           "type": "int",
-          "type_id": "",
-          "class": "",
-          "class_id": "",
-          "module": "",
-          "module_id": "",
-          "synopsis": "synopsis here",
-          "detail": null
+          "type_id": "__builtin__.int",
+          "synopsis": "",
+          "detail": {
+            "type": [
+              {
+                "id": "",
+                "kind": "type",
+                "repr": "generic:__builtin__.int",
+                "type": "type",
+                "type_id": "__builtin__.type"
+              }
+            ]
+          }
         }
       ],
-      "synopsis": "synopsis here"
+      "synopsis": "symbol `variable`"
     }
   ],
   "report": {
-    "description_text": "",
-    "description_markdown": ""
+    "description_text": "No documentation available",
+    "description_markdown": "<body><p>No documentation available</p></body>"
   }
 }
