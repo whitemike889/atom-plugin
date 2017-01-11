@@ -1,17 +1,26 @@
 @import "ui-variables";
 
 kite-hover {
-  display: inline-block;
+  display: flex;
+  flex-direction: row;
+  white-space: nowrap;
   background: @base-background-color;
+  color: @text-color-highlight;
   border: 1px solid @base-border-color;
   padding: (@component-padding / 2) @component-padding;
   border-radius: @component-border-radius;
 
-  div:empty {
-    display: none;
+  > * {
+    flex: 1 1 0;
+    &:empty {
+      display: none;
+    }
+
+    &:last-child {
+      text-align: right;
+      margin-left: @component-padding;
+      color: @text-color;
+    }
   }
 
-  div:last-child {
-    margin-left: @component-padding;
-  }
 }
