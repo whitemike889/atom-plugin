@@ -194,6 +194,9 @@ describe('OverlayManager', () => {
           [
             o => /^\/api\/buffer\/atom/.test(o.path),
             o => fakeResponse(200, fs.readFileSync(path.resolve(__dirname, 'fixtures/hello.json'))),
+          ], [
+            o => /^\/clientapi\/atom\/value/.test(o.path),
+            o => fakeResponse(200, '{}'),
           ],
         ]);
 
