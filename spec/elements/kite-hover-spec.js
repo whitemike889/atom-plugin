@@ -118,7 +118,7 @@ describe('KiteHover', () => {
       it('sets the name of the hover using the provided value', () => {
         const name = hover.querySelector('.name');
 
-        expect(name.textContent).toEqual('hello');
+        expect(name.textContent).toEqual('hello()');
       });
     });
   });
