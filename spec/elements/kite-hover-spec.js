@@ -90,7 +90,20 @@ describe('KiteHover', () => {
 
         expect(type.textContent).toEqual('int | list[int]');
       });
+
+      describe('that have duplicated types', () => {
+        beforeEach(() => {
+          hover.setData(require('../fixtures/parameter.json'));
+        });
+
+        it('display only one instance for each unique type', () => {
+          const type = hover.querySelector('.type');
+
+          expect(type.textContent).toEqual('str | int');
+        });
+      });
     });
+
 
     describe('for a variable without single type', () => {
       beforeEach(() => {
