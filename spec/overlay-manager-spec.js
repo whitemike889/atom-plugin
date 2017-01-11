@@ -81,10 +81,10 @@ describe('OverlayManager', () => {
 
       describe('when the position matches a word', () => {
         it('triggers a request for the editor at the given position', () => {
-          OverlayManager.showHoverAtPosition(editor, [2, 8]);
-
-          expect(http.request.mostRecentCall.args[0].path)
-          .toEqual(hoverPath(editor, [[2, 4], [2, 9]]));
+          waitsForPromise(() => OverlayManager.showHoverAtPosition(editor, [2, 8]).then(() => {
+            expect(http.request.mostRecentCall.args[0].path)
+            .toEqual(hoverPath(editor, [[2, 4], [2, 9]]));
+          }));
         });
       });
 
@@ -169,10 +169,10 @@ describe('OverlayManager', () => {
       });
       describe('when the position matches a word', () => {
         it('triggers a request for the editor at the given position', () => {
-          OverlayManager.showExpandAtPosition(editor, [2, 8]);
-
-          expect(http.request.mostRecentCall.args[0].path)
-          .toEqual(hoverPath(editor, [[2, 4], [2, 9]]));
+          waitsForPromise(() => OverlayManager.showExpandAtPosition(editor, [2, 8]).then(() => {
+            expect(http.request.mostRecentCall.args[0].path)
+            .toEqual(hoverPath(editor, [[2, 4], [2, 9]]));
+          }));
         });
       });
 
