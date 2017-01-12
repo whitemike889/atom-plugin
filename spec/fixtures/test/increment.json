@@ -45,7 +45,7 @@
                 ],
                 "annotation": null,
                 "keyword_only": false,
-                "synopsis": ""
+                "synopsis": "n synopsis here"
               }
             ],
             "return_value": [
@@ -58,8 +58,38 @@
               }
             ],
             "return_annotation": null,
-            "vararg": "*args",
-            "kwarg": "**kwargs",
+            "vararg": {
+              "name": "args",
+              "default_value": null,
+              "inferred_value": [
+                {
+                  "id": "",
+                  "kind": "instance",
+                  "repr": "[]",
+                  "type": "list",
+                  "type_id": "__builtin__.list"
+                }
+              ],
+              "annotation": null,
+              "keyword_only": false,
+              "synopsis": "varargs synopsis here"
+            },
+            "kwarg": {
+              "name": "kwargs",
+              "default_value": null,
+              "inferred_value": [
+                {
+                  "id": "",
+                  "kind": "instance",
+                  "repr": "{}",
+                  "type": "dict",
+                  "type_id": "__builtin__.dict"
+                }
+              ],
+              "annotation": null,
+              "keyword_only": false,
+              "synopsis": "kwargs synopsis here"
+            },
             "discovered_kwargs": [],
             "class": "",
             "class_id": "",

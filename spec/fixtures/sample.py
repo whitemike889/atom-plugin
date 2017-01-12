@@ -10,12 +10,15 @@ class A:
     def __init__(self, foo):
         self.foo = foo
 
+    def increment(self, n):
+        return n + 1
+
 class B(A):
     def __init__(self, foo):
         super(foo)
 
     def increment(self, n):
-        return n + 1
+        return super(B, self).increment(n) + 1
 
 test = B('foo')
 test2 = B(5)
