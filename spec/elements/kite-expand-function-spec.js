@@ -43,4 +43,17 @@ describe('KiteExpandFunction', () => {
     expect(dts[2].querySelector('.type').textContent).toEqual('dict');
     expect(dds[2].textContent).toEqual('kwargs synopsis here');
   });
+
+  describe('when the function has no argument', () => {
+    beforeEach(() => {
+      json = require('../fixtures/test/increment-without-signature.json');
+      element.setData(json);
+    });
+
+    it('does not render the parameters section', () => {
+      const parameters = element.querySelector('section.parameters');
+
+      expect(parameters).not.toExist();
+    });
+  });
 });

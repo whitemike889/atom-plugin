@@ -15,7 +15,11 @@
           "module": "Test",
           "module_id": "",
           "synopsis": "synopsis here",
-          "detail": null
+          "detail": {
+            "parameters": [],
+            "vararg": null,
+            "kwarg": null
+          }
         }
       ],
       "synopsis": "synopsis here"
