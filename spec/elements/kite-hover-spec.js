@@ -46,7 +46,7 @@ describe('KiteHover', () => {
       it('sets the name of the hover using the provided value', () => {
         const name = hover.querySelector('.name');
 
-        expect(name.textContent).toEqual('Test.increment');
+        expect(name.textContent).toEqual('Test.increment()');
       });
 
       it('leaves the type empty', () => {

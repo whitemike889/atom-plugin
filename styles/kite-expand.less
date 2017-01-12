@@ -65,9 +65,16 @@ kite-expand {
     }
 
     section.collapsed {
-      *:not(h4) {
-        display: none;
+      > :not(h4) {
+        display: none !important;
       }
+    }
+
+    section.members a {
+      display: block;
+      margin-top: -@component-padding;
+      margin-left: @double-padding;
+      margin-bottom: @double-padding;
     }
 
     h4 {
