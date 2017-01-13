@@ -22,8 +22,8 @@ describe('KiteExpandModule', () => {
   });
 
   it('displays the first two members in the member section', () => {
-    const dts = element.querySelectorAll('section.members dt');
-    const dds = element.querySelectorAll('section.members dd');
+    const dts = element.querySelectorAll('section.top-members dt');
+    const dds = element.querySelectorAll('section.top-members dd');
 
     expect(dts.length).toEqual(2);
     expect(dds.length).toEqual(2);
@@ -33,7 +33,7 @@ describe('KiteExpandModule', () => {
   });
 
   it('displays the show more link', () => {
-    const link = element.querySelector('section.members a');
+    const link = element.querySelector('section.top-members a');
 
     expect(link.textContent).toEqual('See 228 more methods');
   });
@@ -45,7 +45,7 @@ describe('KiteExpandModule', () => {
     });
 
     it('does not render a members section', () => {
-      expect(element.querySelector('section.members')).not.toExist();
+      expect(element.querySelector('section.top-members')).not.toExist();
     });
   });
 
@@ -56,7 +56,7 @@ describe('KiteExpandModule', () => {
     });
 
     it('does not render the show more link', () => {
-      const link = element.querySelector('section.members a');
+      const link = element.querySelector('section.top-members a');
 
       expect(link).not.toExist();
     });
