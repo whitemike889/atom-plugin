@@ -10,6 +10,10 @@ kite-hover {
   padding: (@component-padding / 2) @component-padding;
   border-radius: @component-border-radius;
 
+  .type, .signature {
+    color: @text-color;
+  }
+
   > * {
     flex: 1 1 0;
     &:empty {
@@ -19,7 +23,6 @@ kite-hover {
     &:last-child {
       text-align: right;
       margin-left: @component-padding;
-      color: @text-color;
     }
   }
 
