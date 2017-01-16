@@ -11,8 +11,14 @@ kite-expand {
   font-size: @font-size;
 
   a {
-    &, &:hover, &:active, &:focus,  {
+    &, &:hover, &:active, &:focus {
       color: @text-color-info;
+    }
+
+    &.type-value, &.parameter-type, &.parameter-name {
+      &, &:hover, &:active, &:focus {
+        color: @text-color;
+      }
     }
   }
 

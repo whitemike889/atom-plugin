@@ -20,11 +20,12 @@ class B(A):
     def increment(self, n):
         return super(B, self).increment(n) + 1
 
-test = B('foo')
-test2 = B(5)
-test3 = B(55)
+if true:
+    test = B('foo')
+else if false:
+    test = A('foo')
 
-test2.increment(2)
+test.increment(2)
 
 if __name__ == "__main__":
     hello()
