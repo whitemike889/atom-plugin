@@ -17,7 +17,7 @@ describe('KiteExpandModule', () => {
   });
 
   it('uses the synopsis to fill the summary', () => {
-    expect(element.querySelector('.expand-body .summary').textContent)
+    expect(element.querySelector('section.summary p').textContent)
     .toEqual('This module provides a portable way of using operating system dependent functionality');
   });
 

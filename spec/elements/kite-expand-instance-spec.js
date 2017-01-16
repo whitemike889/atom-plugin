@@ -17,6 +17,6 @@ describe('KiteExpandInstance', () => {
   });
 
   it('displays the synopsis in the view summary', () => {
-    expect(element.querySelector('.expand-body .summary').textContent).toEqual('symbol `variable`');
+    expect(element.querySelector('section.summary p').textContent).toEqual('symbol `variable`');
   });
 });

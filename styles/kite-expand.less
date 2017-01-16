@@ -3,26 +3,6 @@
 @half-padding: @component-padding / 2;
 @double-padding: @component-padding * 2;
 
-// In an overlay decoration
-atom-overlay > kite-expand {
-  background: @base-background-color;
-  border: 1px solid @base-border-color;
-  border-radius: @component-border-radius;
-  max-width: 500px;
-  box-shadow: 0 5px 10px rgba(0,0,0,0.1);
-}
-
-// In a block decoration
-kite-expand[data-screen-row] {
-  width: 100%;
-}
-
-// In a sidebar panel
-atom-panel > kite-expand {
-  background: @app-background-color;
-  max-width: 500px;
-}
-
 kite-expand {
   display: inline-block;
   color: @text-color;
@@ -66,210 +46,206 @@ kite-expand {
     }
   }
 
-  .expand-header {
-    font-size: 1.4em;
-    color: @text-color-highlight;
-  }
-
-  .expand-extend {
-    font-size: 1.2em;
-  }
-
-  .expand-body {
-    margin-top: @component-padding;
+  section {
     font-size: 1.1em;
+  }
 
-    .summary {
+  section.summary {
+    .expand-header {
+      font-size: 1.4em;
       color: @text-color-highlight;
     }
 
-    section.collapsed {
-      > :not(h4) {
-        display: none !important;
-      }
+    .expand-extend {
+      font-size: 1.2em;
     }
 
-    section.members a {
-      display: block;
-      margin-top: -@component-padding;
-      margin-left: @double-padding;
-      margin-bottom: @double-padding;
-    }
-
-    h4 {
-      text-transform: uppercase;
-      font-weight: 100;
-      margin: @component-padding 0;
-      cursor: pointer;
-    }
-
-    ul {
-      margin: 0 0 @double-padding;
-      padding: 0;
-      list-style: none;
-
-      li {
-        overflow: hidden;
-
-        & + li {
-          margin-top: @half-padding;
-        }
-
-        .icon::before {
-          margin: 0;
-        }
-
-        > .icon, > .file, > .example {
-          display: inline-block;
-          vertical-align: middle;
-        }
-
-        .file, .example {
-          font-size: 1.1em;
-          font-weight: 300;
-          color: @text-color-highlight;
-
-          .icon {
-            color: @text-color;
-            font-weight: 0.8em;
-          }
-        }
-
-        .icon-file-code::before {
-          color: @text-color-info;
-          font-size: 1.2em;
-        }
-
-        .icon-code::before {
-          color: @text-color-success;
-          font-size: 1.2em;
-        }
-
-        a.pull-right {
-          color: @text-color;
-          text-transform: uppercase;
-          font-size: 0.8em;
-          line-height: 1em;
-          font-weight: 100;
-
-          .icon::before {
-            color: @text-color-highlight;
-            font-size: 2em;
-            vertical-align: bottom;
-          }
-        }
-
-        pre {
-          clear: both;
-          margin-top: @half-padding;
-          margin-left: @double-padding;
-        }
-      }
-    }
-
-    dl {
-      padding-left: @double-padding;
-      padding-right: @component-padding * 8;
-      margin: @component-padding 0 @double-padding;
-
-      dt {
-        color: @text-color-highlight;
-        font-weight: normal;
-        font-size: 1.2em;
-
-        .type::after {
-          content: "\f078";
-          font-family: 'Octicons Regular';
-          position: absolute;
-          margin-left: 5px;
-          font-size: 0.8em;
-          margin-top: 0.3em;
-          color: @text-color;
-        }
-      }
-
-      dd {
-        p {
-          margin: 0;
-        }
-
-        a {
-          font-size: 0.9em;
-        }
-
-        & + dt {
-          margin-top: @component-padding;
-        }
-      }
-    }
-
-    pre {
+    p {
+      margin-top: @component-padding;
       font-size: 1.1em;
-      line-height: 1.6em;
       color: @text-color-highlight;
-      text-rendering: optimizeLegibility;
-      -webkit-font-smoothing: antialiased;
+    }
+  }
 
-      a.icon {
-        &, &:hover, &:active, &:focus,  {
-          color: @text-color-info;
-        }
-      }
+  section.collapsed {
+    > :not(h4) {
+      display: none !important;
+    }
+  }
 
-      & + pre {
+  section.members a {
+    display: block;
+    margin-top: -@component-padding;
+    margin-left: @double-padding;
+    margin-bottom: @double-padding;
+  }
+
+  h4 {
+    text-transform: uppercase;
+    font-weight: 100;
+    margin: @component-padding 0;
+    cursor: pointer;
+  }
+
+  ul {
+    margin: 0 0 @double-padding;
+    padding: 0;
+    list-style: none;
+
+    li {
+      overflow: hidden;
+
+      & + li {
         margin-top: @half-padding;
       }
-    }
 
-  }
-}
+      .icon::before {
+        margin: 0;
+      }
 
-kite-expand-navigation {
-  display: block;
-  margin-top: @component-padding;
-  margin-bottom: -@component-padding;
-  margin-left: -@component-padding;
-  margin-right: -@component-padding;
-  padding: @component-padding;
-  border-top: 1px solid @base-border-color;
-  background: @app-background-color;
-}
+      > .icon, > .file, > .example {
+        display: inline-block;
+        vertical-align: middle;
+      }
 
-kite-open-link {
-  display: block;
-  margin-top: @component-padding;
-  text-align: right;
+      .file, .example {
+        font-size: 1.1em;
+        font-weight: 300;
+        color: @text-color-highlight;
 
-  a {
-    text-transform: uppercase;
-    display: inline-block;
+        .icon {
+          color: @text-color;
+          font-weight: 0.8em;
+        }
+      }
 
-    &, &:active, &:hover, &:focus {
-      color: @text-color;
-      text-decoration: none;
-    }
+      .icon-file-code::before {
+        color: @text-color-info;
+        font-size: 1.2em;
+      }
 
-    kbd {
-      font-size: 1.6em;
-      font-weight: lighter;
-      font-family: @font-family;
-      margin-left: @component-padding;
-      margin-right: @component-padding;
-    }
+      .icon-code::before {
+        color: @text-color-success;
+        font-size: 1.2em;
+      }
 
-    span, kite-logo {
-      vertical-align: middle;
-      display: inline-block;
-    }
-  }
+      a.pull-right {
+        color: @text-color;
+        text-transform: uppercase;
+        font-size: 0.8em;
+        line-height: 1em;
+        font-weight: 100;
 
-  kite-logo {
-    svg {
-      width: 2em;
+        .icon::before {
+          color: @text-color-highlight;
+          font-size: 2em;
+          vertical-align: bottom;
+        }
+      }
 
-      polygon {
-        fill: @text-color-highlight;
+      pre {
+        clear: both;
+        margin-top: @half-padding;
+        margin-left: @double-padding;
       }
     }
   }
+
+  dl {
+    padding-left: @double-padding;
+    padding-right: @component-padding * 8;
+    margin: @component-padding 0 @double-padding;
+
+    dt {
+      color: @text-color-highlight;
+      font-weight: normal;
+      font-size: 1.2em;
+
+      .type::after {
+        content: "\f078";
+        font-family: 'Octicons Regular';
+        position: absolute;
+        margin-left: 5px;
+        font-size: 0.8em;
+        margin-top: 0.3em;
+        color: @text-color;
+      }
+    }
+
+    dd {
+      p {
+        margin: 0;
+      }
+
+      a {
+        font-size: 0.9em;
+      }
+
+      & + dt {
+        margin-top: @component-padding;
+      }
+    }
+  }
+
+  pre {
+    font-size: 1.1em;
+    line-height: 1.6em;
+    color: @text-color-highlight;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+
+    a.icon {
+      &, &:hover, &:active, &:focus,  {
+        color: @text-color-info;
+      }
+    }
+
+    & + pre {
+      margin-top: @half-padding;
+    }
+  }
+}
+
+// In an overlay decoration or in debug mode
+atom-overlay > kite-expand, body > kite-expand {
+  background: @base-background-color;
+  border: 1px solid @base-border-color;
+  border-radius: @component-border-radius;
+  max-width: 500px;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+}
+
+// In a block decoration
+kite-expand[data-screen-row] {
+  width: 100%;
+  background: @base-background-color;
+  border: 1px solid @base-border-color;
+
+  kite-expand-module {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+
+    > section {
+      padding: 0 @component-padding;
+      width: 33%;
+    }
+
+    kite-expand-navigation {
+      flex: 1 1 0;
+    }
+
+    kite-open-link {
+      position: absolute;
+      bottom: 0px;
+      right: 0;
+    }
+  }
+}
+
+// In a sidebar panel
+atom-panel > kite-expand {
+  background: @app-background-color;
+  max-width: 500px;
 }
