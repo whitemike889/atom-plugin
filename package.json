@@ -25,6 +25,24 @@
       "default": false,
       "title": "Check Kite Status",
       "description": "Check this box to check the status of the Kite auto-complete daemon."
+    },
+    "displayExpandViewAs": {
+      "type": "string",
+      "default": "overlay",
+      "enum": [
+        "overlay",
+        "block",
+        "sidebar"
+      ]
+    },
+    "sidebarPosition": {
+      "type": "string",
+      "default": "right",
+      "enum": [
+        "left",
+        "right"
+      ],
+      "description": "When `Display Expand View As` is set to sidebar this define where to place the sidebar in the Atom UI."
     }
   },
   "providedServices": {

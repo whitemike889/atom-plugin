@@ -3,17 +3,32 @@
 @half-padding: @component-padding / 2;
 @double-padding: @component-padding * 2;
 
+// In an overlay decoration
+atom-overlay > kite-expand {
+  background: @base-background-color;
+  border: 1px solid @base-border-color;
+  border-radius: @component-border-radius;
+  max-width: 500px;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+}
+
+// In a block decoration
+kite-expand[data-screen-row] {
+  width: 100%;
+}
+
+// In a sidebar panel
+atom-panel > kite-expand {
+  background: @app-background-color;
+  max-width: 500px;
+}
+
 kite-expand {
   display: inline-block;
   color: @text-color;
-  background: @base-background-color;
-  border: 1px solid @base-border-color;
   padding: @component-padding;
-  border-radius: @component-border-radius;
   font-family: @font-family;
   font-size: @font-size;
-  max-width: 500px;
-  box-shadow: 0 5px 10px rgba(0,0,0,0.1);
 
   a {
     &, &:hover, &:active, &:focus,  {
