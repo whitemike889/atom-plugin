@@ -48,6 +48,10 @@ kite-expand {
 
   section {
     font-size: 1.1em;
+
+    section + section {
+      margin-top: @double-padding;
+    }
   }
 
   section.summary {
@@ -73,7 +77,7 @@ kite-expand {
     }
   }
 
-  section.members a {
+  section.top-members a {
     display: block;
     margin-top: -@component-padding;
     margin-left: @double-padding;
@@ -83,7 +87,7 @@ kite-expand {
   h4 {
     text-transform: uppercase;
     font-weight: 100;
-    margin: @component-padding 0;
+    margin: 0 0 @component-padding;
     cursor: pointer;
   }
 
@@ -221,7 +225,7 @@ kite-expand[data-screen-row] {
   background: @base-background-color;
   border: 1px solid @base-border-color;
 
-  kite-expand-module {
+  kite-expand-module, kite-expand-function, kite-expand-instance {
     position: relative;
     display: flex;
     flex-direction: row;
@@ -242,10 +246,14 @@ kite-expand[data-screen-row] {
       right: 0;
     }
   }
+
+  kite-expand-function, kite-expand-instance {
+    padding-bottom: 40px;
+  }
 }
 
 // In a sidebar panel
 atom-panel > kite-expand {
   background: @app-background-color;
-  max-width: 500px;
+  width: 500px;
 }
