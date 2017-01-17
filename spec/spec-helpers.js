@@ -55,7 +55,7 @@ function fakeResponse(statusCode, data, props) {
 
   const resp = {
     statusCode,
-    on: (event, callback) => {
+    on(event, callback) {
       switch (event) {
         case 'data':
           callback(data);
@@ -87,24 +87,27 @@ function fakeRequestMethod(resp) {
   }
 
   return (opts, callback) => ({
-    on: (type, cb) => {
+    on(type, cb) {
       switch (type) {
         case 'error':
-          if (!resp) { cb({}); }
+          if (resp === false) { cb({}); }
           break;
         case 'response':
           if (resp) { cb(typeof resp == 'function' ? resp(opts) : resp); }
           break;
       }
     },
-    end: () => {
+    end() {
       if (resp) {
         typeof resp == 'function'
           ? callback(resp(opts))
           : callback(resp);
       }
     },
-    write: (data) => {},
+    write(data) {},
+    setTimeout(timeout, callback) {
+      if (resp == null) { callback({}); }
+    },
   });
 }
 
@@ -178,6 +181,24 @@ function withKiteNotRunning(block) {
     });
   });
 }
+function withFakeServer(routes, block) {
+  if (typeof routes == 'function') {
+    block = routes;
+    routes = [];
+  }
+
+  routes.push([o => true, o => fakeResponse(404)]);
+
+  describe('', () => {
+    beforeEach(function() {
+      this.routes = routes.concat();
+      const router = fakeRouter(this.routes);
+      spyOn(http, 'request').andCallFake(fakeRequestMethod(router));
+    });
+
+    block();
+  });
+}
 
 function withKiteReachable(routes, block) {
   if (typeof routes == 'function') {
@@ -185,21 +206,13 @@ function withKiteReachable(routes, block) {
     routes = [];
   }
 
-  routes.push([
-    o => true,
-    o => fakeResponse(404),
-  ]);
-
+  routes.push([o => o.path === '/system', o => fakeResponse(200)]);
 
   withKiteRunning(() => {
     describe(', reachable', () => {
-      beforeEach(function() {
-        this.routes = routes.concat();
-        const router = fakeRouter(this.routes);
-        spyOn(http, 'request').andCallFake(fakeRequestMethod(router));
+      withFakeServer(routes, () => {
+        block();
       });
-
-      block();
     });
   });
 }
@@ -234,6 +247,16 @@ function withKiteAuthenticated(routes, block) {
   });
 }
 
+function withKiteNotAuthenticated(block) {
+  withKiteReachable([
+    [o => o.path === '/api/account/authenticated', o => fakeResponse(401)],
+  ], () => {
+    describe(', not authenticated', () => {
+      block();
+    });
+  });
+}
+
 function withKiteWhitelistedPaths(paths, block) {
   if (typeof paths == 'function') {
     block = paths;
@@ -242,7 +265,8 @@ function withKiteWhitelistedPaths(paths, block) {
 
   const routes = [
     [
-      o => /^\/clientapi\/settings\/inclusions/.test(o.path),
+      o =>
+        /^\/clientapi\/settings\/inclusions/.test(o.path) && o.method === 'GET',
       o => fakeResponse(200, JSON.stringify(paths)),
     ],
   ];
@@ -265,7 +289,8 @@ module.exports = {
   withKiteInstalled,
   withKiteRunning, withKiteNotRunning,
   withKiteReachable, withKiteNotReachable,
-  withKiteAuthenticated, withKiteWhitelistedPaths,
-  withRoutes,
+  withKiteAuthenticated, withKiteNotAuthenticated,
+  withKiteWhitelistedPaths,
+  withFakeServer, withRoutes,
   sleep,
 };
