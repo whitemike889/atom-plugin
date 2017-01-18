@@ -17,7 +17,7 @@ class B(A):
     def __init__(self, foo):
         super(foo)
 
-    def increment(self, n):
+    def increment(self, n, **kwargs):
         return super(B, self).increment(n) + 1
 
 if true:
@@ -25,7 +25,7 @@ if true:
 else if false:
     test = A('foo')
 
-test.increment(2)
+test.increment(2, delta=5)
 
 if __name__ == "__main__":
     hello()
