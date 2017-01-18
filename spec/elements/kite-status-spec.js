@@ -18,7 +18,7 @@ describe('KiteStatus', () => {
   });
 
   describe('when kite is not installed', () => {
-    it('cjhanges its status to UNINSTALLED', () => {
+    it('changes its status to UNINSTALLED', () => {
       waitsForPromise(() => KiteApp.connect().then(() => {
         expect(status.getAttribute('status')).toEqual('uninstalled');
       }));
@@ -26,7 +26,7 @@ describe('KiteStatus', () => {
   });
 
   withKiteNotRunning(() => {
-    it('cjhanges its status to INSTALLED', () => {
+    it('changes its status to INSTALLED', () => {
       waitsForPromise(() => KiteApp.connect().then(() => {
         expect(status.getAttribute('status')).toEqual('installed');
       }));
@@ -34,7 +34,7 @@ describe('KiteStatus', () => {
   });
 
   withKiteNotReachable(() => {
-    it('cjhanges its status to RUNNING', () => {
+    it('changes its status to RUNNING', () => {
       waitsForPromise(() => KiteApp.connect().then(() => {
         expect(status.getAttribute('status')).toEqual('running');
       }));
@@ -42,7 +42,7 @@ describe('KiteStatus', () => {
   });
 
   withKiteNotAuthenticated(() => {
-    it('cjhanges its status to REACHABLE', () => {
+    it('changes its status to REACHABLE', () => {
       waitsForPromise(() => KiteApp.connect().then(() => {
         expect(status.getAttribute('status')).toEqual('reachable');
       }));
@@ -50,7 +50,7 @@ describe('KiteStatus', () => {
   });
 
   withKiteWhitelistedPaths(() => {
-    it('cjhanges its status to AUTHENTICATED', () => {
+    it('changes its status to AUTHENTICATED', () => {
       waitsForPromise(() => KiteApp.connect().then(() => {
         expect(status.getAttribute('status')).toEqual('authenticated');
       }));
@@ -62,11 +62,10 @@ describe('KiteStatus', () => {
       atom.project.setPaths([__dirname]);
     });
 
-    it('cjhanges its status to WHITELISTED', () => {
+    it('changes its status to WHITELISTED', () => {
       waitsForPromise(() => KiteApp.connect().then(() => {
         expect(status.getAttribute('status')).toEqual('whitelisted');
       }));
     });
-
   });
 });
