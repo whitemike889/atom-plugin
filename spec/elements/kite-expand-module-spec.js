@@ -17,8 +17,8 @@ describe('KiteExpandModule', () => {
   });
 
   it('uses the synopsis to fill the summary', () => {
-    expect(element.querySelector('section.summary p').textContent)
-    .toEqual('This module provides a portable way of using operating system dependent functionality');
+    expect(element.querySelector('section.summary .description').innerHTML)
+    .toEqual(json.report.description_html.replace());
   });
 
   it('displays the first two members in the member section', () => {
