@@ -4,19 +4,31 @@
 const NotificationsCenter = require('../lib/notifications-center');
 const KiteApp = require('../lib/kite-app');
 const {
-  fakeKiteInstallPaths, withKiteNotReachable, withKiteNotRunning, withKiteNotAuthenticated, withKiteWhitelistedPaths,
+  fakeKiteInstallPaths, withKiteNotReachable, withKiteNotRunning,
+  withKiteNotAuthenticated, withKiteWhitelistedPaths,
 } = require('./spec-helpers');
 
-fdescribe('NotificationsCenter', () => {
+describe('NotificationsCenter', () => {
+  let app, notifications, notificationsPkg, workspaceElement;
+
   fakeKiteInstallPaths();
 
   beforeEach(() => {
-    KiteApp.reset();
-    NotificationsCenter.init();
+    app = new KiteApp();
+    notifications = new NotificationsCenter(app);
+    workspaceElement = atom.views.getView(atom.workspace);
+
+    waitsForPromise(() =>
+      atom.packages.activatePackage('notifications').then(pkg => {
+        notificationsPkg = pkg.mainModule;
+        notificationsPkg.initializeIfNotInitialized();
+      }));
   });
 
   afterEach(() => {
-    NotificationsCenter.dispose();
+    notificationsPkg.lastNotification = null;
+    atom.notifications.clear();
+    notifications.dispose();
   });
 
   describe('when there is a python file open', () => {
@@ -29,41 +41,41 @@ fdescribe('NotificationsCenter', () => {
     describe('and no notifications have been displayed before', () => {
       describe('when kite is not installed', () => {
         it('notifies the user', () => {
-          waitsForPromise(() => KiteApp.connect().then(() => {
-            expect(document.querySelector('atom-notification')).toExist();
-          }));
+          waitsForPromise(() => app.connect());
+          waitsFor(() =>
+            workspaceElement.querySelector('atom-notification'));
         });
       });
 
       withKiteNotRunning(() => {
         it('notifies the user', () => {
-          waitsForPromise(() => KiteApp.connect().then(() => {
-            expect(document.querySelector('atom-notification')).toExist();
-          }));
+          waitsForPromise(() => app.connect());
+          waitsFor(() =>
+            workspaceElement.querySelector('atom-notification'));
         });
       });
 
       withKiteNotReachable(() => {
         it('notifies the user', () => {
-          waitsForPromise(() => KiteApp.connect().then(() => {
-            expect(document.querySelector('atom-notification')).toExist();
-          }));
+          waitsForPromise(() => app.connect());
+          waitsFor(() =>
+            workspaceElement.querySelector('atom-notification'));
         });
       });
 
       withKiteNotAuthenticated(() => {
         it('notifies the user', () => {
-          waitsForPromise(() => KiteApp.connect().then(() => {
-            expect(document.querySelector('atom-notification')).toExist();
-          }));
+          waitsForPromise(() => app.connect());
+          waitsFor(() =>
+            workspaceElement.querySelector('atom-notification'));
         });
       });
 
       withKiteWhitelistedPaths(() => {
         it('does not notify the user', () => {
-          waitsForPromise(() => KiteApp.connect().then(() => {
-            expect(document.querySelector('atom-notification')).toExist();
-          }));
+          waitsForPromise(() => app.connect());
+          waitsFor(() =>
+            workspaceElement.querySelector('atom-notification'));
         });
       });
 
@@ -73,8 +85,8 @@ fdescribe('NotificationsCenter', () => {
         });
 
         it('notifies the user', () => {
-          waitsForPromise(() => KiteApp.connect().then(() => {
-            expect(document.querySelector('atom-notification')).not.toExist();
+          waitsForPromise(() => app.connect().then(() => {
+            expect(workspaceElement.querySelector('atom-notification')).not.toExist();
           }));
         });
       });
