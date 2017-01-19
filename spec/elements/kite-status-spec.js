@@ -7,10 +7,14 @@ const {fakeKiteInstallPaths, withKiteNotReachable, withKiteNotRunning, withKiteN
 describe('KiteStatus', () => {
   fakeKiteInstallPaths();
 
-  let status;
+  let status, app;
 
   beforeEach(() => {
+    app = new KiteApp();
     status = new KiteStatus();
+    status.setApp(app);
+
+    document.body.appendChild(status);
   });
 
   it('starts in an unknown state', () => {
@@ -19,7 +23,7 @@ describe('KiteStatus', () => {
 
   describe('when kite is not installed', () => {
     it('changes its status to UNINSTALLED', () => {
-      waitsForPromise(() => KiteApp.connect().then(() => {
+      waitsForPromise(() => app.connect().then(() => {
         expect(status.getAttribute('status')).toEqual('uninstalled');
       }));
     });
@@ -27,7 +31,7 @@ describe('KiteStatus', () => {
 
   withKiteNotRunning(() => {
     it('changes its status to INSTALLED', () => {
-      waitsForPromise(() => KiteApp.connect().then(() => {
+      waitsForPromise(() => app.connect().then(() => {
         expect(status.getAttribute('status')).toEqual('installed');
       }));
     });
@@ -35,7 +39,7 @@ describe('KiteStatus', () => {
 
   withKiteNotReachable(() => {
     it('changes its status to RUNNING', () => {
-      waitsForPromise(() => KiteApp.connect().then(() => {
+      waitsForPromise(() => app.connect().then(() => {
         expect(status.getAttribute('status')).toEqual('running');
       }));
     });
@@ -43,7 +47,7 @@ describe('KiteStatus', () => {
 
   withKiteNotAuthenticated(() => {
     it('changes its status to REACHABLE', () => {
-      waitsForPromise(() => KiteApp.connect().then(() => {
+      waitsForPromise(() => app.connect().then(() => {
         expect(status.getAttribute('status')).toEqual('reachable');
       }));
     });
@@ -51,7 +55,7 @@ describe('KiteStatus', () => {
 
   withKiteWhitelistedPaths(() => {
     it('changes its status to AUTHENTICATED', () => {
-      waitsForPromise(() => KiteApp.connect().then(() => {
+      waitsForPromise(() => app.connect().then(() => {
         expect(status.getAttribute('status')).toEqual('authenticated');
       }));
     });
@@ -63,7 +67,7 @@ describe('KiteStatus', () => {
     });
 
     it('changes its status to WHITELISTED', () => {
-      waitsForPromise(() => KiteApp.connect().then(() => {
+      waitsForPromise(() => app.connect().then(() => {
         expect(status.getAttribute('status')).toEqual('whitelisted');
       }));
     });

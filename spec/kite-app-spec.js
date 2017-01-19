@@ -7,20 +7,20 @@ const {fakeKiteInstallPaths, withKiteNotReachable, withKiteNotRunning, withKiteN
 describe('KiteApp', () => {
   fakeKiteInstallPaths();
 
-  let changeSpy, readySpy;
+  let changeSpy, readySpy, app;
   describe('.connect()', () => {
     beforeEach(() => {
       changeSpy = jasmine.createSpy();
       readySpy = jasmine.createSpy();
+      app = new KiteApp();
 
-      KiteApp.reset();
-      KiteApp.onDidChangeState(changeSpy);
-      KiteApp.onKiteReady(readySpy);
+      app.onDidChangeState(changeSpy);
+      app.onKiteReady(readySpy);
     });
 
     describe('when kite is not installed', () => {
       it('returns a promise that is resolved with UNINSTALLED state', () => {
-        waitsForPromise(() => KiteApp.connect().then(state => {
+        waitsForPromise(() => app.connect().then(state => {
           expect(state).toEqual(StateController.STATES.UNINSTALLED);
           expect(changeSpy)
           .toHaveBeenCalledWith(StateController.STATES.UNINSTALLED);
@@ -32,7 +32,7 @@ describe('KiteApp', () => {
 
     withKiteNotRunning(() => {
       it('returns a promise that is resolved with INSTALLED state', () => {
-        waitsForPromise(() => KiteApp.connect().then(state => {
+        waitsForPromise(() => app.connect().then(state => {
           expect(state).toEqual(StateController.STATES.INSTALLED);
           expect(changeSpy)
           .toHaveBeenCalledWith(StateController.STATES.INSTALLED);
@@ -44,7 +44,7 @@ describe('KiteApp', () => {
 
     withKiteNotReachable(() => {
       it('returns a promise that is resolved with RUNNING state', () => {
-        waitsForPromise(() => KiteApp.connect().then(state => {
+        waitsForPromise(() => app.connect().then(state => {
           expect(state).toEqual(StateController.STATES.RUNNING);
           expect(changeSpy)
           .toHaveBeenCalledWith(StateController.STATES.RUNNING);
@@ -56,7 +56,7 @@ describe('KiteApp', () => {
 
     withKiteNotAuthenticated(() => {
       it('returns a promise that is resolved with REACHABLE state', () => {
-        waitsForPromise(() => KiteApp.connect().then(state => {
+        waitsForPromise(() => app.connect().then(state => {
           expect(state).toEqual(StateController.STATES.REACHABLE);
           expect(changeSpy)
           .toHaveBeenCalledWith(StateController.STATES.REACHABLE);
@@ -68,7 +68,7 @@ describe('KiteApp', () => {
 
     withKiteWhitelistedPaths(() => {
       it('returns a promise that is resolved with AUTHENTICATED state', () => {
-        waitsForPromise(() => KiteApp.connect().then(state => {
+        waitsForPromise(() => app.connect().then(state => {
           expect(state).toEqual(StateController.STATES.AUTHENTICATED);
           expect(changeSpy)
           .toHaveBeenCalledWith(StateController.STATES.AUTHENTICATED);
@@ -84,7 +84,7 @@ describe('KiteApp', () => {
       });
 
       it('returns a promise that is resolved with WHITELISTED state', () => {
-        waitsForPromise(() => KiteApp.connect().then(state => {
+        waitsForPromise(() => app.connect().then(state => {
           expect(state).toEqual(StateController.STATES.WHITELISTED);
           expect(changeSpy)
           .toHaveBeenCalledWith(StateController.STATES.WHITELISTED);
@@ -94,9 +94,9 @@ describe('KiteApp', () => {
       });
 
       it('nevers trigger the kite ready event twice', () => {
-        waitsForPromise(() => KiteApp.connect());
-        waitsForPromise(() => KiteApp.checkPath('/path/to/dir'));
-        waitsForPromise(() => KiteApp.checkPath(__dirname));
+        waitsForPromise(() => app.connect());
+        waitsForPromise(() => app.checkPath('/path/to/dir'));
+        waitsForPromise(() => app.checkPath(__dirname));
         runs(() => {
           expect(readySpy.callCount).toEqual(1);
         });
@@ -110,7 +110,7 @@ describe('KiteApp', () => {
     });
 
     it('calls the StateController.downloadKite method', () => {
-      KiteApp.install();
+      app.install();
 
       expect(StateController.downloadKite).toHaveBeenCalled();
     });
@@ -122,7 +122,7 @@ describe('KiteApp', () => {
     });
 
     it('calls the StateController.runKiteAndWait method', () => {
-      KiteApp.start();
+      app.start();
 
       expect(StateController.runKiteAndWait).toHaveBeenCalledWith(30, 2500);
     });
@@ -136,7 +136,7 @@ describe('KiteApp', () => {
     it('calls the AccountManager.login method', () => {
       const data = {};
 
-      KiteApp.authenticate(data);
+      app.authenticate(data);
 
       expect(AccountManager.login).toHaveBeenCalledWith(data);
     });
@@ -150,7 +150,7 @@ describe('KiteApp', () => {
     it('calls the StateController.whitelistPath method', () => {
       const path = '/path/to/other/dir/';
 
-      KiteApp.whitelist(path);
+      app.whitelist(path);
 
       expect(StateController.whitelistPath).toHaveBeenCalledWith(path);
     });
