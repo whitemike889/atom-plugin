@@ -18,7 +18,8 @@ class B(A):
         super(foo)
 
     def increment(self, n, **kwargs):
-        return super(B, self).increment(n) + 1
+        inc = kwargs.delta || 1
+        return super(B, self).increment(n) + inc
 
 if true:
     test = B('foo')
