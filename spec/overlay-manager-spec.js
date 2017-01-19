@@ -4,7 +4,6 @@ const fs = require('fs');
 const path = require('path');
 const http = require('http');
 const ready = require('../lib/ready.js');
-const metrics = require('../lib/metrics.js');
 const OverlayManager = require('../lib/overlay-manager');
 const {hoverPath} = require('../lib/utils');
 const {
@@ -49,7 +48,6 @@ describe('OverlayManager', () => {
     jasmineContent.appendChild(styleNode);
     jasmineContent.appendChild(atom.views.getView(atom.workspace));
 
-    spyOn(metrics, 'track');
     jasmine.useRealClock();
     atom.config.set('kite.checkReadiness', true);
     waitsForPromise(() => atom.packages.activatePackage('language-python'));

@@ -4,10 +4,17 @@ const http = require('http');
 const proc = require('child_process');
 const {StateController} = require('kite-installer');
 
+const metrics = require('../lib/metrics.js');
+
+beforeEach(() => {
+  spyOn(metrics, 'track');
+});
+
 function sleep(duration) {
   const t = new Date();
   waitsFor(`${duration}ms`, () => { return new Date() - t > duration; });
 }
+
 
 function fakeStream() {
   let streamCallback;
