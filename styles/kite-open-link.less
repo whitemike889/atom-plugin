@@ -6,8 +6,9 @@ kite-open-link {
   text-align: right;
 
   a {
-    text-transform: uppercase;
     display: inline-block;
+    opacity: 0.5;
+    transition: 125ms opacity;
 
     &, &:active, &:hover, &:focus {
       color: @text-color;
@@ -19,22 +20,28 @@ kite-open-link {
     }
 
     kbd {
-      font-size: 1.6em;
+      font-size: 1.2em;
       font-weight: lighter;
       font-family: @font-family;
-      margin-left: @component-padding;
-      margin-right: @component-padding;
+      margin-left: 0.2em;
+      margin-right: 0.8em;
     }
 
     span, kite-logo {
       vertical-align: middle;
       display: inline-block;
     }
+
+    &:hover {
+      opacity: 1;
+    }
   }
 
   kite-logo {
+    display: inline-block;
+    opacity: 0.5;
     svg {
-      width: 2em;
+      width: 1.2em;
 
       polygon {
         fill: @text-color-highlight;

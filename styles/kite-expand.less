@@ -1,4 +1,5 @@
 @import "ui-variables";
+@import "variables";
 
 @half-padding: @component-padding / 2;
 @double-padding: @component-padding * 2;
@@ -8,7 +9,7 @@ kite-expand {
   color: @text-color;
   padding: @component-padding;
   font-family: @font-family;
-  font-size: @font-size;
+  .auto-cursor;
 
   a {
     &, &:hover, &:active, &:focus {
@@ -53,14 +54,17 @@ kite-expand {
   }
 
   section {
-    font-size: 1.1em;
+    margin: @component-padding 0;
 
-    section + section {
-      margin-top: @double-padding;
+    .section-content {
+      margin-left: @component-padding;
     }
   }
 
   section.summary {
+
+    margin-top: 0;
+
     .expand-header {
       font-size: 1.4em;
       color: @text-color-highlight;
@@ -72,7 +76,7 @@ kite-expand {
 
     .description {
       margin-top: @component-padding;
-      font-size: 1.1em;
+      font-size: 1em;
       color: @text-color-highlight;
     }
   }
@@ -91,10 +95,10 @@ kite-expand {
   }
 
   h4 {
-    text-transform: uppercase;
     font-weight: 100;
     margin: 0 0 @component-padding;
     cursor: pointer;
+    font-size: 1.1em;
   }
 
   ul {
@@ -162,7 +166,6 @@ kite-expand {
   }
 
   dl {
-    padding-left: @double-padding;
     padding-right: @component-padding * 8;
     margin: @component-padding 0 @double-padding;
 
@@ -198,11 +201,10 @@ kite-expand {
   }
 
   pre {
-    font-size: 1.1em;
-    line-height: 1.6em;
     color: @text-color-highlight;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
+    font-size: inherit;
 
     a.icon {
       &, &:hover, &:active, &:focus,  {
@@ -214,14 +216,21 @@ kite-expand {
       margin-top: @half-padding;
     }
   }
+
+  p {
+    /* Default Atom p margin is assymetrical. Overriding for sanity */
+    margin: 0.5em 0;
+
+  }
+
 }
 
 // In an overlay decoration or in debug mode
 atom-overlay > kite-expand, body > kite-expand {
   background: @base-background-color;
-  border: 1px solid @base-border-color;
+  border: 1px solid mix(@text-color-highlight, @background-color-selected, 10%);
   border-radius: @component-border-radius;
-  max-width: 500px;
+  max-width: 40em;
   box-shadow: 0 5px 10px rgba(0,0,0,0.1);
 }
 
