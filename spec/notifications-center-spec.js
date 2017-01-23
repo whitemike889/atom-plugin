@@ -360,15 +360,84 @@ describe('NotificationsCenter', () => {
         });
       });
 
+      describe('when an attempt to whitelist a path fails', () => {
+        describe('because the path is already whitelisted', () => {
+          beforeEach(() => {
+            app.emitter.emit('did-fail-whitelist', {
+              path: '/some/path/to/dir',
+              data: 6,
+            });
+          });
+
+          it('does not notify the user', () => {
+            expect(workspaceElement.querySelector('atom-notification')).not.toExist();
+          });
+        });
+
+        describe('for another reason', () => {
+          beforeEach(() => {
+            app.emitter.emit('did-fail-whitelist', {
+              path: '/some/path/to/dir',
+              data: 5,
+            });
+
+            notificationElement = workspaceElement.querySelector('atom-notification');
+            notification = notificationElement.getModel();
+          });
+
+          it('notifies the user', () => {
+            const options = notification.getOptions();
+
+            expect(notificationElement).toExist();
+
+            expect(notification.getType()).toEqual('error');
+            expect(notification.getMessage())
+            .toEqual('Unable to enable Kite for /some/path/to/dir');
+
+            expect(options.buttons.length).toEqual(1);
+            expect(options.buttons[0].text).toEqual('Retry');
+            expect(options.dismissable).toBeTruthy();
+            expect(options.description)
+            .toEqual(JSON.stringify({
+              path: '/some/path/to/dir',
+              data: 5,
+            }));
+          });
+
+          describe('clicking on the Retry button', () => {
+            it('triggers a new whitelist attempt', () => {
+              spyOn(app, 'whitelist').andReturn(Promise.resolve());
+              const button = notificationElement.querySelector('a.btn');
+              click(button);
+
+              expect(app.whitelist).toHaveBeenCalled();
+            });
+          });
+        });
+      });
+
       withKiteWhitelistedPaths([__dirname], () => {
         beforeEach(() => {
           atom.project.setPaths([__dirname]);
+          waitsForPromise(() => app.connect().then(() => {
+            notificationElement = workspaceElement.querySelector('atom-notification');
+            notification = notificationElement.getModel();
+          }));
         });
 
-        it('does not notify the user', () => {
-          waitsForPromise(() => app.connect().then(() => {
-            expect(workspaceElement.querySelector('atom-notification')).not.toExist();
-          }));
+        it('notifies the user', () => {
+          const options = notification.getOptions();
+
+          expect(notificationElement).toExist();
+
+          expect(notification.getType()).toEqual('success');
+          expect(notification.getMessage())
+          .toEqual('The Kite autocomplete engine is ready');
+
+          expect(options.buttons).toBeUndefined();
+          expect(options.dismissable).toBeTruthy();
+          expect(options.description)
+          .toEqual('We checked that the autocomplete engine is installed, running, responsive, and authenticated.');
         });
       });
     });
