@@ -232,7 +232,6 @@ describe('NotificationsCenter', () => {
           waitsForPromise(() => app.connect().then(() => {
             notificationElement = workspaceElement.querySelector('atom-notification');
             notification = notificationElement.getModel();
-
           }));
         });
 
@@ -254,6 +253,41 @@ describe('NotificationsCenter', () => {
 
         describe('clicking on the Login button', () => {
           it('triggers a login', () => {
+            spyOn(app, 'login').andReturn(Promise.resolve());
+            const button = notificationElement.querySelector('a.btn');
+            click(button);
+
+            expect(app.login).toHaveBeenCalled();
+          });
+        });
+      });
+
+      describe('when an attempt to login end with unauthorized', () => {
+        beforeEach(() => {
+          app.emitter.emit('did-get-unauthorized', {message: 'Some error'});
+
+          notificationElement = workspaceElement.querySelector('atom-notification');
+          notification = notificationElement.getModel();
+        });
+
+        it('notifies the user', () => {
+          const options = notification.getOptions();
+
+          expect(notificationElement).toExist();
+
+          expect(notification.getType()).toEqual('error');
+          expect(notification.getMessage())
+          .toEqual('Unable to login');
+
+          expect(options.buttons.length).toEqual(1);
+          expect(options.buttons[0].text).toEqual('Retry');
+          expect(options.dismissable).toBeTruthy();
+          expect(options.description)
+          .toEqual(JSON.stringify({message: 'Some error'}));
+        });
+
+        describe('clicking on the Retry button', () => {
+          it('triggers a new login attempt', () => {
             spyOn(app, 'login').andReturn(Promise.resolve());
             const button = notificationElement.querySelector('a.btn');
             click(button);
