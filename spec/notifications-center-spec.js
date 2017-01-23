@@ -307,7 +307,56 @@ describe('NotificationsCenter', () => {
         });
 
         it('notifies the user', () => {
+          const options = notification.getOptions();
+
           expect(notificationElement).toExist();
+
+          expect(notification.getType()).toEqual('warning');
+          expect(notification.getMessage())
+          .toEqual(`The Kite autocomplete engine is disabled for ${atom.project.getPaths()}`);
+
+          expect(options.buttons.length).toEqual(2);
+          expect(options.buttons[0].text).toEqual(os.homedir());
+          expect(options.buttons[1].text).toEqual('Browse…');
+          expect(options.dismissable).toBeTruthy();
+          expect(options.description)
+          .toEqual('Would you like to enable Kite for Python files in:');
+        });
+
+        describe('clicking on the homedir button', () => {
+          it('attempts to whitelist the homedir path', () => {
+            spyOn(app, 'whitelist').andReturn(Promise.resolve());
+            const button = notificationElement.querySelector('a.btn');
+            click(button);
+
+            expect(app.whitelist).toHaveBeenCalledWith(os.homedir());
+          });
+        });
+
+        describe('clicking on the browse button', () => {
+          describe('and picking a directory', () => {
+            it('attempts to whitelist the homedir path', () => {
+              spyOn(atom.applicationDelegate, 'pickFolder').andCallFake(cb => {
+                cb(['/some/directory/path']);
+              });
+              spyOn(app, 'whitelist').andReturn(Promise.resolve());
+              const button = notificationElement.querySelectorAll('a.btn')[1];
+              click(button);
+
+              expect(app.whitelist).toHaveBeenCalledWith('/some/directory/path');
+            });
+          });
+
+          describe('and cancelling', () => {
+            it('does not try to whitelist', () => {
+              spyOn(atom.applicationDelegate, 'pickFolder').andCallFake(cb => { cb([]); });
+              spyOn(app, 'whitelist').andReturn(Promise.resolve());
+              const button = notificationElement.querySelectorAll('a.btn')[1];
+              click(button);
+
+              expect(app.whitelist).not.toHaveBeenCalled();
+            });
+          });
         });
       });
 
