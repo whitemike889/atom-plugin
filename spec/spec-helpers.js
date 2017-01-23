@@ -40,6 +40,9 @@ function fakeProcesses(processes) {
       on: (evt, callback) => {
         if (evt === 'close') { callback(mock ? mock(ps, options) : 1); }
       },
+      once: (evt, callback) => {
+        if (evt === 'close') { callback(mock ? mock(ps, options) : 1); }
+      },
     };
 
     return ps;
