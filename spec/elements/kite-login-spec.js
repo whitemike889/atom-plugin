@@ -3,7 +3,7 @@
 const KiteLogin = require('../../lib/elements/kite-login');
 const {click} = require('../helpers/events');
 
-fdescribe('KiteLogin', () => {
+describe('KiteLogin', () => {
   let jasmineContent, loginForm;
 
   beforeEach(() => {

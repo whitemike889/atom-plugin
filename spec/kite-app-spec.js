@@ -7,7 +7,7 @@ const KiteApp = require('../lib/kite-app');
 const {fakeKiteInstallPaths, withKiteNotReachable, withKiteNotRunning, withKiteNotAuthenticated, withKiteWhitelistedPaths, fakeProcesses, withFakeServer, fakeResponse} = require('./spec-helpers');
 const {click} = require('./helpers/events');
 
-fdescribe('KiteApp', () => {
+describe('KiteApp', () => {
   let changeSpy, readySpy, app;
 
   fakeKiteInstallPaths();
