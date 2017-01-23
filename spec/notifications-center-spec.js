@@ -40,8 +40,6 @@ describe('NotificationsCenter', () => {
 
     notificationElement = null;
     notification = null;
-    notifications.dispose();
-
   });
 
   describe('when there is a python file open', () => {
