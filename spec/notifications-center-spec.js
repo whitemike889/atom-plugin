@@ -53,24 +53,33 @@ describe('NotificationsCenter', () => {
       describe('when kite is not supported', () => {
         beforeEach(() => {
           spyOn(os, 'platform').andReturn('wtfOS');
+
+          waitsForPromise(() => app.connect());
         });
         it('notifies the user', () => {
-          waitsForPromise(() => app.connect().then(() => {
-            notificationElement = workspaceElement.querySelector('atom-notification');
-            notification = notificationElement.getModel();
-            const options = notification.getOptions();
+          notificationElement = workspaceElement.querySelector('atom-notification');
+          notification = notificationElement.getModel();
+          const options = notification.getOptions();
 
-            expect(notificationElement).toExist();
+          expect(notificationElement).toExist();
 
-            expect(notification.getType()).toEqual('error');
-            expect(notification.getMessage())
-            .toEqual("Kite doesn't support your OS");
+          expect(notification.getType()).toEqual('error');
+          expect(notification.getMessage())
+          .toEqual("Kite doesn't support your OS");
 
-            expect(options.buttons).toBeUndefined();
-            expect(options.dismissable).toBeTruthy();
-            expect(options.description)
-            .toEqual('Sorry, the Kite autocomplete engine only supports macOS at the moment.');
-          }));
+          expect(options.buttons).toBeUndefined();
+          expect(options.dismissable).toBeTruthy();
+          expect(options.description)
+          .toEqual('Sorry, the Kite autocomplete engine only supports macOS at the moment.');
+        });
+
+        describe('when the same state is found after a new check', () => {
+          it('does not notify the user', () => {
+            atom.notifications.getNotifications()[0].dismiss();
+            waitsForPromise(() => app.connect().then(() => {
+              expect(atom.notifications.getNotifications().length).toEqual(1);
+            }));
+          });
         });
       });
 
@@ -109,6 +118,15 @@ describe('NotificationsCenter', () => {
               click(button);
 
               expect(app.install).toHaveBeenCalled();
+            });
+          });
+
+          describe('when the same state is found after a new check', () => {
+            it('does not notify the user', () => {
+              atom.notifications.getNotifications()[0].dismiss();
+              waitsForPromise(() => app.connect().then(() => {
+                expect(atom.notifications.getNotifications().length).toEqual(1);
+              }));
             });
           });
         });
@@ -200,6 +218,15 @@ describe('NotificationsCenter', () => {
             });
           });
         });
+
+        describe('when the same state is found after a new check', () => {
+          it('does not notify the user', () => {
+            atom.notifications.getNotifications()[0].dismiss();
+            waitsForPromise(() => app.connect().then(() => {
+              expect(atom.notifications.getNotifications().length).toEqual(1);
+            }));
+          });
+        });
       });
 
       withKiteNotReachable(() => {
@@ -224,6 +251,15 @@ describe('NotificationsCenter', () => {
           expect(options.dismissable).toBeTruthy();
           expect(options.description)
           .toEqual('Try killing Kite from the Activity Monitor.');
+        });
+
+        describe('when the same state is found after a new check', () => {
+          it('does not notify the user', () => {
+            atom.notifications.getNotifications()[0].dismiss();
+            waitsForPromise(() => app.connect().then(() => {
+              expect(atom.notifications.getNotifications().length).toEqual(1);
+            }));
+          });
         });
       });
 
@@ -258,6 +294,15 @@ describe('NotificationsCenter', () => {
             click(button);
 
             expect(app.login).toHaveBeenCalled();
+          });
+        });
+
+        describe('when the same state is found after a new check', () => {
+          it('does not notify the user', () => {
+            atom.notifications.getNotifications()[0].dismiss();
+            waitsForPromise(() => app.connect().then(() => {
+              expect(atom.notifications.getNotifications().length).toEqual(1);
+            }));
           });
         });
       });
@@ -358,6 +403,15 @@ describe('NotificationsCenter', () => {
             });
           });
         });
+
+        describe('when the same state is found after a new check', () => {
+          it('does not notify the user', () => {
+            atom.notifications.getNotifications()[0].dismiss();
+            waitsForPromise(() => app.connect().then(() => {
+              expect(atom.notifications.getNotifications().length).toEqual(1);
+            }));
+          });
+        });
       });
 
       describe('when an attempt to whitelist a path fails', () => {
@@ -439,6 +493,15 @@ describe('NotificationsCenter', () => {
           expect(options.description)
           .toEqual('We checked that the autocomplete engine is installed, running, responsive, and authenticated.');
         });
+
+        describe('when the same state is found after a new check', () => {
+          it('does not notify the user', () => {
+            atom.notifications.getNotifications()[0].dismiss();
+            waitsForPromise(() => app.connect().then(() => {
+              expect(atom.notifications.getNotifications().length).toEqual(1);
+            }));
+          });
+        });
       });
     });
   });
@@ -497,6 +560,36 @@ describe('NotificationsCenter', () => {
         waitsForPromise(() => app.connect().then(() => {
           expect(workspaceElement.querySelector('atom-notification')).not.toExist();
         }));
+      });
+    });
+
+    describe('when the notifications are forced', () => {
+      beforeEach(() => {
+        notifications.activateForcedNotifications();
+      });
+
+      withKiteWhitelistedPaths(() => {
+        it('notifies the user', () => {
+          waitsForPromise(() => app.connect().then(() => {
+            expect(workspaceElement.querySelector('atom-notification')).toExist();
+          }));
+        });
+      });
+    });
+
+    describe('opening a python file', () => {
+      beforeEach(() => {
+        waitsForPromise(() =>
+          atom.packages.activatePackage('language-python'));
+        waitsForPromise(() => atom.workspace.open('sample.py'));
+      });
+
+      withKiteWhitelistedPaths(() => {
+        it('starts notifying the user', () => {
+          waitsForPromise(() => app.connect().then(() => {
+            expect(workspaceElement.querySelector('atom-notification')).toExist();
+          }));
+        });
       });
     });
   });
