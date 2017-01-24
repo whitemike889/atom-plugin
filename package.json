@@ -20,12 +20,6 @@
       "title": "Enable Completions",
       "description": "Show auto-completions from Kite as Atom suggestions"
     },
-    "checkReadiness": {
-      "type": "boolean",
-      "default": false,
-      "title": "Check Kite Status",
-      "description": "Check this box to check the status of the Kite auto-complete daemon."
-    },
     "displayExpandViewAs": {
       "type": "string",
       "default": "overlay",

@@ -50,7 +50,6 @@ describe('OverlayManager', () => {
     jasmineContent.appendChild(atom.views.getView(atom.workspace));
 
     jasmine.useRealClock();
-    atom.config.set('kite.checkReadiness', true);
     waitsForPromise(() => atom.packages.activatePackage('language-python'));
     waitsForPromise(() => atom.workspace.open('sample.py').then(e => {
       editor = e;
