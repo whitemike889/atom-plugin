@@ -16,10 +16,10 @@ kite-expand {
       color: @text-color-info;
     }
 
-    &.type-value, &.parameter-type, &.parameter-name {
-      &, &:hover, &:active, &:focus {
-        color: @text-color;
-      }
+    i {
+      font-style: normal;
+      font-size: 0.8em;
+      font-weight: lighter;
     }
   }
 
@@ -172,23 +172,13 @@ kite-expand {
   }
 
   dl {
-    padding-right: @component-padding * 8;
+    padding-right: @component-padding;
     margin: @component-padding 0 @double-padding;
 
     dt {
       color: @text-color-highlight;
       font-weight: normal;
       font-size: 1.2em;
-
-      .type::after {
-        content: "\f078";
-        font-family: 'Octicons Regular';
-        position: absolute;
-        margin-left: 5px;
-        font-size: 0.8em;
-        margin-top: 0.3em;
-        color: @text-color;
-      }
     }
 
     dd {
