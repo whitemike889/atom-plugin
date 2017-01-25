@@ -107,6 +107,64 @@ kite-expand {
     font-size: 1.1em;
   }
 
+  section.usages {
+    .section-content {
+      margin: 0;
+
+      .usages-box {
+        background-color: @background-color-highlight;
+
+        .usage {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          align-content: flex-start;
+          padding: 0.5em;
+          margin: 0;
+
+          .usage-caret {
+            color: lighten(@background-color-selected, 20%);
+            margin-right: 0.5em;
+          }
+
+          pre {
+            margin: 0;
+            background-color: transparent;
+            font-family: inherit;
+            padding: 0;
+            flex-grow: 1;
+            code {
+              font-family: inherit;
+            }
+          }
+
+          .links {
+            .web-link {
+              cursor: pointer;
+              opacity: 0.6;
+              border-radius: 0.25em;
+              padding: 0.25em 0.5em;
+              background-color: @background-color-selected;
+              color: @text-color;
+              margin-left: 0.25em;
+              &:hover {
+                opacity: 1;
+                text-decoration: none;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .footer-section {
+    display: flex;
+    align-items: center;
+    align-content: center;
+    justify-content: space-between;
+  }
+
   ul {
     margin: 0 0 @double-padding;
     padding: 0;
