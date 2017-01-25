@@ -293,7 +293,7 @@ atom-overlay > kite-expand, body > kite-expand {
 kite-expand[data-screen-row] {
   width: 100%;
   background: @base-background-color;
-  border: 1px solid @base-border-color;
+  border: 1px solid mix(@text-color-highlight, @background-color-selected, 10%);
 
   kite-expand-module, kite-expand-function, kite-expand-instance {
     position: relative;
@@ -301,7 +301,7 @@ kite-expand[data-screen-row] {
     flex-direction: row;
     flex-wrap: wrap;
 
-    > section {
+    > section, > .column {
       padding: 0 @component-padding;
       width: 33%;
     }
