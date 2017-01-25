@@ -141,11 +141,11 @@ kite-expand {
           .links {
             .web-link {
               cursor: pointer;
-              opacity: 0.6;
+              opacity: 0.7;
               border-radius: 0.25em;
               padding: 0.25em 0.5em;
-              background-color: @background-color-selected;
-              color: @text-color;
+              background-color: lighten(@background-color-selected, 8%);
+              color: lighten(@text-color, 8%);
               margin-left: 0.25em;
               &:hover {
                 opacity: 1;
