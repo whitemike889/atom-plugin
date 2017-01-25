@@ -189,7 +189,7 @@ kite-expand {
         margin: 0;
       }
 
-      > .icon, > .file, > .example {
+      .icon, > .file, > .example {
         display: inline-block;
         vertical-align: middle;
       }
@@ -205,14 +205,22 @@ kite-expand {
         }
       }
 
+      .icon {
+        line-height: 1em;
+      }
+
       .icon-file-code::before {
         color: @text-color-info;
         font-size: 1.2em;
+        line-height: 1em;
+        height: 1em;
       }
 
       .icon-code::before {
         color: @text-color-success;
         font-size: 1.2em;
+        line-height: 1em;
+        height: 1em;
       }
 
       a.pull-right {
