@@ -1,14 +1,17 @@
 @import "ui-variables";
+@import "variables";
 
 kite-hover {
   display: flex;
   flex-direction: row;
   white-space: nowrap;
-  background: @base-background-color;
+  background: @background-color-selected;
   color: @text-color-highlight;
-  border: 1px solid @base-border-color;
+  border: 1px solid mix(@text-color-highlight, @background-color-selected, 25%);
   padding: (@component-padding / 2) @component-padding;
   border-radius: @component-border-radius;
+  font-family: @font-family;
+  .auto-cursor;
 
   .type, .signature, a, a:hover, a:focus, a:active {
     color: @text-color;

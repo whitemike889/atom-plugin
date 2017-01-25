@@ -2,12 +2,13 @@
 
 kite-open-link {
   display: block;
-  margin-top: @component-padding;
   text-align: right;
 
   a {
-    text-transform: uppercase;
     display: inline-block;
+    opacity: 0.6;
+    transition: 125ms opacity;
+    margin-right: 0.5em;
 
     &, &:active, &:hover, &:focus {
       color: @text-color;
@@ -18,23 +19,46 @@ kite-open-link {
       pointer-events: none;
     }
 
+    i {
+      font-style: normal;
+      font-weight: normal;
+    }
+
+    span {
+      background-color: @background-color-selected;
+      padding: 0.25em 0.5em;
+      border-radius: 0.25em;
+
+      i, kbd {
+        display: inline-block;
+        vertical-align: middle;
+      }
+    }
+
     kbd {
-      font-size: 1.6em;
+      font-size: 1.2em;
       font-weight: lighter;
       font-family: @font-family;
-      margin-left: @component-padding;
-      margin-right: @component-padding;
+      margin-left: 0.5em;
+      background-color: transparent;
+      padding: 0;
     }
 
     span, kite-logo {
       vertical-align: middle;
       display: inline-block;
     }
+
+    &:hover {
+      opacity: 1;
+    }
   }
 
   kite-logo {
+    display: inline-block;
+    opacity: 0.5;
     svg {
-      width: 2em;
+      width: 1.2em;
 
       polygon {
         fill: @text-color-highlight;
