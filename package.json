@@ -57,7 +57,8 @@
     "kite-installer": "^0.9.1",
     "mixpanel": "^0.5.0",
     "md5": "^2.2.0",
-    "opn": "^4"
+    "opn": "^4",
+    "underscore-plus": "^1"
   },
   "devDependencies": {
     "babel-eslint": "^7.1.1",

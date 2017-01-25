@@ -5,6 +5,9 @@ def hello():
 
 import os
 import posixpath from os
+import matplotlib
+
+matplotlib.pyplot.plot
 
 class A:
     def __init__(self, foo):
