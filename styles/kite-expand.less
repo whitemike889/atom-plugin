@@ -122,7 +122,8 @@ kite-expand {
           padding: 0.5em;
           margin: 0;
 
-          .usage-caret {
+          &::before {
+            content: '\25cf';
             color: lighten(@background-color-selected, 20%);
             margin-right: 0.5em;
           }
