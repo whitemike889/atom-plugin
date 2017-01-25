@@ -1,6 +1,7 @@
 'use strict';
 
 const KiteExpandModule = require('../../lib/elements/kite-expand-module');
+const {reportFromHover} = require('../../lib/kite-data-utils');
 
 describe('KiteExpandModule', () => {
   let json, element;
@@ -8,7 +9,7 @@ describe('KiteExpandModule', () => {
   beforeEach(() => {
     json = require('../fixtures/os.json');
     element = new KiteExpandModule();
-    element.setData(json);
+    element.setData(reportFromHover(json));
   });
 
   it('fills the name and type section with provided data', () => {
@@ -41,7 +42,7 @@ describe('KiteExpandModule', () => {
   describe('when the module has no members', () => {
     beforeEach(() => {
       json = require('../fixtures/module-with-no-members.json');
-      element.setData(json);
+      element.setData(reportFromHover(json));
     });
 
     it('does not render a members section', () => {
@@ -52,7 +53,7 @@ describe('KiteExpandModule', () => {
   describe('when the module has exactly two members', () => {
     beforeEach(() => {
       json = require('../fixtures/module-with-two-members.json');
-      element.setData(json);
+      element.setData(reportFromHover(json));
     });
 
     it('does not render the show more link', () => {
