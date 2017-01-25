@@ -121,6 +121,7 @@ kite-expand {
           align-content: flex-start;
           padding: 0.5em;
           margin: 0;
+          flex-wrap: wrap;
 
           &::before {
             content: '\25cf';
@@ -140,6 +141,13 @@ kite-expand {
           }
 
           .links {
+            display: inline-block;
+            white-space: nowrap;
+
+            a {
+              margin-left: 0.25em;
+            }
+
             .web-link {
               cursor: pointer;
               opacity: 0.7;
@@ -147,7 +155,6 @@ kite-expand {
               padding: 0.25em 0.5em;
               background-color: lighten(@background-color-selected, 8%);
               color: lighten(@text-color, 8%);
-              margin-left: 0.25em;
               &:hover {
                 opacity: 1;
                 text-decoration: none;
