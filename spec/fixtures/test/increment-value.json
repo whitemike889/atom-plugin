@@ -5,7 +5,7 @@
     "repr": "src-func:sample.py:B.increment",
     "type": "FunctionType",
     "type_id": "types.FunctionType",
-    "synopsis": "",
+    "synopsis": "synopsis here",
     "detail": {
       "receiver": {
         "name": "self",
@@ -38,7 +38,7 @@
           ],
           "annotation": null,
           "keyword_only": false,
-          "synopsis": ""
+          "synopsis": "n synopsis here"
         }
       ],
       "return_value": [
