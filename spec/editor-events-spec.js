@@ -2,11 +2,10 @@
 
 const http = require('http');
 const EditorEvents = require('../lib/editor-events');
-const KiteApp = require('../lib/kite-app');
 const {withFakeServer, fakeResponse} = require('./spec-helpers');
 
 describe('EditorEvents', () => {
-  let editor, events, app;
+  let editor, events;
 
   withFakeServer([
     [
@@ -19,11 +18,9 @@ describe('EditorEvents', () => {
   ], () => {
     describe('when attached to an editor', () => {
       beforeEach(() => {
-        app = new KiteApp();
-
         waitsForPromise(() => atom.workspace.open('sample.py').then(e => {
           editor = e;
-          events = new EditorEvents(e, app);
+          events = new EditorEvents(editor);
         }));
       });
 
