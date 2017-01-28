@@ -1,5 +1,6 @@
 'use strict';
 
+const {head} = require('../../lib/utils');
 const KiteExpandModule = require('../../lib/elements/kite-expand-module');
 const {reportFromHover} = require('../../lib/kite-data-utils');
 
@@ -19,7 +20,7 @@ describe('KiteExpandModule', () => {
 
   it('uses the synopsis to fill the summary', () => {
     expect(element.querySelector('section.summary .description').innerHTML)
-    .toEqual(json.report.description_html.replace());
+    .toEqual(json.report.description_text);
   });
 
   it('displays the first two members in the member section', () => {
