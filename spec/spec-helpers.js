@@ -4,6 +4,13 @@ const http = require('http');
 const proc = require('child_process');
 const {StateController} = require('kite-installer');
 
+beforeEach(() => {
+  Object.defineProperty(StateController.client, 'LOCAL_TOKEN', {
+    get() { return 'abcdef1234567890'; },
+    configurable: true,
+  });
+});
+
 function sleep(duration) {
   const t = new Date();
   waitsFor(`${duration}ms`, () => { return new Date() - t > duration; });
