@@ -27,23 +27,59 @@ kite-sidebar {
 
   header {
     margin-bottom: @component-padding;
-  }
+    overflow: hidden;
 
-  > :not(header) {
-    flex: 1 1 0;
-    position: relative;
+    ul.breadcrumb {
+      display: inline-block;
+      margin-bottom: 0;
+      margin-left: @component-padding;
+      vertical-align: middle;
 
-    > * {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      li {
+        display: inline-block;
+
+        a {
+          color: @text-color;
+
+          &:focus {
+            text-decoration: none;
+          }
+
+          &:hover {
+            text-decoration: none;
+            color: @text-color-highlight;
+          }
+        }
+
+        &:not(:last-child) {
+          &:after {
+            content: '/';
+            margin-left: 0.5em;
+            margin-right: 0.5em;
+          }
+        }
+      }
     }
   }
 
-  kite-expand-module, kite-expand-function, kite-expand-instance {
+  .sidebar-content {
     display: flex;
+    flex-direction: row;
+    flex: 1 1 0;
+    position: relative;
+    overflow: hidden;
+
+    > * {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      flex: 0 0 auto;
+      transition: transform 0.3s;
+    }
+
+  }
+
+  kite-expand-module, kite-expand-function, kite-expand-instance {
     flex-direction: column;
 
     .expand-header, .expand-extend {
@@ -76,5 +112,26 @@ kite-sidebar {
     align-content: space-around;
     justify-content: space-between;
     flex: 1 0 auto;
+  }
+}
+
+.depth(@counter) when (@counter >= 0) {
+  .depth((@counter - 1));
+  kite-sidebar[depth="@{counter}"] {
+    .sidebar-content > * {
+      transform: translate(-100% * @counter, 0);
+    }
+
+    .breadcrumb .item-@{counter} a {
+      border-bottom: 1px solid @text-color-info;
+    }
+  }
+}
+
+.depth(10);
+
+kite-sidebar[depth="0"] {
+  a.btn.icon-chevron-left {
+    
   }
 }
