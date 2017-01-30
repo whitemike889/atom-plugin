@@ -1,0 +1,291 @@
+@import "ui-variables";
+@import "variables";
+
+.content {
+  a {
+    &, &:hover, &:active, &:focus {
+      color: @text-color-info;
+    }
+
+    i {
+      font-style: normal;
+      font-size: 0.8em;
+      font-weight: lighter;
+    }
+  }
+
+  .name, .type {
+    white-space: nowrap;
+  }
+
+  .type, .signature {
+    color: @text-color;
+  }
+
+  .split-line {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+
+    > * {
+      flex: 1 1 0;
+    }
+
+    > :last-child {
+      text-align: right;
+      padding-left: @component-padding;
+      &:empty {
+        display: none;
+      }
+    }
+
+    & + .split-line {
+      margin-top: @half-padding;
+    }
+  }
+
+  section {
+    margin: @component-padding 0;
+
+    .section-content {
+      margin-left: @component-padding;
+    }
+  }
+  .expand-header {
+    font-size: 1.4em;
+    color: @text-color-highlight;
+  }
+
+  .expand-extend {
+    font-size: 1.2em;
+  }
+
+  section.summary {
+    margin-top: 0;
+
+    .description {
+      margin-top: @component-padding;
+      font-size: 1em;
+      color: @text-color-highlight;
+
+      h1, h2, h3, h4 {
+        font-size: inherit;
+        margin: inherit;
+        line-height: inherit;
+      }
+    }
+  }
+
+  section.collapsed {
+    > :not(h4) {
+      display: none !important;
+    }
+  }
+
+  section.top-members a {
+    display: block;
+    margin-top: -@component-padding;
+    margin-bottom: @double-padding;
+  }
+
+  h4 {
+    font-weight: 100;
+    margin: 0 0 @component-padding;
+    cursor: pointer;
+    font-size: 1.1em;
+  }
+
+  section.usages {
+    .section-content {
+      margin: 0;
+
+      .usages-box {
+        background-color: @background-color-highlight;
+
+        .usage {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          align-content: flex-start;
+          padding: 0.5em;
+          margin: 0;
+          flex-wrap: wrap;
+
+          &:first-child {
+            padding-top: 0.85em;
+          }
+
+          &:last-child {
+            padding-bottom: 0.85em;
+          }
+
+          &::before {
+            content: '\25cf';
+            color: lighten(@background-color-selected, 20%);
+            margin-right: 0.5em;
+          }
+
+          pre {
+            margin: 0;
+            background-color: transparent;
+            font-family: inherit;
+            padding: 0;
+            flex-grow: 1;
+            code {
+              font-family: inherit;
+            }
+          }
+
+          .links {
+            display: inline-block;
+            white-space: nowrap;
+
+            a {
+              margin-left: 0.25em;
+            }
+
+            .web-link {
+              cursor: pointer;
+              opacity: 0.7;
+              border-radius: 0.25em;
+              padding: 0.25em 0.5em;
+              background-color: lighten(@background-color-selected, 8%);
+              color: lighten(@text-color, 8%);
+              &:hover {
+                opacity: 1;
+                text-decoration: none;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  footer {
+    display: flex;
+    align-items: center;
+    align-content: center;
+    justify-content: space-between;
+  }
+
+  ul {
+    margin: 0 0 @double-padding;
+    padding: 0;
+    list-style: none;
+
+    li {
+      overflow: hidden;
+
+      & + li {
+        margin-top: @half-padding;
+      }
+
+      .icon::before {
+        margin: 0;
+      }
+
+      .icon, > .file, > .example {
+        display: inline-block;
+        vertical-align: middle;
+      }
+
+      .file, .example {
+        font-size: 1.1em;
+        font-weight: 300;
+        color: @text-color-highlight;
+
+        .icon {
+          color: @text-color;
+          font-weight: 0.8em;
+        }
+      }
+
+      .icon {
+        line-height: 1em;
+      }
+
+      .icon-file-code::before {
+        color: @text-color-info;
+        font-size: 1.2em;
+        line-height: 1em;
+        height: 1em;
+      }
+
+      .icon-code::before {
+        color: @text-color-success;
+        font-size: 1.2em;
+        line-height: 1em;
+        height: 1em;
+      }
+
+      a.pull-right {
+        color: @text-color;
+        text-transform: uppercase;
+        font-size: 0.8em;
+        line-height: 1em;
+        font-weight: 100;
+
+        .icon::before {
+          color: @text-color-highlight;
+          font-size: 2em;
+          vertical-align: bottom;
+        }
+      }
+
+      pre {
+        clear: both;
+        margin-top: @half-padding;
+        margin-left: @double-padding;
+      }
+    }
+  }
+
+  dl {
+    padding-right: @component-padding;
+    margin: @component-padding 0 @double-padding;
+
+    dt {
+      color: @text-color-highlight;
+      font-weight: normal;
+      font-size: 1.2em;
+    }
+
+    dd {
+      p {
+        margin: 0;
+      }
+
+      a {
+        font-size: 0.9em;
+      }
+
+      & + dt {
+        margin-top: @component-padding;
+      }
+    }
+  }
+
+  pre {
+    color: @text-color-highlight;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    font-size: inherit;
+
+    a.icon {
+      &, &:hover, &:active, &:focus,  {
+        color: @text-color-info;
+      }
+    }
+
+    & + pre {
+      margin-top: @half-padding;
+    }
+  }
+
+  p {
+    /* Default Atom p margin is assymetrical. Overriding for sanity */
+    margin: 0.5em 0;
+
+  }
+}

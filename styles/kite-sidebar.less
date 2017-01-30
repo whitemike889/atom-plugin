@@ -1,0 +1,80 @@
+@import "ui-variables";
+@import "variables";
+@import "./content";
+
+kite-sidebar {
+  display: flex;
+  flex-direction: column;
+  font-size: 1.2em;
+  padding: @component-padding;
+
+  .content;
+
+  .background-message {
+    opacity: 0.5;
+
+    kite-logo {
+      display: block;
+      svg {
+        width: 2em;
+
+        polygon {
+          fill: @text-color;
+        }
+      }
+    }
+  }
+
+  header {
+    margin-bottom: @component-padding;
+  }
+
+  > :not(header) {
+    flex: 1 1 0;
+    position: relative;
+
+    > * {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+  }
+
+  kite-expand-module, kite-expand-function, kite-expand-instance {
+    display: flex;
+    flex-direction: column;
+
+    .expand-header, .expand-extend {
+      flex: 0 0 auto;
+      margin-bottom: @component-padding;
+    }
+
+    section.summary {
+      flex: 0 1 auto;
+      overflow-y: auto;
+
+      pre code {
+        white-space: pre;
+      }
+
+      table {
+        width: 100%;
+
+        th, td {
+          padding: 8px;
+          border: 1px solid @border-color;
+        }
+      }
+    }
+  }
+
+  footer {
+    display: flex;
+    align-items: flex-end;
+    align-content: space-around;
+    justify-content: space-between;
+    flex: 1 0 auto;
+  }
+}

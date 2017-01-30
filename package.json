@@ -37,6 +37,14 @@
         "right"
       ],
       "description": "When `Display Expand View As` is set to sidebar this define where to place the sidebar in the Atom UI."
+    },
+    "sidebarWidth": {
+      "type": "integer",
+      "default": 400
+    },
+    "openSidebarOnStartup": {
+      "type": "boolean",
+      "default": true
     }
   },
   "providedServices": {
