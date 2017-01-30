@@ -3,12 +3,16 @@
 const http = require('http');
 const proc = require('child_process');
 const {StateController} = require('kite-installer');
-
 const metrics = require('../lib/metrics.js');
 
 beforeEach(() => {
   spyOn(metrics, 'track').andCallFake((...args) => {
     console.log('track', ...args);
+  });
+
+  Object.defineProperty(StateController.client, 'LOCAL_TOKEN', {
+    get() { return 'abcdef1234567890'; },
+    configurable: true,
   });
 });
 
