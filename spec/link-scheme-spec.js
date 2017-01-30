@@ -1,5 +1,6 @@
 'use strict';
 
+const url = require('url');
 const LinkScheme = require('../lib/link-scheme');
 const {click} = require('./helpers/events');
 
@@ -25,11 +26,7 @@ describe('LinkScheme', () => {
       });
 
       it('emits a did-click-link event', () => {
-        expect(spy).toHaveBeenCalledWith({
-          uri: 'kite-atom-internal://dummy/path',
-          path: 'dummy/path',
-          target: link,
-        });
+        expect(spy).toHaveBeenCalledWith(url.parse('kite-atom-internal://dummy/path'));
       });
     });
 
