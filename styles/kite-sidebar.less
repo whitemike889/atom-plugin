@@ -27,13 +27,23 @@ kite-sidebar {
 
   header {
     margin-bottom: @component-padding;
-    overflow: hidden;
+    display: flex;
+    flex-direction: row;
 
     ul.breadcrumb {
       display: inline-block;
       margin-bottom: 0;
       margin-left: @component-padding;
       vertical-align: middle;
+      white-space: nowrap;
+      overflow-x: auto;
+      flex: 1 1 0;
+      padding-right: @component-padding;
+      position: relative;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
 
       li {
         display: inline-block;
@@ -132,6 +142,14 @@ kite-sidebar {
 
 kite-sidebar[depth="0"] {
   a.btn.icon-chevron-left {
-    
+    pointer-events: none;
+    opacity: 0.5;
+  }
+}
+
+kite-sidebar[last-step] {
+  a.btn.icon-chevron-right {
+    pointer-events: none;
+    opacity: 0.5;
   }
 }
