@@ -35,7 +35,7 @@ describe('KiteExpandModule', () => {
   });
 
   it('displays the show more link', () => {
-    const link = element.querySelector('section.top-members a');
+    const link = element.querySelector('section.top-members a.more-members');
 
     expect(link.textContent).toEqual('See 228 more methods');
   });
@@ -58,7 +58,7 @@ describe('KiteExpandModule', () => {
     });
 
     it('does not render the show more link', () => {
-      const link = element.querySelector('section.top-members a');
+      const link = element.querySelector('section.top-members a.more-members');
 
       expect(link).not.toExist();
     });
