@@ -2,6 +2,33 @@
 @import "variables";
 
 .content {
+  kite-expand-module, kite-expand-function, kite-expand-instance {
+    flex-direction: column;
+
+    .expand-header, .expand-extend {
+      flex: 0 0 auto;
+      margin-bottom: @component-padding;
+    }
+
+    section.summary {
+      flex: 0 1 auto;
+      overflow-y: auto;
+
+      pre code {
+        white-space: pre;
+      }
+
+      table {
+        width: 100%;
+
+        th, td {
+          padding: 8px;
+          border: 1px solid @border-color;
+        }
+      }
+    }
+  }
+
   a {
     &, &:hover, &:active, &:focus {
       color: @text-color-info;
@@ -79,6 +106,10 @@
   section.collapsed {
     > :not(h4) {
       display: none !important;
+    }
+
+    h4 {
+      margin-bottom: 0;
     }
   }
 
@@ -160,13 +191,6 @@
         }
       }
     }
-  }
-
-  footer {
-    display: flex;
-    align-items: center;
-    align-content: center;
-    justify-content: space-between;
   }
 
   ul {

@@ -1,15 +1,39 @@
 @import "ui-variables";
 @import "variables";
-@import "./content";
 
 kite-expand {
-  display: inline-block;
+  display: flex;
+  flex-direction: column;
   color: @text-color;
   padding: @component-padding;
   font-family: @font-family;
-  .auto-cursor;
-  .content;
+  max-height: 50vh;
+  overflow-y: auto;
 
+  kite-navigable-stack-breadcrumb {
+    flex: 0 0 auto;
+    align-items: center;
+    margin-bottom: @component-padding;
+  }
+
+  kite-navigable-stack {
+    flex: 1 1 auto;
+    overflow-y: auto;
+
+    > * {
+      height: auto;
+
+      .sections-wrapper {
+        flex: 1 1 auto;
+        overflow-y: auto;
+      }
+
+      footer {
+        display: block;
+        margin-top: @component-padding;
+      }
+    }
+  }
 }
 
 // In an overlay decoration or in debug mode
@@ -27,36 +51,29 @@ kite-expand[data-screen-row] {
   background: @base-background-color;
   border: 1px solid @border-color;
 
-  kite-expand-module, kite-expand-function, kite-expand-instance {
-    position: relative;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-
-    > section, > .column {
-      padding: 0 @component-padding;
-      width: 33%;
-    }
-
-    kite-expand-navigation {
-      flex: 1 1 0;
-    }
-
-    kite-open-link {
-      position: absolute;
-      bottom: 0px;
-      right: 0;
-    }
-  }
-
-  kite-expand-function, kite-expand-instance {
-    padding-bottom: 40px;
-  }
-}
-
-// In a sidebar panel
-atom-panel > kite-expand {
-  background: @app-background-color;
-  width: 500px;
-  font-size: 1.2em;
+  // kite-expand-module, kite-expand-function, kite-expand-instance {
+  //   position: relative;
+  //   display: flex;
+  //   flex-direction: row;
+  //   flex-wrap: wrap;
+  //
+  //   > section, > .column {
+  //     padding: 0 @component-padding;
+  //     width: 33%;
+  //   }
+  //
+  //   kite-expand-navigation {
+  //     flex: 1 1 0;
+  //   }
+  //
+  //   kite-open-link {
+  //     position: absolute;
+  //     bottom: 0px;
+  //     right: 0;
+  //   }
+  // }
+  //
+  // kite-expand-function, kite-expand-instance {
+  //   padding-bottom: 40px;
+  // }
 }

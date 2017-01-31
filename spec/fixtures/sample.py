@@ -1,7 +1,6 @@
 variable = 10
 
-def hello():
-    print("Hello World!")
+def hello(): print("Hello World!")
 
 import os
 import posixpath from os
