@@ -54,7 +54,7 @@
     }
   },
   "dependencies": {
-    "kite-installer": "^0.9.1",
+    "kite-installer": "^0.10.0",
     "mixpanel": "^0.5.0",
     "md5": "^2.2.0",
     "opn": "^4",
