@@ -14,8 +14,6 @@ beforeEach(() => {
     get() { return 'abcdef1234567890'; },
     configurable: true,
   });
-
-  atom.config.set('kite.openSidebarOnStartup', false);
 });
 
 function sleep(duration) {
