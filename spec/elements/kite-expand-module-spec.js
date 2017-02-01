@@ -24,14 +24,12 @@ describe('KiteExpandModule', () => {
   });
 
   it('displays the first two members in the member section', () => {
-    const dts = element.querySelectorAll('section.top-members dt');
-    const dds = element.querySelectorAll('section.top-members dd');
+    const lis = element.querySelectorAll('section.top-members li');
 
-    expect(dts.length).toEqual(2);
-    expect(dds.length).toEqual(2);
+    expect(lis.length).toEqual(2);
 
-    expect(dts[0].textContent).toEqual('spawnvp()');
-    expect(dts[1].textContent).toEqual('WSTOPSIG()');
+    expect(lis[0].querySelector('a').textContent).toEqual('spawnvp()');
+    expect(lis[1].querySelector('a').textContent).toEqual('WSTOPSIG()');
   });
 
   it('displays the show more link', () => {

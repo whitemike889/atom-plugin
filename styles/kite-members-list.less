@@ -1,3 +1,44 @@
+@import "variables";
+
 kite-members-list {
   overflow-y: auto;
+  flex-direction: column;
+
+  ul {
+    width: 100%;
+    padding-right: 0 !important;
+    margin-top: 0 !important;
+    display: flex;
+    flex-direction: column;
+  }
+
+  li {
+    padding-bottom: @component-padding;
+  }
+
+  .character-match {
+    color: @text-color-info;
+  }
+
+  header.settings-view {
+    display: flex;
+    flex-direction: row;
+
+    atom-text-editor[mini] {
+      font-size: 1em;
+      flex: 1 1 0;
+    }
+
+    select.form-control {
+      margin-left: 0.25em;
+      width: auto;
+      flex: 0 0 auto;
+      font-size: 1.1em;
+    }
+  }
+
+  .members-list {
+    flex: 1 1 0;
+    overflow-y: auto;
+  }
 }

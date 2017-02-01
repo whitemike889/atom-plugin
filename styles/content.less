@@ -1,6 +1,25 @@
 @import "ui-variables";
 @import "variables";
 
+.unreachable {
+  cursor: not-allowed;
+
+  &::before {
+    content: "\f02d";
+    font-family: 'Octicons Regular';
+    margin-right: 0.25em;
+  }
+
+  &, &:hover, &:active, &:focus {
+    color: @text-color-warning;
+    text-decoration: none;
+  }
+
+  * {
+    color: @text-color-warning;
+  }
+}
+
 .content {
   kite-expand-module, kite-expand-function, kite-expand-instance {
     flex-direction: column;
@@ -30,7 +49,7 @@
   }
 
   a {
-    &.internal_link * {
+    * {
       pointer-events: none;
     }
 
@@ -39,18 +58,7 @@
     }
 
     &.unreachable {
-      cursor: not-allowed;
-
-      &::before {
-        content: "\f02d";
-        font-family: 'Octicons Regular';
-        margin-right: 0.25em;
-      }
-
-      &, &:hover, &:active, &:focus {
-        color: @text-color-warning;
-        text-decoration: none;
-      }
+      .unreachable;
     }
 
     i {
@@ -284,14 +292,24 @@
     }
   }
 
-  dl {
+  dl, ul {
     padding-right: @component-padding;
     margin: @component-padding 0 @double-padding;
 
-    dt {
-      color: @text-color-highlight;
+    dt, li {
+      color: @text-color;
       font-weight: normal;
       font-size: 1.2em;
+
+      .name {
+        a, a:hover, a:active, a:focus {
+          color: @text-color-highlight;
+
+          &.unreachable {
+            .unreachable;
+          }
+        }
+      }
     }
 
     dd {
@@ -302,8 +320,10 @@
       a {
         font-size: 0.9em;
       }
+    }
 
-      & + dt {
+    dt, dd, li {
+      & + dt, & + li {
         margin-top: @component-padding;
       }
     }
