@@ -6,6 +6,9 @@ def hello():
 import os
 import posixpath from os
 import matplotlib
+import json
+
+json.dumps
 
 matplotlib.pyplot.plot
 
