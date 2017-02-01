@@ -30,8 +30,27 @@
   }
 
   a {
+    &.internal_link * {
+      pointer-events: none;
+    }
+
     &, &:hover, &:active, &:focus {
       color: @text-color-info;
+    }
+
+    &.unreachable {
+      cursor: not-allowed;
+
+      &::before {
+        content: "\f02d";
+        font-family: 'Octicons Regular';
+        margin-right: 0.25em;
+      }
+
+      &, &:hover, &:active, &:focus {
+        color: @text-color-warning;
+        text-decoration: none;
+      }
     }
 
     i {
