@@ -47,7 +47,7 @@
     "openSidebarOnStartup": {
       "type": "boolean",
       "default": true,
-      "description": "When `Display Expand View As` is set to `sidebar` this define will make the sidebar appears on startup."
+      "description": "When `Display Expand View As` is set to `sidebar` this setting will make the sidebar appears on startup."
     }
   },
   "providedServices": {
