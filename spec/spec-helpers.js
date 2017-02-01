@@ -130,12 +130,12 @@ function fakeRequestMethod(resp) {
 function fakeKiteInstallPaths() {
   let safePaths;
   beforeEach(() => {
-    safePaths = StateController.KITE_APP_PATH;
-    StateController.KITE_APP_PATH = { installed: '/path/to/Kite.app' };
+    safePaths = StateController.support.KITE_APP_PATH;
+    StateController.support.KITE_APP_PATH = { installed: '/path/to/Kite.app' };
   });
 
   afterEach(() => {
-    StateController.KITE_APP_PATH = safePaths;
+    StateController.support.KITE_APP_PATH = safePaths;
   });
 }
 
@@ -154,7 +154,7 @@ function withKiteInstalled(block) {
     fakeKiteInstallPaths();
 
     beforeEach(() => {
-      StateController.KITE_APP_PATH = { installed: __filename };
+      StateController.support.KITE_APP_PATH = { installed: __filename };
     });
 
     block();
