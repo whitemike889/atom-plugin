@@ -104,7 +104,6 @@ describe('KiteHover', () => {
       });
     });
 
-
     describe('for a variable without single type', () => {
       beforeEach(() => {
         hover.setData(require('../fixtures/variable-without-type.json'));
@@ -118,7 +117,6 @@ describe('KiteHover', () => {
 
       it('leaves the type empty', () => {
         const type = hover.querySelector('.type');
-
         expect(type.textContent).toEqual('');
       });
     });
