@@ -33,6 +33,9 @@ else if false:
     test = A('foo')
 
 test.increment(2, delta=5)
+test.increment('bar')
+test.increment('baz')
+test.increment(False)
 
 if __name__ == "__main__":
     hello()
