@@ -46,6 +46,11 @@ describe('OverlayManager', () => {
         }
       `;
 
+    OverlayManager.hoverDefault = {
+      show: 50,
+      hide: 0,
+    };
+
     jasmineContent.appendChild(styleNode);
     jasmineContent.appendChild(atom.views.getView(atom.workspace));
 
@@ -160,7 +165,7 @@ describe('OverlayManager', () => {
       });
     });
 
-    describe('.showExpandAtPosition()', () => {
+    xdescribe('.showExpandAtPosition()', () => {
       beforeEach(() => {
         OverlayManager.onDidShowExpand(showSpy);
         OverlayManager.onDidDismiss(dismissSpy);
