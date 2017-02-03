@@ -2,7 +2,6 @@
 
 const HoverGesture = require('../../lib/gestures/hover');
 const {mousemove} = require('../helpers/events');
-const {sleep} = require('../spec-helpers');
 
 describe('HoverGesture', () => {
   let editor, editorElement, gesture, spy;
@@ -29,15 +28,8 @@ describe('HoverGesture', () => {
         mousemove(editorElement, {x: 5, y: 5});
       });
 
-      it('does not triggers a did-activate instantly', () => {
-        expect(spy).not.toHaveBeenCalled();
-      });
-
-      it('triggers a did-activate event after 50ms', (done) => {
-        sleep(60);
-        runs(() => {
-          expect(spy).toHaveBeenCalled();
-        });
+      it('triggers a did-activate instantly', () => {
+        expect(spy).toHaveBeenCalled();
       });
     });
   });
@@ -57,11 +49,8 @@ describe('HoverGesture', () => {
         mousemove(editorElement, {x: 5, y: 5});
       });
 
-      it('does not trigger a did-activate event after 50ms', (done) => {
-        sleep(60);
-        runs(() => {
-          expect(spy).not.toHaveBeenCalled();
-        });
+      it('does not trigger a did-activate event', (done) => {
+        expect(spy).not.toHaveBeenCalled();
       });
     });
 
@@ -70,11 +59,8 @@ describe('HoverGesture', () => {
         mousemove(editorElement, {x: 5, y: 5, altKey: true});
       });
 
-      it('triggers a did-activate event after 50ms', (done) => {
-        sleep(60);
-        runs(() => {
-          expect(spy).toHaveBeenCalled();
-        });
+      it('triggers a did-activate event', (done) => {
+        expect(spy).toHaveBeenCalled();
       });
     });
   });

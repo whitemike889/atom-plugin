@@ -1,6 +1,5 @@
 'use strict';
 
-// const {head} = require('../../lib/utils');
 const KiteExpandModule = require('../../lib/elements/kite-expand-module');
 const {reportFromHover} = require('../../lib/kite-data-utils');
 

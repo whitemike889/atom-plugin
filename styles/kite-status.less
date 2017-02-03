@@ -2,7 +2,7 @@
 
 kite-status {
   kite-logo svg {
-    width: 16px;
+    height: 16px;
   }
 
   &[status="unknown"] {
@@ -11,6 +11,7 @@ kite-status {
     }
   }
 
+  &[status="authenticated"],
   &[status="whitelisted"] {
     kite-logo svg polygon {
       fill: @text-color-info;
@@ -18,7 +19,7 @@ kite-status {
   }
 
   &[status="reachable"],
-  &[status="authenticated"] {
+  &[status="authenticated"][has-python-files-open] {
     kite-logo svg polygon {
       fill: @text-color-warning;
     }

@@ -475,33 +475,36 @@ describe('NotificationsCenter', () => {
           atom.project.setPaths([__dirname]);
           waitsForPromise(() => app.connect().then(() => {
             notificationElement = workspaceElement.querySelector('atom-notification');
-            notification = notificationElement.getModel();
           }));
         });
 
-        it('notifies the user', () => {
-          const options = notification.getOptions();
-
-          expect(notificationElement).toExist();
-
-          expect(notification.getType()).toEqual('success');
-          expect(notification.getMessage())
-          .toEqual('The Kite autocomplete engine is ready');
-
-          expect(options.buttons).toBeUndefined();
-          expect(options.dismissable).toBeTruthy();
-          expect(options.description)
-          .toEqual('We checked that the autocomplete engine is installed, running, responsive, and authenticated.');
+        it('does not notify the user', () => {
+          expect(notificationElement).not.toExist();
         });
 
-        describe('when the same state is found after a new check', () => {
-          it('does not notify the user', () => {
-            atom.notifications.getNotifications()[0].dismiss();
-            waitsForPromise(() => app.connect().then(() => {
-              expect(atom.notifications.getNotifications().length).toEqual(1);
-            }));
-          });
-        });
+        // it('notifies the user', () => {
+        //   const options = notification.getOptions();
+        //
+        //   expect(notificationElement).toExist();
+        //
+        //   expect(notification.getType()).toEqual('success');
+        //   expect(notification.getMessage())
+        //   .toEqual('The Kite autocomplete engine is ready');
+        //
+        //   expect(options.buttons).toBeUndefined();
+        //   expect(options.dismissable).toBeTruthy();
+        //   expect(options.description)
+        //   .toEqual('We checked that the autocomplete engine is installed, running, responsive, and authenticated.');
+        // });
+        //
+        // describe('when the same state is found after a new check', () => {
+        //   it('does not notify the user', () => {
+        //     atom.notifications.getNotifications()[0].dismiss();
+        //     waitsForPromise(() => app.connect().then(() => {
+        //       expect(atom.notifications.getNotifications().length).toEqual(1);
+        //     }));
+        //   });
+        // });
       });
     });
   });
