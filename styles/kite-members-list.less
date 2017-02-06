@@ -21,20 +21,27 @@ kite-members-list {
   }
 
   header.settings-view {
-    display: flex;
-    flex-direction: row;
-    margin-bottom: @component-padding;
+    flex-direction: column;
 
-    atom-text-editor[mini] {
-      font-size: 1em;
-      flex: 1 1 0;
+    .row {
+      display: flex;
+      flex-direction: row;
+      margin-bottom: @half-padding;
+
+      atom-text-editor[mini] {
+        font-size: 1em;
+        flex: 1 1 0;
+      }
+
+      select.form-control {
+        margin-left: 0.25em;
+        width: auto;
+        flex: 0 0 auto;
+        font-size: 1.1em;
+      }
     }
-
-    select.form-control {
-      margin-left: 0.25em;
-      width: auto;
-      flex: 0 0 auto;
-      font-size: 1.1em;
+    .members-count {
+      margin-bottom: @component-padding;
     }
   }
 
