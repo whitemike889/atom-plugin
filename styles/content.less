@@ -53,8 +53,17 @@
       pointer-events: none;
     }
 
-    &, &:hover, &:active, &:focus, &[href] code {
-      color: @text-color-info;
+    &[href] {
+      &, &:hover, &:active, &:focus, code {
+        color: @text-color-info;
+      }
+    }
+
+    &:not([href]) {
+      cursor: not-allowed;
+      &, &:hover, &:active, &:focus, code {
+        color: @text-color-warning;
+      }
     }
 
     &.external_link::after {
