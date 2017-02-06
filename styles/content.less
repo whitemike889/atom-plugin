@@ -149,6 +149,17 @@
     display: block;
     margin-top: -@component-padding;
     margin-bottom: @double-padding;
+
+    .split-line {
+      .name {
+        flex: 1 1 auto;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .type {
+        flex: 0 0 auto;
+      }
+    }
   }
 
   h4 {

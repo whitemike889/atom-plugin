@@ -41,5 +41,16 @@ kite-members-list {
   .members-list {
     flex: 1 1 0;
     overflow-y: auto;
+
+    .split-line {
+      .name {
+        flex: 1 1 auto;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .type {
+        flex: 0 0 auto;
+      }
+    }
   }
 }
