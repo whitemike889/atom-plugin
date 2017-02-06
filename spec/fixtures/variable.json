@@ -2,17 +2,17 @@
   "part_of_syntax": "name",
   "symbol": [
     {
-      "id": "",
+      "id": "variable",
       "name": "variable",
       "namespace": null,
       "value": [
         {
-          "id": "",
+          "id": "variable",
           "kind": "instance",
           "repr": "10",
           "type": "int",
           "type_id": "__builtin__.int",
-          "synopsis": "",
+          "synopsis": "symbol `variable`",
           "detail": {
             "type": [
               {

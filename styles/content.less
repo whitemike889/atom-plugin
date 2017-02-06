@@ -82,13 +82,16 @@
     }
   }
 
-  .name, .type {
-    white-space: nowrap;
+  .name {
     overflow-x: auto;
 
     &::-webkit-scrollbar {
       display: none;
     }
+  }
+
+  .name, .type {
+    white-space: nowrap;
   }
 
   .type, .signature {
@@ -325,7 +328,7 @@
   }
 
   dl, ul {
-    padding-right: @component-padding;
+    // padding-right: @component-padding;
     margin: @component-padding 0 @double-padding;
 
     dt, li {
