@@ -4,7 +4,7 @@ const http = require('http');
 const Plan = require('../lib/plan.js');
 const {withFakeServer, fakeResponse} = require('./spec-helpers');
 
-fdescribe('Plan', () => {
+describe('Plan', () => {
   afterEach(() => {
     Plan.clearPlanData();
   });
