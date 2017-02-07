@@ -35,10 +35,12 @@ describe('DataLoader', () => {
             expect(http.request).toHaveBeenCalled();
 
             const editorHash = md5(editor.getText());
-            const parsedURL = url.parse(http.request.calls[0].args[0].path);
+            const parsedURL = url.parse(http.request.mostRecentCall.args[0].path);
+
             expect(parsedURL.path.indexOf(editor.getPath().replace(/\//g, ':'))).not.toEqual(-1);
             expect(parsedURL.path.indexOf(editorHash)).not.toEqual(-1);
             const params = parseParams(parsedURL.query);
+
 
             expect(params.selection_begin_bytes).toEqual('0');
             expect(params.selection_end_bytes).toEqual('6');
@@ -84,7 +86,8 @@ describe('DataLoader', () => {
             expect(http.request).toHaveBeenCalled();
 
             const editorHash = md5(editor.getText());
-            const parsedURL = url.parse(http.request.calls[0].args[0].path);
+            const parsedURL = url.parse(http.request.calls[http.request.calls.length - 2].args[0].path);
+
             expect(parsedURL.path.indexOf(editor.getPath().replace(/\//g, ':'))).not.toEqual(-1);
             expect(parsedURL.path.indexOf(editorHash)).not.toEqual(-1);
             const params = parseParams(parsedURL.query);
@@ -167,7 +170,7 @@ describe('DataLoader', () => {
           waitsForPromise(() => DataLoader.getValueReportDataForId('foo').then(data => {
             expect(http.request).toHaveBeenCalled();
 
-            const parsedURL = url.parse(http.request.calls[0].args[0].path);
+            const parsedURL = url.parse(http.request.mostRecentCall.args[0].path);
 
             expect(parsedURL.path.indexOf('/foo')).not.toEqual(-1);
 
