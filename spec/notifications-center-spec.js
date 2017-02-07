@@ -358,7 +358,7 @@ describe('NotificationsCenter', () => {
 
           expect(notification.getType()).toEqual('warning');
           expect(notification.getMessage())
-          .toEqual(`The Kite autocomplete engine is disabled for ${atom.project.getPaths()}`);
+          .toEqual(`The Kite autocomplete engine is disabled for ${atom.workspace.getActiveTextEditor().getPath()}`);
 
           expect(options.buttons.length).toEqual(2);
           expect(options.buttons[0].text).toEqual(os.homedir());
