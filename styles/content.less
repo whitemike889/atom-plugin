@@ -2,21 +2,14 @@
 @import "variables";
 
 .unreachable {
-  cursor: not-allowed;
-
-  &::before {
-    content: "\f02d";
-    font-family: 'Octicons Regular';
-    margin-right: 0.25em;
-  }
-
   &, &:hover, &:active, &:focus {
-    color: @text-color-warning;
+    color: @text-color;
+    opacity: 0.6;
     text-decoration: none;
   }
 
   * {
-    color: @text-color-warning;
+    color: @text-color;
   }
 }
 
