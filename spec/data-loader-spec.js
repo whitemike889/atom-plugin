@@ -286,7 +286,7 @@ describe('DataLoader', () => {
           ],
         ]);
 
-        it('returns a promise that resolve with the returned members data', () => {
+        it('returns a promise that resolve with the returned usage data', () => {
           waitsForPromise(() => DataLoader.getUsageDataForId('foo').then(data => {
             expect(http.request).toHaveBeenCalled();
 
@@ -313,6 +313,46 @@ describe('DataLoader', () => {
 
         it('returns a promise that is rejected', () => {
           waitsForPromise({shouldReject: true}, () => DataLoader.getUsageDataForId('foo'));
+        });
+      });
+    });
+
+    describe('.getExampleDataForId()', () => {
+      describe('when the request succeeds', () => {
+        withRoutes([
+          [
+            o => /^\/api\/python\/curation/.test(o.path),
+            o => fakeResponse(200, '{"foo": "bar"}'),
+          ],
+        ]);
+
+        it('returns a promise that resolve with the returned example data', () => {
+          waitsForPromise(() => DataLoader.getExampleDataForId('foo').then(data => {
+            expect(http.request).toHaveBeenCalled();
+
+            const parsedURL = url.parse(http.request.calls[0].args[0].path);
+
+            expect(parsedURL.path.indexOf('/foo')).not.toEqual(-1);
+
+            const params = parseParams(parsedURL.query);
+
+            expect(params.localtoken).toEqual(StateController.client.LOCAL_TOKEN);
+
+            expect(data).toEqual({foo: 'bar'});
+          }));
+        });
+      });
+
+      describe('when the request fails', () => {
+        withRoutes([
+          [
+            o => /^\/api\/python\/curation/.test(o.path),
+            o => fakeResponse(404),
+          ],
+        ]);
+
+        it('returns a promise that is rejected', () => {
+          waitsForPromise({shouldReject: true}, () => DataLoader.getExampleDataForId('foo'));
         });
       });
     });
