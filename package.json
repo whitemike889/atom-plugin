@@ -1,7 +1,7 @@
 {
   "name": "kite",
   "main": "./lib/kite",
-  "version": "0.7.22",
+  "version": "0.8.0",
   "description": "Python programming copilot — Kite shows cloud-powered completions, documentation, and examples.",
   "repository": "https://github.com/kiteco/atom-plugin",
   "keywords": [],
@@ -48,6 +48,19 @@
       "type": "boolean",
       "default": true,
       "description": "When `Display Expand View As` is set to `sidebar` this setting will make the sidebar appears on startup."
+    },
+    "loggingLevel": {
+      "type": "string",
+      "default": "info",
+      "enum": [
+        "silly",
+        "verbose",
+        "debug",
+        "info",
+        "warning",
+        "error"
+      ],
+      "description": "The verbosity level of Kite's logs."
     }
   },
   "providedServices": {
@@ -66,7 +79,7 @@
   },
   "dependencies": {
     "fuzzaldrin-plus": "^0.4.1",
-    "kite-installer": "^0.11.10",
+    "kite-installer": "^0.12.3",
     "md5": "^2.2.0",
     "mixpanel": "^0.5.0",
     "opn": "^4",
