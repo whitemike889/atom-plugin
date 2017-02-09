@@ -1,6 +1,10 @@
 
 '.platform-darwin atom-text-editor':
-  'cmd-alt-k': 'kite:open-in-web-at-cursor'
+  'ctrl-alt-k': 'kite:expand-at-cursor'
+  'cmd-alt-k': 'kite:open-in-web'
+
+'.platform-darwin kite-sidebar':
+  'cmd-alt-k': 'kite:open-in-web'
 
 '.platform-darwin kite-login':
   'cmd-c': 'native!'

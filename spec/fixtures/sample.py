@@ -27,7 +27,7 @@ class B(A):
         inc = kwargs.delta || 1
         return super(B, self).increment(n) + inc
 
-if true:
+if True:
     test = B('foo')
 else if false:
     test = A('foo')

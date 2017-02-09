@@ -1,0 +1,55 @@
+@import "ui-variables";
+@import "variables";
+
+kite-sidebar {
+  display: flex;
+  flex-direction: column;
+  font-size: 1.2em;
+  padding: @component-padding;
+  font-family: @font-family;
+
+  .background-message {
+    opacity: 0.5;
+
+    kite-logo {
+      display: block;
+      svg {
+        width: 2em;
+
+        polygon {
+          fill: @text-color;
+        }
+      }
+    }
+  }
+
+  kite-navigable-stack, kite-navigable-stack-breadcrumb {
+    flex: 1 1 0;
+    overflow: hidden;
+  }
+
+  header {
+    margin-bottom: @component-padding;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+
+    kite-navigable-stack-breadcrumb {
+      align-items: center;
+    }
+  }
+
+  footer {
+    display: block;
+    align-items: flex-end;
+    align-content: space-around;
+    justify-content: flex-end;
+    flex: 0 0 auto;
+  }
+
+  .sections-wrapper {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+  }
+}

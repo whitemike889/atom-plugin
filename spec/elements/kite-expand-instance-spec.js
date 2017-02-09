@@ -1,6 +1,7 @@
 'use strict';
 
 const KiteExpandInstance = require('../../lib/elements/kite-expand-instance');
+const {reportFromHover} = require('../../lib/kite-data-utils');
 
 describe('KiteExpandInstance', () => {
   let json, element;
@@ -8,7 +9,7 @@ describe('KiteExpandInstance', () => {
   beforeEach(() => {
     json = require('../fixtures/variable.json');
     element = new KiteExpandInstance();
-    element.setData(json);
+    element.setData(reportFromHover(json));
   });
 
   it('sets the name and type of the instance', () => {
