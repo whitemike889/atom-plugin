@@ -71,6 +71,7 @@ function fakeResponse(statusCode, data, props) {
 
   const resp = {
     statusCode,
+    req: {},
     on(event, callback) {
       switch (event) {
         case 'data':

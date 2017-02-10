@@ -52,6 +52,14 @@ describe('Kite', () => {
                 expect(workspaceElement.querySelector('atom-notification')).toExist();
               });
             });
+
+            it('subscribes to the editor events', () => {
+              sleep(100);
+              runs(() => {
+                const editor = atom.workspace.getActiveTextEditor();
+                expect(kitePkg.hasEditorSubscription(editor)).toBeTruthy();
+              });
+            });
           });
 
           describe('opening an unsupported file', () => {
@@ -86,6 +94,14 @@ describe('Kite', () => {
                 it('notifies the user', () => {
                   waitsFor(() => workspaceElement.querySelector('atom-notification'));
                 });
+
+                it('subscribes to the editor events', () => {
+                  sleep(100);
+                  runs(() => {
+                    const editor = atom.workspace.getActiveTextEditor();
+                    expect(kitePkg.hasEditorSubscription(editor)).toBeTruthy();
+                  });
+                });
               });
 
               describe('as an unsupported file', () => {
@@ -117,6 +133,14 @@ describe('Kite', () => {
 
           it('notifies the user', () => {
             expect(workspaceElement.querySelector('atom-notification')).toExist();
+          });
+
+          it('subscribes to the editor events', () => {
+            sleep(100);
+            runs(() => {
+              const editor = atom.workspace.getActiveTextEditor();
+              expect(kitePkg.hasEditorSubscription(editor)).toBeTruthy();
+            });
           });
         });
 
