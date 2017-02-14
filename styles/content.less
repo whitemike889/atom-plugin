@@ -35,6 +35,12 @@
   }
 }
 
+.kite-code {
+  pre {
+    -webkit-user-select: text;
+  }
+}
+
 .kite-examples-list {
   ul li {
     position: relative;
@@ -58,6 +64,8 @@
 }
 
 .kite-content {
+  .kite-code;
+
   kite-expand-module, kite-expand-function, kite-expand-instance {
     flex-direction: column;
 
