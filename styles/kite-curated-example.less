@@ -10,36 +10,75 @@ kite-curated-example {
     flex: 1 1 auto;
 
     .kite-code;
+    .kite-table;
+
+    .related-examples {
+      .kite-examples-list;
+    }
+
+    .example-code {
+      background: @background-color-highlight;
+      border-radius: @component-border-radius;
+      padding: @half-padding;
+
+      figcaption {
+        margin-top: @component-padding;
+        font-size: 0.8em;
+        font-weight: 300;
+        font-style: italic;
+      }
+    }
 
     pre {
       flex: 0 0 auto;
+      background: transparent;
+      padding: 0;
+      margin-bottom: @component-padding;
 
       a {
         color: inherit;
       }
 
-      &.output, &.input {
-        background: @base-background-color;
-        border-radius: @component-border-radius;
-        border: 1px solid @border-color;
+      code {
+        white-space: pre;
+      }
 
-        code {
-          white-space: pre;
-        }
+      &.output {
+        display: inline-block;
+      }
+
+      &.input {
+        background: @background-color-highlight;
+        border-radius: @component-border-radius;
+        padding: @half-padding;
       }
     }
 
-    .kite-table;
+    table, ul.list-tree.root, pre.output {
+      width: auto;
+      background: @base-background-color;
+      padding: @half-padding;
+      border-radius: @component-border-radius;
+
+      figcaption + & {
+        margin-top: -@half-padding;
+      }
+    }
+
+    table, ul.list-tree.root, pre {
+      margin-bottom: @component-padding;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    ul.list-tree.root {
+      display: inline-block;
+      padding-right: @component-padding;
+    }
 
     ul.list-tree {
-
-      &.root {
-        margin: @half-padding 0;
-        padding: @half-padding;
-        border: 1px solid @border-color;
-        border-radius: @component-border-radius;
-      }
-
       li {
         font-size: 1em;
 
@@ -50,7 +89,6 @@ kite-curated-example {
     }
 
     table {
-      border: 1px solid @border-color;
       border-radius: @component-border-radius;
       border-collapse: separate !important;
 
