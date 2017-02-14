@@ -1,5 +1,5 @@
 @import 'variables';
-@import "./content";
+@import "content";
 
 kite-curated-example {
   flex-direction: column;
@@ -15,7 +15,8 @@ kite-curated-example {
         color: inherit;
       }
 
-      &.output {
+      &.output, &.input {
+        background: @base-background-color;
         border-radius: @component-border-radius;
         border: 1px solid @border-color;
       }
@@ -44,6 +45,7 @@ kite-curated-example {
     table {
       border: 1px solid @border-color;
       border-radius: @component-border-radius;
+      border-collapse: separate !important;
 
       th, td {
         border: none

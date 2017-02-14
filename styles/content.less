@@ -13,13 +13,16 @@
   }
 }
 
-.kite-table {
-  caption {
+.kite-caption {
+  caption, figcaption {
     padding: 0;
     color: @text-color-highlight;
     margin-bottom: @half-padding;
   }
-  
+}
+
+.kite-table {
+  .kite-caption;
   table {
     width: 100%;
     margin-bottom: @half-padding;
@@ -28,6 +31,28 @@
     th, td {
       padding: 0.4em;
       border: 1px solid @border-color;
+    }
+  }
+}
+
+.kite-examples-list {
+  ul li {
+    position: relative;
+
+    > .icon {
+      position: absolute;
+      top: 0.2em;
+    }
+
+    > a {
+      margin-left: 1.5em;
+      margin-right: 1.5em;
+
+      .icon {
+        position: absolute;
+        top: 0.2em;
+        right: 0;
+      }
     }
   }
 }
@@ -192,6 +217,8 @@
       margin-top: -@component-padding;
       margin-bottom: @double-padding;
     }
+
+    .kite-examples-list;
   }
 
   section.definition {
