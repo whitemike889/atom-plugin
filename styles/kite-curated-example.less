@@ -1,4 +1,5 @@
 @import 'variables';
+@import "./content";
 
 kite-curated-example {
   flex-direction: column;
@@ -12,6 +13,40 @@ kite-curated-example {
 
       a {
         color: inherit;
+      }
+
+      &.output {
+        border-radius: @component-border-radius;
+        border: 1px solid @border-color;
+      }
+    }
+
+    .kite-table;
+
+    ul.list-tree {
+
+      &.root {
+        margin: @half-padding 0;
+        padding: @half-padding;
+        border: 1px solid @border-color;
+        border-radius: @component-border-radius;
+      }
+
+      li {
+        font-size: 1em;
+
+        & + li {
+          margin-top: 0;
+        }
+      }
+    }
+
+    table {
+      border: 1px solid @border-color;
+      border-radius: @component-border-radius;
+
+      th, td {
+        border: none
       }
     }
   }

@@ -13,6 +13,25 @@
   }
 }
 
+.kite-table {
+  caption {
+    padding: 0;
+    color: @text-color-highlight;
+    margin-bottom: @half-padding;
+  }
+  
+  table {
+    width: 100%;
+    margin-bottom: @half-padding;
+
+
+    th, td {
+      padding: 0.4em;
+      border: 1px solid @border-color;
+    }
+  }
+}
+
 .kite-content {
   kite-expand-module, kite-expand-function, kite-expand-instance {
     flex-direction: column;
@@ -30,14 +49,7 @@
         white-space: pre;
       }
 
-      table {
-        width: 100%;
-
-        th, td {
-          padding: 8px;
-          border: 1px solid @border-color;
-        }
-      }
+      .kite-table;
     }
   }
 
@@ -385,15 +397,12 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     font-size: inherit;
+    margin-bottom: @half-padding;
 
     a.icon {
       &, &:hover, &:active, &:focus,  {
         color: @text-color-info;
       }
-    }
-
-    & + pre {
-      margin-top: @half-padding;
     }
   }
 
