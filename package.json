@@ -83,7 +83,8 @@
     "md5": "^2.2.0",
     "mixpanel": "^0.5.0",
     "opn": "^4",
-    "underscore-plus": "^1"
+    "underscore-plus": "^1",
+    "rollbar": "^0.6.3"
   },
   "devDependencies": {
     "babel-eslint": "^7.1.1",
