@@ -15,7 +15,6 @@ json.dumps
 posix.chmod
 os.mkdir
 csv.reader
-
 matplotlib.pyplot.plot
 
 class A:
