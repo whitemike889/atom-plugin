@@ -42,7 +42,7 @@
   }
 }
 
-.kite-examples-list {
+.kite-icon-list {
   ul li {
     position: relative;
 
@@ -51,7 +51,7 @@
       top: 0.2em;
     }
 
-    > a {
+    > a, > span {
       margin-left: 1.5em;
       margin-right: 1.5em;
 
@@ -62,6 +62,10 @@
       }
     }
   }
+}
+
+.kite-examples-list {
+  .kite-icon-list;
 }
 
 .kite-content {
@@ -233,6 +237,7 @@
   }
 
   section.definition {
+    .kite-icon-list;
     li {
       display: flex;
       flex-direction: row;
