@@ -5,7 +5,7 @@ const path = require('path');
 const http = require('http');
 const KiteApp = require('../lib/kite-app');
 const OverlayManager = require('../lib/overlay-manager');
-const {hoverPath} = require('../lib/utils');
+const {hoverPath} = require('../lib/urls');
 const {
   withKiteWhitelistedPaths, withRoutes, fakeResponse,
 } = require('./spec-helpers');
