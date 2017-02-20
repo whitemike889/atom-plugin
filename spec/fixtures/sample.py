@@ -10,7 +10,7 @@ import json
 import posix
 import csv
 
-json.dumps
+json.dumps()
 
 posix.chmod
 os.mkdir

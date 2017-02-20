@@ -1,0 +1,50 @@
+@import "variables";
+@import "content";
+
+kite-signature {
+  display: block;
+  padding: @component-padding;
+  background: @app-background-color;
+  font-size: 1em;
+  font-family: @font-family;
+
+  .kite-content;
+
+  kite-open-link {
+    margin-top: @component-padding;
+  }
+
+  h4 {
+    font-size: 0.9em;
+  }
+
+  .split-line {
+    font-size: 1.2em;
+  }
+
+  pre {
+    font-size: 1em;
+    padding: 0;
+    background: transparent;
+    color: @text-color;
+  }
+
+  .parameter-name {
+    color: @text-color-info;
+  }
+
+  .parameter-highlight {
+    background: @background-color-selected;
+    padding: 0 3px;
+    border-radius: 2px;
+    display: inline-block;
+  }
+}
+
+atom-text-editor kite-signature {
+  display: none;
+}
+
+atom-text-editor[data-grammar="source python"] kite-signature {
+  display: block;
+}
