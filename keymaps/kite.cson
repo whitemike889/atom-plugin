@@ -10,3 +10,8 @@
   'cmd-c': 'native!'
   'cmd-x': 'native!'
   'cmd-v': 'native!'
+
+'.platform-darwin .install-flow':
+  'cmd-c': 'native!'
+  'cmd-x': 'native!'
+  'cmd-v': 'native!'
