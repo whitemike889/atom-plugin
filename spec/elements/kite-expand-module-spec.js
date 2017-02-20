@@ -34,7 +34,7 @@ describe('KiteExpandModule', () => {
   it('displays the show more link', () => {
     const link = element.querySelector('section.top-members a.more-members');
 
-    expect(link.textContent).toEqual('See 228 more methods');
+    expect(link.textContent).toEqual('See 228 more members');
   });
 
   describe('when the module has no members', () => {

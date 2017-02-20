@@ -1,7 +1,7 @@
 {
   "name": "kite",
   "main": "./lib/kite",
-  "version": "0.9.5",
+  "version": "0.10.2",
   "description": "Python programming copilot — Kite shows cloud-powered completions, documentation, and examples.",
   "repository": "https://github.com/kiteco/atom-plugin",
   "keywords": [],
@@ -79,7 +79,7 @@
   },
   "dependencies": {
     "fuzzaldrin-plus": "^0.4.1",
-    "kite-installer": "^0.13.0",
+    "kite-installer": "^0.13.3",
     "md5": "^2.2.0",
     "mixpanel": "^0.5.0",
     "opn": "^4",
