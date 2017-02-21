@@ -49,6 +49,16 @@
       "default": true,
       "description": "When `Display Expand View As` is set to `sidebar` this setting will make the sidebar appears on startup."
     },
+    "wrapSignatureLongerThan": {
+      "type": "integer",
+      "default": -1,
+      "description": "Make signature's arguments appears on several lines when the number of arguments is greater than or equal to the setting. A value of `-1` disable the wrapping for all signatures."
+    },
+    "hideDocumentationWhenSignatureIsAvailable": {
+      "type": "boolean",
+      "default": true,
+      "description": "If both a signature and documentation is available at the same only the signature will be visible."
+    },
     "loggingLevel": {
       "type": "string",
       "default": "info",

@@ -20,6 +20,23 @@ kite-signature {
 
   .split-line {
     font-size: 1.2em;
+
+    .name.wrapped {
+      white-space: pre;
+      .signature {
+        > .parameter-name, > .parameter-highlight {
+          &::before {
+            content: '\A    ';
+          }
+        }
+
+        > span:last-of-type {
+          &::after {
+            content: '\A';
+          }
+        }
+      }
+    }
   }
 
   pre {
@@ -33,11 +50,15 @@ kite-signature {
     color: @text-color-info;
   }
 
-  .parameter-highlight {
+  .parameter-highlight .parameter-name {
     background: @background-color-selected;
     padding: 0 3px;
     border-radius: 2px;
     display: inline-block;
+  }
+
+  &[no-documentation] + .suggestion-description {
+    display: none !important;
   }
 }
 
