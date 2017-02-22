@@ -11,7 +11,27 @@
   'cmd-x': 'native!'
   'cmd-v': 'native!'
 
+'.platform-win32 kite-login':
+  'ctrl-c': 'native!'
+  'ctrl-x': 'native!'
+  'ctrl-v': 'native!'
+
+'.platform-linux kite-login':
+  'ctrl-c': 'native!'
+  'ctrl-x': 'native!'
+  'ctrl-v': 'native!'
+
 '.platform-darwin .install-flow':
   'cmd-c': 'native!'
   'cmd-x': 'native!'
   'cmd-v': 'native!'
+
+'.platform-win32 .install-flow':
+  'ctrl-c': 'native!'
+  'ctrl-x': 'native!'
+  'ctrl-v': 'native!'
+
+'.platform-linux .install-flow':
+  'ctrl-c': 'native!'
+  'ctrl-x': 'native!'
+  'ctrl-v': 'native!'
