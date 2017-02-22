@@ -18,25 +18,12 @@ kite-signature {
     font-size: 0.9em;
   }
 
-  .split-line {
+  .kite-signature-wrapper {
+    max-width: 40em;
+  }
+
+  .name {
     font-size: 1.2em;
-
-    .name.wrapped {
-      white-space: pre;
-      .signature {
-        > .parameter-name, > .parameter-highlight {
-          &::before {
-            content: '\A    ';
-          }
-        }
-
-        > span:last-of-type {
-          &::after {
-            content: '\A';
-          }
-        }
-      }
-    }
   }
 
   pre {
@@ -46,8 +33,12 @@ kite-signature {
     color: @text-color;
   }
 
+  .parameter.ellipsis {
+    color: @text-color-subtle;
+  }
+
   .parameter-name {
-    color: @text-color-info;
+    color: @text-color;
   }
 
   .parameter-highlight .parameter-name {
@@ -55,6 +46,7 @@ kite-signature {
     padding: 0 3px;
     border-radius: 2px;
     display: inline-block;
+    color: @text-color-highlight;
   }
 
   &[no-documentation] + .suggestion-description {
