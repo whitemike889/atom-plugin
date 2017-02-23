@@ -70,7 +70,7 @@ describe('KiteExpandFunction', () => {
 
     it('fills the name and type section with provided data', () => {
       expect(element.querySelector('.expand-header .name').textContent)
-      .toEqual('B.increment(n)');
+      .toEqual('B.increment(n=0)');
       expect(element.querySelector('.expand-header .type').textContent).toEqual('-> int');
     });
 
