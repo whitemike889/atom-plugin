@@ -105,9 +105,9 @@
     }
 
     &:not([href]) {
-      cursor: not-allowed;
+      pointer-events: none;
       &, &:hover, &:active, &:focus, code {
-        color: @text-color-warning;
+        color: inherit;
       }
     }
 

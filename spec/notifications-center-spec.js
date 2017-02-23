@@ -88,47 +88,51 @@ describe('NotificationsCenter', () => {
           beforeEach(() => {
             waitsForPromise(() => app.connect().then(() => {
               notificationElement = workspaceElement.querySelector('atom-notification');
-              notification = notificationElement.getModel();
             }));
           });
 
-          it('notifies the user', () => {
-            const options = notification.getOptions();
-
-            expect(notificationElement).toExist();
-
-            expect(notification.getType()).toEqual('warning');
-            expect(notification.getMessage())
-            .toEqual('The Kite autocomplete engine is not installed');
-
-            expect(options.buttons.length).toEqual(1);
-            expect(options.buttons[0].text).toEqual('Install Kite');
-            expect(options.dismissable).toBeTruthy();
-            expect(options.description)
-            .toEqual('Install Kite to get Python completions, documentation, and examples.');
+          it('does not notify the user', () => {
+            waitsForPromise(() => app.connect().then(() => {
+              expect(workspaceElement.querySelector('atom-notification')).not.toExist();
+            }));
           });
-
-          describe('clicking on the Install Kite button', () => {
-            beforeEach(() => {
-              spyOn(app, 'install').andReturn(Promise.resolve());
-            });
-
-            it('triggers an install', () => {
-              const button = notificationElement.querySelector('a.btn');
-              click(button);
-
-              expect(app.install).toHaveBeenCalled();
-            });
-          });
-
-          describe('when the same state is found after a new check', () => {
-            it('does not notify the user', () => {
-              atom.notifications.getNotifications()[0].dismiss();
-              waitsForPromise(() => app.connect().then(() => {
-                expect(atom.notifications.getNotifications().length).toEqual(1);
-              }));
-            });
-          });
+          // it('notifies the user', () => {
+          //   const options = notification.getOptions();
+          //
+          //   expect(notificationElement).toExist();
+          //
+          //   expect(notification.getType()).toEqual('warning');
+          //   expect(notification.getMessage())
+          //   .toEqual('The Kite autocomplete engine is not installed');
+          //
+          //   expect(options.buttons.length).toEqual(1);
+          //   expect(options.buttons[0].text).toEqual('Install Kite');
+          //   expect(options.dismissable).toBeTruthy();
+          //   expect(options.description)
+          //   .toEqual('Install Kite to get Python completions, documentation, and examples.');
+          // });
+          //
+          // describe('clicking on the Install Kite button', () => {
+          //   beforeEach(() => {
+          //     spyOn(app, 'install').andReturn(Promise.resolve());
+          //   });
+          //
+          //   it('triggers an install', () => {
+          //     const button = notificationElement.querySelector('a.btn');
+          //     click(button);
+          //
+          //     expect(app.install).toHaveBeenCalled();
+          //   });
+          // });
+          //
+          // describe('when the same state is found after a new check', () => {
+          //   it('does not notify the user', () => {
+          //     atom.notifications.getNotifications()[0].dismiss();
+          //     waitsForPromise(() => app.connect().then(() => {
+          //       expect(atom.notifications.getNotifications().length).toEqual(1);
+          //     }));
+          //   });
+          // });
         });
 
         describe('but was installed before', () => {
