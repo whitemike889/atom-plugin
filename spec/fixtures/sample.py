@@ -9,9 +9,10 @@ import matplotlib
 import json
 import posix
 import csv
+import requests
 import subprocess
 
-json.dumps
+json.dumps()
 
 posix.chmod
 os.mkdir
@@ -41,7 +42,7 @@ else if false:
 test.increment(2, delta=5)
 test.increment('bar')
 test.increment('baz')
-test.increment(False)
+test.increment(False) if True else test.increment(True)
 
 if __name__ == "__main__":
     hello()
