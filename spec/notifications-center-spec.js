@@ -70,7 +70,7 @@ describe('NotificationsCenter', () => {
           expect(options.buttons).toBeUndefined();
           expect(options.dismissable).toBeTruthy();
           expect(options.description)
-          .toEqual('Sorry, the Kite autocomplete engine only supports macOS at the moment.');
+          .toEqual('Sorry, the Kite engine only supports macOS at the moment.');
         });
 
         describe('when the same state is found after a new check', () => {
@@ -103,7 +103,7 @@ describe('NotificationsCenter', () => {
           //
           //   expect(notification.getType()).toEqual('warning');
           //   expect(notification.getMessage())
-          //   .toEqual('The Kite autocomplete engine is not installed');
+          //   .toEqual('The Kite engine is not installed');
           //
           //   expect(options.buttons.length).toEqual(1);
           //   expect(options.buttons[0].text).toEqual('Install Kite');
@@ -163,7 +163,7 @@ describe('NotificationsCenter', () => {
 
           expect(notification.getType()).toEqual('warning');
           expect(notification.getMessage())
-          .toEqual('The Kite autocomplete engine is not running');
+          .toEqual('The Kite engine is not running');
 
           expect(options.buttons.length).toEqual(1);
           expect(options.buttons[0].text).toEqual('Start Kite');
@@ -199,7 +199,7 @@ describe('NotificationsCenter', () => {
 
               expect(notification.getType()).toEqual('error');
               expect(notification.getMessage())
-              .toEqual('Unable to start Kite autocomplete engine');
+              .toEqual('Unable to start Kite engine');
 
               expect(options.buttons.length).toEqual(1);
               expect(options.buttons[0].text).toEqual('Retry');
@@ -282,7 +282,7 @@ describe('NotificationsCenter', () => {
 
           expect(notification.getType()).toEqual('warning');
           expect(notification.getMessage())
-          .toEqual('You need to login to the Kite autocomplete engine');
+          .toEqual('You need to login to the Kite engine');
 
           expect(options.buttons.length).toEqual(1);
           expect(options.buttons[0].text).toEqual('Login');
@@ -362,7 +362,7 @@ describe('NotificationsCenter', () => {
 
           expect(notification.getType()).toEqual('warning');
           expect(notification.getMessage())
-          .toEqual(`The Kite autocomplete engine is disabled for ${atom.workspace.getActiveTextEditor().getPath()}`);
+          .toEqual(`The Kite engine is disabled for ${atom.workspace.getActiveTextEditor().getPath()}`);
 
           expect(options.buttons.length).toEqual(2);
           expect(options.buttons[0].text).toEqual(os.homedir());
@@ -493,7 +493,7 @@ describe('NotificationsCenter', () => {
         //
         //   expect(notification.getType()).toEqual('success');
         //   expect(notification.getMessage())
-        //   .toEqual('The Kite autocomplete engine is ready');
+        //   .toEqual('The Kite engine is ready');
         //
         //   expect(options.buttons).toBeUndefined();
         //   expect(options.dismissable).toBeTruthy();
