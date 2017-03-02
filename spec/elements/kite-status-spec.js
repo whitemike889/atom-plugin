@@ -61,15 +61,15 @@ describe('KiteStatus', () => {
     });
   });
 
-  withKiteWhitelistedPaths([__dirname], () => {
-    beforeEach(() => {
-      atom.project.setPaths([__dirname]);
-    });
-
-    it('changes its status to WHITELISTED', () => {
-      waitsForPromise(() => app.connect().then(() => {
-        expect(status.getAttribute('status')).toEqual('whitelisted');
-      }));
-    });
-  });
+  // withKiteWhitelistedPaths([__dirname], () => {
+  //   beforeEach(() => {
+  //     atom.project.setPaths([__dirname]);
+  //   });
+  //
+  //   it('changes its status to WHITELISTED', () => {
+  //     waitsForPromise(() => app.connect().then(() => {
+  //       expect(status.getAttribute('status')).toEqual('whitelisted');
+  //     }));
+  //   });
+  // });
 });

@@ -79,35 +79,44 @@ describe('KiteApp', () => {
           expect(changeSpy)
           .toHaveBeenCalledWith(StateController.STATES.AUTHENTICATED);
 
-          expect(readySpy).not.toHaveBeenCalled();
-        }));
-      });
-    });
-
-    withKiteWhitelistedPaths([__dirname], () => {
-      beforeEach(() => {
-        atom.project.setPaths([__dirname]);
-      });
-
-      it('returns a promise that is resolved with WHITELISTED state', () => {
-        waitsForPromise(() => app.connect().then(state => {
-          expect(state).toEqual(StateController.STATES.WHITELISTED);
-          expect(changeSpy)
-          .toHaveBeenCalledWith(StateController.STATES.WHITELISTED);
-
           expect(readySpy).toHaveBeenCalled();
         }));
       });
 
       it('nevers trigger the kite ready event twice', () => {
         waitsForPromise(() => app.connect());
-        waitsForPromise(() => app.checkPath('/path/to/dir'));
-        waitsForPromise(() => app.checkPath(__dirname));
+        waitsForPromise(() => app.connect());
+        waitsForPromise(() => app.connect());
         runs(() => {
           expect(readySpy.callCount).toEqual(1);
         });
       });
     });
+
+    // withKiteWhitelistedPaths([__dirname], () => {
+    //   beforeEach(() => {
+    //     atom.project.setPaths([__dirname]);
+    //   });
+    //
+    //   it('returns a promise that is resolved with WHITELISTED state', () => {
+    //     waitsForPromise(() => app.connect().then(state => {
+    //       expect(state).toEqual(StateController.STATES.WHITELISTED);
+    //       expect(changeSpy)
+    //       .toHaveBeenCalledWith(StateController.STATES.WHITELISTED);
+    //
+    //       expect(readySpy).toHaveBeenCalled();
+    //     }));
+    //   });
+    //
+    //   it('nevers trigger the kite ready event twice', () => {
+    //     waitsForPromise(() => app.connect());
+    //     waitsForPromise(() => app.checkPath('/path/to/dir'));
+    //     waitsForPromise(() => app.checkPath(__dirname));
+    //     runs(() => {
+    //       expect(readySpy.callCount).toEqual(1);
+    //     });
+    //   });
+    // });
   });
 
   describe('.install()', () => {

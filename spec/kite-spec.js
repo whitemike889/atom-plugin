@@ -6,7 +6,7 @@ const {fakeKiteInstallPaths, withKiteWhitelistedPaths, sleep, withFakeServer, fa
 
 const projectPath = path.join(__dirname, 'fixtures');
 
-describe('Kite', () => {
+fdescribe('Kite', () => {
   let workspaceElement, jasmineContent, notificationsPkg, kitePkg;
 
   fakeKiteInstallPaths();

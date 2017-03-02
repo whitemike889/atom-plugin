@@ -19,7 +19,7 @@ kite-status {
   }
 
   &[status="reachable"],
-  &[status="authenticated"][has-python-files-open] {
+  &[status="authenticated"][is-active-python-file] {
     kite-logo svg polygon {
       fill: @text-color-warning;
     }

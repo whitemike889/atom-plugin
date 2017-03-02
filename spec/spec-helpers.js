@@ -1,5 +1,6 @@
 'use strict';
 
+const os = require('os');
 const http = require('http');
 const proc = require('child_process');
 const {StateController} = require('kite-installer');
@@ -280,11 +281,30 @@ function withKiteWhitelistedPaths(paths, block) {
     paths = [];
   }
 
+  const tokenRe = /^\/api\/buffer\/atom\/.*\/(.*)\/tokens/;
+  const projectDirRe = /^\/clientapi\/projectdir?filename=(.*)&/;
+
+  const whitelisted = match => {
+    const path = match.replace(/:/, '/');
+    return paths.some(p => path.indexOf(p));
+  };
+
   const routes = [
     [
-      o =>
-        /^\/clientapi\/settings\/inclusions/.test(o.path) && o.method === 'GET',
-      o => fakeResponse(200, JSON.stringify(paths)),
+      o => {
+        const match = tokenRe.exec(o.path);
+        return o.method === 'GET' && match && whitelisted(match[1]);
+      },
+      o => fakeResponse(200, JSON.stringify({tokens: []})),
+    ], [
+      o => {
+        const match = tokenRe.exec(o.path);
+        return o.method === 'GET' && match && !whitelisted(match[1]);
+      },
+      o => fakeResponse(403),
+    ], [
+      o => o.method === 'GET' && projectDirRe.test(o.path),
+      o => fakeResponse(200, os.homedir()),
     ],
   ];
 
@@ -293,6 +313,40 @@ function withKiteWhitelistedPaths(paths, block) {
       block();
     });
   });
+}
+
+function withKiteIgnoredPaths(paths) {
+  const tokenRe = /^\/api\/buffer\/atom\/.*\/(.*)\/tokens/;
+  const ignored = match => {
+    const path = match.replace(/:/, '/');
+    return paths.some(p => path.indexOf(p));
+  };
+
+  withKiteBlacklistedPaths(paths);
+  withRoutes([
+    [
+      o => {
+        const match = tokenRe.exec(o.path);
+        return o.method === 'GET' && match && ignored(match[1]);
+      },
+      o => fakeResponse(403),
+    ],
+  ]);
+}
+
+function withKiteBlacklistedPaths(paths) {
+  const projectDirRe = /^\/clientapi\/projectdir?filename=(.*)&/;
+  const blacklisted = path => paths.some(p => path.indexOf(p));
+
+  withRoutes([
+    [
+      o => {
+        const match = projectDirRe.exec(o.path);
+        return o.method === 'GET' && match && blacklisted(match[1]);
+      },
+      o => fakeResponse(403),
+    ],
+  ]);
 }
 
 function withRoutes(routes) {
@@ -307,7 +361,7 @@ module.exports = {
   withKiteRunning, withKiteNotRunning,
   withKiteReachable, withKiteNotReachable,
   withKiteAuthenticated, withKiteNotAuthenticated,
-  withKiteWhitelistedPaths,
+  withKiteWhitelistedPaths, withKiteBlacklistedPaths, withKiteIgnoredPaths,
   withFakeServer, withRoutes,
   sleep,
 };
