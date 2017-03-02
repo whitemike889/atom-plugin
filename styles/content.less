@@ -73,6 +73,26 @@
 
   cursor: default;
 
+  .debug {
+    margin-top: @half-padding;
+    flex: 0 1 auto;
+    display: flex;
+    max-height: 300px;
+
+    pre {
+      flex: 1 1 auto;
+      cursor: text;
+      -webkit-user-select: all;
+      user-select: all;
+      overflow: auto;
+
+      > * {
+        pointer-events: none;
+      }
+    }
+  }
+
+
   kite-expand-module, kite-expand-function, kite-expand-instance {
     flex-direction: column;
 
@@ -90,6 +110,17 @@
       }
 
       .kite-table;
+    }
+
+    section.parameters {
+      flex: 0 1 auto;
+      display: flex;
+      flex-direction: column;
+
+      .section-content {
+        flex: 0 1 auto;
+        overflow-y: auto;
+      }
     }
   }
 
@@ -238,33 +269,6 @@
 
   section.definition {
     .kite-icon-list;
-    li {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-
-      span {
-        flex: 1 1 auto;
-      }
-
-      a {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        color: @text-color;
-        text-transform: uppercase;
-        font-size: 0.8em;
-        margin-left: 0.5em;
-        font-weight: 100;
-
-        .icon::before {
-          color: @text-color-highlight;
-          font-size: 2em;
-          margin-left: 0.2em;
-          vertical-align: bottom;
-        }
-      }
-    }
   }
 
   h4 {

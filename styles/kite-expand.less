@@ -12,6 +12,23 @@ kite-expand {
   overflow-y: auto;
   position: relative;
 
+  .debug {
+    margin-top: @half-padding;
+
+    pre {
+      cursor: text;
+      -webkit-user-select: all;
+      user-select: all;
+      max-height: 300px;
+      max-width: 500px;
+      overflow: auto;
+
+      > * {
+        pointer-events: none;
+      }
+    }
+  }
+
   kite-navigable-stack-breadcrumb {
     flex: 0 0 auto;
     align-items: center;
