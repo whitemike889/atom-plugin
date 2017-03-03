@@ -7,9 +7,11 @@ const {StateController} = require('kite-installer');
 const metrics = require('../lib/metrics.js');
 
 beforeEach(() => {
-  spyOn(metrics, 'track').andCallFake((...args) => {
+  spyOn(metrics, 'track')/*.andCallFake((...args) => {
     console.log('track', ...args);
-  });
+  })*/;
+
+  atom.config.set('kite.loggingLevel', 'error');
 
   Object.defineProperty(StateController.client, 'LOCAL_TOKEN', {
     get() { return 'abcdef1234567890'; },
@@ -225,6 +227,7 @@ function withKiteReachable(routes, block) {
   }
 
   routes.push([o => o.path === '/system', o => fakeResponse(200)]);
+  routes.push([o => o.path === '/clientapi/user', o => fakeResponse(200, '{}')]);
 
   withKiteRunning(() => {
     describe(', reachable', () => {
@@ -282,7 +285,7 @@ function withKiteWhitelistedPaths(paths, block) {
   }
 
   const tokenRe = /^\/api\/buffer\/atom\/.*\/(.*)\/tokens/;
-  const projectDirRe = /^\/clientapi\/projectdir?filename=(.*)&/;
+  const projectDirRe = /^\/clientapi\/projectdir\?filename=(.+)&/;
 
   const whitelisted = match => {
     const path = match.replace(/:/, '/');
@@ -293,17 +296,17 @@ function withKiteWhitelistedPaths(paths, block) {
     [
       o => {
         const match = tokenRe.exec(o.path);
-        return o.method === 'GET' && match && whitelisted(match[1]);
+        return match && whitelisted(match[1]);
       },
       o => fakeResponse(200, JSON.stringify({tokens: []})),
     ], [
       o => {
         const match = tokenRe.exec(o.path);
-        return o.method === 'GET' && match && !whitelisted(match[1]);
+        return match && !whitelisted(match[1]);
       },
       o => fakeResponse(403),
     ], [
-      o => o.method === 'GET' && projectDirRe.test(o.path),
+      o => projectDirRe.test(o.path),
       o => fakeResponse(200, os.homedir()),
     ],
   ];
@@ -335,7 +338,7 @@ function withKiteIgnoredPaths(paths) {
 }
 
 function withKiteBlacklistedPaths(paths) {
-  const projectDirRe = /^\/clientapi\/projectdir?filename=(.*)&/;
+  const projectDirRe = /^\/clientapi\/projectdir\?filename=(.*)&/;
   const blacklisted = path => paths.some(p => path.indexOf(p));
 
   withRoutes([

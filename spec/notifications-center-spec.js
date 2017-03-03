@@ -346,77 +346,77 @@ describe('NotificationsCenter', () => {
         });
       });
 
-      withKiteWhitelistedPaths(() => {
-        beforeEach(() => {
-          waitsForPromise(() => app.connect().then(() => {
-            notificationElement = workspaceElement.querySelector('atom-notification');
-            notification = notificationElement.getModel();
-
-          }));
-        });
-
-        it('notifies the user', () => {
-          const options = notification.getOptions();
-
-          expect(notificationElement).toExist();
-
-          expect(notification.getType()).toEqual('warning');
-          expect(notification.getMessage())
-          .toEqual(`The Kite engine is disabled for ${atom.workspace.getActiveTextEditor().getPath()}`);
-
-          expect(options.buttons.length).toEqual(2);
-          expect(options.buttons[0].text).toEqual(os.homedir());
-          expect(options.buttons[1].text).toEqual('Browse…');
-          expect(options.dismissable).toBeTruthy();
-          expect(options.description)
-          .toEqual('Would you like to enable Kite for Python files in:');
-        });
-
-        describe('clicking on the homedir button', () => {
-          it('attempts to whitelist the homedir path', () => {
-            spyOn(app, 'whitelist').andReturn(Promise.resolve());
-            const button = notificationElement.querySelector('a.btn');
-            click(button);
-
-            expect(app.whitelist).toHaveBeenCalledWith(os.homedir());
-          });
-        });
-
-        describe('clicking on the browse button', () => {
-          describe('and picking a directory', () => {
-            it('attempts to whitelist the homedir path', () => {
-              spyOn(atom.applicationDelegate, 'pickFolder').andCallFake(cb => {
-                cb(['/some/directory/path']);
-              });
-              spyOn(app, 'whitelist').andReturn(Promise.resolve());
-              const button = notificationElement.querySelectorAll('a.btn')[1];
-              click(button);
-
-              expect(app.whitelist).toHaveBeenCalledWith('/some/directory/path');
-            });
-          });
-
-          describe('and cancelling', () => {
-            it('does not try to whitelist', () => {
-              spyOn(atom.applicationDelegate, 'pickFolder').andCallFake(cb => { cb([]); });
-              spyOn(app, 'whitelist').andReturn(Promise.resolve());
-              const button = notificationElement.querySelectorAll('a.btn')[1];
-              click(button);
-
-              expect(app.whitelist).not.toHaveBeenCalled();
-            });
-          });
-        });
-
-        describe('when the same state is found after a new check', () => {
-          it('does not notify the user', () => {
-            atom.notifications.getNotifications()[0].dismiss();
-            waitsForPromise(() => app.connect().then(() => {
-              expect(atom.notifications.getNotifications().length).toEqual(1);
-            }));
-          });
-        });
-      });
+      // withKiteWhitelistedPaths(() => {
+      //   beforeEach(() => {
+      //     waitsForPromise(() => app.connect().then(() => {
+      //       notificationElement = workspaceElement.querySelector('atom-notification');
+      //       notification = notificationElement.getModel();
+      //
+      //     }));
+      //   });
+      //
+      //   it('notifies the user', () => {
+      //     const options = notification.getOptions();
+      //
+      //     expect(notificationElement).toExist();
+      //
+      //     expect(notification.getType()).toEqual('warning');
+      //     expect(notification.getMessage())
+      //     .toEqual(`The Kite engine is disabled for ${atom.workspace.getActiveTextEditor().getPath()}`);
+      //
+      //     expect(options.buttons.length).toEqual(2);
+      //     expect(options.buttons[0].text).toEqual(os.homedir());
+      //     expect(options.buttons[1].text).toEqual('Browse…');
+      //     expect(options.dismissable).toBeTruthy();
+      //     expect(options.description)
+      //     .toEqual('Would you like to enable Kite for Python files in:');
+      //   });
+      //
+      //   describe('clicking on the homedir button', () => {
+      //     it('attempts to whitelist the homedir path', () => {
+      //       spyOn(app, 'whitelist').andReturn(Promise.resolve());
+      //       const button = notificationElement.querySelector('a.btn');
+      //       click(button);
+      //
+      //       expect(app.whitelist).toHaveBeenCalledWith(os.homedir());
+      //     });
+      //   });
+      //
+      //   describe('clicking on the browse button', () => {
+      //     describe('and picking a directory', () => {
+      //       it('attempts to whitelist the homedir path', () => {
+      //         spyOn(atom.applicationDelegate, 'pickFolder').andCallFake(cb => {
+      //           cb(['/some/directory/path']);
+      //         });
+      //         spyOn(app, 'whitelist').andReturn(Promise.resolve());
+      //         const button = notificationElement.querySelectorAll('a.btn')[1];
+      //         click(button);
+      //
+      //         expect(app.whitelist).toHaveBeenCalledWith('/some/directory/path');
+      //       });
+      //     });
+      //
+      //     describe('and cancelling', () => {
+      //       it('does not try to whitelist', () => {
+      //         spyOn(atom.applicationDelegate, 'pickFolder').andCallFake(cb => { cb([]); });
+      //         spyOn(app, 'whitelist').andReturn(Promise.resolve());
+      //         const button = notificationElement.querySelectorAll('a.btn')[1];
+      //         click(button);
+      //
+      //         expect(app.whitelist).not.toHaveBeenCalled();
+      //       });
+      //     });
+      //   });
+      //
+      //   describe('when the same state is found after a new check', () => {
+      //     it('does not notify the user', () => {
+      //       atom.notifications.getNotifications()[0].dismiss();
+      //       waitsForPromise(() => app.connect().then(() => {
+      //         expect(atom.notifications.getNotifications().length).toEqual(1);
+      //       }));
+      //     });
+      //   });
+      // });
 
       describe('when an attempt to whitelist a path fails', () => {
         describe('because the path is already whitelisted', () => {
@@ -570,34 +570,34 @@ describe('NotificationsCenter', () => {
       });
     });
 
-    describe('when the notifications are forced', () => {
-      beforeEach(() => {
-        notifications.activateForcedNotifications();
-      });
-
-      withKiteWhitelistedPaths(() => {
-        it('notifies the user', () => {
-          waitsForPromise(() => app.connect().then(() => {
-            expect(workspaceElement.querySelector('atom-notification')).toExist();
-          }));
-        });
-      });
-    });
-
-    describe('opening a python file', () => {
-      beforeEach(() => {
-        waitsForPromise(() =>
-          atom.packages.activatePackage('language-python'));
-        waitsForPromise(() => atom.workspace.open('sample.py'));
-      });
-
-      withKiteWhitelistedPaths(() => {
-        it('starts notifying the user', () => {
-          waitsForPromise(() => app.connect().then(() => {
-            expect(workspaceElement.querySelector('atom-notification')).toExist();
-          }));
-        });
-      });
-    });
+    // describe('when the notifications are forced', () => {
+    //   beforeEach(() => {
+    //     notifications.activateForcedNotifications();
+    //   });
+    //
+    //   withKiteWhitelistedPaths(() => {
+    //     it('notifies the user', () => {
+    //       waitsForPromise(() => app.connect().then(() => {
+    //         expect(workspaceElement.querySelector('atom-notification')).toExist();
+    //       }));
+    //     });
+    //   });
+    // });
+    //
+    // describe('opening a python file', () => {
+    //   beforeEach(() => {
+    //     waitsForPromise(() =>
+    //       atom.packages.activatePackage('language-python'));
+    //     waitsForPromise(() => atom.workspace.open('sample.py'));
+    //   });
+    //
+    //   withKiteWhitelistedPaths(() => {
+    //     it('starts notifying the user', () => {
+    //       waitsForPromise(() => app.connect().then(() => {
+    //         expect(workspaceElement.querySelector('atom-notification')).toExist();
+    //       }));
+    //     });
+    //   });
+    // });
   });
 });
