@@ -284,12 +284,12 @@ function withKiteWhitelistedPaths(paths, block) {
     paths = [];
   }
 
-  const tokenRe = /^\/api\/buffer\/atom\/.*\/(.*)\/tokens/;
+  const tokenRe = /^\/api\/buffer\/atom\/(.*)\/.*\/tokens/;
   const projectDirRe = /^\/clientapi\/projectdir\?filename=(.+)&/;
 
   const whitelisted = match => {
-    const path = match.replace(/:/, '/');
-    return paths.some(p => path.indexOf(p));
+    const path = match.replace(/:/g, '/');
+    return paths.some(p => path.indexOf(p) !== -1);
   };
 
   const routes = [
@@ -321,8 +321,8 @@ function withKiteWhitelistedPaths(paths, block) {
 function withKiteIgnoredPaths(paths) {
   const tokenRe = /^\/api\/buffer\/atom\/.*\/(.*)\/tokens/;
   const ignored = match => {
-    const path = match.replace(/:/, '/');
-    return paths.some(p => path.indexOf(p));
+    const path = match.replace(/:/g, '/');
+    return paths.some(p => path.indexOf(p) !== -1);
   };
 
   withKiteBlacklistedPaths(paths);
@@ -339,7 +339,7 @@ function withKiteIgnoredPaths(paths) {
 
 function withKiteBlacklistedPaths(paths) {
   const projectDirRe = /^\/clientapi\/projectdir\?filename=(.*)&/;
-  const blacklisted = path => paths.some(p => path.indexOf(p));
+  const blacklisted = path => paths.some(p => path.indexOf(p) !== -1);
 
   withRoutes([
     [
