@@ -1,5 +1,6 @@
 'use strict';
 
+const http = require('http');
 const path = require('path');
 const {Installation} = require('kite-installer');
 const {fakeKiteInstallPaths, withKiteWhitelistedPaths, sleep, withFakeServer, fakeResponse} = require('./spec-helpers');
@@ -80,6 +81,14 @@ describe('Kite', () => {
           describe('opening a supported file', () => {
             beforeEach(() => {
               waitsForPromise(() => atom.workspace.open('sample.py'));
+            });
+
+            it('calls the projectdir endpoint', () => {
+              sleep(100);
+              runs(() => {
+                const {path} = http.request.mostRecentCall.args[0];
+                expect(/^\/clientapi\/projectdir/.test(path)).toBeTruthy();
+              });
             });
 
             it('notifies the user', () => {

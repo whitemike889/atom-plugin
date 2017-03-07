@@ -1,14 +1,17 @@
 'use strict';
 
+const os = require('os');
 const http = require('http');
 const proc = require('child_process');
 const {StateController} = require('kite-installer');
 const metrics = require('../lib/metrics.js');
 
 beforeEach(() => {
-  spyOn(metrics, 'track').andCallFake((...args) => {
+  spyOn(metrics, 'track')/*.andCallFake((...args) => {
     console.log('track', ...args);
-  });
+  })*/;
+
+  atom.config.set('kite.loggingLevel', 'error');
 
   Object.defineProperty(StateController.client, 'LOCAL_TOKEN', {
     get() { return 'abcdef1234567890'; },
@@ -224,6 +227,7 @@ function withKiteReachable(routes, block) {
   }
 
   routes.push([o => o.path === '/system', o => fakeResponse(200)]);
+  routes.push([o => o.path === '/clientapi/user', o => fakeResponse(200, '{}')]);
 
   withKiteRunning(() => {
     describe(', reachable', () => {
@@ -280,11 +284,30 @@ function withKiteWhitelistedPaths(paths, block) {
     paths = [];
   }
 
+  const tokenRe = /^\/api\/buffer\/atom\/(.*)\/.*\/tokens/;
+  const projectDirRe = /^\/clientapi\/projectdir\?filename=(.+)&/;
+
+  const whitelisted = match => {
+    const path = match.replace(/:/g, '/');
+    return paths.some(p => path.indexOf(p) !== -1);
+  };
+
   const routes = [
     [
-      o =>
-        /^\/clientapi\/settings\/inclusions/.test(o.path) && o.method === 'GET',
-      o => fakeResponse(200, JSON.stringify(paths)),
+      o => {
+        const match = tokenRe.exec(o.path);
+        return match && whitelisted(match[1]);
+      },
+      o => fakeResponse(200, JSON.stringify({tokens: []})),
+    ], [
+      o => {
+        const match = tokenRe.exec(o.path);
+        return match && !whitelisted(match[1]);
+      },
+      o => fakeResponse(403),
+    ], [
+      o => projectDirRe.test(o.path),
+      o => fakeResponse(200, os.homedir()),
     ],
   ];
 
@@ -293,6 +316,40 @@ function withKiteWhitelistedPaths(paths, block) {
       block();
     });
   });
+}
+
+function withKiteIgnoredPaths(paths) {
+  const tokenRe = /^\/api\/buffer\/atom\/.*\/(.*)\/tokens/;
+  const ignored = match => {
+    const path = match.replace(/:/g, '/');
+    return paths.some(p => path.indexOf(p) !== -1);
+  };
+
+  withKiteBlacklistedPaths(paths);
+  withRoutes([
+    [
+      o => {
+        const match = tokenRe.exec(o.path);
+        return o.method === 'GET' && match && ignored(match[1]);
+      },
+      o => fakeResponse(403),
+    ],
+  ]);
+}
+
+function withKiteBlacklistedPaths(paths) {
+  const projectDirRe = /^\/clientapi\/projectdir\?filename=(.*)&/;
+  const blacklisted = path => paths.some(p => path.indexOf(p) !== -1);
+
+  withRoutes([
+    [
+      o => {
+        const match = projectDirRe.exec(o.path);
+        return o.method === 'GET' && match && blacklisted(match[1]);
+      },
+      o => fakeResponse(403),
+    ],
+  ]);
 }
 
 function withRoutes(routes) {
@@ -307,7 +364,7 @@ module.exports = {
   withKiteRunning, withKiteNotRunning,
   withKiteReachable, withKiteNotReachable,
   withKiteAuthenticated, withKiteNotAuthenticated,
-  withKiteWhitelistedPaths,
+  withKiteWhitelistedPaths, withKiteBlacklistedPaths, withKiteIgnoredPaths,
   withFakeServer, withRoutes,
   sleep,
 };
