@@ -46,8 +46,10 @@ describe('NotificationsCenter', () => {
     beforeEach(() => {
       waitsForPromise(() =>
         atom.packages.activatePackage('language-python'));
-      waitsForPromise(() => atom.workspace.open('sample.py').then(e =>
-        editor = e));
+      waitsForPromise(() => atom.workspace.open('sample.py').then(e => {
+        editor = e;
+        // const kiteEditor =
+      }));
     });
 
     describe('and no notifications have been displayed before', () => {
@@ -370,7 +372,7 @@ describe('NotificationsCenter', () => {
           .toEqual(`The Kite engine is disabled for ${atom.workspace.getActiveTextEditor().getPath()}`);
 
           expect(options.buttons.length).toEqual(3);
-          expect(options.buttons[0].text).toEqual('Ignore…');
+          expect(options.buttons[0].text).toEqual('Settings');
           expect(options.buttons[1].text).toEqual('/path/to/dir');
           expect(options.buttons[2].text).toEqual('Browse…');
           expect(options.dismissable).toBeTruthy();
@@ -380,11 +382,15 @@ describe('NotificationsCenter', () => {
 
         describe('clicking on the homedir button', () => {
           it('attempts to whitelist the homedir path', () => {
-            spyOn(app, 'whitelist').andReturn(Promise.resolve());
+            spyOn(atom.applicationDelegate, 'openExternal');
             const button = notificationElement.querySelectorAll('a.btn')[1];
             click(button);
+            const filename = editor.getPath();
 
-            expect(app.whitelist).toHaveBeenCalledWith('/path/to/dir');
+            expect(atom.applicationDelegate.openExternal)
+            .toHaveBeenCalledWith(
+              `http://local.kite.com:46624/settings/permissions?filename=${filename}&action=blacklist`
+            );
           });
         });
 
