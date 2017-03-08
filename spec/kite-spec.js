@@ -8,7 +8,7 @@ const {fakeKiteInstallPaths, withKiteWhitelistedPaths, sleep, withFakeServer, fa
 const projectPath = path.join(__dirname, 'fixtures');
 
 describe('Kite', () => {
-  let workspaceElement, jasmineContent, notificationsPkg, kitePkg;
+  let workspaceElement, jasmineContent, notificationsPkg, kitePkg, editor;
 
   fakeKiteInstallPaths();
 
@@ -80,30 +80,28 @@ describe('Kite', () => {
 
           describe('opening a supported file', () => {
             beforeEach(() => {
-              waitsForPromise(() => atom.workspace.open('sample.py'));
-            });
-
-            it('calls the projectdir endpoint', () => {
-              sleep(100);
+              waitsForPromise(() => atom.workspace.open('sample.py').then(e => {
+                editor = e;
+              }));
+              waitsFor(() => kitePkg.kiteEditorForEditor(editor));
               runs(() => {
-                const {path} = http.request.mostRecentCall.args[0];
-                expect(/^\/clientapi\/projectdir/.test(path)).toBeTruthy();
+                const v = atom.views.getView(editor);
+                v.dispatchEvent(new Event('focus'));
+                advanceClock(200);
               });
+              waitsFor('projectdir endpoint call', () => {
+                const {path} = http.request.mostRecentCall.args[0];
+                return /^\/clientapi\/projectdir/.test(path);
+              });
+              sleep(100);
             });
 
             it('notifies the user', () => {
-              sleep(100);
-              runs(() => {
-                expect(workspaceElement.querySelector('atom-notification')).toExist();
-              });
+              expect(workspaceElement.querySelector('atom-notification')).toExist();
             });
 
             it('subscribes to the editor events', () => {
-              sleep(100);
-              runs(() => {
-                const editor = atom.workspace.getActiveTextEditor();
-                expect(kitePkg.hasEditorSubscription(editor)).toBeTruthy();
-              });
+              expect(kitePkg.hasEditorSubscription(editor)).toBeTruthy();
             });
           });
 
@@ -134,14 +132,18 @@ describe('Kite', () => {
                   spyOn(editor, 'getPath')
                   .andReturn(path.join(projectPath, 'file.py'));
                   editor.emitter.emit('did-change-path', editor.getPath());
+                  advanceClock(200);
+                  sleep(100);
+                  runs(() => {
+                    advanceClock(200);
+                  });
                 });
 
                 it('notifies the user', () => {
-                  waitsFor(() => workspaceElement.querySelector('atom-notification'));
+                  waitsFor('notification', () => workspaceElement.querySelector('atom-notification'));
                 });
 
                 it('subscribes to the editor events', () => {
-                  sleep(100);
                   runs(() => {
                     const editor = atom.workspace.getActiveTextEditor();
                     expect(kitePkg.hasEditorSubscription(editor)).toBeTruthy();
@@ -170,10 +172,23 @@ describe('Kite', () => {
 
         describe('and there is a supported file open', () => {
           beforeEach(() => {
-            waitsForPromise(() => atom.workspace.open('sample.py'));
+            waitsForPromise(() => atom.workspace.open('sample.py').then(e => {
+              editor = e;
+            }));
             waitsForPromise(() => atom.packages.activatePackage('kite').then(pkg => {
               kitePkg = pkg.mainModule;
             }));
+            runs(() => {
+              const v = atom.views.getView(editor);
+              v.dispatchEvent(new Event('focus'));
+            });
+            waitsFor('kite editor', () => kitePkg.kiteEditorForEditor(editor));
+            runs(() => advanceClock(200));
+            waitsFor('projectdir endpoint call', () => {
+              const {path} = http.request.mostRecentCall.args[0];
+              return /^\/clientapi\/projectdir/.test(path);
+            });
+            sleep(100);
           });
 
           it('notifies the user', () => {
@@ -288,10 +303,18 @@ describe('Kite', () => {
 
         describe('and there is a supported file open', () => {
           beforeEach(() => {
-            waitsForPromise(() => atom.workspace.open('sample.py'));
+            waitsForPromise(() => atom.workspace.open('sample.py').then(e => {
+              editor = e;
+            }));
             waitsForPromise(() => atom.packages.activatePackage('kite').then(pkg => {
               kitePkg = pkg.mainModule;
             }));
+            runs(() => {
+              const v = atom.views.getView(editor);
+              v.dispatchEvent(new Event('focus'));
+            });
+            waitsFor('kite editor', () => kitePkg.kiteEditorForEditor(editor));
+            runs(() => advanceClock(200));
           });
 
           it('does not notify the user', () => {
