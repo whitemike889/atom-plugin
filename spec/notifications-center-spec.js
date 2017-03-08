@@ -382,10 +382,20 @@ describe('NotificationsCenter', () => {
 
         describe('clicking on the homedir button', () => {
           it('attempts to whitelist the homedir path', () => {
-            spyOn(atom.applicationDelegate, 'openExternal');
+            spyOn(app, 'whitelist').andReturn(Promise.resolve());
             const button = notificationElement.querySelectorAll('a.btn')[1];
             click(button);
+            expect(app.whitelist).toHaveBeenCalledWith('/path/to/dir');
+
+          });
+        });
+
+        describe('clicking on the setting button', () => {
+          it('attempts to blacklist the editor path', () => {
+            spyOn(atom.applicationDelegate, 'openExternal');
+            const button = notificationElement.querySelectorAll('a.btn')[0];
             const filename = editor.getPath();
+            click(button);
 
             expect(atom.applicationDelegate.openExternal)
             .toHaveBeenCalledWith(
@@ -394,17 +404,7 @@ describe('NotificationsCenter', () => {
           });
         });
 
-        describe('clicking on the ignore button', () => {
-          it('attempts to blacklist the editor path', () => {
-            spyOn(app, 'blacklist').andReturn(Promise.resolve());
-            const button = notificationElement.querySelectorAll('a.btn')[0];
-            click(button);
-
-            expect(app.blacklist).toHaveBeenCalledWith(editor.getPath());
-          });
-        });
-
-        describe('dismissing the notifit', () => {
+        describe('dismissing the notification', () => {
           it('attempts to blacklist the editor path', () => {
             spyOn(app, 'blacklist').andReturn(Promise.resolve());
             const button = notificationElement.querySelector('.close');
