@@ -1,0 +1,75 @@
+@import 'variables';
+@import 'content';
+
+kite-status-panel {
+  display: flex;
+  flex-direction: column;
+  background: @hover-background-color;
+  box-shadow: 0 0 10px rgba(0,0,0,0.4);
+  padding: @component-padding;
+  position: fixed;
+  min-width: 200px;
+  transform: translate(-100%, -100%);
+  border-radius: 4px;
+
+  kite-logo svg {
+    height: 16px;
+
+    polygon {
+      fill: @text-color-highlight;
+    }
+  }
+
+  .pro-badge {
+    background: @text-color-highlight;
+    color: @hover-background-color;
+    display: inline-block;
+    padding: 0 0.3em 0.1em;
+    border-radius: 3px;
+    margin: 0 0.5em;
+    text-transform: uppercase;
+  }
+
+  .split-line {
+    .kite-split-line;
+    margin-bottom: @half-padding;
+
+    > * {
+      white-space: nowrap;
+    }
+  }
+
+  .status {
+    text-align: right;
+    padding: @half-padding @half-padding 0;
+
+    & > div {
+      margin-bottom: @half-padding;
+    }
+
+    &:nth-child(1n+1) {
+      padding: @component-padding @half-padding 0;
+      border-top: 1px solid @base-background-color;
+    }
+
+    .dot {
+      font-size: 2.4em;
+      line-height: 0.5em;
+      vertical-align: sub;
+      display: inline-block;
+    }
+
+    .ready .dot {
+      color: @text-color-info;
+    }
+  }
+
+  a, a:active, a:visited, a:focus {
+    color: @text-color-info;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
