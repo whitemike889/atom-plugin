@@ -1,6 +1,21 @@
 @import 'ui-variables';
 @import "../node_modules/kite-installer/styles/styles.less";
 
+
+.icon-kite::before {
+  content: '';
+  display: block;
+  width: 16px;
+  height: 16px;
+   mask-image: url('atom://kite/assets/logo-no-text.svg');
+   mask-size: contain;
+   mask-repeat: no-repeat;
+  -webkit-mask-image: url('atom://kite/assets/logo-no-text.svg');
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  background-color: @text-color-info;
+}
+
 .tooltip.kite-tooltip {
   .tooltip-arrow {
     border-top-color: @background-color-selected !important;
