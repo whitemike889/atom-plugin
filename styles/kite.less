@@ -4,7 +4,8 @@
 
 .icon-kite::before {
   content: '';
-  display: block;
+  display: inline-block;
+  vertical-align: middle;
   width: 16px;
   height: 16px;
    mask-image: url('atom://kite/assets/logo-no-text.svg');
@@ -13,7 +14,7 @@
   -webkit-mask-image: url('atom://kite/assets/logo-no-text.svg');
   -webkit-mask-repeat: no-repeat;
   -webkit-mask-size: contain;
-  background-color: @text-color-info;
+  background-color: @text-color-highlight;
 }
 
 .tooltip.kite-tooltip {
