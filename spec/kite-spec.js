@@ -83,15 +83,15 @@ describe('Kite', () => {
               waitsForPromise(() => atom.workspace.open('sample.py').then(e => {
                 editor = e;
               }));
-              waitsFor(() => kitePkg.kiteEditorForEditor(editor));
+              waitsFor('kite editor', () => kitePkg.kiteEditorForEditor(editor));
               runs(() => {
                 const v = atom.views.getView(editor);
                 v.dispatchEvent(new Event('focus'));
                 advanceClock(200);
               });
-              waitsFor('projectdir endpoint call', () => {
+              waitsFor('notify endpoint call', () => {
                 const {path} = http.request.mostRecentCall.args[0];
-                return /^\/clientapi\/projectdir/.test(path);
+                return /^\/clientapi\/permissions/.test(path);
               });
               sleep(100);
             });
@@ -159,10 +159,10 @@ describe('Kite', () => {
                   editor.emitter.emit('did-change-path', editor.getPath());
                 });
 
-                it('does not notify the user', () => {
+                it('notifies the user', () => {
                   sleep(100);
                   runs(() => {
-                    expect(workspaceElement.querySelector('atom-notification')).not.toExist();
+                    expect(workspaceElement.querySelector('atom-notification')).toExist();
                   });
                 });
               });
@@ -184,9 +184,9 @@ describe('Kite', () => {
             });
             waitsFor('kite editor', () => kitePkg.kiteEditorForEditor(editor));
             runs(() => advanceClock(200));
-            waitsFor('projectdir endpoint call', () => {
+            waitsFor('notify endpoint call', () => {
               const {path} = http.request.mostRecentCall.args[0];
-              return /^\/clientapi\/projectdir/.test(path);
+              return /^\/clientapi\/permissions/.test(path);
             });
             sleep(100);
           });

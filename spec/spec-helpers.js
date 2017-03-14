@@ -286,6 +286,7 @@ function withKiteWhitelistedPaths(paths, block) {
 
   const tokenRe = /^\/api\/buffer\/atom\/(.*)\/.*\/tokens/;
   const projectDirRe = /^\/clientapi\/projectdir\?filename=(.+)&/;
+  const notifyRe = /^\/clientapi\/permissions\/notify\?filename=(.+)&/;
 
   const whitelisted = match => {
     const path = match.replace(/:/g, '/');
@@ -308,6 +309,9 @@ function withKiteWhitelistedPaths(paths, block) {
     ], [
       o => projectDirRe.test(o.path),
       o => fakeResponse(200, os.homedir()),
+    ], [
+      o => notifyRe.test(o.path),
+      o => fakeResponse(200),
     ],
   ];
 
@@ -338,13 +342,13 @@ function withKiteIgnoredPaths(paths) {
 }
 
 function withKiteBlacklistedPaths(paths) {
-  const projectDirRe = /^\/clientapi\/projectdir\?filename=(.*)&/;
+  const notifyRe = /^\/clientapi\/permissions\/notify\?filename=(.+)&/;
   const blacklisted = path => paths.some(p => path.indexOf(p) !== -1);
 
   withRoutes([
     [
       o => {
-        const match = projectDirRe.exec(o.path);
+        const match = notifyRe.exec(o.path);
         return o.method === 'GET' && match && blacklisted(match[1]);
       },
       o => fakeResponse(403),
