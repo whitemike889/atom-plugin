@@ -27,10 +27,11 @@ kite-tour {
 
   section {
     display: flex;
-    width: 400px;
+    width: 440px;
     max-width: 100%;
     flex-direction: row;
     align-items: center;
+    padding: 0 @double-padding;
 
     & + section {
       margin-top: @quadruple-padding;
@@ -50,7 +51,7 @@ kite-tour {
 
   .kite-tour-scroll-section {
     flex: 1 1 auto;
-    overflow-y: auto;
+    overflow-y: scroll;
     margin: @quadruple-padding 0;
   }
 
