@@ -317,10 +317,11 @@ describe('KiteApp', () => {
     describe('when the password is reset', () => {
       beforeEach(() => {
         spyOn(os, 'platform').andReturn('darwin');
+        spyOn(atom.applicationDelegate, 'openExternal');
 
         spy = jasmine.createSpy();
         app.onDidResetPassword(spy);
-        fakeProcesses({open : () => 0});
+
 
         click(loginForm.resetBtn);
       });
@@ -330,9 +331,8 @@ describe('KiteApp', () => {
       });
 
       it('opens the reset password link in a browser', () => {
-        expect(proc.spawn).toHaveBeenCalledWith('open', [
-          '-W', 'https://alpha.kite.com/account/resetPassword/request?email=',
-        ], {});
+        expect(atom.applicationDelegate.openExternal)
+        .toHaveBeenCalledWith('https://alpha.kite.com/account/resetPassword/request?email=');
       });
 
       it('removes the modal', () => {
