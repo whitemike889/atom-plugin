@@ -1,0 +1,66 @@
+@import "variables";
+
+kite-tour {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  font-size: 1.2rem;
+  background: @base-background-color;
+
+  a, a:visited, a:active, a:focus, a:hover {
+    color: @text-color-info;
+  }
+
+  h5 {
+    font-size: 1.2em;
+  }
+
+  kite-logo svg {
+    height: 96px;
+    margin-top: @double-padding;
+
+    polygon {
+      fill: @text-color-highlight;
+    }
+  }
+
+  section {
+    display: flex;
+    width: 440px;
+    max-width: 100%;
+    flex-direction: row;
+    align-items: center;
+    padding: 0 @double-padding;
+
+    & + section {
+      margin-top: @quadruple-padding;
+    }
+
+    figure {
+      flex: 0 0 auto;
+      width: 160px;
+      background: @background-color-selected;
+      margin-right: @triple-padding;
+
+      img {
+        width: 100%;
+      }
+    }
+  }
+
+  .kite-tour-scroll-section {
+    flex: 1 1 auto;
+    overflow-y: scroll;
+    margin: @quadruple-padding 0;
+  }
+
+  .kite-tour-gutter {
+    max-width: 100%;
+    width: 600px;
+    // text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+}
