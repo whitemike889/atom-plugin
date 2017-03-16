@@ -52,8 +52,12 @@
     }
 
     > a, > span {
-      margin-left: 1.5em;
-      margin-right: 1.5em;
+      padding-left: 1.5em;
+      padding-right: 1.5em;
+
+      span {
+        display: inline-block;
+      }
 
       .icon {
         position: absolute;
@@ -267,6 +271,16 @@
     .kite-examples-list;
   }
 
+  section.links {
+    a.more-links {
+      display: block;
+      margin-top: -@component-padding;
+      margin-bottom: @double-padding;
+    }
+
+    .kite-examples-list;
+  }
+
   section.definition {
     .kite-icon-list;
   }
@@ -361,12 +375,12 @@
         margin: 0;
       }
 
-      .icon, > .file, > .example {
+      .icon, > .file, > .example, > .link {
         display: inline-block;
         vertical-align: middle;
       }
 
-      .file, .example {
+      .file, .example, .link {
         font-weight: 300;
         color: @text-color-highlight;
 
