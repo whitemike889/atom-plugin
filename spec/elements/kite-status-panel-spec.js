@@ -4,8 +4,10 @@ const KiteApp = require('../../lib/kite-app');
 const KiteStatusPanel = require('../../lib/elements/kite-status-panel');
 const {
   fakeKiteInstallPaths, withPlan, withFakeServer,
-  // withKiteNotReachable, withKiteNotRunning, withKiteNotAuthenticated, withKiteWhitelistedPaths,
+  withKiteNotRunning,
+  // withKiteNotReachable, withKiteNotAuthenticated, withKiteWhitelistedPaths,
 } = require('../spec-helpers');
+const {click} = require('../helpers/events');
 
 fdescribe('KiteStatusPanel', () => {
   fakeKiteInstallPaths();
@@ -143,4 +145,39 @@ fdescribe('KiteStatusPanel', () => {
       });
     });
   });
+
+  withKiteNotRunning(() => {
+    beforeEach(() => {
+      waitsForPromise(() => status.show());
+    });
+
+    it('does not display the accoun status', () => {
+      expect(status.querySelector('.split-line')).not.toExist();
+    });
+
+    it('displays an action to start kited', () => {
+      const state = status.querySelector('.status');
+
+      expect(state.querySelector('.text-danger').textContent)
+      .toEqual('Kite engine is not running •');
+
+      const button = state.querySelector('a');
+
+      expect(button.href).toEqual('kite-atom-internal://start');
+      expect(button.textContent).toEqual('Launch now');
+    });
+
+    describe('clicking on the button', () => {
+      it('starts kited', () => {
+        const button = status.querySelector('a');
+
+        spyOn(app, 'start').andReturn(Promise.resolve());
+        click(button);
+
+        expect(app.start).toHaveBeenCalled();
+      });
+    });
+  });
+
+  
 });
