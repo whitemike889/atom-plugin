@@ -3,9 +3,8 @@
 const KiteApp = require('../../lib/kite-app');
 const KiteStatusPanel = require('../../lib/elements/kite-status-panel');
 const {
-  fakeKiteInstallPaths, withPlan, withFakeServer,
-  withKiteNotRunning,
-  // withKiteNotReachable, withKiteNotAuthenticated, withKiteWhitelistedPaths,
+  fakeKiteInstallPaths, withPlan, withFakeServer, withKiteAuthenticated,
+  withKiteNotRunning, withKiteWhitelistedPaths, withKiteNotAuthenticated,
 } = require('../spec-helpers');
 const {click} = require('../helpers/events');
 
@@ -22,7 +21,7 @@ fdescribe('KiteStatusPanel', () => {
     document.body.appendChild(status);
   });
 
-  withFakeServer(() => {
+  withKiteAuthenticated(() => {
     withPlan('active pro', {
       status: 'active',
       active_subscription: 'pro',
@@ -151,7 +150,7 @@ fdescribe('KiteStatusPanel', () => {
       waitsForPromise(() => status.show());
     });
 
-    it('does not display the accoun status', () => {
+    it('does not display the account status', () => {
       expect(status.querySelector('.split-line')).not.toExist();
     });
 
@@ -179,5 +178,55 @@ fdescribe('KiteStatusPanel', () => {
     });
   });
 
-  
+  withKiteNotAuthenticated(() => {
+    withPlan('community that did not trialed Kite yet', {
+      status: 'active',
+      active_subscription: 'community',
+      features: {},
+      trial_days_remaining: 0,
+      started_kite_pro_trial: false,
+    }, () => {
+      beforeEach(() => {
+        waitsForPromise(() => status.show());
+      });
+
+      it('does not display the account status', () => {
+        expect(status.querySelector('.split-line')).not.toExist();
+      });
+
+      it('displays an action to log into kited', () => {
+        const state = status.querySelector('.status');
+
+        expect(state.querySelector('.text-danger').textContent)
+        .toEqual('Kite engine is not logged in •');
+
+        const button = state.querySelector('a');
+
+        expect(button.href).toEqual('kite-atom-internal://login');
+        expect(button.textContent).toEqual('Login now');
+      });
+
+      describe('clicking on the button', () => {
+        it('displays the kite login', () => {
+          const button = status.querySelector('a');
+
+          spyOn(app, 'login').andReturn(Promise.resolve());
+          click(button);
+
+          expect(app.login).toHaveBeenCalled();
+        });
+      });
+    });
+  });
+
+  withKiteWhitelistedPaths(() => {
+    withPlan('community that did not trialed Kite yet', {
+      status: 'active',
+      active_subscription: 'community',
+      features: {},
+      trial_days_remaining: 0,
+      started_kite_pro_trial: false,
+    }, () => {
+    });
+  });
 });
