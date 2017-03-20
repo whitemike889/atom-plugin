@@ -367,7 +367,7 @@ function withPlan(description, plan, block) {
   describe(description, () => {
     withRoutes([
       [
-        o => o.path === '/clientapi/plan',
+        o => o.path.indexOf('/clientapi/plan') === 0,
         o => fakeResponse(200, JSON.stringify(plan)),
       ],
     ]);
