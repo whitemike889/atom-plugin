@@ -16,6 +16,7 @@ kite-signature {
 
   h4 {
     font-size: 0.9em;
+    margin: 15px 0 2px;
   }
 
   .kite-signature-wrapper {
@@ -24,11 +25,12 @@ kite-signature {
     margin: 0;
   }
 
-  .name {
-    font-size: 1.2em;
-  }
+  // .name {
+  //   font-size: 1em;
+  // }
 
   pre {
+    font-family: inherit;
     font-size: 1em;
     padding: 0;
     background: transparent;
@@ -39,13 +41,18 @@ kite-signature {
     color: @text-color-subtle;
   }
 
+  .kite-pro-features{
+    font-size: 0.9em;
+    opacity: 0.7;
+  }
+
   .parameter-name {
     color: @text-color;
   }
 
   .parameter-highlight .parameter-name {
-    background: @background-color-selected;
     padding: 0 3px;
+    font-weight: bold;
     border-radius: 2px;
     display: inline-block;
     color: @text-color-highlight;

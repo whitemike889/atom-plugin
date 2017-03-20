@@ -52,8 +52,12 @@
     }
 
     > a, > span {
-      margin-left: 1.5em;
-      margin-right: 1.5em;
+      padding-left: 1.5em;
+      padding-right: 1.5em;
+
+      span {
+        display: inline-block;
+      }
 
       .icon {
         position: absolute;
@@ -139,6 +143,10 @@
       display: flex;
       flex-direction: column;
 
+      dl {
+        margin-top: 0;
+      }
+
       .section-content {
         flex: 0 1 auto;
         overflow-y: auto;
@@ -201,7 +209,7 @@
   }
 
   section {
-    margin: @component-padding 0;
+    margin: 0;
 
     .section-content {
       margin-left: @component-padding;
@@ -217,7 +225,7 @@
   }
 
   section.summary {
-    margin-top: 0;
+    margin: 0 0 15px;
 
     .description {
       margin-top: @component-padding;
@@ -263,6 +271,16 @@
 
   section.examples {
     a.more-examples {
+      display: block;
+      margin-top: -@component-padding;
+      margin-bottom: @double-padding;
+    }
+
+    .kite-examples-list;
+  }
+
+  section.links {
+    a.more-links {
       display: block;
       margin-top: -@component-padding;
       margin-bottom: @double-padding;
@@ -365,12 +383,12 @@
         margin: 0;
       }
 
-      .icon, > .file, > .example {
+      .icon, > .file, > .example, > .link {
         display: inline-block;
         vertical-align: middle;
       }
 
-      .file, .example {
+      .file, .example, .link {
         font-weight: 300;
         color: @text-color-highlight;
 

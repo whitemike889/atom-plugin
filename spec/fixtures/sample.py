@@ -4,7 +4,7 @@ def hello():
     print("Hello World!")
 
 import os
-import posixpath from os
+from os import posixpath
 import matplotlib
 import json
 import posix
@@ -31,12 +31,12 @@ class B(A):
         super(foo)
 
     def increment(self, n, **kwargs):
-        inc = kwargs.delta || 1
+        inc = kwargs.delta or 1
         return super(B, self).increment(n) + inc
 
 if True:
     test = B('foo')
-else if false:
+else:
     test = A('foo')
 
 test.increment(2, delta=5)
