@@ -25,6 +25,12 @@
       "title": "Enable Completions",
       "description": "Show auto-completions from Kite as Atom suggestions"
     },
+    "enableHoverUI": {
+      "type": "boolean",
+      "default": true,
+      "title": "Enable Hover UI",
+      "description": "Show hover informations when placing the mouse over a symbol"
+    },
     "displayExpandViewAs": {
       "type": "string",
       "default": "sidebar",
