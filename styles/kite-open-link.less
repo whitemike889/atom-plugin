@@ -6,13 +6,26 @@ kite-open-link {
 
   a {
     display: inline-block;
-    opacity: 0.6;
     transition: 125ms opacity;
     margin-right: 0.5em;
 
-    &, &:active, &:hover, &:focus {
-      color: @text-color !important;
+    &, &:active, &:focus, &:visited {
+      color: @text-color-info;
       text-decoration: none;
+
+      span {
+        color: @text-color;
+        opacity: 0.6;
+      }
+
+      &:hover {
+        text-decoration: underline;
+
+        span {
+          text-decoration: none;
+          opacity: 1;
+        }
+      }
     }
 
     > * {
@@ -47,10 +60,6 @@ kite-open-link {
     span, kite-logo {
       vertical-align: middle;
       display: inline-block;
-    }
-
-    &:hover {
-      opacity: 1;
     }
   }
 
