@@ -144,10 +144,7 @@ describe('Kite', () => {
                 });
 
                 it('subscribes to the editor events', () => {
-                  runs(() => {
-                    const editor = atom.workspace.getActiveTextEditor();
-                    expect(kitePkg.hasEditorSubscription(editor)).toBeTruthy();
-                  });
+                  expect(kitePkg.hasEditorSubscription(editor)).toBeTruthy();
                 });
               });
 
@@ -198,7 +195,6 @@ describe('Kite', () => {
           it('subscribes to the editor events', () => {
             sleep(100);
             runs(() => {
-              const editor = atom.workspace.getActiveTextEditor();
               expect(kitePkg.hasEditorSubscription(editor)).toBeTruthy();
             });
           });
@@ -322,15 +318,12 @@ describe('Kite', () => {
           });
 
           it('subscribes to the editor events', () => {
-            const editor = atom.workspace.getActiveTextEditor();
             expect(kitePkg.hasEditorSubscription(editor)).toBeTruthy();
           });
 
           describe('when the file path is changed', () => {
-            let editor;
             describe('as an unsupported file', () => {
               beforeEach(() => {
-                editor = atom.workspace.getActiveTextEditor();
                 spyOn(editor, 'getPath')
                 .andReturn(path.join(projectPath, 'file.json'));
                 editor.emitter.emit('did-change-path', editor.getPath());
