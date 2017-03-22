@@ -1,9 +1,10 @@
 'use strict';
 
+const os = require('os');
 const KiteApp = require('../../lib/kite-app');
 const KiteStatusPanel = require('../../lib/elements/kite-status-panel');
 const {
-  fakeKiteInstallPaths, withPlan, withFakeServer, withKiteAuthenticated,
+  fakeKiteInstallPaths, withPlan, withKiteAuthenticated,
   withKiteNotRunning, withKiteWhitelistedPaths, withKiteNotAuthenticated,
 } = require('../spec-helpers');
 const {click} = require('../helpers/events');
@@ -220,6 +221,7 @@ fdescribe('KiteStatusPanel', () => {
   });
 
   withKiteWhitelistedPaths(() => {
+    let editor;
     withPlan('community that did not trialed Kite yet', {
       status: 'active',
       active_subscription: 'community',
@@ -227,6 +229,63 @@ fdescribe('KiteStatusPanel', () => {
       trial_days_remaining: 0,
       started_kite_pro_trial: false,
     }, () => {
+      describe('with a file not in the whitelist', () => {
+        beforeEach(() => {
+          app.kite = {
+            isEditorWhitelisted(e) { return false; },
+            notifications: {
+              pauseNotifications() {},
+              resumeNotifications() {},
+            },
+          };
+
+          waitsForPromise(() => atom.workspace.open('sample.py').then(e => editor = e));
+          waitsForPromise(() => status.show());
+        });
+
+        it('displays actions to whitelist the file and access the settings', () => {
+          const state = status.querySelector('.status');
+
+          expect(state.querySelector('.text-warning').textContent)
+          .toEqual('Kite engine is not enabled for this file •');
+
+          const buttons = state.querySelectorAll('a');
+          const path = encodeURI(editor.getPath());
+          const url = `http://local.kite.com:46624/settings/permissions?filename=${path}`;
+
+          expect(buttons[0].href).toEqual(`kite-atom-internal://whitelist/${os.homedir()}`);
+          expect(buttons[0].textContent).toEqual(`Enable for ${os.homedir()}`);
+
+          expect(buttons[1].href).toEqual(url);
+          expect(buttons[1].textContent).toEqual('Whitelist settings…');
+        });
+
+        describe('clicking on the whitelist button', () => {
+          it('calls the whitelist endpoint', () => {
+            const state = status.querySelector('.status');
+            const button = state.querySelector('a');
+
+            spyOn(app, 'whitelist').andReturn(Promise.resolve());
+            click(button);
+
+            expect(app.whitelist).toHaveBeenCalledWith(os.homedir());
+          });
+        });
+
+        describe('clicking on the whitelist settings button', () => {
+          it('calls the whitelist endpoint', () => {
+            const state = status.querySelector('.status');
+            const button = state.querySelector('a:last-child');
+            const path = encodeURI(editor.getPath());
+            const url = `http://local.kite.com:46624/settings/permissions?filename=${path}`;
+
+            spyOn(atom.applicationDelegate, 'openExternal');
+            click(button);
+
+            expect(atom.applicationDelegate.openExternal).toHaveBeenCalledWith(url);
+          });
+        });
+      });
     });
   });
 });
