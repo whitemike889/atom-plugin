@@ -9,7 +9,7 @@ const {
 } = require('../spec-helpers');
 const {click} = require('../helpers/events');
 
-fdescribe('KiteStatusPanel', () => {
+describe('KiteStatusPanel', () => {
   fakeKiteInstallPaths();
 
   let status, app;
@@ -41,7 +41,7 @@ fdescribe('KiteStatusPanel', () => {
           const link = status.querySelector('.split-line .right a');
           expect(link).toExist();
           expect(link.textContent).toEqual('Account');
-          expect(link.href).toEqual('http://localhost:46624/redirect/pro');
+          expect(link.href).toEqual('http://local.kite.com:46624/redirect/pro');
         }));
       });
     });
@@ -67,7 +67,7 @@ fdescribe('KiteStatusPanel', () => {
           const link = status.querySelector('.split-line .right a');
           expect(link).toExist();
           expect(link.textContent).toEqual('Upgrade');
-          expect(link.href).toEqual('http://localhost:46624/redirect/pro');
+          expect(link.href).toEqual('http://local.kite.com:46624/redirect/pro');
         }));
       });
     });
@@ -94,7 +94,7 @@ fdescribe('KiteStatusPanel', () => {
           const link = status.querySelector('.split-line .right a');
           expect(link).toExist();
           expect(link.textContent).toEqual('Upgrade');
-          expect(link.href).toEqual('http://localhost:46624/redirect/pro');
+          expect(link.href).toEqual('http://local.kite.com:46624/redirect/pro');
         }));
       });
     });
@@ -117,7 +117,7 @@ fdescribe('KiteStatusPanel', () => {
           const link = status.querySelector('.split-line .right a');
           expect(link).toExist();
           expect(link.textContent).toEqual('Start Pro trial');
-          expect(link.href).toEqual('http://localhost:46624/redirect/trial');
+          expect(link.href).toEqual('http://local.kite.com:46624/redirect/trial');
         }));
       });
     });
@@ -140,7 +140,7 @@ fdescribe('KiteStatusPanel', () => {
           const link = status.querySelector('.split-line .right a');
           expect(link).toExist();
           expect(link.textContent).toEqual('Upgrade');
-          expect(link.href).toEqual('http://localhost:46624/redirect/pro');
+          expect(link.href).toEqual('http://local.kite.com:46624/redirect/pro');
         }));
       });
     });
