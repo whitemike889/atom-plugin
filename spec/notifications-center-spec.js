@@ -20,12 +20,12 @@ const getNotificationElement = () => {
 const queryNotificationSelector = (notificationElement, selector) =>
   notificationElement.element
     ? notificationElement.element.querySelector(selector)
-    : notificationElement.querySelector(notificationElement, selector);
+    : notificationElement.querySelector(selector);
 
 const queryNotificationSelectorAll = (notificationElement, selector) =>
   notificationElement.element
     ? notificationElement.element.querySelectorAll(selector)
-    : notificationElement.querySelectorAll(notificationElement, selector);
+    : notificationElement.querySelectorAll(selector);
 
 describe('NotificationsCenter', () => {
   let app, notifications, notificationsPkg, workspaceElement, notificationElement, notification, editor;
