@@ -12,6 +12,21 @@ const {
 } = require('./spec-helpers');
 const {click} = require('./helpers/events');
 
+const getNotificationElement = () => {
+  const allNotifications = atom.notifications.getNotifications();
+  return atom.views.getView(allNotifications[allNotifications.length - 1]);
+};
+
+const queryNotificationSelector = (notificationElement, selector) =>
+  notificationElement.element
+    ? notificationElement.element.querySelector(selector)
+    : notificationElement.querySelector(notificationElement, selector);
+
+const queryNotificationSelectorAll = (notificationElement, selector) =>
+  notificationElement.element
+    ? notificationElement.element.querySelectorAll(selector)
+    : notificationElement.querySelectorAll(notificationElement, selector);
+
 describe('NotificationsCenter', () => {
   let app, notifications, notificationsPkg, workspaceElement, notificationElement, notification, editor;
 
@@ -60,11 +75,11 @@ describe('NotificationsCenter', () => {
           waitsForPromise(() => app.connect());
         });
         it('notifies the user', () => {
-          notificationElement = workspaceElement.querySelector('atom-notification');
+          notificationElement = getNotificationElement();
           notification = notificationElement.getModel();
           const options = notification.getOptions();
 
-          expect(notificationElement).toExist();
+          expect(notificationElement).not.toBeNull();
 
           expect(notification.getType()).toEqual('error');
           expect(notification.getMessage())
@@ -90,7 +105,7 @@ describe('NotificationsCenter', () => {
         describe('and was never installed before', () => {
           beforeEach(() => {
             waitsForPromise(() => app.connect().then(() => {
-              notificationElement = workspaceElement.querySelector('atom-notification');
+              notificationElement = getNotificationElement();
             }));
           });
 
@@ -102,7 +117,7 @@ describe('NotificationsCenter', () => {
           // it('notifies the user', () => {
           //   const options = notification.getOptions();
           //
-          //   expect(notificationElement).toExist();
+          //   expect(notificationElement).not.toBeNull();
           //
           //   expect(notification.getType()).toEqual('warning');
           //   expect(notification.getMessage())
@@ -121,7 +136,7 @@ describe('NotificationsCenter', () => {
           //   });
           //
           //   it('triggers an install', () => {
-          //     const button = notificationElement.querySelector('a.btn');
+          //     const button = queryNotificationSelector(notificationElement, 'a.btn');
           //     click(button);
           //
           //     expect(app.install).toHaveBeenCalled();
@@ -154,7 +169,7 @@ describe('NotificationsCenter', () => {
       withKiteNotRunning(() => {
         beforeEach(() => {
           waitsForPromise(() => app.connect().then(() => {
-            notificationElement = workspaceElement.querySelector('atom-notification');
+            notificationElement = getNotificationElement();
             notification = notificationElement.getModel();
           }));
         });
@@ -162,7 +177,7 @@ describe('NotificationsCenter', () => {
         it('notifies the user', () => {
           const options = notification.getOptions();
 
-          expect(notificationElement).toExist();
+          expect(notificationElement).not.toBeNull();
 
           expect(notification.getType()).toEqual('warning');
           expect(notification.getMessage())
@@ -178,7 +193,7 @@ describe('NotificationsCenter', () => {
         describe('clicking on the Start Kite button', () => {
           it('triggers a start', () => {
             spyOn(app, 'start').andReturn(Promise.resolve());
-            const button = notificationElement.querySelector('a.btn');
+            const button = queryNotificationSelector(notificationElement, 'a.btn');
             click(button);
 
             expect(app.start).toHaveBeenCalled();
@@ -187,12 +202,12 @@ describe('NotificationsCenter', () => {
           describe('when the start fails', () => {
             beforeEach(() => {
               spyOn(app, 'start').andReturn(Promise.reject());
-              const button = notificationElement.querySelector('a.btn');
+              const button = queryNotificationSelector(notificationElement, 'a.btn');
               click(button);
 
               waitsFor(() => workspaceElement.querySelectorAll('atom-notification').length === 2);
               runs(() => {
-                notificationElement = workspaceElement.querySelectorAll('atom-notification')[1];
+                notificationElement = getNotificationElement();
                 notification = notificationElement.getModel();
               });
             });
@@ -211,7 +226,7 @@ describe('NotificationsCenter', () => {
 
             describe('clicking on the retry button', () => {
               beforeEach(() => {
-                const button = notificationElement.querySelector('a.btn');
+                const button = queryNotificationSelector(notificationElement, 'a.btn');
                 click(button);
               });
 
@@ -239,7 +254,7 @@ describe('NotificationsCenter', () => {
       withKiteNotReachable(() => {
         beforeEach(() => {
           waitsForPromise(() => app.connect().then(() => {
-            notificationElement = workspaceElement.querySelector('atom-notification');
+            notificationElement = getNotificationElement();
             notification = notificationElement.getModel();
 
           }));
@@ -248,7 +263,7 @@ describe('NotificationsCenter', () => {
         it('notifies the user', () => {
           const options = notification.getOptions();
 
-          expect(notificationElement).toExist();
+          expect(notificationElement).not.toBeNull();
 
           expect(notification.getType()).toEqual('error');
           expect(notification.getMessage())
@@ -273,7 +288,7 @@ describe('NotificationsCenter', () => {
       withKiteNotAuthenticated(() => {
         beforeEach(() => {
           waitsForPromise(() => app.connect().then(() => {
-            notificationElement = workspaceElement.querySelector('atom-notification');
+            notificationElement = getNotificationElement();
             notification = notificationElement.getModel();
           }));
         });
@@ -281,7 +296,7 @@ describe('NotificationsCenter', () => {
         it('notifies the user', () => {
           const options = notification.getOptions();
 
-          expect(notificationElement).toExist();
+          expect(notificationElement).not.toBeNull();
 
           expect(notification.getType()).toEqual('warning');
           expect(notification.getMessage())
@@ -297,7 +312,7 @@ describe('NotificationsCenter', () => {
         describe('clicking on the Login button', () => {
           it('triggers a login', () => {
             spyOn(app, 'login').andReturn(Promise.resolve());
-            const button = notificationElement.querySelector('a.btn');
+            const button = queryNotificationSelector(notificationElement, 'a.btn');
             click(button);
 
             expect(app.login).toHaveBeenCalled();
@@ -318,14 +333,14 @@ describe('NotificationsCenter', () => {
         beforeEach(() => {
           app.emitter.emit('did-get-unauthorized', {message: 'Some error'});
 
-          notificationElement = workspaceElement.querySelector('atom-notification');
+          notificationElement = getNotificationElement();
           notification = notificationElement.getModel();
         });
 
         it('notifies the user', () => {
           const options = notification.getOptions();
 
-          expect(notificationElement).toExist();
+          expect(notificationElement).not.toBeNull();
 
           expect(notification.getType()).toEqual('error');
           expect(notification.getMessage())
@@ -341,7 +356,7 @@ describe('NotificationsCenter', () => {
         describe('clicking on the Retry button', () => {
           it('triggers a new login attempt', () => {
             spyOn(app, 'login').andReturn(Promise.resolve());
-            const button = notificationElement.querySelector('a.btn');
+            const button = queryNotificationSelector(notificationElement, 'a.btn');
             click(button);
 
             expect(app.login).toHaveBeenCalled();
@@ -357,7 +372,7 @@ describe('NotificationsCenter', () => {
           });
           sleep(100);
           runs(() => {
-            notificationElement = workspaceElement.querySelector('atom-notification');
+            notificationElement = getNotificationElement();
             notification = notificationElement.getModel();
           });
         });
@@ -365,7 +380,7 @@ describe('NotificationsCenter', () => {
         it('notifies the user', () => {
           const options = notification.getOptions();
 
-          expect(notificationElement).toExist();
+          expect(notificationElement).not.toBeNull();
 
           expect(notification.getType()).toEqual('warning');
           expect(notification.getMessage())
@@ -383,7 +398,7 @@ describe('NotificationsCenter', () => {
         describe('clicking on the homedir button', () => {
           it('attempts to whitelist the homedir path', () => {
             spyOn(app, 'whitelist').andReturn(Promise.resolve());
-            const button = notificationElement.querySelectorAll('a.btn')[1];
+            const button = queryNotificationSelectorAll(notificationElement, 'a.btn')[1];
             click(button);
             expect(app.whitelist).toHaveBeenCalledWith('/path/to/dir');
 
@@ -393,7 +408,7 @@ describe('NotificationsCenter', () => {
         describe('clicking on the setting button', () => {
           it('attempts to blacklist the editor path', () => {
             spyOn(atom.applicationDelegate, 'openExternal');
-            const button = notificationElement.querySelectorAll('a.btn')[0];
+            const button = queryNotificationSelectorAll(notificationElement, 'a.btn')[0];
             const filename = editor.getPath();
             click(button);
 
@@ -407,7 +422,7 @@ describe('NotificationsCenter', () => {
         describe('dismissing the notification', () => {
           it('attempts to blacklist the editor path', () => {
             spyOn(app, 'blacklist').andReturn(Promise.resolve());
-            const button = notificationElement.querySelector('.close');
+            const button = queryNotificationSelector(notificationElement, '.close');
             click(button);
 
             expect(app.blacklist).toHaveBeenCalledWith(editor.getPath(), true);
@@ -421,7 +436,7 @@ describe('NotificationsCenter', () => {
                 cb(['/some/directory/path']);
               });
               spyOn(app, 'whitelist').andReturn(Promise.resolve());
-              const button = notificationElement.querySelectorAll('a.btn')[2];
+              const button = queryNotificationSelectorAll(notificationElement, 'a.btn')[2];
               click(button);
 
               expect(app.whitelist).toHaveBeenCalledWith('/some/directory/path');
@@ -432,7 +447,7 @@ describe('NotificationsCenter', () => {
             it('does not try to whitelist', () => {
               spyOn(atom.applicationDelegate, 'pickFolder').andCallFake(cb => { cb([]); });
               spyOn(app, 'whitelist').andReturn(Promise.resolve());
-              const button = notificationElement.querySelectorAll('a.btn')[2];
+              const button = queryNotificationSelectorAll(notificationElement, 'a.btn')[2];
               click(button);
 
               expect(app.whitelist).not.toHaveBeenCalled();
@@ -471,14 +486,14 @@ describe('NotificationsCenter', () => {
               data: 5,
             });
 
-            notificationElement = workspaceElement.querySelector('atom-notification');
+            notificationElement = getNotificationElement();
             notification = notificationElement.getModel();
           });
 
           it('notifies the user', () => {
             const options = notification.getOptions();
 
-            expect(notificationElement).toExist();
+            expect(notificationElement).not.toBeNull();
 
             expect(notification.getType()).toEqual('error');
             expect(notification.getMessage())
@@ -497,7 +512,7 @@ describe('NotificationsCenter', () => {
           describe('clicking on the Retry button', () => {
             it('triggers a new whitelist attempt', () => {
               spyOn(app, 'whitelist').andReturn(Promise.resolve());
-              const button = notificationElement.querySelector('a.btn');
+              const button = queryNotificationSelector(notificationElement, 'a.btn');
               click(button);
 
               expect(app.whitelist).toHaveBeenCalled();
@@ -510,7 +525,7 @@ describe('NotificationsCenter', () => {
         beforeEach(() => {
           atom.project.setPaths([__dirname]);
           waitsForPromise(() => app.connect().then(() => {
-            notificationElement = workspaceElement.querySelector('atom-notification');
+            notificationElement = getNotificationElement();
           }));
         });
 
@@ -521,7 +536,7 @@ describe('NotificationsCenter', () => {
         // it('notifies the user', () => {
         //   const options = notification.getOptions();
         //
-        //   expect(notificationElement).toExist();
+        //   expect(notificationElement).not.toBeNull();
         //
         //   expect(notification.getType()).toEqual('success');
         //   expect(notification.getMessage())

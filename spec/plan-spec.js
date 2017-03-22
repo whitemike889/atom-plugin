@@ -1,6 +1,5 @@
 'use strict';
 
-const http = require('http');
 const Plan = require('../lib/plan.js');
 const {withFakeServer, fakeResponse} = require('./spec-helpers');
 
@@ -20,28 +19,14 @@ describe('Plan', () => {
       },
     })),
   ]], () => {
+    beforeEach(() => {
+      waitsForPromise(() => Plan.queryPlan());
+    });
     describe('.can()', () => {
-      it('returns a promise that resolves with the feature permission', () => {
-        waitsForPromise(() => Plan.can('drill_down').then(res => {
-          expect(res).toBeFalsy();
-        }));
-
-        waitsForPromise(() => Plan.can('foo').then(res => {
-          expect(res).toBeTruthy();
-        }));
-
-        waitsForPromise(() => Plan.can('bar').then(res => {
-          expect(res).toBeFalsy();
-        }));
-      });
-
-      it('calls the plan endpoint once if it has no data yet', () => {
-        waitsForPromise(() => Plan.can('drill_down'));
-        waitsForPromise(() => Plan.can('foo'));
-        runs(() => {
-          expect(http.request).toHaveBeenCalled();
-          expect(http.request.callCount).toEqual(1);
-        });
+      it('returns a boolean of the feature permission', () => {
+        expect(Plan.can('drill_down')).toBeFalsy();
+        expect(Plan.can('foo')).toBeTruthy();
+        expect(Plan.can('bar')).toBeFalsy();
       });
     });
   });
