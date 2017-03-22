@@ -86,8 +86,18 @@ kite-navigable-stack-breadcrumb {
 .breadcrumb-depth(@counter) when (@counter >= 0) {
   .breadcrumb-depth((@counter - 1));
   kite-navigable-stack-breadcrumb[depth="@{counter}"] {
-    .item-@{counter} a {
-      border-bottom: 1px solid @text-color-info;
+    .item-@{counter} {
+      a {
+        border-bottom: 1px solid @text-color-info;
+      }
+
+      &:after {
+        content: '' !important;
+      }
+
+      & ~ * {
+        display: none;
+      }
     }
   }
 }

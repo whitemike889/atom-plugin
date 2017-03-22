@@ -7,6 +7,8 @@ kite-signature {
   background: @app-background-color;
   font-size: 1em;
   font-family: @font-family;
+  max-width: 50em;
+  min-width: 20em;
 
   .kite-content;
 
@@ -20,14 +22,8 @@ kite-signature {
   }
 
   .kite-signature-wrapper {
-    max-width: 40em;
-    min-width: 20em;
     margin: 0;
   }
-
-  // .name {
-  //   font-size: 1em;
-  // }
 
   pre {
     font-family: inherit;
@@ -35,6 +31,11 @@ kite-signature {
     padding: 0;
     background: transparent;
     color: @text-color;
+    cursor: default;
+  }
+
+  h4 {
+    cursor: default;
   }
 
   .parameter.ellipsis {

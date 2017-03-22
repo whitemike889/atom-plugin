@@ -11,8 +11,11 @@ import posix
 import csv
 import requests
 import subprocess
+import boto
 
 json.dumps()
+
+boto.s3.connection.S3Connection()
 
 posix.chmod
 os.mkdir
