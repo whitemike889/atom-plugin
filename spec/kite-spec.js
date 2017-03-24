@@ -88,9 +88,11 @@ describe('Kite', () => {
                 const v = atom.views.getView(editor);
                 v.dispatchEvent(new Event('focus'));
                 advanceClock(200);
+                advanceClock(100);
               });
               waitsFor('notify endpoint call', () => {
                 const {path} = http.request.mostRecentCall.args[0];
+                console.log(path);
                 return /^\/clientapi\/permissions/.test(path);
               });
               sleep(100);
@@ -180,7 +182,10 @@ describe('Kite', () => {
               v.dispatchEvent(new Event('focus'));
             });
             waitsFor('kite editor', () => kitePkg.kiteEditorForEditor(editor));
-            runs(() => advanceClock(200));
+            runs(() => {
+              advanceClock(200);
+              advanceClock(100);
+            });
             waitsFor('notify endpoint call', () => {
               const {path} = http.request.mostRecentCall.args[0];
               return /^\/clientapi\/permissions/.test(path);
