@@ -20,7 +20,7 @@ describe('KiteExpandFunction', () => {
     });
 
     it('renders the synopsis in the summary div', () => {
-      expect(element.querySelector('section.summary .description').textContent)
+      expect(element.querySelector('section.summary').textContent)
       .toEqual('synopsis here');
     });
 
@@ -75,7 +75,7 @@ describe('KiteExpandFunction', () => {
     });
 
     it('renders the synopsis in the summary div', () => {
-      expect(element.querySelector('section.summary .description').textContent)
+      expect(element.querySelector('section.summary').textContent)
       .toEqual('synopsis here');
     });
 

@@ -18,7 +18,7 @@ describe('KiteExpandModule', () => {
   });
 
   it('uses the synopsis to fill the summary', () => {
-    expect(element.querySelector('section.summary .description').innerHTML)
+    expect(element.querySelector('section.summary').innerHTML)
     .toEqual(json.report.description_html);
   });
 
