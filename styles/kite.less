@@ -62,10 +62,16 @@ atom-text-editor[data-grammar="source python"] .autocomplete-suggestion-list.sel
 
     a, a:visited, a:active, a:focus {
       color: @text-color-info;
+      opacity: 0.85;
+    }
+
+    a.additional-margin {
+      margin-right: @component-padding/4;
     }
 
     kite-logo svg {
       height: 1em;
+      opacity: 0.5;
       polygon {
         fill: @text-color;
       }
