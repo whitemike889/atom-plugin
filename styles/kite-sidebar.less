@@ -66,6 +66,16 @@ kite-sidebar {
     overflow: hidden;
   }
 
+  kite-navigable-stack {
+    .sections-wrapper section.summary {
+      min-height: 200px;
+    }
+
+    .sections-wrapper section.summary:empty {
+      display: none;
+    }
+  }
+
   header {
     margin-bottom: @component-padding;
     display: flex;
