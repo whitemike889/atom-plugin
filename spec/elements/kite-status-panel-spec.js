@@ -4,8 +4,9 @@ const os = require('os');
 const KiteApp = require('../../lib/kite-app');
 const KiteStatusPanel = require('../../lib/elements/kite-status-panel');
 const {
-  fakeKiteInstallPaths, withPlan, withKiteAuthenticated,
-  withKiteNotRunning, withKiteWhitelistedPaths, withKiteNotAuthenticated,
+  fakeKiteInstallPaths, fakeResponse, withPlan, withKiteAuthenticated,
+  withRoutes, withKiteNotRunning, withKiteWhitelistedPaths,
+  withKiteNotAuthenticated,
 } = require('../spec-helpers');
 const {click} = require('../helpers/events');
 
@@ -284,6 +285,31 @@ describe('KiteStatusPanel', () => {
 
             expect(atom.applicationDelegate.openExternal).toHaveBeenCalledWith(url);
           });
+        });
+      });
+
+      describe('when the user has a verified email', () => {
+        beforeEach(() => {
+          waitsForPromise(() => status.show());
+        });
+
+        it('does not display a verification warning', () => {
+          expect(status.querySelector('.kite-warning-box')).not.toExist();
+        });
+      });
+
+      describe('when the user has an unverified email', () => {
+        withRoutes([[
+          o => /^\/api\/account\/user/.test(o.path),
+          o => fakeResponse(200, JSON.stringify({email_verified: false})),
+        ]]);
+
+        beforeEach(() => {
+          waitsForPromise(() => status.show());
+        });
+
+        it('displays a verification warning', () => {
+          expect(status.querySelector('.kite-warning-box')).toExist();
         });
       });
     });

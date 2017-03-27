@@ -83,4 +83,23 @@ kite-status-panel {
       }
     }
   }
+
+  .kite-warning-box {
+    background: fadeout(@text-color-error, 80%);
+    color: @text-color-highlight;
+    padding: @half-padding @component-padding;
+    margin: @component-padding 0;
+    border-radius: 0.3em;
+
+    .actions {
+      display: block;
+      text-align: right;
+      margin-top: @component-padding;
+    }
+
+    a, a:active, a:visited, a:focus {
+      color: @text-color-highlight;
+      text-decoration: underline;
+    }
+  }
 }

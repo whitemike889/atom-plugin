@@ -370,8 +370,12 @@ function withPlan(description, plan, block) {
       [
         o => o.path.indexOf('/clientapi/plan') === 0,
         o => fakeResponse(200, JSON.stringify(plan)),
+      ], [
+        o => /^\/api\/account\/user/.test(o.path),
+        o => fakeResponse(200, JSON.stringify({email_verified: true})),
       ],
     ]);
+
 
     beforeEach(() => {
       waitsForPromise(() => Plan.queryPlan());
