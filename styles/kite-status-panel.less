@@ -38,6 +38,31 @@ kite-status-panel {
       white-space: nowrap;
     }
   }
+  .links {
+    list-style: none;
+
+    &:nth-child(1n+2) {
+      padding: @component-padding @half-padding 0;
+      border-top: 1px solid @base-background-color;
+    }
+
+    li + li {
+      margin-top: @half-padding;
+    }
+
+    a:not(.btn) {
+      &, &:active, &:visited, &:focus {
+        color: @text-color-highlight;
+        font-size: 1.1em;
+
+      }
+      &.kite-gift {
+        &, &:active, &:visited, &:focus {
+          color: @text-color-error;
+        }
+      }
+    }
+  }
 
   .status {
     text-align: right;
