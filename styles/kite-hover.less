@@ -55,43 +55,13 @@ kite-hover {
     }
   }
 
-  .actions {
-    line-height: normal;
+  kite-links {
     display: flex;
     align-items: center;
     align-content: center;
 
-    a, a:hover, a:focus, a:active {
-      color: @text-color-info;
-      font-size: 0.9em;
-    }
-
-    a {
-      opacity: 0.85;
-    }
-
-    a:hover {
-      opacity: 1;
-      text-decoration: underline;
-    }
-
-    a + a {
-      margin-left: @component-padding/3;
-    }
-
     .flex-separator {
       flex-grow: 1;
     }
-
-    kite-logo {
-      width: 0.9rem;
-      opacity: 0.5;
-      fill: @text-color-highlight;
-      margin-left: 1rem;
-      flex-grow: 0;
-      flex-shrink: 0;
-      flex-basis: 0.9rem;
-    }
   }
-
 }
