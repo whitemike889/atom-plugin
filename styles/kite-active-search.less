@@ -1,21 +1,59 @@
 @import "variables";
 
+@rate: 1;
+
+@keyframes appears {
+  0% {
+    opacity: 0;
+    display: none;
+  }
+  1% {
+    opacity: 0;
+    display: block;
+  }
+  60% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 kite-active-search {
   display: flex;
   flex-direction: column;
   background: @hover-background-color;
   position: absolute;
   z-index: 100;
-  top: 10%;
-  right: 0;
   box-shadow: 0 0 10px rgba(0,0,0,0.4);
   overflow: hidden;
   padding: @half-padding;
+  transition: width (0.2s * @rate), height (0.3s * @rate) ease (0.2s * @rate);
+
+  &[position="top-left"] {
+    top: 10%;
+    left: 0;
+  }
+
+  &[position="top-right"] {
+    top: 10%;
+    right: 0;
+  }
+
+  &[position="bottom-left"] {
+    bottom: 10%;
+    left: 0;
+  }
+
+  &[position="bottom-right"] {
+    bottom: 10%;
+    right: 0;
+  }
 
   &.collapsed {
-    width: 3em;
-    height: 3em;
-    transition: width 0.1s ease 0.2s, height 0.2s;
+    width: 3.2em;
+    height: 3.2em;
+    transition: width (0.1s * @rate) ease (0.2s * @rate), height (0.2s * @rate);
 
     kite-expand, .select-list {
       display: none;
@@ -25,16 +63,40 @@ kite-active-search {
   &:not(.collapsed) {
     width: 400px;
     height: 80%;
-    transition: width 0.2s, height 0.3s ease 0.2s;
 
     .expander {
-      display: none;
+      pointer-events: none;
+    }
+
+    kite-expand, .select-list {
+      animation: appears (0.5s * @rate);
+    }
+  }
+
+  atom-text-editor[mini] {
+    background: transparent;
+    border-radius: 0;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-color: @base-background-color;
+
+    &.is-focused {
+      background: transparent;
+      border-radius: 0;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+      box-shadow: none;
     }
   }
 
   .expander {
-    padding: 0.3em;
+    padding: 0.4em;
     cursor: pointer;
+    position: absolute;
+    right: @half-padding;
+    top: @half-padding;
   }
 
   kite-expand {
