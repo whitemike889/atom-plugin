@@ -1,0 +1,61 @@
+@import "variables";
+
+kite-active-search {
+  display: flex;
+  flex-direction: column;
+  background: @hover-background-color;
+  position: absolute;
+  z-index: 100;
+  top: 10%;
+  right: 0;
+  box-shadow: 0 0 10px rgba(0,0,0,0.4);
+  overflow: hidden;
+  padding: @half-padding;
+
+  &.collapsed {
+    width: 3em;
+    height: 3em;
+    transition: width 0.1s ease 0.2s, height 0.2s;
+
+    kite-expand, .select-list {
+      display: none;
+    }
+  }
+
+  &:not(.collapsed) {
+    width: 400px;
+    height: 80%;
+    transition: width 0.2s, height 0.3s ease 0.2s;
+
+    .expander {
+      display: none;
+    }
+  }
+
+  .expander {
+    padding: 0.3em;
+    cursor: pointer;
+  }
+
+  kite-expand {
+    flex: 1 1 auto;
+    border-top: 1px solid @base-background-color;
+    max-height: none;
+    margin: @component-padding 5px 0;
+  }
+
+  .select-list.popover-list {
+    width: auto;
+    background: none;
+    box-shadow: none;
+
+    .list-group li {
+      font-size: 1.2em;
+      cursor: pointer;
+
+      &.selected {
+        background: fadeout(@text-color-highlight, 90%);
+      }
+    }
+  }
+}
