@@ -2,7 +2,26 @@
 
 @rate: 1;
 
-@keyframes appears {
+@keyframes collapser-appears {
+  0% {
+    width: 0;
+    display: none;
+  }
+  1% {
+    width: 0;
+    display: block;
+  }
+  60% {
+    width: 0;
+    opacity: 0;
+  }
+  100% {
+    width: @component-padding;
+    opacity: 1;
+  }
+}
+
+@keyframes pane-appears {
   0% {
     opacity: 0;
     display: none;
@@ -33,12 +52,21 @@ kite-active-search {
   &[position="top-right"] {
     top: 10%;
     right: 0;
+    padding-left: @double-padding;
 
+    .collapser {
+      left: 0;
+    }
   }
 
   &[position="bottom-right"] {
     bottom: 10%;
     right: 0;
+    padding-left: @double-padding;
+
+    .collapser {
+      left: 0;
+    }
   }
 
   &.collapsed {
@@ -46,7 +74,7 @@ kite-active-search {
     height: 3.2em;
     transition: width (0.1s * @rate) ease (0.2s * @rate), height (0.2s * @rate);
 
-    kite-expand, .select-list {
+    kite-expand, .select-list, .collapser {
       display: none;
     }
   }
@@ -60,7 +88,10 @@ kite-active-search {
     }
 
     kite-expand, .select-list {
-      animation: appears (0.5s * @rate);
+      animation: pane-appears (0.5s * @rate);
+    }
+    .collapser {
+      animation: collapser-appears (0.5s * @rate);
     }
   }
 
@@ -88,6 +119,24 @@ kite-active-search {
     position: absolute;
     right: @half-padding;
     top: @half-padding;
+  }
+
+  .collapser {
+    background: @border-color;
+    color: @base-background-color;
+    position: absolute;
+    width: @component-padding;
+    top: 0;
+    bottom: 0;
+    cursor: pointer;
+
+    &::before {
+      position: absolute;
+      top: 50%;
+      margin-top: -0.5em;
+      left: 50%;
+      margin-left: -3px;
+    }
   }
 
   kite-expand {
