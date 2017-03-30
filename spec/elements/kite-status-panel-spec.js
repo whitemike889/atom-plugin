@@ -170,7 +170,7 @@ describe('KiteStatusPanel', () => {
 
     describe('clicking on the button', () => {
       it('starts kited', () => {
-        const button = status.querySelector('a');
+        const button = status.querySelector('a.btn');
 
         spyOn(app, 'start').andReturn(Promise.resolve());
         click(button);
@@ -210,7 +210,7 @@ describe('KiteStatusPanel', () => {
 
       describe('clicking on the button', () => {
         it('displays the kite login', () => {
-          const button = status.querySelector('a');
+          const button = status.querySelector('a.btn');
 
           spyOn(app, 'login').andReturn(Promise.resolve());
           click(button);
