@@ -69,9 +69,7 @@
       "default": "top-right",
       "enum": [
         "top-right",
-        "top-left",
-        "bottom-right",
-        "bottom-left"
+        "bottom-right"
       ]
     },
     "hideDocumentationWhenSignatureIsAvailable": {
