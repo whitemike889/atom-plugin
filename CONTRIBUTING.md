@@ -25,4 +25,4 @@ You can participate in many ways including, but not limited, to:
 ## Create a plugin for an unsupported editor
 - Follow the style guideline of the chosen language for the implementation. 
 - Test rigoriously. Test whether your plugin can successfully write to an UNIX domain socket, and whether it can reads from one. We strongly encourage you to include unit tests in your pr.
-- Share your plugin with the world! Note that all the source code in this repo is released under the MIT license. If the plugin is carefully tested, we will include it in Kite, so that programmers around the world can use the awesome tool you've built for them!
+- Share your plugin with the world! Note that all the source code in this repo is released under the Kite PROPRIETARY license. If the plugin is carefully tested, we will include it in Kite, so that programmers around the world can use the awesome tool you've built for them!
