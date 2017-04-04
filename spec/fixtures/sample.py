@@ -35,7 +35,10 @@ class B(A):
 
     def increment(self, n, **kwargs):
         inc = kwargs.delta or 1
-        return super(B, self).increment(n) + inc
+        return super(B, self).increment(abc) + inc
+
+    def dummy(self, abc, def, ghi, jkl, mno, pqr, stuv):
+        return abc
 
 if True:
     test = B('foo')
@@ -46,6 +49,8 @@ test.increment(2, delta=5)
 test.increment('bar')
 test.increment('baz')
 test.increment(False) if True else test.increment(True)
+
+test.dummy()
 
 if __name__ == "__main__":
     hello()

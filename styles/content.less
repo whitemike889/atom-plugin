@@ -186,6 +186,7 @@
     display: flex;
     flex-direction: row;
     width: 100%;
+    align-items: center;
 
     > * {
       flex: 1 1 0;
@@ -201,6 +202,11 @@
 
     & + .split-line {
       margin-top: @half-padding;
+    }
+
+    .name {
+      padding-left: @component-padding;
+      text-indent: -@component-padding;
     }
   }
 
