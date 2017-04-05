@@ -106,8 +106,8 @@
     }
 
     section.summary {
-      flex: 0 1 auto;
-      overflow-y: auto;
+      // flex: 0 1 auto;
+      // overflow-y: auto;
 
       pre code {
         white-space: pre;
@@ -166,13 +166,19 @@
     }
   }
 
-  // .name {
-  //   overflow-x: auto;
-  //
-  //   &::-webkit-scrollbar {
-  //     display: none;
-  //   }
-  // }
+  h4 {
+    .sticky {
+      &.fixed {
+        position: fixed;
+        box-sizing: border-box;
+        z-index: 10;
+      }
+
+      &.absolute {
+        position: absolute;
+      }
+    }
+  }
 
   .type {
     white-space: nowrap;
