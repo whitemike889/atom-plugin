@@ -47,7 +47,7 @@ kite-active-search {
   box-shadow: 0 0 10px rgba(0,0,0,0.4);
   overflow: hidden;
   padding: @half-padding;
-  transition: width (0.2s * @rate), height (0.3s * @rate) ease (0.2s * @rate);
+  transition: width (0.2s * @rate);
 
   &[position="top-right"] {
     top: 10%;
@@ -72,7 +72,7 @@ kite-active-search {
   &.collapsed {
     width: 3.2em;
     height: 3.2em;
-    transition: width (0.1s * @rate) ease (0.2s * @rate), height (0.2s * @rate);
+    transition: width (0.1s * @rate), height (0.01s * @rate) ease (0.1s * @rate);
 
     kite-expand, .select-list, .collapser {
       display: none;
