@@ -5,6 +5,7 @@ const http = require('http');
 const proc = require('child_process');
 const {StateController} = require('kite-installer');
 const metrics = require('../lib/metrics.js');
+const Plan = require('../lib/plan');
 
 beforeEach(() => {
   spyOn(metrics, 'track')/*.andCallFake((...args) => {
@@ -363,6 +364,27 @@ function withRoutes(routes) {
   });
 }
 
+function withPlan(description, plan, block) {
+  describe(description, () => {
+    withRoutes([
+      [
+        o => o.path.indexOf('/clientapi/plan') === 0,
+        o => fakeResponse(200, JSON.stringify(plan)),
+      ], [
+        o => /^\/api\/account\/user/.test(o.path),
+        o => fakeResponse(200, JSON.stringify({email_verified: true})),
+      ],
+    ]);
+
+
+    beforeEach(() => {
+      waitsForPromise(() => Plan.queryPlan());
+    });
+
+    block();
+  });
+}
+
 module.exports = {
   fakeProcesses, fakeRequestMethod, fakeResponse, fakeKiteInstallPaths,
   withKiteInstalled,
@@ -370,6 +392,6 @@ module.exports = {
   withKiteReachable, withKiteNotReachable,
   withKiteAuthenticated, withKiteNotAuthenticated,
   withKiteWhitelistedPaths, withKiteBlacklistedPaths, withKiteIgnoredPaths,
-  withFakeServer, withRoutes,
+  withFakeServer, withRoutes, withPlan,
   sleep,
 };

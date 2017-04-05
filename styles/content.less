@@ -72,6 +72,34 @@
   .kite-icon-list;
 }
 
+.kite-split-line {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  align-items: center;
+
+  > * {
+    flex: 1 1 0;
+  }
+
+  > :last-child {
+    text-align: right;
+    padding-left: @component-padding;
+    &:empty {
+      display: none;
+    }
+  }
+
+  & + .split-line {
+    margin-top: @half-padding;
+  }
+  
+  .name {
+    padding-left: @component-padding;
+    text-indent: -@component-padding;
+  }
+}
+
 .kite-content {
   .kite-code;
 
@@ -183,31 +211,7 @@
   }
 
   .split-line {
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-    align-items: center;
-
-    > * {
-      flex: 1 1 0;
-    }
-
-    > :last-child {
-      text-align: right;
-      padding-left: @component-padding;
-      &:empty {
-        display: none;
-      }
-    }
-
-    & + .split-line {
-      margin-top: @half-padding;
-    }
-
-    .name {
-      padding-left: @component-padding;
-      text-indent: -@component-padding;
-    }
+    .kite-split-line;
   }
 
   section {
