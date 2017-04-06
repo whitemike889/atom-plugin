@@ -93,7 +93,7 @@
   & + .split-line {
     margin-top: @half-padding;
   }
-  
+
   .name {
     padding-left: @component-padding;
     text-indent: -@component-padding;
@@ -195,15 +195,18 @@
   }
 
   h4 {
+    font-weight: 100;
+    margin: 0;
+    cursor: pointer;
+    font-size: 1.1em;
+
     .sticky {
+      padding: @component-padding 0;
+
       &.fixed {
         position: fixed;
         box-sizing: border-box;
         z-index: 10;
-      }
-
-      &.absolute {
-        position: absolute;
       }
     }
   }
@@ -303,13 +306,6 @@
 
   section.definition {
     .kite-icon-list;
-  }
-
-  h4 {
-    font-weight: 100;
-    margin: 0 0 @component-padding;
-    cursor: pointer;
-    font-size: 1.1em;
   }
 
   section.usages {
