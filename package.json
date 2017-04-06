@@ -64,6 +64,14 @@
       "type": "integer",
       "default": 3
     },
+    "activeSearchPosition": {
+      "type": "string",
+      "default": "top-right",
+      "enum": [
+        "top-right",
+        "bottom-right"
+      ]
+    },
     "hideDocumentationWhenSignatureIsAvailable": {
       "type": "boolean",
       "default": true,
