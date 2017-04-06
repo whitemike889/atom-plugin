@@ -17,10 +17,10 @@ describe('KiteExpandModule', () => {
     expect(element.querySelector('.expand-header .type').textContent).toEqual('module');
   });
 
-  it('uses the synopsis to fill the summary', () => {
-    expect(element.querySelector('section.summary').innerHTML)
-    .toEqual(json.report.description_html);
-  });
+  // it('uses the synopsis to fill the summary', () => {
+  //   expect(element.querySelector('section.summary').innerHTML)
+  //   .toEqual(json.report.description_html);
+  // });
 
   it('displays the first two members in the member section', () => {
     const lis = element.querySelectorAll('section.top-members li');

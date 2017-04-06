@@ -17,7 +17,7 @@ describe('KiteExpandInstance', () => {
     expect(element.querySelector('.expand-header .type').textContent).toEqual('int');
   });
 
-  it('displays the synopsis in the view summary', () => {
-    expect(element.querySelector('section.summary').textContent).toEqual('symbol `variable`');
-  });
+  // it('displays the synopsis in the view summary', () => {
+  //   expect(element.querySelector('section.summary').textContent).toEqual('symbol `variable`');
+  // });
 });
