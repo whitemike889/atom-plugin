@@ -33,7 +33,7 @@ describe('KiteStatusPanel', () => {
     }, () => {
       it('displays a pro badge', () => {
         waitsForPromise(() => status.show().then(() => {
-          expect(status.querySelector('.split-line .left .pro-badge')).toExist();
+          expect(status.querySelector('.split-line .left .pro')).toExist();
         }));
       });
 
@@ -56,7 +56,7 @@ describe('KiteStatusPanel', () => {
     }, () => {
       it('displays a pro badge with the remaining days', () => {
         waitsForPromise(() => status.show().then(() => {
-          expect(status.querySelector('.split-line .left .pro-badge')).toExist();
+          expect(status.querySelector('.split-line .left .pro')).toExist();
           const days = status.querySelector('.split-line .left .kite-trial-days');
           expect(days).toExist();
           expect(days.textContent).toEqual('Trial: 9 days left');
@@ -82,7 +82,7 @@ describe('KiteStatusPanel', () => {
     }, () => {
       it('displays a pro badge with the remaining days in red text', () => {
         waitsForPromise(() => status.show().then(() => {
-          expect(status.querySelector('.split-line .left .pro-badge')).toExist();
+          expect(status.querySelector('.split-line .left .pro')).toExist();
           const days = status.querySelector('.split-line .left .kite-trial-days');
           expect(days).toExist();
           expect(days.textContent).toEqual('Trial: 3 days left');
