@@ -194,6 +194,21 @@
     }
   }
 
+  .scroll-wrapper {
+    flex: 1 1 auto;
+    position: relative;
+    transform: translateZ(0);
+
+    .sections-wrapper {
+      overflow-y: auto;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+  }
+
   h4 {
     font-weight: 100;
     margin: 0;

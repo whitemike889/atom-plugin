@@ -77,6 +77,10 @@
       "default": true,
       "description": "If both a signature and documentation is available at the same only the signature will be visible."
     },
+    "collapseLongSummaries": {
+      "type": "boolean",
+      "default": true
+    },
     "loggingLevel": {
       "type": "string",
       "default": "info",
