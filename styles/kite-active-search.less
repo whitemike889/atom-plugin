@@ -83,6 +83,10 @@ kite-active-search {
     background: @hover-background-color;
   }
 
+  kite-navigable-stack section.summary.collapsible.collapse.overflow .description::after {
+    background-image: linear-gradient(to top, @hover-background-color 0%, transparent 100%);
+  }
+
   &:not(.collapsed) {
     width: 400px;
     height: 80%;

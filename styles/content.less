@@ -257,6 +257,24 @@
   section.summary {
     margin: 0 0 15px;
 
+    &.collapsible {
+      &.collapse .description {
+        max-height: 250px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      &.collapse.overflow .description::after {
+        content: '';
+        position: absolute;
+        height: 30px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: linear-gradient(to top, @app-background-color 0%, transparent 100%);
+      }
+    }
+
     .description {
       margin-top: @component-padding;
       font-size: 1em;
