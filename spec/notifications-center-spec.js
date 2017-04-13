@@ -414,7 +414,7 @@ describe('NotificationsCenter', () => {
 
             expect(atom.applicationDelegate.openExternal)
             .toHaveBeenCalledWith(
-              `http://local.kite.com:46624/settings/permissions?filename=${filename}&action=blacklist`
+              `http://localhost:46624/settings/permissions?filename=${filename}&action=blacklist`
             );
           });
         });

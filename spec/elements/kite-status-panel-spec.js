@@ -42,7 +42,7 @@ describe('KiteStatusPanel', () => {
           const link = status.querySelector('.split-line .right a');
           expect(link).toExist();
           expect(link.textContent).toEqual('Account');
-          expect(link.href).toEqual('http://local.kite.com:46624/redirect/pro');
+          expect(link.href).toEqual('http://localhost:46624/redirect/pro');
         }));
       });
     });
@@ -68,7 +68,7 @@ describe('KiteStatusPanel', () => {
           const link = status.querySelector('.split-line .right a');
           expect(link).toExist();
           expect(link.textContent).toEqual('Upgrade');
-          expect(link.href).toEqual('http://local.kite.com:46624/redirect/pro');
+          expect(link.href).toEqual('http://localhost:46624/redirect/pro');
         }));
       });
     });
@@ -95,7 +95,7 @@ describe('KiteStatusPanel', () => {
           const link = status.querySelector('.split-line .right a');
           expect(link).toExist();
           expect(link.textContent).toEqual('Upgrade');
-          expect(link.href).toEqual('http://local.kite.com:46624/redirect/pro');
+          expect(link.href).toEqual('http://localhost:46624/redirect/pro');
         }));
       });
     });
@@ -118,7 +118,7 @@ describe('KiteStatusPanel', () => {
           const link = status.querySelector('.split-line .right a');
           expect(link).toExist();
           expect(link.textContent).toEqual('Start Pro trial');
-          expect(link.href).toEqual('http://local.kite.com:46624/redirect/trial');
+          expect(link.href).toEqual('http://localhost:46624/redirect/trial');
         }));
       });
     });
@@ -141,7 +141,7 @@ describe('KiteStatusPanel', () => {
           const link = status.querySelector('.split-line .right a');
           expect(link).toExist();
           expect(link.textContent).toEqual('Upgrade');
-          expect(link.href).toEqual('http://local.kite.com:46624/redirect/pro');
+          expect(link.href).toEqual('http://localhost:46624/redirect/pro');
         }));
       });
     });
@@ -252,7 +252,7 @@ describe('KiteStatusPanel', () => {
 
           const buttons = state.querySelectorAll('a');
           const path = encodeURI(editor.getPath());
-          const url = `http://local.kite.com:46624/settings/permissions?filename=${path}`;
+          const url = `http://localhost:46624/settings/permissions?filename=${path}`;
 
           expect(buttons[0].href).toEqual(`kite-atom-internal://whitelist/${os.homedir()}`);
           expect(buttons[0].textContent).toEqual(`Enable for ${os.homedir()}`);
@@ -278,7 +278,7 @@ describe('KiteStatusPanel', () => {
             const state = status.querySelector('.status');
             const button = state.querySelector('a:last-child');
             const path = encodeURI(editor.getPath());
-            const url = `http://local.kite.com:46624/settings/permissions?filename=${path}`;
+            const url = `http://localhost:46624/settings/permissions?filename=${path}`;
 
             spyOn(atom.applicationDelegate, 'openExternal');
             click(button);
