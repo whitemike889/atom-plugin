@@ -351,8 +351,25 @@
       }
 
       .usages-box {
-        .usage {
+        .usage-container {
+          display: flex;
+          align-items: center;
+          align-content: center;
+          justify-content: space-between;
+        }
+
+        .usage-bullet {
+          width: 0.8em;
+          height: 0.8em;
+          border-radius: 50%;
           background-color: @background-color-highlight;
+          margin-right: 0.5em;
+          flex-grow: 0;
+          flex-shrink: 0;
+        }
+
+        .usage {
+          flex-grow: 1;
           padding: 0.5em;
           // padding-left: 2em;
           margin: 0;
@@ -370,7 +387,6 @@
 
           pre {
             margin: 0;
-            margin-bottom: 0.5em;
             background-color: transparent;
             font-family: inherit;
             padding: 0;
@@ -385,10 +401,6 @@
           .links {
             display: inline-block;
             white-space: nowrap;
-
-            a {
-              margin-left: 0.25em;
-            }
 
             .web-link {
               cursor: pointer;
