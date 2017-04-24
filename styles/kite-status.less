@@ -19,7 +19,9 @@ kite-status {
   }
 
   &[status="reachable"],
-  &[status="authenticated"][is-active-python-file] {
+  &[status="authenticated"][is-active-python-file],
+  &[status="authenticated"][size-exceeds-limit],
+  &[status="whitelisted"][size-exceeds-limit] {
     kite-logo svg polygon {
       fill: @text-color-warning;
     }
