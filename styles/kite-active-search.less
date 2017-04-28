@@ -49,6 +49,10 @@ kite-active-search {
   padding: @half-padding;
   transition: width (0.2s * @rate);
 
+  &[position="hidden"] {
+    display: none;
+  }
+
   &[position="top-right"] {
     top: 10%;
     right: 1px;
