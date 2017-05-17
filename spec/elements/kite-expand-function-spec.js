@@ -89,7 +89,7 @@ describe('KiteExpandFunction', () => {
       expect(dts.length).toEqual(1);
       expect(dds.length).toEqual(1);
 
-      expect(dts[0].querySelector('.name').textContent).toEqual('n');
+      expect(dts[0].querySelector('.name').textContent).toEqual('n=0');
       expect(dts[0].querySelector('.type').textContent).toEqual('int');
       expect(dds[0].textContent).toEqual('n synopsis here');
     });
