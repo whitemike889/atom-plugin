@@ -1,10 +1,9 @@
 'use strict';
 
 const os = require('os');
-const proc = require('child_process');
 const {StateController, AccountManager} = require('kite-installer');
 const KiteApp = require('../lib/kite-app');
-const {fakeKiteInstallPaths, withKiteNotReachable, withKiteNotRunning, withKiteNotAuthenticated, withKiteWhitelistedPaths, fakeProcesses, withFakeServer, fakeResponse} = require('./spec-helpers');
+const {fakeKiteInstallPaths, withKiteNotReachable, withKiteNotRunning, withKiteNotAuthenticated, withKiteWhitelistedPaths, withFakeServer, fakeResponse} = require('./spec-helpers');
 const {click} = require('./helpers/events');
 
 describe('KiteApp', () => {
