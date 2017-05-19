@@ -88,7 +88,7 @@ describe('NotificationsCenter', () => {
           expect(options.buttons).toBeUndefined();
           expect(options.dismissable).toBeTruthy();
           expect(options.description)
-          .toEqual('Sorry, the Kite engine only supports macOS at the moment.');
+          .toEqual('Sorry, the Kite engine only supports macOS and Windows at the moment.');
         });
 
         describe('when the same state is found after a new check', () => {
