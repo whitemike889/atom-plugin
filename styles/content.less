@@ -131,6 +131,19 @@
     .expand-header, .expand-extend {
       flex: 0 0 auto;
       margin-bottom: @component-padding;
+
+      .signature a.kwargs {
+        pointer-events: none;
+        color: @text-color;
+
+        .parameter-name {
+          color: @text-color;
+        }
+      }
+    }
+
+    section .kite-pro-features {
+      margin-bottom: @component-padding;
     }
 
     section.summary {
@@ -144,6 +157,7 @@
       .kite-table;
     }
 
+    section.kwargs,
     section.parameters {
       flex: 0 0 auto;
       display: flex;
@@ -341,14 +355,17 @@
     .kite-icon-list;
   }
 
+  section.patterns,
+  section.usages {
+    .kite-pro-features {
+      font-size: 1.2em;
+      padding-left: @component-padding;
+    }
+  }
+
   section.usages {
     .section-content {
       margin: 0;
-
-      .kite-pro-features {
-        font-size: 1.2em;
-        padding-left: @component-padding;
-      }
 
       .usages-box {
         .usage-container {

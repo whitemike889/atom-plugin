@@ -32,13 +32,13 @@ describe('KiteHover', () => {
       it('sets the name of the hover using the provided value', () => {
         const name = hover.querySelector('.name');
 
-        expect(name.textContent).toEqual('Test.increment(n:int, *args, **kwargs)');
+        expect(name.textContent).toEqual('Test.increment');
       });
 
       it('sets the return type of the hover using the provided value', () => {
         const type = hover.querySelector('.type');
 
-        expect(type.textContent).toEqual('-> int');
+        expect(type.textContent).toEqual('function');
       });
     });
 
@@ -50,13 +50,13 @@ describe('KiteHover', () => {
       it('sets the name of the hover using the provided value', () => {
         const name = hover.querySelector('.name');
 
-        expect(name.textContent).toEqual('Test.increment()');
+        expect(name.textContent).toEqual('Test.increment');
       });
 
-      it('leaves the type empty', () => {
+      it('uses the kind for the type', () => {
         const type = hover.querySelector('.type');
 
-        expect(type.textContent).toEqual('');
+        expect(type.textContent).toEqual('function');
       });
     });
 
@@ -74,7 +74,7 @@ describe('KiteHover', () => {
       it('sets the type of the hover using the provided value', () => {
         const type = hover.querySelector('.type');
 
-        expect(type.textContent).toEqual('int');
+        expect(type.textContent).toEqual('instance');
       });
     });
 
@@ -92,7 +92,7 @@ describe('KiteHover', () => {
       it('sets the type of the hover using the provided value', () => {
         const type = hover.querySelector('.type');
 
-        expect(type.textContent).toEqual('int | list[int]');
+        expect(type.textContent).toEqual('instance');
       });
 
       describe('that have duplicated types', () => {
@@ -103,7 +103,7 @@ describe('KiteHover', () => {
         it('display only one instance for each unique type', () => {
           const type = hover.querySelector('.type');
 
-          expect(type.textContent).toEqual('str | int');
+          expect(type.textContent).toEqual('instance');
         });
       });
     });
@@ -121,7 +121,7 @@ describe('KiteHover', () => {
 
       it('leaves the type empty', () => {
         const type = hover.querySelector('.type');
-        expect(type.textContent).toEqual('');
+        expect(type.textContent).toEqual('instance');
       });
     });
 
@@ -133,7 +133,7 @@ describe('KiteHover', () => {
       it('sets the name of the hover using the provided value', () => {
         const name = hover.querySelector('.name');
 
-        expect(name.textContent).toEqual('hello()');
+        expect(name.textContent).toEqual('hello');
       });
     });
   });
