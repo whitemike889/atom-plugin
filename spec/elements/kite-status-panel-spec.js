@@ -42,7 +42,7 @@ describe('KiteStatusPanel', () => {
           const link = status.querySelector('.split-line .right a');
           expect(link).toExist();
           expect(link.textContent).toEqual('Account');
-          expect(link.href).toEqual('http://localhost:46624/redirect/pro');
+          expect(link.href).toEqual('http://localhost:46624/clientapi/desktoplogin?d=/settings/acccount');
         }));
       });
     });
