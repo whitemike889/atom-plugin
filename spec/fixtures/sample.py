@@ -22,6 +22,8 @@ os.mkdir
 csv.reader
 matplotlib.pyplot.plot
 
+requests.get()
+
 class A:
     def __init__(self, foo):
         self.foo = foo
