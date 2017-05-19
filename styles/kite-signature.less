@@ -67,17 +67,22 @@ kite-signature {
 
   section.kwargs {
     display: none;
-    ul {
+
+    kite-links {
+      text-align: left;
+    }
+
+    dl {
       overflow-y: auto;
       max-height: 200px;
       margin-top: 0;
       margin-left: @half-padding;
     }
 
-    li {
+    dt {
       font-size: 1em;
 
-      & + li {
+      & + dt {
         margin-top: 0;
       }
     }
