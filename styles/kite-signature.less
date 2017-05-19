@@ -26,6 +26,7 @@ kite-signature {
     font-size: 1em;
     padding: 0;
     background: transparent;
+    margin-left: @half-padding;
     color: @text-color;
     cursor: default;
   }
@@ -55,8 +56,40 @@ kite-signature {
     color: @text-color-highlight;
   }
 
+  .parameter-highlight a .parameter-name,
+  a .parameter-name{
+    color: @text-color-info;
+  }
+
   &[no-documentation] + .suggestion-description {
     display: none !important;
+  }
+
+  section.kwargs {
+    display: none;
+
+    kite-links {
+      text-align: left;
+    }
+
+    dl {
+      overflow-y: auto;
+      max-height: 200px;
+      margin-top: 0;
+      margin-left: @half-padding;
+    }
+
+    dt {
+      font-size: 1em;
+
+      & + dt {
+        margin-top: 0;
+      }
+    }
+  }
+
+  section.kwargs.visible {
+    display: block;
   }
 }
 
