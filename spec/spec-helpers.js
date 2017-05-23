@@ -13,11 +13,6 @@ beforeEach(() => {
   })*/;
 
   atom.config.set('kite.loggingLevel', 'error');
-
-  Object.defineProperty(StateController.client, 'LOCAL_TOKEN', {
-    get() { return 'abcdef1234567890'; },
-    configurable: true,
-  });
 });
 
 function sleep(duration) {
@@ -287,8 +282,8 @@ function withKiteWhitelistedPaths(paths, block) {
   }
 
   const tokenRe = /^\/api\/buffer\/atom\/(.*)\/.*\/tokens/;
-  const projectDirRe = /^\/clientapi\/projectdir\?filename=(.+)&/;
-  const notifyRe = /^\/clientapi\/permissions\/notify\?filename=(.+)&/;
+  const projectDirRe = /^\/clientapi\/projectdir\?filename=(.+)$/;
+  const notifyRe = /^\/clientapi\/permissions\/notify\?filename=(.+)$/;
 
   const whitelisted = match => {
     const path = match.replace(/:/g, '/');
@@ -344,7 +339,7 @@ function withKiteIgnoredPaths(paths) {
 }
 
 function withKiteBlacklistedPaths(paths) {
-  const notifyRe = /^\/clientapi\/permissions\/notify\?filename=(.+)&/;
+  const notifyRe = /^\/clientapi\/permissions\/notify\?filename=(.+)$/;
   const blacklisted = path => paths.some(p => path.indexOf(p) !== -1);
 
   withRoutes([
