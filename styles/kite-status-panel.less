@@ -40,9 +40,12 @@ kite-status-panel {
     text-transform: uppercase;
   }
 
+  .subscription {
+    margin-bottom: @component-padding;
+  }
+
   .split-line {
     .kite-split-line;
-    margin-bottom: @component-padding;
 
     > * {
       white-space: nowrap;
@@ -50,6 +53,7 @@ kite-status-panel {
   }
   .links {
     list-style: none;
+    padding: 0 @half-padding 0;
 
     &:nth-child(1n+2) {
       padding: @component-padding @half-padding 0;
