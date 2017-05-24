@@ -44,8 +44,6 @@ describe('DataLoader', () => {
 
             expect(params.selection_begin_bytes).toEqual('0');
             expect(params.selection_end_bytes).toEqual('6');
-            expect(params.localtoken).toEqual(StateController.client.LOCAL_TOKEN);
-
             expect(data).toEqual({foo: 'bar'});
           }));
         });
@@ -94,8 +92,6 @@ describe('DataLoader', () => {
 
             expect(params.selection_begin_bytes).toEqual('0');
             expect(params.selection_end_bytes).toEqual('6');
-            expect(params.localtoken).toEqual(StateController.client.LOCAL_TOKEN);
-
             expect(data).toEqual([{
               symbol: [{
                 value: [{ id: 'foo' }],
@@ -128,8 +124,6 @@ describe('DataLoader', () => {
             expect(parsedURL.path.indexOf('/foo')).not.toEqual(-1);
 
             const params = parseParams(parsedURL.query);
-
-            expect(params.localtoken).toEqual(StateController.client.LOCAL_TOKEN);
 
             expect(data).toEqual([
               {
@@ -176,8 +170,6 @@ describe('DataLoader', () => {
 
             const params = parseParams(parsedURL.query);
 
-            expect(params.localtoken).toEqual(StateController.client.LOCAL_TOKEN);
-
             expect(data).toEqual({foo: 'bar'});
           }));
         });
@@ -215,8 +207,6 @@ describe('DataLoader', () => {
             expect(parsedURL.path.indexOf('/foo')).not.toEqual(-1);
 
             const params = parseParams(parsedURL.query);
-
-            expect(params.localtoken).toEqual(StateController.client.LOCAL_TOKEN);
 
             expect(data).toEqual({foo: 'bar'});
           }));
@@ -256,8 +246,6 @@ describe('DataLoader', () => {
 
             const params = parseParams(parsedURL.query);
 
-            expect(params.localtoken).toEqual(StateController.client.LOCAL_TOKEN);
-
             expect(data).toEqual({foo: 'bar'});
           }));
         });
@@ -295,8 +283,6 @@ describe('DataLoader', () => {
             expect(parsedURL.path.indexOf('/foo')).not.toEqual(-1);
 
             const params = parseParams(parsedURL.query);
-
-            expect(params.localtoken).toEqual(StateController.client.LOCAL_TOKEN);
 
             expect(data).toEqual({foo: 'bar'});
           }));
@@ -336,8 +322,6 @@ describe('DataLoader', () => {
 
             const params = parseParams(parsedURL.query);
 
-            expect(params.localtoken).toEqual(StateController.client.LOCAL_TOKEN);
-
             expect(data).toEqual({foo: 'bar'});
           }));
         });
@@ -360,8 +344,10 @@ describe('DataLoader', () => {
 });
 
 function parseParams(queryString) {
-  return queryString.split('&').map(p => p.split('=')).reduce((m, [k, v]) => {
-    m[k] = v;
-    return m;
-  }, {});
+  return queryString
+    ? queryString.split('&').map(p => p.split('=')).reduce((m, [k, v]) => {
+      m[k] = v;
+      return m;
+    }, {})
+    : {};
 }
