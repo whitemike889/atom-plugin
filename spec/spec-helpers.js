@@ -6,6 +6,7 @@ const proc = require('child_process');
 const {StateController} = require('kite-installer');
 const metrics = require('../lib/metrics.js');
 const Plan = require('../lib/plan');
+const {merge} = require('../lib/utils');
 
 beforeEach(() => {
   spyOn(metrics, 'track')/*.andCallFake((...args) => {
@@ -20,8 +21,7 @@ function sleep(duration) {
   waitsFor(`${duration}ms`, () => { return new Date() - t > duration; });
 }
 
-
-function fakeStream() {
+function fakeStdStream() {
   let streamCallback;
   function stream(data) {
     streamCallback && streamCallback(data);
@@ -34,34 +34,56 @@ function fakeStream() {
   return stream;
 }
 
+let _processes;
 function fakeProcesses(processes) {
-  spyOn(proc, 'spawn').andCallFake((process, options) => {
-    const mock = processes[process];
-    const ps = {
-      stdout: fakeStream(),
-      stderr: fakeStream(),
-      on: (evt, callback) => {
-        if (evt === 'close') { callback(mock ? mock(ps, options) : 1); }
-      },
-      once: (evt, callback) => {
-        if (evt === 'close') { callback(mock ? mock(ps, options) : 1); }
-      },
-    };
+  if (proc.spawn.isSpy) {
+    _processes = merge(_processes, processes);
+  } else {
+    spyOn(proc, 'spawn').andCallFake((process, options) => {
+      const mock = _processes[process];
+      const ps = {
+        stdout: fakeStdStream(),
+        stderr: fakeStdStream(),
+        on: (evt, callback) => {
+          if (evt === 'close') { callback(mock ? mock(ps, options) : 1); }
+        },
+      };
 
-    return ps;
-  });
+      return ps;
+    });
 
-  spyOn(proc, 'spawnSync').andCallFake((process, options) => {
-    const mock = processes[process];
+    spyOn(proc, 'spawnSync').andCallFake((process, options) => {
+      const mock = _processes[process];
 
-    const ps = {};
-    ps.status = mock ? mock({
-      stdout(data) { ps.stdout = data; },
-      stderr(data) { ps.stderr = data; },
-    }, options) : 1;
+      const ps = {};
+      ps.status = mock ? mock({
+        stdout(data) { ps.stdout = data; },
+        stderr(data) { ps.stderr = data; },
+      }, options) : 1;
 
-    return ps;
-  });
+      return ps;
+    });
+
+
+    _processes = processes;
+  }
+
+  if (processes.exec && !proc.exec.isSpy) {
+    spyOn(proc, 'exec').andCallFake((process, options, callback) => {
+      const mock = _processes.exec[process];
+
+      let stdout, stderr;
+
+      const status = mock ? mock({
+        stdout(data) { stdout = data; },
+        stderr(data) { stderr = data; },
+      }, options) : 1;
+
+      status === 0
+      ? callback(null, stdout)
+      : callback({}, stdout, stderr);
+    });
+  }
 }
 
 function fakeResponse(statusCode, data, props) {
@@ -130,12 +152,12 @@ function fakeRequestMethod(resp) {
 function fakeKiteInstallPaths() {
   let safePaths;
   beforeEach(() => {
-    safePaths = StateController.support.KITE_APP_PATH;
-    StateController.support.KITE_APP_PATH = { installed: '/path/to/Kite.app' };
-  });
-
-  afterEach(() => {
-    StateController.support.KITE_APP_PATH = safePaths;
+    fakeProcesses({
+      'mdfind': (ps) => {
+        ps.stdout('');
+        return 0;
+      },
+    });
   });
 }
 
@@ -154,7 +176,12 @@ function withKiteInstalled(block) {
     fakeKiteInstallPaths();
 
     beforeEach(() => {
-      StateController.support.KITE_APP_PATH = { installed: __filename };
+      fakeProcesses({
+        'mdfind': (ps) => {
+          ps.stdout('/Applications/Kite.app');
+          return 0;
+        },
+      });
     });
 
     block();
