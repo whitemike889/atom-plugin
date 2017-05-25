@@ -177,8 +177,51 @@ function withKiteInstalled(block) {
 
     beforeEach(() => {
       fakeProcesses({
-        'mdfind': (ps) => {
-          ps.stdout('/Applications/Kite.app');
+        'mdfind': (ps, args) => {
+          const [, key] = args[0].split(/\s=\s/);
+          key === '"com.kite.Kite"'
+          ? ps.stdout('/Applications/Kite.app')
+          : ps.stdout('');
+          return 0;
+        },
+      });
+    });
+
+    block();
+  });
+}
+
+function withKiteEntrepriseInstalled(block) {
+  describe('with kite entreprise installed', () => {
+    fakeKiteInstallPaths();
+
+    beforeEach(() => {
+      fakeProcesses({
+        'mdfind': (ps, args) => {
+          const [, key] = args[0].split(/\s=\s/);
+          key === '"entreprise.kite.Kite"'
+          ? ps.stdout('/Applications/KiteEntreprise.app')
+          : ps.stdout('');
+          return 0;
+        },
+      });
+    });
+
+    block();
+  });
+}
+
+function withBothKiteInstalled(block) {
+  describe('with both kite and kite entreprise installed', () => {
+    fakeKiteInstallPaths();
+
+    beforeEach(() => {
+      fakeProcesses({
+        'mdfind': (ps, args) => {
+          const [, key] = args[0].split(/\s=\s/);
+          key === '"entreprise.kite.Kite"'
+          ? ps.stdout('/Applications/KiteEntreprise.app')
+          : ps.stdout('/Applications/Kite.app');
           return 0;
         },
       });
@@ -224,6 +267,43 @@ function withKiteNotRunning(block) {
     });
   });
 }
+
+function withKiteEntrepriseRunning(block) {
+  withKiteEntrepriseInstalled(() => {
+    describe(', running', () => {
+      beforeEach(() => {
+        fakeProcesses({
+          '/bin/ps': (ps) => {
+            ps.stdout('KiteEntreprise');
+            return 0;
+          },
+        });
+      });
+
+      block();
+    });
+  });
+}
+
+function withKiteEntrepriseNotRunning(block) {
+  withKiteEntrepriseInstalled(() => {
+    describe(', not running', () => {
+      beforeEach(() => {
+        fakeProcesses({
+          '/bin/ps': (ps) => {
+            ps.stdout('');
+            return 0;
+          },
+          defaults: () => 0,
+          open: () => 0,
+        });
+      });
+
+      block();
+    });
+  });
+}
+
 function withFakeServer(routes, block) {
   if (typeof routes == 'function') {
     block = routes;
@@ -418,5 +498,7 @@ module.exports = {
   withKiteAuthenticated, withKiteNotAuthenticated,
   withKiteWhitelistedPaths, withKiteBlacklistedPaths, withKiteIgnoredPaths,
   withFakeServer, withRoutes, withPlan,
+  withKiteEntrepriseInstalled, withBothKiteInstalled,
+  withKiteEntrepriseRunning, withKiteEntrepriseNotRunning,
   sleep,
 };
