@@ -6,7 +6,8 @@ const KiteStatusPanel = require('../../lib/elements/kite-status-panel');
 const {
   fakeKiteInstallPaths, fakeResponse, withPlan, withKiteAuthenticated,
   withRoutes, withKiteNotRunning, withKiteWhitelistedPaths,
-  withKiteNotAuthenticated,
+  withKiteNotAuthenticated, withKiteEnterpriseNotRunning,
+  withBothKiteNotRunning,
 } = require('../spec-helpers');
 const {click} = require('../helpers/events');
 
@@ -171,6 +172,87 @@ describe('KiteStatusPanel', () => {
     describe('clicking on the button', () => {
       it('starts kited', () => {
         const button = status.querySelector('a.btn');
+
+        spyOn(app, 'start').andReturn(Promise.resolve());
+        click(button);
+
+        expect(app.start).toHaveBeenCalled();
+      });
+    });
+  });
+
+  withKiteEnterpriseNotRunning(() => {
+    beforeEach(() => {
+      waitsForPromise(() => status.show());
+    });
+
+    it('does not display the account status', () => {
+      expect(status.querySelector('.split-line')).not.toExist();
+    });
+
+    it('displays an action to start kited', () => {
+      const state = status.querySelector('.status');
+
+      expect(state.querySelector('.text-danger').textContent)
+      .toEqual('Kite engine is not running •');
+
+      const button = state.querySelector('a');
+
+      expect(button.href).toEqual('kite-atom-internal://start-enterprise');
+      expect(button.textContent).toEqual('Launch now');
+    });
+
+    describe('clicking on the button', () => {
+      it('starts kited', () => {
+        const button = status.querySelector('a.btn');
+
+        spyOn(app, 'startEnterprise').andReturn(Promise.resolve());
+        click(button);
+
+        expect(app.startEnterprise).toHaveBeenCalled();
+      });
+    });
+  });
+
+  withBothKiteNotRunning(() => {
+    beforeEach(() => {
+      waitsForPromise(() => status.show());
+    });
+
+    it('does not display the account status', () => {
+      expect(status.querySelector('.split-line')).not.toExist();
+    });
+
+    it('displays an action to start kited', () => {
+      const state = status.querySelector('.status');
+
+      expect(state.querySelector('.text-danger').textContent)
+      .toEqual('Kite engine is not running •Which version of kite do you want to launch?');
+
+      const buttons = state.querySelectorAll('a');
+
+      expect(buttons.length).toEqual(2);
+
+      expect(buttons[0].href).toEqual('kite-atom-internal://start-enterprise');
+      expect(buttons[0].textContent).toEqual('Launch Kite Enterprise');
+      expect(buttons[1].href).toEqual('kite-atom-internal://start');
+      expect(buttons[1].textContent).toEqual('Launch Kite cloud');
+    });
+
+    describe('clicking on the enterprise button', () => {
+      it('starts kited', () => {
+        const button = status.querySelector('a.btn');
+
+        spyOn(app, 'startEnterprise').andReturn(Promise.resolve());
+        click(button);
+
+        expect(app.startEnterprise).toHaveBeenCalled();
+      });
+    });
+
+    describe('clicking on the cloud button', () => {
+      it('starts kited', () => {
+        const button = status.querySelectorAll('a.btn')[1];
 
         spyOn(app, 'start').andReturn(Promise.resolve());
         click(button);
