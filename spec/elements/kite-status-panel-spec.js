@@ -25,6 +25,29 @@ describe('KiteStatusPanel', () => {
   });
 
   withKiteAuthenticated(() => {
+    withPlan('enterprise', {
+      status: 'active',
+      active_subscription: 'enterprise',
+      features: {},
+      trial_days_remaining: 0,
+      started_kite_pro_trial: false,
+    }, () => {
+      it('displays an enterprise badge', () => {
+        waitsForPromise(() => status.show().then(() => {
+          expect(status.querySelector('.split-line .left .enterprise')).toExist();
+        }));
+      });
+
+      it('displays a link to the user account', () => {
+        waitsForPromise(() => status.show().then(() => {
+          const link = status.querySelector('.split-line .right a');
+          expect(link).toExist();
+          expect(link.textContent).toEqual('Account');
+          expect(link.href).toEqual('http://localhost:46624/clientapi/desktoplogin?d=/settings/acccount');
+        }));
+      });
+    });
+
     withPlan('active pro', {
       status: 'active',
       active_subscription: 'pro',
