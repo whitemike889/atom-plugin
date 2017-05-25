@@ -304,6 +304,25 @@ function withKiteEntrepriseNotRunning(block) {
   });
 }
 
+function withBothKiteNotRunning(block) {
+  withBothKiteInstalled(() => {
+    describe(', not running', () => {
+      beforeEach(() => {
+        fakeProcesses({
+          '/bin/ps': (ps) => {
+            ps.stdout('');
+            return 0;
+          },
+          defaults: () => 0,
+          open: () => 0,
+        });
+      });
+
+      block();
+    });
+  });
+}
+
 function withFakeServer(routes, block) {
   if (typeof routes == 'function') {
     block = routes;
@@ -500,5 +519,6 @@ module.exports = {
   withFakeServer, withRoutes, withPlan,
   withKiteEntrepriseInstalled, withBothKiteInstalled,
   withKiteEntrepriseRunning, withKiteEntrepriseNotRunning,
+  withBothKiteNotRunning,
   sleep,
 };
