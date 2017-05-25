@@ -9,7 +9,7 @@ const KiteApp = require('../lib/kite-app');
 const {
   fakeKiteInstallPaths, withKiteNotReachable, withKiteNotRunning,
   withKiteNotAuthenticated, withKiteWhitelistedPaths, sleep,
-  withKiteEntrepriseNotRunning, withBothKiteNotRunning,
+  withKiteEnterpriseNotRunning, withBothKiteNotRunning,
 } = require('./spec-helpers');
 const {click} = require('./helpers/events');
 
@@ -250,7 +250,7 @@ describe('NotificationsCenter', () => {
         });
       });
 
-      withKiteEntrepriseNotRunning(() => {
+      withKiteEnterpriseNotRunning(() => {
         beforeEach(() => {
           waitsForPromise(() => app.connect());
           waitsFor(() => notificationElement = getNotificationElement());
@@ -267,7 +267,7 @@ describe('NotificationsCenter', () => {
           .toEqual('The Kite engine is not running');
 
           expect(options.buttons.length).toEqual(1);
-          expect(options.buttons[0].text).toEqual('Start Kite Entreprise');
+          expect(options.buttons[0].text).toEqual('Start Kite Enterprise');
           expect(options.dismissable).toBeTruthy();
           expect(options.description)
           .toEqual('Start the Kite background service to get Python completions, documentation, and examples.');
@@ -275,16 +275,16 @@ describe('NotificationsCenter', () => {
 
         describe('clicking on the Start Kite button', () => {
           it('triggers a start', () => {
-            spyOn(app, 'startEntreprise').andReturn(Promise.resolve());
+            spyOn(app, 'startEnterprise').andReturn(Promise.resolve());
             const button = queryNotificationSelector(notificationElement, 'a.btn');
             click(button);
 
-            expect(app.startEntreprise).toHaveBeenCalled();
+            expect(app.startEnterprise).toHaveBeenCalled();
           });
 
           describe('when the start fails', () => {
             beforeEach(() => {
-              spyOn(app, 'startEntreprise').andReturn(Promise.reject());
+              spyOn(app, 'startEnterprise').andReturn(Promise.reject());
               const button = queryNotificationSelector(notificationElement, 'a.btn');
               click(button);
 
@@ -314,7 +314,7 @@ describe('NotificationsCenter', () => {
               });
 
               it('calls the start method again', () => {
-                expect(app.startEntreprise.callCount).toEqual(2);
+                expect(app.startEnterprise.callCount).toEqual(2);
               });
 
               it('displays another notification when it fails', () => {
@@ -352,7 +352,7 @@ describe('NotificationsCenter', () => {
 
           expect(options.buttons.length).toEqual(2);
           expect(options.buttons[0].text).toEqual('Start Kite');
-          expect(options.buttons[1].text).toEqual('Start Kite Entreprise');
+          expect(options.buttons[1].text).toEqual('Start Kite Enterprise');
           expect(options.dismissable).toBeTruthy();
           expect(options.description)
           .toEqual('Start the Kite background service to get Python completions, documentation, and examples.');
@@ -409,18 +409,18 @@ describe('NotificationsCenter', () => {
           });
         });
 
-        describe('clicking on the Start Kite Entreprise button', () => {
+        describe('clicking on the Start Kite Enterprise button', () => {
           it('triggers a start', () => {
-            spyOn(app, 'startEntreprise').andReturn(Promise.resolve());
+            spyOn(app, 'startEnterprise').andReturn(Promise.resolve());
             const button = queryNotificationSelectorAll(notificationElement, 'a.btn')[1];
             click(button);
 
-            expect(app.startEntreprise).toHaveBeenCalled();
+            expect(app.startEnterprise).toHaveBeenCalled();
           });
 
           describe('when the start fails', () => {
             beforeEach(() => {
-              spyOn(app, 'startEntreprise').andReturn(Promise.reject());
+              spyOn(app, 'startEnterprise').andReturn(Promise.reject());
               const button = queryNotificationSelectorAll(notificationElement, 'a.btn')[1];
               click(button);
 
@@ -452,7 +452,7 @@ describe('NotificationsCenter', () => {
               });
 
               it('calls the start method again', () => {
-                expect(app.startEntreprise.callCount).toEqual(2);
+                expect(app.startEnterprise.callCount).toEqual(2);
               });
 
               it('displays another notification when it fails', () => {

@@ -191,16 +191,16 @@ function withKiteInstalled(block) {
   });
 }
 
-function withKiteEntrepriseInstalled(block) {
-  describe('with kite entreprise installed', () => {
+function withKiteEnterpriseInstalled(block) {
+  describe('with kite enterprise installed', () => {
     fakeKiteInstallPaths();
 
     beforeEach(() => {
       fakeProcesses({
         'mdfind': (ps, args) => {
           const [, key] = args[0].split(/\s=\s/);
-          key === '"entreprise.kite.Kite"'
-          ? ps.stdout('/Applications/KiteEntreprise.app')
+          key === '"enterprise.kite.Kite"'
+          ? ps.stdout('/Applications/KiteEnterprise.app')
           : ps.stdout('');
           return 0;
         },
@@ -212,15 +212,15 @@ function withKiteEntrepriseInstalled(block) {
 }
 
 function withBothKiteInstalled(block) {
-  describe('with both kite and kite entreprise installed', () => {
+  describe('with both kite and kite enterprise installed', () => {
     fakeKiteInstallPaths();
 
     beforeEach(() => {
       fakeProcesses({
         'mdfind': (ps, args) => {
           const [, key] = args[0].split(/\s=\s/);
-          key === '"entreprise.kite.Kite"'
-          ? ps.stdout('/Applications/KiteEntreprise.app')
+          key === '"enterprise.kite.Kite"'
+          ? ps.stdout('/Applications/KiteEnterprise.app')
           : ps.stdout('/Applications/Kite.app');
           return 0;
         },
@@ -268,13 +268,13 @@ function withKiteNotRunning(block) {
   });
 }
 
-function withKiteEntrepriseRunning(block) {
-  withKiteEntrepriseInstalled(() => {
+function withKiteEnterpriseRunning(block) {
+  withKiteEnterpriseInstalled(() => {
     describe(', running', () => {
       beforeEach(() => {
         fakeProcesses({
           '/bin/ps': (ps) => {
-            ps.stdout('KiteEntreprise');
+            ps.stdout('KiteEnterprise');
             return 0;
           },
         });
@@ -285,8 +285,8 @@ function withKiteEntrepriseRunning(block) {
   });
 }
 
-function withKiteEntrepriseNotRunning(block) {
-  withKiteEntrepriseInstalled(() => {
+function withKiteEnterpriseNotRunning(block) {
+  withKiteEnterpriseInstalled(() => {
     describe(', not running', () => {
       beforeEach(() => {
         fakeProcesses({
@@ -517,8 +517,8 @@ module.exports = {
   withKiteAuthenticated, withKiteNotAuthenticated,
   withKiteWhitelistedPaths, withKiteBlacklistedPaths, withKiteIgnoredPaths,
   withFakeServer, withRoutes, withPlan,
-  withKiteEntrepriseInstalled, withBothKiteInstalled,
-  withKiteEntrepriseRunning, withKiteEntrepriseNotRunning,
+  withKiteEnterpriseInstalled, withBothKiteInstalled,
+  withKiteEnterpriseRunning, withKiteEnterpriseNotRunning,
   withBothKiteNotRunning,
   sleep,
 };
