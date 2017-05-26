@@ -13,9 +13,13 @@ kite-status-panel {
   border-radius: 4px;
 
   .enterprise {
-    color: @text-color-highlight;
-    text-transform: uppercase;
     vertical-align: middle;
+
+    svg {
+      path, polygon {
+        fill: @text-color-highlight;
+      }
+    }
   }
 
   .pro {
