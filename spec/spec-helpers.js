@@ -191,6 +191,26 @@ function withKiteInstalled(block) {
   });
 }
 
+function withManyKiteInstalled(block) {
+  describe('with many kite installed', () => {
+    fakeKiteInstallPaths();
+
+    beforeEach(() => {
+      fakeProcesses({
+        'mdfind': (ps, args) => {
+          const [, key] = args[0].split(/\s=\s/);
+          key === '"com.kite.Kite"'
+          ? ps.stdout('/Applications/Kite.app\n/Users/kite/Kite.app')
+          : ps.stdout('');
+          return 0;
+        },
+      });
+    });
+
+    block();
+  });
+}
+
 function withKiteEnterpriseInstalled(block) {
   describe('with kite enterprise installed', () => {
     fakeKiteInstallPaths();
@@ -201,6 +221,26 @@ function withKiteEnterpriseInstalled(block) {
           const [, key] = args[0].split(/\s=\s/);
           key === '"enterprise.kite.Kite"'
           ? ps.stdout('/Applications/KiteEnterprise.app')
+          : ps.stdout('');
+          return 0;
+        },
+      });
+    });
+
+    block();
+  });
+}
+
+function withManyKiteEnterpriseInstalled(block) {
+  describe('with many kite enterprise installed', () => {
+    fakeKiteInstallPaths();
+
+    beforeEach(() => {
+      fakeProcesses({
+        'mdfind': (ps, args) => {
+          const [, key] = args[0].split(/\s=\s/);
+          key === '"enterprise.kite.Kite"'
+          ? ps.stdout('/Applications/KiteEnterprise.app\n/Users/kite/KiteEnterprise.app')
           : ps.stdout('');
           return 0;
         },
@@ -231,6 +271,26 @@ function withBothKiteInstalled(block) {
   });
 }
 
+function withManyOfBothKiteInstalled(block) {
+  describe('with many of both kite and kite enterprise installed', () => {
+    fakeKiteInstallPaths();
+
+    beforeEach(() => {
+      fakeProcesses({
+        'mdfind': (ps, args) => {
+          const [, key] = args[0].split(/\s=\s/);
+          key === '"enterprise.kite.Kite"'
+          ? ps.stdout('/Applications/KiteEnterprise.app\n/Users/kite/KiteEnterprise.app')
+          : ps.stdout('/Applications/Kite.app\n/Users/kite/Kite.app');
+          return 0;
+        },
+      });
+    });
+
+    block();
+  });
+}
+
 function withKiteRunning(block) {
   withKiteInstalled(() => {
     describe(', running', () => {
@@ -251,6 +311,25 @@ function withKiteRunning(block) {
 
 function withKiteNotRunning(block) {
   withKiteInstalled(() => {
+    describe(', not running', () => {
+      beforeEach(() => {
+        fakeProcesses({
+          '/bin/ps': (ps) => {
+            ps.stdout('');
+            return 0;
+          },
+          defaults: () => 0,
+          open: () => 0,
+        });
+      });
+
+      block();
+    });
+  });
+}
+
+function withManyKiteNotRunning(block) {
+  withManyKiteInstalled(() => {
     describe(', not running', () => {
       beforeEach(() => {
         fakeProcesses({
@@ -304,8 +383,46 @@ function withKiteEnterpriseNotRunning(block) {
   });
 }
 
+function withManyKiteEnterpriseNotRunning(block) {
+  withManyKiteEnterpriseInstalled(() => {
+    describe(', not running', () => {
+      beforeEach(() => {
+        fakeProcesses({
+          '/bin/ps': (ps) => {
+            ps.stdout('');
+            return 0;
+          },
+          defaults: () => 0,
+          open: () => 0,
+        });
+      });
+
+      block();
+    });
+  });
+}
+
 function withBothKiteNotRunning(block) {
   withBothKiteInstalled(() => {
+    describe(', not running', () => {
+      beforeEach(() => {
+        fakeProcesses({
+          '/bin/ps': (ps) => {
+            ps.stdout('');
+            return 0;
+          },
+          defaults: () => 0,
+          open: () => 0,
+        });
+      });
+
+      block();
+    });
+  });
+}
+
+function withManyOfBothKiteNotRunning(block) {
+  withManyOfBothKiteInstalled(() => {
     describe(', not running', () => {
       beforeEach(() => {
         fakeProcesses({
@@ -511,14 +628,19 @@ function withPlan(description, plan, block) {
 
 module.exports = {
   fakeProcesses, fakeRequestMethod, fakeResponse, fakeKiteInstallPaths,
-  withKiteInstalled,
-  withKiteRunning, withKiteNotRunning,
+
+  withKiteInstalled, withManyKiteInstalled,
+  withKiteEnterpriseInstalled, withManyKiteEnterpriseInstalled,
+  withBothKiteInstalled, withManyOfBothKiteInstalled,
+
+  withKiteRunning, withKiteNotRunning, withManyKiteNotRunning,
+  withKiteEnterpriseRunning, withKiteEnterpriseNotRunning,
+  withManyKiteEnterpriseNotRunning,
+  withBothKiteNotRunning, withManyOfBothKiteNotRunning,
+
   withKiteReachable, withKiteNotReachable,
   withKiteAuthenticated, withKiteNotAuthenticated,
   withKiteWhitelistedPaths, withKiteBlacklistedPaths, withKiteIgnoredPaths,
   withFakeServer, withRoutes, withPlan,
-  withKiteEnterpriseInstalled, withBothKiteInstalled,
-  withKiteEnterpriseRunning, withKiteEnterpriseNotRunning,
-  withBothKiteNotRunning,
   sleep,
 };

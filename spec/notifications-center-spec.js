@@ -10,6 +10,8 @@ const {
   fakeKiteInstallPaths, withKiteNotReachable, withKiteNotRunning,
   withKiteNotAuthenticated, withKiteWhitelistedPaths, sleep,
   withKiteEnterpriseNotRunning, withBothKiteNotRunning,
+  withManyKiteNotRunning, withManyKiteEnterpriseNotRunning,
+  withManyOfBothKiteNotRunning,
 } = require('./spec-helpers');
 const {click} = require('./helpers/events');
 
@@ -250,6 +252,27 @@ describe('NotificationsCenter', () => {
         });
       });
 
+      withManyKiteNotRunning(() => {
+        beforeEach(() => {
+          waitsForPromise(() => app.connect());
+          waitsFor(() => notificationElement = getNotificationElement());
+          runs(() => notification = notificationElement.getModel());
+        });
+
+        it('notifies the user with no actions', () => {
+          const options = notification.getOptions();
+
+          expect(notificationElement).not.toBeNull();
+
+          expect(notification.getType()).toEqual('warning');
+          expect(notification.getMessage())
+          .toEqual('The Kite engine is not running');
+          expect(options.description).toEqual('You have multiple versions of Kite installed. Please launch your desired one.');
+
+          expect(options.buttons).toBeUndefined();
+        });
+      });
+
       withKiteEnterpriseNotRunning(() => {
         beforeEach(() => {
           waitsForPromise(() => app.connect());
@@ -331,6 +354,27 @@ describe('NotificationsCenter', () => {
               expect(atom.notifications.getNotifications().length).toEqual(1);
             }));
           });
+        });
+      });
+
+      withManyKiteEnterpriseNotRunning(() => {
+        beforeEach(() => {
+          waitsForPromise(() => app.connect());
+          waitsFor(() => notificationElement = getNotificationElement());
+          runs(() => notification = notificationElement.getModel());
+        });
+
+        it('notifies the user with no actions', () => {
+          const options = notification.getOptions();
+
+          expect(notificationElement).not.toBeNull();
+
+          expect(notification.getType()).toEqual('warning');
+          expect(notification.getMessage())
+          .toEqual('The Kite engine is not running');
+          expect(options.description).toEqual('You have multiple versions of Kite installed. Please launch your desired one.');
+
+          expect(options.buttons).toBeUndefined();
         });
       });
 
@@ -469,6 +513,27 @@ describe('NotificationsCenter', () => {
               expect(atom.notifications.getNotifications().length).toEqual(1);
             }));
           });
+        });
+      });
+
+      withManyOfBothKiteNotRunning(() => {
+        beforeEach(() => {
+          waitsForPromise(() => app.connect());
+          waitsFor(() => notificationElement = getNotificationElement());
+          runs(() => notification = notificationElement.getModel());
+        });
+
+        it('notifies the user with no actions', () => {
+          const options = notification.getOptions();
+
+          expect(notificationElement).not.toBeNull();
+
+          expect(notification.getType()).toEqual('warning');
+          expect(notification.getMessage())
+          .toEqual('The Kite engine is not running');
+          expect(options.description).toEqual('You have multiple versions of Kite installed. Please launch your desired one.');
+
+          expect(options.buttons).toBeUndefined();
         });
       });
 
