@@ -7,7 +7,8 @@ const {
   fakeKiteInstallPaths, fakeResponse, withPlan, withKiteAuthenticated,
   withRoutes, withKiteNotRunning, withKiteWhitelistedPaths,
   withKiteNotAuthenticated, withKiteEnterpriseNotRunning,
-  withBothKiteNotRunning,
+  withBothKiteNotRunning, withManyKiteNotRunning,
+  withManyKiteEnterpriseNotRunning, withManyOfBothKiteNotRunning,
 } = require('../spec-helpers');
 const {click} = require('../helpers/events');
 
@@ -204,6 +205,27 @@ describe('KiteStatusPanel', () => {
     });
   });
 
+  withManyKiteNotRunning(() => {
+    beforeEach(() => {
+      waitsForPromise(() => status.show());
+    });
+
+    it('does not display the account status', () => {
+      expect(status.querySelector('.split-line')).not.toExist();
+    });
+
+    it('does not display an action to start kited', () => {
+      const state = status.querySelector('.status');
+
+      expect(state.querySelector('.text-danger').textContent)
+      .toEqual('Kite engine is not running •You have multiple versions of Kite installed. Please launch your desired one.');
+
+      const button = state.querySelector('a');
+
+      expect(button).toBeNull();
+    });
+  });
+
   withKiteEnterpriseNotRunning(() => {
     beforeEach(() => {
       waitsForPromise(() => status.show());
@@ -234,6 +256,27 @@ describe('KiteStatusPanel', () => {
 
         expect(app.startEnterprise).toHaveBeenCalled();
       });
+    });
+  });
+
+  withManyKiteEnterpriseNotRunning(() => {
+    beforeEach(() => {
+      waitsForPromise(() => status.show());
+    });
+
+    it('does not display the account status', () => {
+      expect(status.querySelector('.split-line')).not.toExist();
+    });
+
+    it('does not display an action to start kited', () => {
+      const state = status.querySelector('.status');
+
+      expect(state.querySelector('.text-danger').textContent)
+      .toEqual('Kite engine is not running •You have multiple versions of Kite installed. Please launch your desired one.');
+
+      const button = state.querySelector('a');
+
+      expect(button).toBeNull();
     });
   });
 
@@ -282,6 +325,27 @@ describe('KiteStatusPanel', () => {
 
         expect(app.start).toHaveBeenCalled();
       });
+    });
+  });
+
+  withManyOfBothKiteNotRunning(() => {
+    beforeEach(() => {
+      waitsForPromise(() => status.show());
+    });
+
+    it('does not display the account status', () => {
+      expect(status.querySelector('.split-line')).not.toExist();
+    });
+
+    it('does not display an action to start kited', () => {
+      const state = status.querySelector('.status');
+
+      expect(state.querySelector('.text-danger').textContent)
+      .toEqual('Kite engine is not running •You have multiple versions of Kite installed. Please launch your desired one.');
+
+      const button = state.querySelector('a');
+
+      expect(button).toBeNull();
     });
   });
 
