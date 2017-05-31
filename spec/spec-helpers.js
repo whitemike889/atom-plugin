@@ -3,7 +3,6 @@
 const os = require('os');
 const http = require('http');
 const proc = require('child_process');
-const {StateController} = require('kite-installer');
 const metrics = require('../lib/metrics.js');
 const Plan = require('../lib/plan');
 const {merge} = require('../lib/utils');
@@ -150,7 +149,6 @@ function fakeRequestMethod(resp) {
 }
 
 function fakeKiteInstallPaths() {
-  let safePaths;
   beforeEach(() => {
     fakeProcesses({
       'mdfind': (ps) => {

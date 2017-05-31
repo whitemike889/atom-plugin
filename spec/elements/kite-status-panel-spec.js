@@ -109,7 +109,13 @@ describe('KiteStatusPanel', () => {
     }, () => {
       it('displays as a kite basic account', () => {
         waitsForPromise(() => status.show().then(() => {
-          expect(status.querySelector('.split-line .left').textContent.replace(/\s+/g, ' ').trim()).toEqual('kite_vector_icon Kite Basic');
+          expect(
+            status.querySelector('.split-line .left')
+            .textContent
+            .replace(/\s+/g, ' ')
+            .trim()
+          )
+          .toEqual('kite_vector_icon Kite Basic');
         }));
       });
 
@@ -132,7 +138,13 @@ describe('KiteStatusPanel', () => {
     }, () => {
       it('displays as a kite basic account', () => {
         waitsForPromise(() => status.show().then(() => {
-          expect(status.querySelector('.split-line .left').textContent.replace(/\s+/g, ' ').trim()).toEqual('kite_vector_icon Kite Basic');
+          expect(
+            status.querySelector('.split-line .left')
+            .textContent
+            .replace(/\s+/g, ' ')
+            .trim()
+          )
+          .toEqual('kite_vector_icon Kite Basic');
         }));
       });
 
