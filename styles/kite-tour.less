@@ -8,18 +8,21 @@ kite-tour {
   font-size: 1.2rem;
   background: @base-background-color;
 
+  p {
+    margin-bottom: @component-padding;
+  }
+
   a, a:visited, a:active, a:focus, a:hover {
     color: @text-color-info;
   }
 
   h5 {
     font-size: 1.2em;
+    margin-top: @double-padding;
   }
 
   kite-logo svg {
-    height: 96px;
-    margin-top: @double-padding;
-
+    height: 1.2em;
     polygon {
       fill: @text-color-highlight;
     }
@@ -34,7 +37,10 @@ kite-tour {
     padding: 0 @double-padding;
 
     & + section {
-      margin-top: @quadruple-padding;
+      margin-top: @double-padding;
+    }
+    & + p {
+      margin-top: @double-padding;
     }
 
     figure {
@@ -49,10 +55,18 @@ kite-tour {
     }
   }
 
+  .control-group {
+    line-height: 1em;
+  }
+
   .kite-tour-scroll-section {
     flex: 1 1 auto;
     overflow-y: scroll;
-    margin: @quadruple-padding 0;
+    margin: @double-padding 0;
+
+    p {
+      text-align: center;
+    }
   }
 
   .kite-tour-gutter {
