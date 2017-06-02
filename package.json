@@ -16,7 +16,7 @@
   "configSchema": {
     "showKiteTourOnStatup": {
       "type": "boolean",
-      "default": false,
+      "default": true,
       "description": "Whether to display the Kite tour on startup."
     },
     "enableCompletions": {
