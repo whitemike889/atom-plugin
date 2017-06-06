@@ -118,7 +118,7 @@
   "dependencies": {
     "element-resize-detector": "^1.1.11",
     "fuzzaldrin-plus": "^0.4.1",
-    "kite-installer": "^0.17.0",
+    "kite-installer": "^0.18.0",
     "md5": "^2.2.0",
     "mixpanel": "^0.5.0",
     "underscore-plus": "^1",
