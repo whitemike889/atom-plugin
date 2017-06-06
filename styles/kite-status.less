@@ -5,7 +5,22 @@ kite-status {
     height: 16px;
   }
 
+  kite-logo[sync] {
+    display: none;
+  }
+
+  &[is-syncing] {
+    kite-logo[sync] {
+      display: inline-block;
+    }
+
+    kite-logo[small] {
+      display: none;
+    }
+  }
+
   &[status="unknown"] {
+    kite-logo svg path,
     kite-logo svg polygon {
       fill: @text-color;
     }
@@ -13,6 +28,7 @@ kite-status {
 
   &[status="authenticated"],
   &[status="whitelisted"] {
+    kite-logo svg path,
     kite-logo svg polygon {
       fill: @text-color-info;
     }
@@ -21,6 +37,7 @@ kite-status {
   &[status="authenticated"][is-active-python-file],
   &[status="authenticated"][size-exceeds-limit],
   &[status="whitelisted"][size-exceeds-limit] {
+    kite-logo svg path,
     kite-logo svg polygon {
       fill: @text-color-warning;
     }
@@ -31,6 +48,7 @@ kite-status {
   &[status="unsupported"],
   &[status="running"],
   &[status="installed"] {
+    kite-logo svg path,
     kite-logo svg polygon {
       fill: @text-color-error;
     }
