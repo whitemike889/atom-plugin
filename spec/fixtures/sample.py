@@ -20,7 +20,7 @@ boto.s3.connection.S3Connection()
 posix.chmod
 os.mkdir
 csv.reader
-matplotlib.pyplot.plot
+matplotlib.pyplot.plot()
 
 requests.get()
 

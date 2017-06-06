@@ -7,7 +7,7 @@ kite-signature {
   background: @app-background-color;
   font-size: 1em;
   font-family: @font-family;
-  max-width: 50em;
+  max-width: 30em;
   min-width: 20em;
 
   .kite-content;
@@ -29,6 +29,11 @@ kite-signature {
     margin-left: @half-padding;
     color: @text-color;
     cursor: default;
+
+    .line {
+      white-space: pre-wrap;
+      word-break: normal;
+    }
   }
 
   h4 {
