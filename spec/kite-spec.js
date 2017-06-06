@@ -94,7 +94,6 @@ describe('Kite', () => {
               });
               waitsFor('notify endpoint call', () => {
                 const {path} = http.request.mostRecentCall.args[0];
-                console.log(path);
                 return /^\/clientapi\/permissions/.test(path);
               });
               sleep(100);

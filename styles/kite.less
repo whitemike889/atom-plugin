@@ -1,6 +1,5 @@
-@import 'ui-variables';
+@import './variables';
 @import "../node_modules/kite-installer/styles/styles.less";
-
 
 .icon-kite::before {
   content: '';
@@ -48,6 +47,15 @@
   .tooltip-inner {
     background: @background-color-selected;
   }
+}
+
+.btn.btn-purple {
+  color: @text-color-highlight;
+  text-shadow: none;
+  border: 1px solid @button-border-color;
+  background-color: @purple-color;
+  background-image: linear-gradient(darken(@purple-color, 0.2), @purple-color);
+  color: white;
 }
 
 atom-text-editor .kite-hyperclick {

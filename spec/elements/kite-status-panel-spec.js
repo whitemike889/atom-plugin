@@ -6,7 +6,9 @@ const KiteStatusPanel = require('../../lib/elements/kite-status-panel');
 const {
   fakeKiteInstallPaths, fakeResponse, withPlan, withKiteAuthenticated,
   withRoutes, withKiteNotRunning, withKiteWhitelistedPaths,
-  withKiteNotAuthenticated,
+  withKiteNotAuthenticated, withKiteEnterpriseNotRunning,
+  withBothKiteNotRunning, withManyKiteNotRunning,
+  withManyKiteEnterpriseNotRunning, withManyOfBothKiteNotRunning,
 } = require('../spec-helpers');
 const {click} = require('../helpers/events');
 
@@ -24,6 +26,29 @@ describe('KiteStatusPanel', () => {
   });
 
   withKiteAuthenticated(() => {
+    withPlan('enterprise', {
+      status: 'active',
+      active_subscription: 'enterprise',
+      features: {},
+      trial_days_remaining: 0,
+      started_kite_pro_trial: false,
+    }, () => {
+      it('displays an enterprise badge', () => {
+        waitsForPromise(() => status.show().then(() => {
+          expect(status.querySelector('.split-line .left .enterprise')).toExist();
+        }));
+      });
+
+      it('displays a link to the user account', () => {
+        waitsForPromise(() => status.show().then(() => {
+          const link = status.querySelector('.split-line .right a');
+          expect(link).toExist();
+          expect(link.textContent).toEqual('Account');
+          expect(link.href).toEqual('http://localhost:46624/clientapi/desktoplogin?d=/settings/acccount');
+        }));
+      });
+    });
+
     withPlan('active pro', {
       status: 'active',
       active_subscription: 'pro',
@@ -189,6 +214,150 @@ describe('KiteStatusPanel', () => {
 
         expect(app.start).toHaveBeenCalled();
       });
+    });
+  });
+
+  withManyKiteNotRunning(() => {
+    beforeEach(() => {
+      waitsForPromise(() => status.show());
+    });
+
+    it('does not display the account status', () => {
+      expect(status.querySelector('.split-line')).not.toExist();
+    });
+
+    it('does not display an action to start kited', () => {
+      const state = status.querySelector('.status');
+
+      expect(state.querySelector('.text-danger').textContent)
+      .toEqual('Kite engine is not running •You have multiple versions of Kite installed. Please launch your desired one.');
+
+      const button = state.querySelector('a');
+
+      expect(button).toBeNull();
+    });
+  });
+
+  withKiteEnterpriseNotRunning(() => {
+    beforeEach(() => {
+      waitsForPromise(() => status.show());
+    });
+
+    it('does not display the account status', () => {
+      expect(status.querySelector('.split-line')).not.toExist();
+    });
+
+    it('displays an action to start kited', () => {
+      const state = status.querySelector('.status');
+
+      expect(state.querySelector('.text-danger').textContent)
+      .toEqual('Kite engine is not running •');
+
+      const button = state.querySelector('a');
+
+      expect(button.href).toEqual('kite-atom-internal://start-enterprise');
+      expect(button.textContent).toEqual('Launch now');
+    });
+
+    describe('clicking on the button', () => {
+      it('starts kited', () => {
+        const button = status.querySelector('a.btn');
+
+        spyOn(app, 'startEnterprise').andReturn(Promise.resolve());
+        click(button);
+
+        expect(app.startEnterprise).toHaveBeenCalled();
+      });
+    });
+  });
+
+  withManyKiteEnterpriseNotRunning(() => {
+    beforeEach(() => {
+      waitsForPromise(() => status.show());
+    });
+
+    it('does not display the account status', () => {
+      expect(status.querySelector('.split-line')).not.toExist();
+    });
+
+    it('does not display an action to start kited', () => {
+      const state = status.querySelector('.status');
+
+      expect(state.querySelector('.text-danger').textContent)
+      .toEqual('Kite engine is not running •You have multiple versions of Kite installed. Please launch your desired one.');
+
+      const button = state.querySelector('a');
+
+      expect(button).toBeNull();
+    });
+  });
+
+  withBothKiteNotRunning(() => {
+    beforeEach(() => {
+      waitsForPromise(() => status.show());
+    });
+
+    it('does not display the account status', () => {
+      expect(status.querySelector('.split-line')).not.toExist();
+    });
+
+    it('displays an action to start kited', () => {
+      const state = status.querySelector('.status');
+
+      expect(state.querySelector('.text-danger').textContent)
+      .toEqual('Kite engine is not running •Which version of kite do you want to launch?');
+
+      const buttons = state.querySelectorAll('a');
+
+      expect(buttons.length).toEqual(2);
+
+      expect(buttons[0].href).toEqual('kite-atom-internal://start-enterprise');
+      expect(buttons[0].textContent).toEqual('Launch Kite Enterprise');
+      expect(buttons[1].href).toEqual('kite-atom-internal://start');
+      expect(buttons[1].textContent).toEqual('Launch Kite cloud');
+    });
+
+    describe('clicking on the enterprise button', () => {
+      it('starts kited', () => {
+        const button = status.querySelector('a.btn');
+
+        spyOn(app, 'startEnterprise').andReturn(Promise.resolve());
+        click(button);
+
+        expect(app.startEnterprise).toHaveBeenCalled();
+      });
+    });
+
+    describe('clicking on the cloud button', () => {
+      it('starts kited', () => {
+        const button = status.querySelectorAll('a.btn')[1];
+
+        spyOn(app, 'start').andReturn(Promise.resolve());
+        click(button);
+
+        expect(app.start).toHaveBeenCalled();
+      });
+    });
+  });
+
+  withManyOfBothKiteNotRunning(() => {
+    beforeEach(() => {
+      waitsForPromise(() => status.show());
+    });
+
+    it('does not display the account status', () => {
+      expect(status.querySelector('.split-line')).not.toExist();
+    });
+
+    it('does not display an action to start kited', () => {
+      const state = status.querySelector('.status');
+
+      expect(state.querySelector('.text-danger').textContent)
+      .toEqual('Kite engine is not running •You have multiple versions of Kite installed. Please launch your desired one.');
+
+      const button = state.querySelector('a');
+
+      expect(button).toBeNull();
     });
   });
 
