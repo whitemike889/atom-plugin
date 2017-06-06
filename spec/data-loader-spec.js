@@ -4,7 +4,6 @@ const url = require('url');
 const md5 = require('md5');
 const http = require('http');
 const path = require('path');
-const {StateController} = require('kite-installer');
 const DataLoader = require('../lib/data-loader');
 const {
   withKiteWhitelistedPaths, withRoutes, fakeResponse,
@@ -123,8 +122,6 @@ describe('DataLoader', () => {
             const parsedURL = url.parse(http.request.mostRecentCall.args[0].path);
             expect(parsedURL.path.indexOf('/foo')).not.toEqual(-1);
 
-            const params = parseParams(parsedURL.query);
-
             expect(data).toEqual([
               {
                 symbol: [{
@@ -168,8 +165,6 @@ describe('DataLoader', () => {
 
             expect(parsedURL.path.indexOf('/foo')).not.toEqual(-1);
 
-            const params = parseParams(parsedURL.query);
-
             expect(data).toEqual({foo: 'bar'});
           }));
         });
@@ -205,8 +200,6 @@ describe('DataLoader', () => {
             const parsedURL = url.parse(http.request.calls[0].args[0].path);
 
             expect(parsedURL.path.indexOf('/foo')).not.toEqual(-1);
-
-            const params = parseParams(parsedURL.query);
 
             expect(data).toEqual({foo: 'bar'});
           }));
@@ -244,8 +237,6 @@ describe('DataLoader', () => {
 
             expect(parsedURL.path.indexOf('/foo')).not.toEqual(-1);
 
-            const params = parseParams(parsedURL.query);
-
             expect(data).toEqual({foo: 'bar'});
           }));
         });
@@ -282,8 +273,6 @@ describe('DataLoader', () => {
 
             expect(parsedURL.path.indexOf('/foo')).not.toEqual(-1);
 
-            const params = parseParams(parsedURL.query);
-
             expect(data).toEqual({foo: 'bar'});
           }));
         });
@@ -319,8 +308,6 @@ describe('DataLoader', () => {
             const parsedURL = url.parse(http.request.calls[0].args[0].path);
 
             expect(parsedURL.path.indexOf('/foo')).not.toEqual(-1);
-
-            const params = parseParams(parsedURL.query);
 
             expect(data).toEqual({foo: 'bar'});
           }));
