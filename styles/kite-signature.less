@@ -82,6 +82,7 @@ kite-signature {
       max-height: 200px;
       margin-top: 0;
       margin-left: @half-padding;
+
     }
 
     dt {
@@ -89,6 +90,10 @@ kite-signature {
 
       & + dt {
         margin-top: 0;
+      }
+
+      &.highlight .parameter-name {
+        color: @text-color-highlight;
       }
     }
   }
