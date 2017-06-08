@@ -7,28 +7,11 @@
     "type_id": "types.FunctionType",
     "synopsis": "synopsis here",
     "detail": {
-      "receiver": {
-        "name": "self",
-        "default_value": null,
-        "inferred_value": [
-          {
-            "id": "",
-            "kind": "instance",
-            "repr": "src-instance:sample.py:B",
-            "type": "B",
-            "type_id": ":Users:cedric:github:kite:spec:fixtures:sample.py:B"
-          }
-        ],
-        "annotation": null,
-        "keyword_only": false,
-        "synopsis": ""
-      },
+      "language": "python",
       "parameters": [
         {
           "name": "n",
-          "default_value": [{
-            "repr": "0"
-          }],
+          "language": "python",
           "inferred_value": [
             {
               "id": "",
@@ -38,9 +21,14 @@
               "type_id": "__builtin__.int"
             }
           ],
-          "annotation": null,
-          "keyword_only": false,
-          "synopsis": "n synopsis here"
+          "synopsis": "n synopsis here",
+          "language_details": {
+            "default_value": [{
+              "repr": "0"
+            }],
+            "annotation": null,
+            "keyword_only": false
+          }
         }
       ],
       "return_value": [
@@ -52,7 +40,28 @@
           "type_id": "__builtin__.int"
         }
       ],
-      "return_annotation": null
+      "language_details": {
+        "receiver": {
+          "language": "python",
+          "name": "self",
+          "inferred_value": [
+            {
+              "id": "",
+              "kind": "instance",
+              "repr": "src-instance:sample.py:B",
+              "type": "B",
+              "type_id": ":Users:cedric:github:kite:spec:fixtures:sample.py:B"
+            }
+          ],
+          "synopsis": "",
+          "language_details": {
+            "default_value": null,
+            "annotation": null,
+            "keyword_only": false
+          }
+        },
+        "return_annotation": null
+      }
     }
   },
   "report": {

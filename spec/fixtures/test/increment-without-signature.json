@@ -16,9 +16,13 @@
           "module_id": "",
           "synopsis": "synopsis here",
           "detail": {
+            "language": "python",
             "parameters": [],
-            "vararg": null,
-            "kwarg": null
+            "language_details": {
+              "language": "python",
+              "vararg": null,
+              "kwarg": null
+            }
           }
         }
       ],

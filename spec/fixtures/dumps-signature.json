@@ -9,102 +9,139 @@
         "type_id": "__builtin__.function",
         "synopsis": "Serialize obj to a JSON formatted str using this conversion\ntable.  If ensure_ascii is False, the result may\ncontain non-ASCII characters and the return value may be a unicode\ninstance.\nThe arguments have the same meaning as in dump().\nNote\nKeys in key/value pairs of JSON are always of the type str. When\na dictionary is converted into JSON, all the keys of the dictionary are\ncoerced to strings. As a result of this, if a dictionary is converted\ninto JSON and then back into a dictionary, the dictionary may not equal\nthe original one. That is, loads(dumps(x)) != x if x has non-string\nkeys.",
         "detail": {
+          "language": "python",
           "parameters": [
             {
-              "annotation": null,
-              "default_value": null,
+              "language": "python",
               "inferred_value": null,
-              "keyword_only": false,
               "name": "obj",
-              "synopsis": ""
+              "synopsis": "",
+              "language_server": {
+                "annotation": null,
+                "default_value": null,
+                "keyword_only": false
+              }
             },
             {
-              "annotation": null,
-              "default_value": null,
+              "language": "python",
               "inferred_value": null,
-              "keyword_only": false,
               "name": "skipkeys",
-              "synopsis": ""
+              "synopsis": "",
+              "language_server": {
+                "annotation": null,
+                "default_value": null,
+                "keyword_only": false
+              }
             },
             {
-              "annotation": null,
-              "default_value": null,
+              "language": "python",
               "inferred_value": null,
-              "keyword_only": false,
               "name": "ensure_ascii",
-              "synopsis": ""
+              "synopsis": "",
+              "language_server": {
+                "annotation": null,
+                "default_value": null,
+                "keyword_only": false
+              }
             },
             {
-              "annotation": null,
-              "default_value": null,
+              "language": "python",
               "inferred_value": null,
-              "keyword_only": false,
               "name": "check_circular",
-              "synopsis": ""
+              "synopsis": "",
+              "language_server": {
+                "annotation": null,
+                "default_value": null,
+                "keyword_only": false
+              }
             },
             {
-              "annotation": null,
-              "default_value": null,
+              "language": "python",
               "inferred_value": null,
-              "keyword_only": false,
               "name": "allow_nan",
-              "synopsis": ""
+              "synopsis": "",
+              "language_server": {
+                "annotation": null,
+                "default_value": null,
+                "keyword_only": false
+              }
             },
             {
-              "annotation": null,
-              "default_value": null,
+              "language": "python",
               "inferred_value": null,
-              "keyword_only": false,
               "name": "cls",
-              "synopsis": ""
+              "synopsis": "",
+              "language_server": {
+                "annotation": null,
+                "default_value": null,
+                "keyword_only": false
+              }
             },
             {
-              "annotation": null,
-              "default_value": null,
+              "language": "python",
               "inferred_value": null,
-              "keyword_only": false,
               "name": "indent",
-              "synopsis": ""
+              "synopsis": "",
+              "language_server": {
+                "annotation": null,
+                "default_value": null,
+                "keyword_only": false
+              }
             },
             {
-              "annotation": null,
-              "default_value": null,
+              "language": "python",
               "inferred_value": null,
-              "keyword_only": false,
               "name": "separators",
-              "synopsis": ""
+              "synopsis": "",
+              "language_server": {
+                "annotation": null,
+                "default_value": null,
+                "keyword_only": false
+              }
             },
             {
-              "annotation": null,
-              "default_value": null,
+              "language": "python",
               "inferred_value": null,
-              "keyword_only": false,
               "name": "encoding",
-              "synopsis": ""
+              "synopsis": "",
+              "language_server": {
+                "annotation": null,
+                "default_value": null,
+                "keyword_only": false
+              }
             },
             {
-              "annotation": null,
-              "default_value": null,
+              "language": "python",
               "inferred_value": null,
-              "keyword_only": false,
               "name": "default",
-              "synopsis": ""
+              "synopsis": "",
+              "language_server": {
+                "annotation": null,
+                "default_value": null,
+                "keyword_only": false
+              }
             },
             {
-              "annotation": null,
-              "default_value": null,
+              "language": "python",
               "inferred_value": null,
-              "keyword_only": false,
               "name": "sort_keys",
-              "synopsis": ""
+              "synopsis": "",
+              "language_server": {
+                "annotation": null,
+                "default_value": null,
+                "keyword_only": false
+              }
             }
           ],
-          "return_annotation": null,
+          "language_details": {
+            "return_annotation": null
+          },
           "return_value": null
         }
       },
       "signatures": [
         {
+          "language": "python",
           "args": [
             {
               "name": "obj",
@@ -135,9 +172,12 @@
               ]
             }
           ],
-          "kwargs": null
+          "language_details": {
+            "kwargs": null
+          }
         },
         {
+          "language": "python",
           "args": [
             {
               "name": "obj",
@@ -168,24 +208,27 @@
               ]
             }
           ],
-          "kwargs": [
-            {
-              "name": "indent",
-              "types": [
-                {
-                  "id": "__builtin__.int",
-                  "name": "int",
-                  "examples": [
-                    "4",
-                    "2",
-                    "1"
-                  ]
-                }
-              ]
-            }
-          ]
+          "language_details": {
+            "kwargs": [
+              {
+                "name": "indent",
+                "types": [
+                  {
+                    "id": "__builtin__.int",
+                    "name": "int",
+                    "examples": [
+                      "4",
+                      "2",
+                      "1"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
         },
         {
+          "language": "python",
           "args": [
             {
               "name": "obj",
@@ -216,36 +259,39 @@
               ]
             }
           ],
-          "kwargs": [
-            {
-              "name": "indent",
-              "types": [
-                {
-                  "id": "__builtin__.int",
-                  "name": "int",
-                  "examples": [
-                    "4",
-                    "2",
-                    "1"
-                  ]
-                }
-              ]
-            },
-            {
-              "name": "sort_keys",
-              "types": [
-                {
-                  "id": "__builtin__.bool",
-                  "name": "bool",
-                  "examples": [
-                    "True if pretty else False"
-                  ]
-                }
-              ]
-            }
-          ]
+          "language_details": {
+            "kwargs": [
+              {
+                "name": "indent",
+                "types": [
+                  {
+                    "id": "__builtin__.int",
+                    "name": "int",
+                    "examples": [
+                      "4",
+                      "2",
+                      "1"
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "sort_keys",
+                "types": [
+                  {
+                    "id": "__builtin__.bool",
+                    "name": "bool",
+                    "examples": [
+                      "True if pretty else False"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
         },
         {
+          "language": "python",
           "args": [
             {
               "name": "obj",
@@ -276,22 +322,25 @@
               ]
             }
           ],
-          "kwargs": [
-            {
-              "name": "cls",
-              "types": [
-                {
-                  "id": "__builtin__.type",
-                  "name": "type",
-                  "examples": [
-                    "json.JSONEncoder if self.compact else DateJSONEncoder"
-                  ]
-                }
-              ]
-            }
-          ]
+          "language_details": {
+            "kwargs": [
+              {
+                "name": "cls",
+                "types": [
+                  {
+                    "id": "__builtin__.type",
+                    "name": "type",
+                    "examples": [
+                      "json.JSONEncoder if self.compact else DateJSONEncoder"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
         },
         {
+          "python": "python",
           "args": [
             {
               "name": "obj",
@@ -322,27 +371,29 @@
               ]
             }
           ],
-          "kwargs": [
-            {
-              "name": "default",
-              "types": [
-                {
-                  "id": "new.function",
-                  "name": "function",
-                  "examples": null
-                },
-                {
-                  "id": "__builtin__.function",
-                  "name": "function",
-                  "examples": [
-                    "lambda o: o.__dict__",
-                    "lambda o: dict((k, v) for k, v in o.__dict__.iteritems())",
-                    "lambda obj: obj.__dict__"
-                  ]
-                }
-              ]
-            }
-          ]
+          "language_details": {
+            "kwargs": [
+              {
+                "name": "default",
+                "types": [
+                  {
+                    "id": "new.function",
+                    "name": "function",
+                    "examples": null
+                  },
+                  {
+                    "id": "__builtin__.function",
+                    "name": "function",
+                    "examples": [
+                      "lambda o: o.__dict__",
+                      "lambda o: dict((k, v) for k, v in o.__dict__.iteritems())",
+                      "lambda obj: obj.__dict__"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
         }
       ],
       "arg_index": 0

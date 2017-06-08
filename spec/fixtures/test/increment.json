@@ -14,26 +14,11 @@
           "repr": "function:sample:Test.increment",
           "synopsis": "synopsis here",
           "detail": {
-            "receiver": {
-              "name": "self",
-              "default_value": null,
-              "inferred_value": [
-                {
-                  "id": "",
-                  "kind": "instance",
-                  "repr": "instance:sample:Test",
-                  "type": "sample:Test",
-                  "type_id": "sample:Test"
-                }
-              ],
-              "annotation": null,
-              "keyword_only": false,
-              "synopsis": ""
-            },
+            "language": "python",
             "parameters": [
               {
+                "language": "python",
                 "name": "n",
-                "default_value": null,
                 "inferred_value": [
                   {
                     "id": "",
@@ -43,9 +28,12 @@
                     "type_id": "__builtin__.int"
                   }
                 ],
-                "annotation": null,
-                "keyword_only": false,
-                "synopsis": "n synopsis here"
+                "synopsis": "n synopsis here",
+                "language_details": {
+                  "default_value": null,
+                  "annotation": null,
+                  "keyword_only": false
+                }
               }
             ],
             "return_value": [
@@ -57,40 +45,67 @@
                 "type_id": "__builtin__.int"
               }
             ],
-            "return_annotation": null,
-            "vararg": {
-              "name": "args",
-              "default_value": null,
-              "inferred_value": [
-                {
-                  "id": "",
-                  "kind": "instance",
-                  "repr": "[]",
-                  "type": "list",
-                  "type_id": "__builtin__.list"
+            "language_details": {
+              "receiver": {
+                "language": "python",
+                "name": "self",
+                "inferred_value": [
+                  {
+                    "id": "",
+                    "kind": "instance",
+                    "repr": "instance:sample:Test",
+                    "type": "sample:Test",
+                    "type_id": "sample:Test"
+                  }
+                ],
+                "synopsis": "",
+                "language_details": {
+                  "default_value": null,
+                  "annotation": null,
+                  "keyword_only": false
                 }
-              ],
-              "annotation": null,
-              "keyword_only": false,
-              "synopsis": "varargs synopsis here"
-            },
-            "kwarg": {
-              "name": "kwargs",
-              "default_value": null,
-              "inferred_value": [
-                {
-                  "id": "",
-                  "kind": "instance",
-                  "repr": "{}",
-                  "type": "dict",
-                  "type_id": "__builtin__.dict"
+              },
+              "return_annotation": null,
+              "vararg": {
+                "language": "python",
+                "name": "args",
+                "inferred_value": [
+                  {
+                    "id": "",
+                    "kind": "instance",
+                    "repr": "[]",
+                    "type": "list",
+                    "type_id": "__builtin__.list"
+                  }
+                ],
+                "synopsis": "varargs synopsis here",
+                "language_details": {
+                  "default_value": null,
+                  "annotation": null,
+                  "keyword_only": false
                 }
-              ],
-              "annotation": null,
-              "keyword_only": false,
-              "synopsis": "kwargs synopsis here"
+              },
+              "kwarg": {
+                "language": "python",
+                "name": "kwargs",
+                "inferred_value": [
+                  {
+                    "id": "",
+                    "kind": "instance",
+                    "repr": "{}",
+                    "type": "dict",
+                    "type_id": "__builtin__.dict"
+                  }
+                ],
+                "synopsis": "kwargs synopsis here",
+                "language_details": {
+                  "annotation": null,
+                  "default_value": null,
+                  "keyword_only": false
+                }
+              },
+              "discovered_kwargs": []
             },
-            "discovered_kwargs": [],
             "class": "",
             "class_id": "",
             "module": "",

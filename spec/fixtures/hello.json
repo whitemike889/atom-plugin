@@ -14,9 +14,12 @@
           "type_id": "types.FunctionType",
           "synopsis": "",
           "detail": {
+            "language": "python",
             "parameters": [],
             "return_value": null,
-            "return_annotation": null
+            "language_details": {
+              "return_annotation": null
+            }
           }
         }
       ],
