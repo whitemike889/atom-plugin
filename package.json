@@ -95,6 +95,12 @@
       ],
       "description": "The verbosity level of Kite's logs."
     },
+    "pollingInterval": {
+      "type": "integer",
+      "default": 15000,
+      "min": 1000,
+      "max": 60000
+    },
     "developerMode": {
       "type": "boolean",
       "default": false,
