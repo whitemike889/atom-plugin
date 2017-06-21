@@ -4,7 +4,7 @@ const KiteSignature = require('../../lib/elements/kite-signature');
 const {withFakePlan} = require('../spec-helpers');
 const {click} = require('../helpers/events');
 
-fdescribe('KiteSignature', () => {
+describe('KiteSignature', () => {
   let json, element;
 
   beforeEach(() => {
@@ -104,5 +104,48 @@ fdescribe('KiteSignature', () => {
       });
     });
 
+  });
+
+  describe('with javascript data', () => {
+    beforeEach(() => {
+      json = require('../fixtures/stringify-signature-js.json');
+      element = new KiteSignature();
+      element.setData(json);
+    });
+
+    it('fills the name section with provided data', () => {
+      expect(element.querySelector('.name').textContent)
+      .toEqual(`JSON.stringify(${
+        [
+          'value',
+          'replacer',
+          'space',
+        ].join(', ')
+      })`);
+    });
+
+    it('does not create a kwargs section', () => {
+      expect(element.querySelector('section.kwargs')).not.toExist();
+    });
+
+    describe('with a function with a rest argument', () => {
+      beforeEach(() => {
+        json = require('../fixtures/stringify-signature-with-rest-js.json');
+        element = new KiteSignature();
+        element.setData(json);
+      });
+
+      it('renders the rest argument in the signature', () => {
+        expect(element.querySelector('.name').textContent)
+        .toEqual(`JSON.stringify(${
+          [
+            'value',
+            'replacer',
+            'space',
+            '…opts',
+          ].join(', ')
+        })`);
+      });
+    });
   });
 });
