@@ -74,7 +74,7 @@ describe('KiteSignature', () => {
 
       describe('when the arg_index is in_kwargs', () => {
         beforeEach(() => {
-          json.calls[0].language_details.in_kwargs = true;
+          json.calls[0].language_details.Python.in_kwargs = true;
           element.setData(json);
         });
 

@@ -19,9 +19,11 @@
             "language": "python",
             "parameters": [],
             "language_details": {
-              "language": "python",
-              "vararg": null,
-              "kwarg": null
+              "Python": {
+                "language": "python",
+                "vararg": null,
+                "kwarg": null
+              }
             }
           }
         }

@@ -18,7 +18,9 @@
             "parameters": [],
             "return_value": null,
             "language_details": {
-              "return_annotation": null
+              "Python": {
+                "return_annotation": null
+              }
             }
           }
         }

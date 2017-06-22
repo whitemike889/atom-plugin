@@ -13,7 +13,9 @@
           "parameters": null,
           "return_value": null,
           "language_details": {
-            "return_annotation": null,
+            "Python": {
+              "return_annotation": null
+            }
           }
         }
       },
@@ -77,7 +79,9 @@
             }
           ],
           "language_details": {
-            "kwargs": null
+            "Python": {
+              "kwargs": null
+            }
           }
         },
         {
@@ -153,7 +157,9 @@
             }
           ],
           "language_details": {
-            "kwargs": null
+            "Python": {
+              "kwargs": null
+            }
           }
         },
         {
@@ -187,7 +193,9 @@
             }
           ],
           "language_details": {
-            "kwargs": null
+            "Python": {
+              "kwargs": null
+            }
           }
         },
         {
@@ -249,22 +257,24 @@
             }
           ],
           "language_details": {
-            "kwargs": [
-              {
-                "name": "label",
-                "types": [
-                  {
-                    "id": "__builtin__.str",
-                    "name": "str",
-                    "examples": [
-                      "\"'_nolegend_'\"",
-                      "\"'test error'\"",
-                      "\"'training error'\""
-                    ]
-                  }
-                ]
-              }
-            ]
+            "Python": {
+              "kwargs": [
+                {
+                  "name": "label",
+                  "types": [
+                    {
+                      "id": "__builtin__.str",
+                      "name": "str",
+                      "examples": [
+                        "\"'_nolegend_'\"",
+                        "\"'test error'\"",
+                        "\"'training error'\""
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
           }
         },
         {
@@ -340,22 +350,24 @@
             }
           ],
           "language_details": {
-            "kwargs": [
-              {
-                "name": "label",
-                "types": [
-                  {
-                    "id": "__builtin__.str",
-                    "name": "str",
-                    "examples": [
-                      "\"'_nolegend_'\"",
-                      "\"'test error'\"",
-                      "\"'training error'\""
-                    ]
-                  }
-                ]
-              }
-            ]
+            "Python": {
+              "kwargs": [
+                {
+                  "name": "label",
+                  "types": [
+                    {
+                      "id": "__builtin__.str",
+                      "name": "str",
+                      "examples": [
+                        "\"'_nolegend_'\"",
+                        "\"'test error'\"",
+                        "\"'training error'\""
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
           }
         }
       ],

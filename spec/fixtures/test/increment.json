@@ -30,9 +30,11 @@
                 ],
                 "synopsis": "n synopsis here",
                 "language_details": {
-                  "default_value": null,
-                  "annotation": null,
-                  "keyword_only": false
+                  "Python": {
+                    "default_value": null,
+                    "annotation": null,
+                    "keyword_only": false
+                  }
                 }
               }
             ],
@@ -46,65 +48,73 @@
               }
             ],
             "language_details": {
-              "receiver": {
-                "language": "python",
-                "name": "self",
-                "inferred_value": [
-                  {
-                    "id": "",
-                    "kind": "instance",
-                    "repr": "instance:sample:Test",
-                    "type": "sample:Test",
-                    "type_id": "sample:Test"
+              "Python": {
+                "receiver": {
+                  "language": "python",
+                  "name": "self",
+                  "inferred_value": [
+                    {
+                      "id": "",
+                      "kind": "instance",
+                      "repr": "instance:sample:Test",
+                      "type": "sample:Test",
+                      "type_id": "sample:Test"
+                    }
+                  ],
+                  "synopsis": "",
+                  "language_details": {
+                    "Python": {
+                      "default_value": null,
+                      "annotation": null,
+                      "keyword_only": false
+                    }
                   }
-                ],
-                "synopsis": "",
-                "language_details": {
-                  "default_value": null,
-                  "annotation": null,
-                  "keyword_only": false
-                }
-              },
-              "return_annotation": null,
-              "vararg": {
-                "language": "python",
-                "name": "args",
-                "inferred_value": [
-                  {
-                    "id": "",
-                    "kind": "instance",
-                    "repr": "[]",
-                    "type": "list",
-                    "type_id": "__builtin__.list"
+                },
+                "return_annotation": null,
+                "vararg": {
+                  "language": "python",
+                  "name": "args",
+                  "inferred_value": [
+                    {
+                      "id": "",
+                      "kind": "instance",
+                      "repr": "[]",
+                      "type": "list",
+                      "type_id": "__builtin__.list"
+                    }
+                  ],
+                  "synopsis": "varargs synopsis here",
+                  "language_details": {
+                    "Python": {
+                      "default_value": null,
+                      "annotation": null,
+                      "keyword_only": false
+                    }
                   }
-                ],
-                "synopsis": "varargs synopsis here",
-                "language_details": {
-                  "default_value": null,
-                  "annotation": null,
-                  "keyword_only": false
-                }
-              },
-              "kwarg": {
-                "language": "python",
-                "name": "kwargs",
-                "inferred_value": [
-                  {
-                    "id": "",
-                    "kind": "instance",
-                    "repr": "{}",
-                    "type": "dict",
-                    "type_id": "__builtin__.dict"
+                },
+                "kwarg": {
+                  "language": "python",
+                  "name": "kwargs",
+                  "inferred_value": [
+                    {
+                      "id": "",
+                      "kind": "instance",
+                      "repr": "{}",
+                      "type": "dict",
+                      "type_id": "__builtin__.dict"
+                    }
+                  ],
+                  "synopsis": "kwargs synopsis here",
+                  "language_details": {
+                    "Python": {
+                      "annotation": null,
+                      "default_value": null,
+                      "keyword_only": false
+                    }
                   }
-                ],
-                "synopsis": "kwargs synopsis here",
-                "language_details": {
-                  "annotation": null,
-                  "default_value": null,
-                  "keyword_only": false
-                }
-              },
-              "discovered_kwargs": []
+                },
+                "discovered_kwargs": []
+              }
             },
             "class": "",
             "class_id": "",

@@ -1,58 +1,65 @@
 {
-  "calls":[
+  "calls": [
     {
-      "callee":{
-        "id":"JSON.stringify",
-        "kind":"function",
-        "repr":"JSON.stringify",
-        "type":"function",
-        "type_id":"",
-        "synopsis":"",
-        "detail":{
+      "callee": {
+        "id": "JSON.stringify",
+        "kind": "function",
+        "repr": "JSON.stringify",
+        "type": "function",
+        "type_id": "",
+        "synopsis": "",
+        "detail": {
           "language": "javascript",
-          "parameters":[
+          "parameters": [
             {
               "language": "javascript",
-              "inferred_value":null,
-              "name":"value",
-              "synopsis":"",
+              "inferred_value": null,
+              "name": "value",
+              "synopsis": "",
               "language_details": {
+                "Javascript": {}
               }
             },
             {
               "language": "javascript",
-              "inferred_value":null,
-              "name":"replacer",
-              "synopsis":"",
+              "inferred_value": null,
+              "name": "replacer",
+              "synopsis": "",
               "language_details": {
+                "Javascript": {}
               }
             },
             {
               "language": "javascript",
-              "inferred_value":null,
-              "name":"space",
-              "synopsis":"",
+              "inferred_value": null,
+              "name": "space",
+              "synopsis": "",
               "language_details": {
+                "Javascript": {}
               }
             }
           ],
-          "return_value":null,
+          "return_value": null,
           "language_details": {
-            "rest": {
-              "language": "javascript",
-              "inferred_value":null,
-              "name":"opts",
-              "synopsis":"",
-              "language_details": {
+            "Javascript": {
+              "rest": {
+                "language": "javascript",
+                "inferred_value": null,
+                "name": "opts",
+                "synopsis": "",
+                "language_details": {
+                  "Javascript": {}
+                }
               }
             }
           },
-          "signatures":[]
+          "signatures": []
         }
       },
-      "signatures":[],
-      "arg_index":0,
+      "signatures": [],
+      "arg_index": 0,
       "language_details": {
+        "Javascript": {}
       }
     }
   ]
