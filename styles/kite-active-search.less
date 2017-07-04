@@ -85,6 +85,10 @@ kite-active-search {
 
   h4 .sticky.fixed {
     background: @hover-background-color;
+
+    &:hover {
+      background: mix(@hover-background-color, @text-color-info, 90%);
+    }
   }
 
   kite-navigable-stack section.summary.collapsible.collapse.overflow .description::after {
@@ -164,12 +168,15 @@ kite-active-search {
     background: none;
     box-shadow: none;
 
-    .list-group li {
-      font-size: 1.2em;
-      cursor: pointer;
+    ol.list-group {
+      max-height: 130px;
+      li {
+        font-size: 1.2em;
+        cursor: pointer;
 
-      &.selected {
-        background: fadeout(@text-color-highlight, 90%);
+        &.selected {
+          background: fadeout(@text-color-highlight, 90%);
+        }
       }
     }
   }

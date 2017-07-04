@@ -229,8 +229,8 @@ describe('KiteStatusPanel', () => {
     it('does not display an action to start kited', () => {
       const state = status.querySelector('.status');
 
-      expect(state.querySelector('.text-danger').textContent)
-      .toEqual('Kite engine is not running •You have multiple versions of Kite installed. Please launch your desired one.');
+      expect(state.querySelector('.text-danger').textContent.replace(/\s+/g, ' '))
+      .toEqual('Kite engine is not running • You have multiple versions of Kite installed. Please launch your desired one.');
 
       const button = state.querySelector('a');
 
@@ -283,8 +283,8 @@ describe('KiteStatusPanel', () => {
     it('does not display an action to start kited', () => {
       const state = status.querySelector('.status');
 
-      expect(state.querySelector('.text-danger').textContent)
-      .toEqual('Kite engine is not running •You have multiple versions of Kite installed. Please launch your desired one.');
+      expect(state.querySelector('.text-danger').textContent.replace(/\s+/g, ' '))
+      .toEqual('Kite engine is not running • You have multiple versions of Kite installed. Please launch your desired one.');
 
       const button = state.querySelector('a');
 
@@ -304,8 +304,8 @@ describe('KiteStatusPanel', () => {
     it('displays an action to start kited', () => {
       const state = status.querySelector('.status');
 
-      expect(state.querySelector('.text-danger').textContent)
-      .toEqual('Kite engine is not running •Which version of kite do you want to launch?');
+      expect(state.querySelector('.text-danger').textContent.replace(/\s+/g, ' '))
+      .toEqual('Kite engine is not running • Which version of kite do you want to launch?');
 
       const buttons = state.querySelectorAll('a');
 
@@ -352,8 +352,8 @@ describe('KiteStatusPanel', () => {
     it('does not display an action to start kited', () => {
       const state = status.querySelector('.status');
 
-      expect(state.querySelector('.text-danger').textContent)
-      .toEqual('Kite engine is not running •You have multiple versions of Kite installed. Please launch your desired one.');
+      expect(state.querySelector('.text-danger').textContent.replace(/\s+/g, ' '))
+      .toEqual('Kite engine is not running • You have multiple versions of Kite installed. Please launch your desired one.');
 
       const button = state.querySelector('a');
 

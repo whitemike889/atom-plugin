@@ -131,7 +131,13 @@ kite-status-panel {
         text-decoration: underline;
       }
     }
+
   }
+  .no-account a:not(.btn).account-dependent {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
 
   .kite-warning-box {
     background: fadeout(@text-color-error, 80%);
