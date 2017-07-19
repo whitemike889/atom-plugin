@@ -12,6 +12,9 @@ import csv
 import requests
 import subprocess
 import boto
+import sqlalchemy
+
+engine = sqlalchemy.create_engine()
 
 json.dumps()
 
