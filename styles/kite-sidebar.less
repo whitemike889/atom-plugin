@@ -25,6 +25,15 @@ kite-sidebar {
   font-family: @font-family;
   flex-direction: row;
 
+  &.dockable {
+    .kite-sidebar-resizer,
+    header > .btn.icon-x {
+      display: none;
+    }
+
+
+  }
+
   .kite-sidebar-resizer {
     width: @half-padding;
     cursor: ew-resize;
