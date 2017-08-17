@@ -3,15 +3,10 @@
 const os = require('os');
 const http = require('http');
 const proc = require('child_process');
-const metrics = require('../lib/metrics.js');
 const Plan = require('../lib/plan');
 const {merge} = require('../lib/utils');
 
 beforeEach(() => {
-  spyOn(metrics, 'track')/*.andCallFake((...args) => {
-    console.log('track', ...args);
-  })*/;
-
   atom.config.set('kite.loggingLevel', 'error');
 });
 

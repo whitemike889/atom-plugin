@@ -4,7 +4,6 @@ const os = require('os');
 
 // const {StateController} = require('kite-installer');
 const NotificationsCenter = require('../lib/notifications-center');
-const MetricsCenter = require('../lib/metrics-center');
 const KiteApp = require('../lib/kite-app');
 const {
   fakeKiteInstallPaths, withKiteNotReachable, withKiteNotRunning,
@@ -38,8 +37,6 @@ describe('NotificationsCenter', () => {
   beforeEach(() => {
     app = new KiteApp();
     notifications = new NotificationsCenter(app);
-    const metricsCenter = new MetricsCenter(app);
-    metricsCenter.trackNotifications(notifications);
 
     workspaceElement = atom.views.getView(atom.workspace);
     localStorage.setItem('kite.wasInstalled', false);
