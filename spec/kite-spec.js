@@ -54,6 +54,7 @@ describe('Kite', () => {
 
       it('opens the install flow in a new tab', () => {
         const item = atom.workspace.getActivePaneItem();
+        console.log(item)
         expect(item instanceof Installation).toBeTruthy();
       });
 
