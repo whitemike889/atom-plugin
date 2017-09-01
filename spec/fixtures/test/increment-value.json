@@ -6,45 +6,46 @@
     "type": "FunctionType",
     "type_id": "types.FunctionType",
     "synopsis": "synopsis here",
-    "detail": {
-      "language": "python",
-      "parameters": [
-        {
-          "name": "n",
-          "language": "python",
-          "inferred_value": [
-            {
-              "id": "",
-              "kind": "instance",
-              "repr": "2",
-              "type": "int",
-              "type_id": "__builtin__.int"
-            }
-          ],
-          "synopsis": "n synopsis here",
-          "language_details": {
-            "Python": {
-              "default_value": [
-                {
-                  "repr": "0"
-                }
-              ],
-              "annotation": null,
-              "keyword_only": false
+    "details": {
+      "function": {
+        "language": "python",
+        "parameters": [
+          {
+            "name": "n",
+            "language": "python",
+            "inferred_value": [
+              {
+                "id": "",
+                "kind": "instance",
+                "repr": "2",
+                "type": "int",
+                "type_id": "__builtin__.int"
+              }
+            ],
+            "synopsis": "n synopsis here",
+            "language_details": {
+              "Python": {
+                "default_value": [
+                  {
+                    "repr": "0"
+                  }
+                ],
+                "annotation": null,
+                "keyword_only": false
+              }
             }
           }
-        }
-      ],
-      "return_value": [
-        {
-          "id": "",
-          "kind": "instance",
-          "repr": "int",
-          "type": "int",
-          "type_id": "__builtin__.int"
-        }
-      ],
-      "language_details": {
+        ],
+        "return_value": [
+          {
+            "id": "",
+            "kind": "instance",
+            "repr": "int",
+            "type": "int",
+            "type_id": "__builtin__.int"
+          }
+        ],
+        "language_details": {
         "Python": {
           "receiver": {
             "language": "python",
@@ -69,6 +70,7 @@
           },
           "return_annotation": null
         }
+      }
       }
     }
   },

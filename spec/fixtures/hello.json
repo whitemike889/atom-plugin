@@ -13,13 +13,15 @@
           "type": "FunctionType",
           "type_id": "types.FunctionType",
           "synopsis": "",
-          "detail": {
-            "language": "python",
-            "parameters": [],
-            "return_value": null,
-            "language_details": {
-              "Python": {
-                "return_annotation": null
+          "details": {
+            "function": {
+              "language": "python",
+              "parameters": [],
+              "return_value": null,
+              "language_details": {
+                "Python": {
+                  "return_annotation": null
+                }
               }
             }
           }

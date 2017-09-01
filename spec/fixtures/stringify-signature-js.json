@@ -8,42 +8,44 @@
         "type": "function",
         "type_id": "",
         "synopsis": "",
-        "detail": {
-          "language": "javascript",
-          "parameters": [
-            {
-              "language": "javascript",
-              "inferred_value": null,
-              "name": "value",
-              "synopsis": "",
-              "language_details": {
-                "Javascript": {}
+        "details": {
+          "function": {
+            "language": "javascript",
+            "parameters": [
+              {
+                "language": "javascript",
+                "inferred_value": null,
+                "name": "value",
+                "synopsis": "",
+                "language_details": {
+                  "Javascript": {}
+                }
+              },
+              {
+                "language": "javascript",
+                "inferred_value": null,
+                "name": "replacer",
+                "synopsis": "",
+                "language_details": {
+                  "Javascript": {}
+                }
+              },
+              {
+                "language": "javascript",
+                "inferred_value": null,
+                "name": "space",
+                "synopsis": "",
+                "language_details": {
+                  "Javascript": {}
+                }
               }
+            ],
+            "return_value": null,
+            "language_details": {
+              "Javascript": {}
             },
-            {
-              "language": "javascript",
-              "inferred_value": null,
-              "name": "replacer",
-              "synopsis": "",
-              "language_details": {
-                "Javascript": {}
-              }
-            },
-            {
-              "language": "javascript",
-              "inferred_value": null,
-              "name": "space",
-              "synopsis": "",
-              "language_details": {
-                "Javascript": {}
-              }
-            }
-          ],
-          "return_value": null,
-          "language_details": {
-            "Javascript": {}
-          },
-          "signatures": []
+            "signatures": []
+          }
         }
       },
       "signatures": [],

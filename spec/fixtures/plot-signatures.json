@@ -8,13 +8,15 @@
         "type": "function",
         "type_id": "__builtin__.function",
         "synopsis": "Plot lines and/or markers to the\nAxes.  args is a variable length\nargument, allowing for multiple x, y pairs with an\noptional format string.  For example, each of the following is\nlegal:",
-        "detail": {
-          "language": "python",
-          "parameters": null,
-          "return_value": null,
-          "language_details": {
-            "Python": {
-              "return_annotation": null
+        "details": {
+          "function": {
+            "language": "python",
+            "parameters": null,
+            "return_value": null,
+            "language_details": {
+              "Python": {
+                "return_annotation": null
+              }
             }
           }
         }
