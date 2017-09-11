@@ -56,8 +56,8 @@ describe('DataLoader', () => {
             const params = parseParams(parsedURL.query);
 
 
-            expect(params.selection_begin_bytes).toEqual('0');
-            expect(params.selection_end_bytes).toEqual('6');
+            expect(params.selection_begin_runes).toEqual('0');
+            expect(params.selection_end_runes).toEqual('6');
             expect(data).toEqual({foo: 'bar'});
           }));
         });
@@ -104,8 +104,8 @@ describe('DataLoader', () => {
             expect(parsedURL.path.indexOf(editorHash)).not.toEqual(-1);
             const params = parseParams(parsedURL.query);
 
-            expect(params.selection_begin_bytes).toEqual('0');
-            expect(params.selection_end_bytes).toEqual('6');
+            expect(params.selection_begin_runes).toEqual('0');
+            expect(params.selection_end_runes).toEqual('6');
             expect(data).toEqual([{
               symbol: [{
                 value: [{ id: 'foo' }],
