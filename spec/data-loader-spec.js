@@ -84,11 +84,12 @@ describe('DataLoader', () => {
             o => /^\/api\/buffer\/atom/.test(o.path),
             o => fakeResponse(200, JSON.stringify({
               symbol: [{
-                value: [{ id: 'foo' }],
+                id: 'foo',
+                value: [],
               }],
             })),
           ], [
-            o => /^\/api\/editor\/value/.test(o.path),
+            o => /^\/api\/editor\/symbol/.test(o.path),
             o => fakeResponse(404),
           ],
         ]);
@@ -98,7 +99,8 @@ describe('DataLoader', () => {
             expect(http.request).toHaveBeenCalled();
 
             const editorHash = md5(editor.getText());
-            const parsedURL = url.parse(http.request.calls[http.request.calls.length - 2].args[0].path);
+            console.log(http.request.mostRecentCall);
+            const parsedURL = url.parse(http.request.calls[0].args[0].path);
 
             expect(parsedURL.path.indexOf(editor.getPath().replace(/\//g, ':'))).not.toEqual(-1);
             expect(parsedURL.path.indexOf(editorHash)).not.toEqual(-1);
@@ -108,7 +110,8 @@ describe('DataLoader', () => {
             expect(params.selection_end_runes).toEqual('6');
             expect(data).toEqual([{
               symbol: [{
-                value: [{ id: 'foo' }],
+                id: 'foo',
+                value: [],
               }],
             }]);
           }));
@@ -121,11 +124,12 @@ describe('DataLoader', () => {
             o => /^\/api\/buffer\/atom/.test(o.path),
             o => fakeResponse(200, JSON.stringify({
               symbol: [{
-                value: [{ id: 'foo' }],
+                id: 'foo',
+                value: [],
               }],
             })),
           ], [
-            o => /^\/api\/editor\/value/.test(o.path),
+            o => /^\/api\/editor\/symbol/.test(o.path),
             o => fakeResponse(200, '{"bar": "foo"}'),
           ],
         ]);
@@ -135,12 +139,14 @@ describe('DataLoader', () => {
             expect(http.request).toHaveBeenCalled();
 
             const parsedURL = url.parse(http.request.mostRecentCall.args[0].path);
+            console.log(parsedURL);
             expect(parsedURL.path.indexOf('/foo')).not.toEqual(-1);
 
             expect(data).toEqual([
               {
                 symbol: [{
-                  value: [{ id: 'foo' }],
+                  id: 'foo',
+                  value: [],
                 }],
               },
               {bar: 'foo'},

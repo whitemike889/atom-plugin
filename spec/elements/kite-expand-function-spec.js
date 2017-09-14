@@ -96,7 +96,7 @@ describe('KiteExpandFunction', () => {
 
   describe('with value report data', () => {
     beforeEach(() => {
-      json = require('../fixtures/test/increment-value.json');
+      json = require('../fixtures/test/increment-symbol.json');
       element = new KiteExpandFunction();
       element.setData(json);
     });
