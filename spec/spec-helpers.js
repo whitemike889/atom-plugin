@@ -463,7 +463,7 @@ function withKiteReachable(routes, block) {
     routes = [];
   }
 
-  routes.push([o => o.path === '/system', o => fakeResponse(200)]);
+  routes.push([o => o.path === '/settings', o => fakeResponse(200)]);
   routes.push([o => o.path === '/clientapi/user', o => fakeResponse(200, '{}')]);
   routes.push([o => o.path.indexOf('/clientapi/plan') !== -1, o => fakeResponse(200, '{}')]);
 
