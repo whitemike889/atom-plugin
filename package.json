@@ -38,12 +38,12 @@
         "left",
         "right"
       ],
-      "description": "When `Display Expand View As` is set to `sidebar` this setting defines where to place the sidebar in the Atom UI."
+      "description": "Defines where to place the sidebar in the Atom UI."
     },
     "sidebarWidth": {
       "type": "integer",
       "default": 400,
-      "description": "When `Display Expand View As` is set to `sidebar` this setting defines the width of the sidebar."
+      "description": "Defines the width of the sidebar. When the sidebar is displayed using the new dock API this value will serve as the preferred width."
     },
     "useDockForSidebar": {
       "type": "boolean",
@@ -52,7 +52,7 @@
     "openSidebarOnStartup": {
       "type": "boolean",
       "default": false,
-      "description": "When `Display Expand View As` is set to `sidebar` this setting will make the sidebar appears on startup."
+      "description": "Makes the sidebar appears on startup when enabled."
     },
     "maxVisibleSuggestionsAlongSignature": {
       "type": "integer",
