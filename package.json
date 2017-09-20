@@ -31,16 +31,6 @@
       "title": "Enable Hover UI",
       "description": "Show hover informations when placing the mouse over a symbol"
     },
-    "displayExpandViewAs": {
-      "type": "string",
-      "default": "sidebar",
-      "enum": [
-        "overlay",
-        "block",
-        "sidebar"
-      ],
-      "description": "This setting defines how the Kite expanded view will be displayed in Atom."
-    },
     "sidebarPosition": {
       "type": "string",
       "default": "right",
