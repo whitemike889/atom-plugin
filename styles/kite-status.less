@@ -26,7 +26,6 @@ kite-status {
     }
   }
 
-  &[status="authenticated"],
   &[status="whitelisted"] {
     kite-logo svg path,
     kite-logo svg polygon {
@@ -34,8 +33,7 @@ kite-status {
     }
   }
 
-  &[status="authenticated"][is-active-kite-file],
-  &[status="authenticated"][size-exceeds-limit],
+  &[status="authenticated"],
   &[status="whitelisted"][size-exceeds-limit] {
     kite-logo svg path,
     kite-logo svg polygon {
