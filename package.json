@@ -119,7 +119,7 @@
   "dependencies": {
     "element-resize-detector": "^1.1.11",
     "fuzzaldrin-plus": "^0.4.1",
-    "kite-installer": "^0.22.2",
+    "kite-installer": "^0.22.3",
     "md5": "^2.2.0",
     "underscore-plus": "^1",
     "rollbar-browser": "1.9.3"
