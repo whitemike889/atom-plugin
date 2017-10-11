@@ -99,7 +99,6 @@ describe('DataLoader', () => {
             expect(http.request).toHaveBeenCalled();
 
             const editorHash = md5(editor.getText());
-            console.log(http.request.mostRecentCall);
             const parsedURL = url.parse(http.request.calls[0].args[0].path);
 
             expect(parsedURL.path.indexOf(editor.getPath().replace(/\//g, ':'))).not.toEqual(-1);
@@ -139,7 +138,6 @@ describe('DataLoader', () => {
             expect(http.request).toHaveBeenCalled();
 
             const parsedURL = url.parse(http.request.mostRecentCall.args[0].path);
-            console.log(parsedURL);
             expect(parsedURL.path.indexOf('/foo')).not.toEqual(-1);
 
             expect(data).toEqual([
