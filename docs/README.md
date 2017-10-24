@@ -18,7 +18,7 @@ The plugin's features are only available in file types supported by the Kite eng
 
 ### Install
 
-You can install the Atom plugin from Kite directly. You can also install the plugin by searching for kite in the package manager or by running `apm install kite` in your terminal.
+You can install the Atom plugin from Kite directly. You can also install the plugin by searching for "Kite" in the package manager or by running `apm install kite` in your terminal.
 
 ### Startup
 
@@ -26,7 +26,7 @@ When starting Atom with Kite plugin for the first time, a brief tour about Kite 
 
 ![kite tour](./images/kite-tour.png)
 
-This tour will only be displayed once, if you want to see it again on next startup you can activate the `Show Kite Tour On Startup` setting.
+This tour will only be displayed once. If you want to see it again on next startup you can activate the `Show Kite Tour On Startup` setting.
 
 ### Status Bar
 
@@ -86,7 +86,7 @@ When working in a supported file, this small overlay will be displayed at the bo
 
 ![kite sidebar](./images/kite-active-search-collapsed.png)
 
-Clicking on it will expand Kite's active search. It allows you to search for identifiers from 3rd party packages or your local codebase.
+Clicking on it will expand Kite's active search panel. It allows you to search for identifiers from 3rd party packages or your local codebase.
 
 ![kite sidebar](./images/kite-active-search.png)
 
@@ -102,7 +102,7 @@ Kite exposes many commands so that you can setup your own keybindings for them.
 |`kite:open-settings`|Opens Kite's settings into your browser.|
 |`kite:open-sidebar`|Opens Kite's sidebar panel.|
 |`kite:close-sidebar`|Closes Kite's sidebar panel.|
-|`kite:toggle-sidebar`|Toggle Kite's sidebar panel.|
+|`kite:toggle-sidebar`|Toggle Kite's sidebar panel. This will close the panel if it was open, or vice versa.|
 
 ### Settings
 
