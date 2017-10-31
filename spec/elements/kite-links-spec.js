@@ -1,5 +1,6 @@
 'use strict';
 
+const os = require('os');
 const path = require('path');
 const {click} = require('../helpers/events');
 const KiteLinks = require('../../lib/elements/kite-links');
@@ -32,6 +33,7 @@ describe('KiteLinks', () => {
 
     describe('for internal goto urls', () => {
       beforeEach(() => {
+        spyOn(os, 'platform').andCallFake(() => 'win32');
         spyOn(kiteEditor, 'openDefinition').andCallFake(() => Promise.resolve());
         links.innerHTML = '<a href="kite-atom-internal://goto/C:%5Cpath%5Cto%5Cfile.py:123">link</a>';
         click(links.querySelector('a'));
