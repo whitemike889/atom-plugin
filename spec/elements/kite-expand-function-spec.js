@@ -15,8 +15,8 @@ describe('KiteExpandFunction', () => {
 
     it('fills the name and type section with provided data', () => {
       expect(element.querySelector('.expand-header .name').textContent)
-      .toEqual('Test.increment(n, *args, **kwargs)');
-      expect(element.querySelector('.expand-header .type').textContent).toEqual('-> int');
+      .toEqual('Test.increment(n:int, *args, **kwargs)');
+      expect(element.querySelector('.expand-header .type').textContent).toEqual('function');
     });
 
     // it('renders the synopsis in the summary div', () => {
@@ -68,8 +68,8 @@ describe('KiteExpandFunction', () => {
 
       it('fills the name and type section with provided data', () => {
         expect(element.querySelector('.expand-header .name').textContent)
-        .toEqual('Test.increment(n, …opts)');
-        expect(element.querySelector('.expand-header .type').textContent).toEqual('-> int');
+        .toEqual('Test.increment(n:int, …opts)');
+        expect(element.querySelector('.expand-header .type').textContent).toEqual('function');
       });
 
       it('renders the parameters section', () => {
@@ -103,8 +103,8 @@ describe('KiteExpandFunction', () => {
 
     it('fills the name and type section with provided data', () => {
       expect(element.querySelector('.expand-header .name').textContent)
-      .toEqual('B.increment(n=0)');
-      expect(element.querySelector('.expand-header .type').textContent).toEqual('-> int');
+      .toEqual('B.increment(n:int=0)');
+      expect(element.querySelector('.expand-header .type').textContent).toEqual('function');
     });
 
     // it('renders the synopsis in the summary div', () => {
