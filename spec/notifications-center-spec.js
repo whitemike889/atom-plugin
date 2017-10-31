@@ -165,380 +165,380 @@ describe('NotificationsCenter', () => {
         });
       });
 
-      withKiteNotRunning(() => {
-        beforeEach(() => {
-          waitsForPromise(() => app.connect());
-          waitsFor(() => notificationElement = getNotificationElement());
-          runs(() => notification = notificationElement.getModel());
-        });
-
-        it('notifies the user', () => {
-          const options = notification.getOptions();
-
-          expect(notificationElement).not.toBeNull();
-
-          expect(notification.getType()).toEqual('warning');
-          expect(notification.getMessage())
-          .toEqual('The Kite engine is not running');
-
-          expect(options.buttons.length).toEqual(1);
-          expect(options.buttons[0].text).toEqual('Start Kite');
-          expect(options.dismissable).toBeTruthy();
-          expect(options.description)
-          .toEqual('Start the Kite background service to get Python completions, documentation, and examples.');
-        });
-
-        describe('clicking on the Start Kite button', () => {
-          it('triggers a start', () => {
-            spyOn(app, 'start').andReturn(Promise.resolve());
-            const button = queryNotificationSelector(notificationElement, 'a.btn');
-            click(button);
-
-            expect(app.start).toHaveBeenCalled();
-          });
-
-          describe('when the start fails', () => {
-            beforeEach(() => {
-              spyOn(app, 'start').andReturn(Promise.reject());
-              const button = queryNotificationSelector(notificationElement, 'a.btn');
-              click(button);
-
-              waitsFor(() => workspaceElement.querySelectorAll('atom-notification').length === 2);
-              runs(() => {
-                notificationElement = getNotificationElement();
-                notification = notificationElement.getModel();
-              });
-            });
-
-            it('notifies the user of the failure', () => {
-              const options = notification.getOptions();
-
-              expect(notification.getType()).toEqual('error');
-              expect(notification.getMessage())
-              .toEqual('Unable to start Kite engine');
-
-              expect(options.buttons.length).toEqual(1);
-              expect(options.buttons[0].text).toEqual('Retry');
-              expect(options.dismissable).toBeTruthy();
-            });
-
-            describe('clicking on the retry button', () => {
-              beforeEach(() => {
-                const button = queryNotificationSelector(notificationElement, 'a.btn');
-                click(button);
-              });
-
-              it('calls the start method again', () => {
-                expect(app.start.callCount).toEqual(2);
-              });
-
-              it('displays another notification when it fails', () => {
-                waitsFor(() => workspaceElement.querySelectorAll('atom-notification').length === 3);
-              });
-            });
-          });
-        });
-
-        describe('when the same state is found after a new check', () => {
-          it('does not notify the user', () => {
-            atom.notifications.getNotifications()[0].dismiss();
-            waitsForPromise(() => app.connect().then(() => {
-              expect(atom.notifications.getNotifications().length).toEqual(1);
-            }));
-          });
-        });
-      });
-
-      withManyKiteNotRunning(() => {
-        beforeEach(() => {
-          waitsForPromise(() => app.connect());
-          waitsFor(() => notificationElement = getNotificationElement());
-          runs(() => notification = notificationElement.getModel());
-        });
-
-        it('notifies the user with no actions', () => {
-          const options = notification.getOptions();
-
-          expect(notificationElement).not.toBeNull();
-
-          expect(notification.getType()).toEqual('warning');
-          expect(notification.getMessage())
-          .toEqual('The Kite engine is not running');
-          expect(options.description)
-          .toEqual('You have multiple versions of Kite installed. Please launch your desired one.');
-
-          expect(options.buttons).toBeUndefined();
-        });
-      });
-
-      withKiteEnterpriseNotRunning(() => {
-        beforeEach(() => {
-          waitsForPromise(() => app.connect());
-          waitsFor(() => notificationElement = getNotificationElement());
-          runs(() => notification = notificationElement.getModel());
-        });
-
-        it('notifies the user', () => {
-          const options = notification.getOptions();
-
-          expect(notificationElement).not.toBeNull();
-
-          expect(notification.getType()).toEqual('warning');
-          expect(notification.getMessage())
-          .toEqual('The Kite engine is not running');
-
-          expect(options.buttons.length).toEqual(1);
-          expect(options.buttons[0].text).toEqual('Start Kite Enterprise');
-          expect(options.dismissable).toBeTruthy();
-          expect(options.description)
-          .toEqual('Start the Kite background service to get Python completions, documentation, and examples.');
-        });
-
-        describe('clicking on the Start Kite button', () => {
-          it('triggers a start', () => {
-            spyOn(app, 'startEnterprise').andReturn(Promise.resolve());
-            const button = queryNotificationSelector(notificationElement, 'a.btn');
-            click(button);
-
-            expect(app.startEnterprise).toHaveBeenCalled();
-          });
-
-          describe('when the start fails', () => {
-            beforeEach(() => {
-              spyOn(app, 'startEnterprise').andReturn(Promise.reject());
-              const button = queryNotificationSelector(notificationElement, 'a.btn');
-              click(button);
-
-              waitsFor(() => workspaceElement.querySelectorAll('atom-notification').length === 2);
-              runs(() => {
-                notificationElement = getNotificationElement();
-                notification = notificationElement.getModel();
-              });
-            });
-
-            it('notifies the user of the failure', () => {
-              const options = notification.getOptions();
-
-              expect(notification.getType()).toEqual('error');
-              expect(notification.getMessage())
-              .toEqual('Unable to start Kite engine');
-
-              expect(options.buttons.length).toEqual(1);
-              expect(options.buttons[0].text).toEqual('Retry');
-              expect(options.dismissable).toBeTruthy();
-            });
-
-            describe('clicking on the retry button', () => {
-              beforeEach(() => {
-                const button = queryNotificationSelector(notificationElement, 'a.btn');
-                click(button);
-              });
-
-              it('calls the start method again', () => {
-                expect(app.startEnterprise.callCount).toEqual(2);
-              });
-
-              it('displays another notification when it fails', () => {
-                waitsFor(() => workspaceElement.querySelectorAll('atom-notification').length === 3);
-              });
-            });
-          });
-        });
-
-        describe('when the same state is found after a new check', () => {
-          it('does not notify the user', () => {
-            atom.notifications.getNotifications()[0].dismiss();
-            waitsForPromise(() => app.connect().then(() => {
-              expect(atom.notifications.getNotifications().length).toEqual(1);
-            }));
-          });
-        });
-      });
-
-      withManyKiteEnterpriseNotRunning(() => {
-        beforeEach(() => {
-          waitsForPromise(() => app.connect());
-          waitsFor(() => notificationElement = getNotificationElement());
-          runs(() => notification = notificationElement.getModel());
-        });
-
-        it('notifies the user with no actions', () => {
-          const options = notification.getOptions();
-
-          expect(notificationElement).not.toBeNull();
-
-          expect(notification.getType()).toEqual('warning');
-          expect(notification.getMessage())
-          .toEqual('The Kite engine is not running');
-          expect(options.description)
-          .toEqual('You have multiple versions of Kite installed. Please launch your desired one.');
-
-          expect(options.buttons).toBeUndefined();
-        });
-      });
-
-      withBothKiteNotRunning(() => {
-        beforeEach(() => {
-          waitsForPromise('connection', () => app.connect());
-          waitsFor('first notification', () => notificationElement = getNotificationElement());
-          runs(() => notification = notificationElement.getModel());
-        });
-
-        it('notifies the user', () => {
-          const options = notification.getOptions();
-
-          expect(notificationElement).not.toBeNull();
-
-          expect(notification.getType()).toEqual('warning');
-          expect(notification.getMessage())
-          .toEqual('The Kite engine is not running');
-
-          expect(options.buttons.length).toEqual(2);
-          expect(options.buttons[0].text).toEqual('Start Kite');
-          expect(options.buttons[1].text).toEqual('Start Kite Enterprise');
-          expect(options.dismissable).toBeTruthy();
-          expect(options.description)
-          .toEqual('Start the Kite background service to get Python completions, documentation, and examples.');
-        });
-
-        describe('clicking on the Start Kite button', () => {
-          it('triggers a start', () => {
-            spyOn(app, 'start').andReturn(Promise.resolve());
-            const button = queryNotificationSelector(notificationElement, 'a.btn');
-            click(button);
-
-            expect(app.start).toHaveBeenCalled();
-          });
-
-          describe('when the start fails', () => {
-            beforeEach(() => {
-              spyOn(app, 'start').andReturn(Promise.reject());
-              const button = queryNotificationSelector(notificationElement, 'a.btn');
-              click(button);
-
-              waitsFor('second notification', () =>
-                workspaceElement.querySelectorAll('atom-notification').length === 2);
-              runs(() => {
-                notificationElement = getNotificationElement();
-                notification = notificationElement.getModel();
-              });
-            });
-
-            it('notifies the user of the failure', () => {
-              const options = notification.getOptions();
-
-              expect(notification.getType()).toEqual('error');
-              expect(notification.getMessage())
-              .toEqual('Unable to start Kite engine');
-
-              expect(options.buttons.length).toEqual(1);
-              expect(options.buttons[0].text).toEqual('Retry');
-              expect(options.dismissable).toBeTruthy();
-            });
-
-            describe('clicking on the retry button', () => {
-              beforeEach(() => {
-                const button = queryNotificationSelector(notificationElement, 'a.btn');
-                click(button);
-              });
-
-              it('calls the start method again', () => {
-                expect(app.start.callCount).toEqual(2);
-              });
-
-              it('displays another notification when it fails', () => {
-                waitsFor('third notification', () =>
-                  workspaceElement.querySelectorAll('atom-notification').length === 3);
-              });
-            });
-          });
-        });
-
-        describe('clicking on the Start Kite Enterprise button', () => {
-          it('triggers a start', () => {
-            spyOn(app, 'startEnterprise').andReturn(Promise.resolve());
-            const button = queryNotificationSelectorAll(notificationElement, 'a.btn')[1];
-            click(button);
-
-            expect(app.startEnterprise).toHaveBeenCalled();
-          });
-
-          describe('when the start fails', () => {
-            beforeEach(() => {
-              spyOn(app, 'startEnterprise').andReturn(Promise.reject());
-              const button = queryNotificationSelectorAll(notificationElement, 'a.btn')[1];
-              click(button);
-
-              waitsFor('second notification', () =>
-                workspaceElement.querySelectorAll('atom-notification').length === 2);
-              runs(() => {
-                notificationElement = getNotificationElement();
-                notification = notificationElement.getModel();
-              });
-            });
-
-            it('notifies the user of the failure', () => {
-              const options = notification.getOptions();
-
-              expect(notification.getType()).toEqual('error');
-              expect(notification.getMessage())
-              .toEqual('Unable to start Kite engine');
-
-              expect(options.buttons.length).toEqual(1);
-              expect(options.buttons[0].text).toEqual('Retry');
-              expect(options.dismissable).toBeTruthy();
-            });
-
-            describe('clicking on the retry button', () => {
-              beforeEach(() => {
-                const button = queryNotificationSelector(notificationElement, 'a.btn');
-                click(button);
-                sleep(100);
-                runs(() => advanceClock(100));
-              });
-
-              it('calls the start method again', () => {
-                expect(app.startEnterprise.callCount).toEqual(2);
-              });
-
-              it('displays another notification when it fails', () => {
-                waitsFor('third notification', () => atom.notifications.getNotifications().length === 3);
-              });
-            });
-          });
-        });
-
-        describe('when the same state is found after a new check', () => {
-          it('does not notify the user', () => {
-            atom.notifications.getNotifications()[0].dismiss();
-            waitsForPromise(() => app.connect().then(() => {
-              expect(atom.notifications.getNotifications().length).toEqual(1);
-            }));
-          });
-        });
-      });
-
-      withManyOfBothKiteNotRunning(() => {
-        beforeEach(() => {
-          waitsForPromise(() => app.connect());
-          waitsFor(() => notificationElement = getNotificationElement());
-          runs(() => notification = notificationElement.getModel());
-        });
-
-        it('notifies the user with no actions', () => {
-          const options = notification.getOptions();
-
-          expect(notificationElement).not.toBeNull();
-
-          expect(notification.getType()).toEqual('warning');
-          expect(notification.getMessage())
-          .toEqual('The Kite engine is not running');
-          expect(options.description)
-          .toEqual('You have multiple versions of Kite installed. Please launch your desired one.');
-
-          expect(options.buttons).toBeUndefined();
-        });
-      });
+      // withKiteNotRunning(() => {
+      //   beforeEach(() => {
+      //     waitsForPromise(() => app.connect());
+      //     waitsFor(() => notificationElement = getNotificationElement());
+      //     runs(() => notification = notificationElement.getModel());
+      //   });
+      //
+      //   it('notifies the user', () => {
+      //     const options = notification.getOptions();
+      //
+      //     expect(notificationElement).not.toBeNull();
+      //
+      //     expect(notification.getType()).toEqual('warning');
+      //     expect(notification.getMessage())
+      //     .toEqual('The Kite engine is not running');
+      //
+      //     expect(options.buttons.length).toEqual(1);
+      //     expect(options.buttons[0].text).toEqual('Start Kite');
+      //     expect(options.dismissable).toBeTruthy();
+      //     expect(options.description)
+      //     .toEqual('Start the Kite background service to get Python completions, documentation, and examples.');
+      //   });
+      //
+      //   describe('clicking on the Start Kite button', () => {
+      //     it('triggers a start', () => {
+      //       spyOn(app, 'start').andReturn(Promise.resolve());
+      //       const button = queryNotificationSelector(notificationElement, 'a.btn');
+      //       click(button);
+      //
+      //       expect(app.start).toHaveBeenCalled();
+      //     });
+      //
+      //     describe('when the start fails', () => {
+      //       beforeEach(() => {
+      //         spyOn(app, 'start').andReturn(Promise.reject());
+      //         const button = queryNotificationSelector(notificationElement, 'a.btn');
+      //         click(button);
+      //
+      //         waitsFor(() => workspaceElement.querySelectorAll('atom-notification').length === 2);
+      //         runs(() => {
+      //           notificationElement = getNotificationElement();
+      //           notification = notificationElement.getModel();
+      //         });
+      //       });
+      //
+      //       it('notifies the user of the failure', () => {
+      //         const options = notification.getOptions();
+      //
+      //         expect(notification.getType()).toEqual('error');
+      //         expect(notification.getMessage())
+      //         .toEqual('Unable to start Kite engine');
+      //
+      //         expect(options.buttons.length).toEqual(1);
+      //         expect(options.buttons[0].text).toEqual('Retry');
+      //         expect(options.dismissable).toBeTruthy();
+      //       });
+      //
+      //       describe('clicking on the retry button', () => {
+      //         beforeEach(() => {
+      //           const button = queryNotificationSelector(notificationElement, 'a.btn');
+      //           click(button);
+      //         });
+      //
+      //         it('calls the start method again', () => {
+      //           expect(app.start.callCount).toEqual(2);
+      //         });
+      //
+      //         it('displays another notification when it fails', () => {
+      //           waitsFor(() => workspaceElement.querySelectorAll('atom-notification').length === 3);
+      //         });
+      //       });
+      //     });
+      //   });
+      //
+      //   describe('when the same state is found after a new check', () => {
+      //     it('does not notify the user', () => {
+      //       atom.notifications.getNotifications()[0].dismiss();
+      //       waitsForPromise(() => app.connect().then(() => {
+      //         expect(atom.notifications.getNotifications().length).toEqual(1);
+      //       }));
+      //     });
+      //   });
+      // });
+
+      // withManyKiteNotRunning(() => {
+      //   beforeEach(() => {
+      //     waitsForPromise(() => app.connect());
+      //     waitsFor(() => notificationElement = getNotificationElement());
+      //     runs(() => notification = notificationElement.getModel());
+      //   });
+      //
+      //   it('notifies the user with no actions', () => {
+      //     const options = notification.getOptions();
+      //
+      //     expect(notificationElement).not.toBeNull();
+      //
+      //     expect(notification.getType()).toEqual('warning');
+      //     expect(notification.getMessage())
+      //     .toEqual('The Kite engine is not running');
+      //     expect(options.description)
+      //     .toEqual('You have multiple versions of Kite installed. Please launch your desired one.');
+      //
+      //     expect(options.buttons).toBeUndefined();
+      //   });
+      // });
+
+      // withKiteEnterpriseNotRunning(() => {
+      //   beforeEach(() => {
+      //     waitsForPromise(() => app.connect());
+      //     waitsFor(() => notificationElement = getNotificationElement());
+      //     runs(() => notification = notificationElement.getModel());
+      //   });
+      //
+      //   it('notifies the user', () => {
+      //     const options = notification.getOptions();
+      //
+      //     expect(notificationElement).not.toBeNull();
+      //
+      //     expect(notification.getType()).toEqual('warning');
+      //     expect(notification.getMessage())
+      //     .toEqual('The Kite engine is not running');
+      //
+      //     expect(options.buttons.length).toEqual(1);
+      //     expect(options.buttons[0].text).toEqual('Start Kite Enterprise');
+      //     expect(options.dismissable).toBeTruthy();
+      //     expect(options.description)
+      //     .toEqual('Start the Kite background service to get Python completions, documentation, and examples.');
+      //   });
+      //
+      //   describe('clicking on the Start Kite button', () => {
+      //     it('triggers a start', () => {
+      //       spyOn(app, 'startEnterprise').andReturn(Promise.resolve());
+      //       const button = queryNotificationSelector(notificationElement, 'a.btn');
+      //       click(button);
+      //
+      //       expect(app.startEnterprise).toHaveBeenCalled();
+      //     });
+      //
+      //     describe('when the start fails', () => {
+      //       beforeEach(() => {
+      //         spyOn(app, 'startEnterprise').andReturn(Promise.reject());
+      //         const button = queryNotificationSelector(notificationElement, 'a.btn');
+      //         click(button);
+      //
+      //         waitsFor(() => workspaceElement.querySelectorAll('atom-notification').length === 2);
+      //         runs(() => {
+      //           notificationElement = getNotificationElement();
+      //           notification = notificationElement.getModel();
+      //         });
+      //       });
+      //
+      //       it('notifies the user of the failure', () => {
+      //         const options = notification.getOptions();
+      //
+      //         expect(notification.getType()).toEqual('error');
+      //         expect(notification.getMessage())
+      //         .toEqual('Unable to start Kite engine');
+      //
+      //         expect(options.buttons.length).toEqual(1);
+      //         expect(options.buttons[0].text).toEqual('Retry');
+      //         expect(options.dismissable).toBeTruthy();
+      //       });
+      //
+      //       describe('clicking on the retry button', () => {
+      //         beforeEach(() => {
+      //           const button = queryNotificationSelector(notificationElement, 'a.btn');
+      //           click(button);
+      //         });
+      //
+      //         it('calls the start method again', () => {
+      //           expect(app.startEnterprise.callCount).toEqual(2);
+      //         });
+      //
+      //         it('displays another notification when it fails', () => {
+      //           waitsFor(() => workspaceElement.querySelectorAll('atom-notification').length === 3);
+      //         });
+      //       });
+      //     });
+      //   });
+      //
+      //   describe('when the same state is found after a new check', () => {
+      //     it('does not notify the user', () => {
+      //       atom.notifications.getNotifications()[0].dismiss();
+      //       waitsForPromise(() => app.connect().then(() => {
+      //         expect(atom.notifications.getNotifications().length).toEqual(1);
+      //       }));
+      //     });
+      //   });
+      // });
+      //
+      // withManyKiteEnterpriseNotRunning(() => {
+      //   beforeEach(() => {
+      //     waitsForPromise(() => app.connect());
+      //     waitsFor(() => notificationElement = getNotificationElement());
+      //     runs(() => notification = notificationElement.getModel());
+      //   });
+      //
+      //   it('notifies the user with no actions', () => {
+      //     const options = notification.getOptions();
+      //
+      //     expect(notificationElement).not.toBeNull();
+      //
+      //     expect(notification.getType()).toEqual('warning');
+      //     expect(notification.getMessage())
+      //     .toEqual('The Kite engine is not running');
+      //     expect(options.description)
+      //     .toEqual('You have multiple versions of Kite installed. Please launch your desired one.');
+      //
+      //     expect(options.buttons).toBeUndefined();
+      //   });
+      // });
+      //
+      // withBothKiteNotRunning(() => {
+      //   beforeEach(() => {
+      //     waitsForPromise('connection', () => app.connect());
+      //     waitsFor('first notification', () => notificationElement = getNotificationElement());
+      //     runs(() => notification = notificationElement.getModel());
+      //   });
+      //
+      //   it('notifies the user', () => {
+      //     const options = notification.getOptions();
+      //
+      //     expect(notificationElement).not.toBeNull();
+      //
+      //     expect(notification.getType()).toEqual('warning');
+      //     expect(notification.getMessage())
+      //     .toEqual('The Kite engine is not running');
+      //
+      //     expect(options.buttons.length).toEqual(2);
+      //     expect(options.buttons[0].text).toEqual('Start Kite');
+      //     expect(options.buttons[1].text).toEqual('Start Kite Enterprise');
+      //     expect(options.dismissable).toBeTruthy();
+      //     expect(options.description)
+      //     .toEqual('Start the Kite background service to get Python completions, documentation, and examples.');
+      //   });
+      //
+      //   describe('clicking on the Start Kite button', () => {
+      //     it('triggers a start', () => {
+      //       spyOn(app, 'start').andReturn(Promise.resolve());
+      //       const button = queryNotificationSelector(notificationElement, 'a.btn');
+      //       click(button);
+      //
+      //       expect(app.start).toHaveBeenCalled();
+      //     });
+      //
+      //     describe('when the start fails', () => {
+      //       beforeEach(() => {
+      //         spyOn(app, 'start').andReturn(Promise.reject());
+      //         const button = queryNotificationSelector(notificationElement, 'a.btn');
+      //         click(button);
+      //
+      //         waitsFor('second notification', () =>
+      //           workspaceElement.querySelectorAll('atom-notification').length === 2);
+      //         runs(() => {
+      //           notificationElement = getNotificationElement();
+      //           notification = notificationElement.getModel();
+      //         });
+      //       });
+      //
+      //       it('notifies the user of the failure', () => {
+      //         const options = notification.getOptions();
+      //
+      //         expect(notification.getType()).toEqual('error');
+      //         expect(notification.getMessage())
+      //         .toEqual('Unable to start Kite engine');
+      //
+      //         expect(options.buttons.length).toEqual(1);
+      //         expect(options.buttons[0].text).toEqual('Retry');
+      //         expect(options.dismissable).toBeTruthy();
+      //       });
+      //
+      //       describe('clicking on the retry button', () => {
+      //         beforeEach(() => {
+      //           const button = queryNotificationSelector(notificationElement, 'a.btn');
+      //           click(button);
+      //         });
+      //
+      //         it('calls the start method again', () => {
+      //           expect(app.start.callCount).toEqual(2);
+      //         });
+      //
+      //         it('displays another notification when it fails', () => {
+      //           waitsFor('third notification', () =>
+      //             workspaceElement.querySelectorAll('atom-notification').length === 3);
+      //         });
+      //       });
+      //     });
+      //   });
+      //
+      //   describe('clicking on the Start Kite Enterprise button', () => {
+      //     it('triggers a start', () => {
+      //       spyOn(app, 'startEnterprise').andReturn(Promise.resolve());
+      //       const button = queryNotificationSelectorAll(notificationElement, 'a.btn')[1];
+      //       click(button);
+      //
+      //       expect(app.startEnterprise).toHaveBeenCalled();
+      //     });
+      //
+      //     describe('when the start fails', () => {
+      //       beforeEach(() => {
+      //         spyOn(app, 'startEnterprise').andReturn(Promise.reject());
+      //         const button = queryNotificationSelectorAll(notificationElement, 'a.btn')[1];
+      //         click(button);
+      //
+      //         waitsFor('second notification', () =>
+      //           workspaceElement.querySelectorAll('atom-notification').length === 2);
+      //         runs(() => {
+      //           notificationElement = getNotificationElement();
+      //           notification = notificationElement.getModel();
+      //         });
+      //       });
+      //
+      //       it('notifies the user of the failure', () => {
+      //         const options = notification.getOptions();
+      //
+      //         expect(notification.getType()).toEqual('error');
+      //         expect(notification.getMessage())
+      //         .toEqual('Unable to start Kite engine');
+      //
+      //         expect(options.buttons.length).toEqual(1);
+      //         expect(options.buttons[0].text).toEqual('Retry');
+      //         expect(options.dismissable).toBeTruthy();
+      //       });
+      //
+      //       describe('clicking on the retry button', () => {
+      //         beforeEach(() => {
+      //           const button = queryNotificationSelector(notificationElement, 'a.btn');
+      //           click(button);
+      //           sleep(100);
+      //           runs(() => advanceClock(100));
+      //         });
+      //
+      //         it('calls the start method again', () => {
+      //           expect(app.startEnterprise.callCount).toEqual(2);
+      //         });
+      //
+      //         it('displays another notification when it fails', () => {
+      //           waitsFor('third notification', () => atom.notifications.getNotifications().length === 3);
+      //         });
+      //       });
+      //     });
+      //   });
+      //
+      //   describe('when the same state is found after a new check', () => {
+      //     it('does not notify the user', () => {
+      //       atom.notifications.getNotifications()[0].dismiss();
+      //       waitsForPromise(() => app.connect().then(() => {
+      //         expect(atom.notifications.getNotifications().length).toEqual(1);
+      //       }));
+      //     });
+      //   });
+      // });
+      //
+      // withManyOfBothKiteNotRunning(() => {
+      //   beforeEach(() => {
+      //     waitsForPromise(() => app.connect());
+      //     waitsFor(() => notificationElement = getNotificationElement());
+      //     runs(() => notification = notificationElement.getModel());
+      //   });
+      //
+      //   it('notifies the user with no actions', () => {
+      //     const options = notification.getOptions();
+      //
+      //     expect(notificationElement).not.toBeNull();
+      //
+      //     expect(notification.getType()).toEqual('warning');
+      //     expect(notification.getMessage())
+      //     .toEqual('The Kite engine is not running');
+      //     expect(options.description)
+      //     .toEqual('You have multiple versions of Kite installed. Please launch your desired one.');
+      //
+      //     expect(options.buttons).toBeUndefined();
+      //   });
+      // });
 
       withKiteNotReachable(() => {
         beforeEach(() => {
@@ -862,13 +862,13 @@ describe('NotificationsCenter', () => {
       });
     });
 
-    withKiteNotRunning(() => {
-      it('does not notify the user', () => {
-        waitsForPromise(() => app.connect().then(() => {
-          expect(workspaceElement.querySelector('atom-notification')).not.toExist();
-        }));
-      });
-    });
+    // withKiteNotRunning(() => {
+    //   it('does not notify the user', () => {
+    //     waitsForPromise(() => app.connect().then(() => {
+    //       expect(workspaceElement.querySelector('atom-notification')).not.toExist();
+    //     }));
+    //   });
+    // });
 
     withKiteNotReachable(() => {
       it('does not notify the user', () => {
