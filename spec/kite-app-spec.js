@@ -331,7 +331,7 @@ describe('KiteApp', () => {
 
       it('opens the reset password link in a browser', () => {
         expect(atom.applicationDelegate.openExternal)
-        .toHaveBeenCalledWith('https://kite.com/account/resetPassword/request?email=');
+        .toHaveBeenCalledWith('https://kite.com/reset-password?email=');
       });
 
       it('removes the modal', () => {
