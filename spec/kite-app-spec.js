@@ -120,13 +120,13 @@ describe('KiteApp', () => {
 
   describe('.install()', () => {
     beforeEach(() => {
-      spyOn(StateController, 'downloadKite').andCallFake(() => Promise.resolve());
+      spyOn(StateController, 'downloadKiteRelease').andCallFake(() => Promise.resolve());
     });
 
-    it('calls the StateController.downloadKite method', () => {
+    it('calls the StateController.downloadKiteRelease method', () => {
       app.install();
 
-      expect(StateController.downloadKite).toHaveBeenCalled();
+      expect(StateController.downloadKiteRelease).toHaveBeenCalled();
     });
   });
 
