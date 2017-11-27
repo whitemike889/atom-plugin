@@ -123,7 +123,8 @@
     "kite-installer": "^0.23.2",
     "md5": "^2.2.0",
     "rollbar-browser": "1.9.3",
-    "underscore-plus": "^1"
+    "underscore-plus": "^1",
+    "getmac": "^1.2.1"
   },
   "devDependencies": {
     "babel-eslint": "^6.1.2",
