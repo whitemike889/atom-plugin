@@ -7,14 +7,14 @@ kite-login {
   display: block;
 
   svg {
-    width: 100px;
+    width: auto;
     height: 45px;
     position: absolute;
     right: 2em;
     top: 0.5em;
 
-    path {
-      fill: @text-color-highlight;
+    polygon {
+      fill: @text-color-info;
     }
   }
 
@@ -38,7 +38,8 @@ kite-login {
     }
   }
   .form-status {
-    margin-top: @component-padding;
+    margin: @component-padding 0;
+    text-align: center;
 
     &.hidden {
       display: none;
