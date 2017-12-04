@@ -6,6 +6,18 @@ kite-login {
   margin: auto;
   display: block;
 
+  &:not('.account-creation') {
+    .for-signup {
+      display: none !important;
+    }
+  }
+
+  &.account-creation {
+    .for-login {
+      display: none !important;
+    }
+  }
+
   svg {
     width: auto;
     height: 45px;
@@ -37,8 +49,13 @@ kite-login {
       display: none;
     }
   }
+
+  .form-choice,
   .form-status {
     margin: @component-padding 0;
+  }
+
+  .form-status {
     text-align: center;
 
     &.hidden {
@@ -56,6 +73,11 @@ kite-login {
     .badge.badge-medium {
       vertical-align: baseline;
       padding: 8px 10px;
+
+      &:not(.selected) {
+        background: transparent;
+        cursor: pointer;
+      }
     }
 
     a:last-child {
