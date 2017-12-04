@@ -26,7 +26,7 @@ describe('KiteLogin', () => {
       beforeEach(() => {
         spy = jasmine.createSpy();
 
-        loginForm.onDidSubmit(spy);
+        loginForm.onDidSubmitLogin(spy);
         loginForm.emailInput.value = 'foo@bar.com';
         loginForm.passwordInput.value = 'password';
 
