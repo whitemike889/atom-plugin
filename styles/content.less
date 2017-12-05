@@ -274,6 +274,10 @@
   }
 
   section.collapsible {
+    .section-content + * {
+      margin-bottom: @component-padding;
+    }
+
     &.collapse .section-content {
       max-height: 250px;
       position: relative;

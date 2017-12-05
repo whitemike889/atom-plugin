@@ -91,8 +91,14 @@ kite-active-search {
     }
   }
 
-  kite-navigable-stack section.collapsible.collapse.overflow .description::after {
-    background-image: linear-gradient(to top, @hover-background-color 0%, transparent 100%);
+  kite-navigable-stack section.collapsible.overflow {
+    .section-content + * {
+      margin-bottom: @component-padding;
+    }
+
+    &.collapse .section-content::after {
+      background-image: linear-gradient(to top, @hover-background-color 0%, transparent 100%);
+    }
   }
 
   &:not(.collapsed) {
