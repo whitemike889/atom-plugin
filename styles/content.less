@@ -13,6 +13,28 @@
   }
 }
 
+.kite-section-strike {
+  h4 {
+    background-color: @app-background-color;
+    display: inline-block;
+    padding-right: @component-padding;
+
+    kite-active-search & {
+      background: @hover-background-color;
+    }
+
+    &:before {
+      content: '';
+      border-top: 1px solid @text-color;
+      position: absolute;
+      display: block;
+      z-index: -1;
+      width: 100%;
+      top: 0.5em;
+    }
+  }
+}
+
 .kite-caption {
   caption, figcaption {
     padding: 0;
@@ -124,13 +146,13 @@
     }
   }
 
-
   kite-expand-module, kite-expand-function, kite-expand-instance {
     flex-direction: column;
 
     .expand-header, .expand-extend {
       flex: 0 0 auto;
       margin-bottom: @component-padding;
+      overflow-x: auto;
 
       .signature a.kwargs {
         pointer-events: none;
@@ -140,6 +162,14 @@
           color: @text-color;
         }
       }
+    }
+
+    section.summary,
+    section.examples,
+    section.links,
+    section.usages,
+    section.examples-from-your-code {
+      .kite-section-strike;
     }
 
     section .kite-pro-features {
@@ -251,6 +281,7 @@
 
   .type, .signature {
     color: @text-color;
+    word-break: break-word
   }
 
   .split-line {
@@ -271,6 +302,14 @@
 
   .expand-extend {
     font-size: 1.2em;
+  }
+
+  section {
+    margin-bottom: @triple-padding;
+
+    .section-content {
+      margin-top: @component-padding;
+    }
   }
 
   section.collapsible {
@@ -296,9 +335,6 @@
   }
 
   section.summary {
-    margin: 0 0 15px;
-
-
     .description {
       margin-top: @component-padding;
       font-size: 1em;
@@ -322,6 +358,7 @@
     }
   }
 
+  section.top-attributes,
   section.top-members {
     .split-line {
       .name {
@@ -336,15 +373,15 @@
 
     a.more-members {
       display: block;
-      margin-top: -@component-padding;
-      margin-bottom: @double-padding;
+      margin-top: @component-padding;
+      // margin-bottom: @double-padding;
     }
   }
 
   section.examples {
     a.more-examples {
       display: block;
-      margin-top: -@component-padding;
+      margin-top: @component-padding;
       margin-bottom: @double-padding;
     }
 
@@ -354,7 +391,7 @@
   section.links {
     a.more-links {
       display: block;
-      margin-top: -@component-padding;
+      margin-top: @component-padding;
       margin-bottom: @double-padding;
     }
 
@@ -371,12 +408,14 @@
       font-size: 1.2em;
       padding-left: @component-padding;
     }
+
+    pre {
+      white-space: pre-wrap;
+    }
   }
 
   section.examples-from-your-code {
     .section-content {
-      margin: 0;
-
       .usages-box {
         .usage-container {
           display: flex;
@@ -506,7 +545,7 @@
 
   dl, ul {
     // padding-right: @component-padding;
-    margin: @component-padding 0 @double-padding;
+    margin: @component-padding 0 0;
 
     dt, li {
       color: @text-color;
