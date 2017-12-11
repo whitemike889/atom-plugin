@@ -226,6 +226,10 @@ kite-active-search {
       color: @text-color-highlight;
       text-transform: uppercase;
     }
+
+    .select-list.popover-list ol.list-group li {
+      padding-left: @double-padding;
+    }
   }
 
   .select-list.popover-list {
@@ -245,32 +249,29 @@ kite-active-search {
     &.has-results {
       background: fadeout(@text-color-highlight, 90%);
       border-bottom: 2px solid fadeout(@text-color-highlight, 50%);
-      padding-bottom: @component-padding * 2;
 
-      &:after {
-        content: '';
-        display: block;
-        width: 0;
-        height: 0;
-        border: 8px solid transparent;
-        border-bottom-color: @text-color;
-        opacity: 0.6;
-        position: absolute;
-        bottom: 4px;
-        right: 4px;
-      }
+      &.has-scroll {
+        padding-bottom: @component-padding * 2;
 
-      &:before {
-        content: '';
-        display: block;
-        width: 0;
-        height: 0;
-        border: 8px solid transparent;
-        border-top-color: @text-color;
-        opacity: 0.6;
-        position: absolute;
-        bottom: -2px;
-        right: 16px;
+        &:after {
+          content: '↓';
+          display: block;
+          color: @text-color;
+          opacity: 0.6;
+          position: absolute;
+          bottom: 0;
+          right: 4px;
+        }
+
+        &:before {
+          content: '↑';
+          display: block;
+          color: @text-color;
+          opacity: 0.6;
+          position: absolute;
+          bottom: 0;
+          right: 16px;
+        }
       }
     }
 
