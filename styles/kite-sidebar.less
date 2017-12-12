@@ -119,7 +119,6 @@ kite-sidebar {
         background: @background-color-selected;
         color: @text-color;
         text-decoration: none;
-        display: inline-block;
         padding: 0.2em 0.5em;
         border-radius: 3px;
         text-transform: uppercase;
@@ -147,6 +146,14 @@ kite-sidebar {
           color: @text-color-highlight;
         }
       }
+
+      > * {
+        display: none;
+      }
     }
+  }
+
+  .has-scroll .actions > * {
+    display: inline-block;
   }
 }
