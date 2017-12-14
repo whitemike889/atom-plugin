@@ -1,4 +1,3 @@
-@import "ui-variables";
 @import "variables";
 
 atom-panel.left kite-sidebar {
@@ -81,6 +80,13 @@ kite-sidebar {
   kite-navigable-stack, kite-navigable-stack-breadcrumb {
     flex: 1 1 0;
     overflow: hidden;
+    margin: 0 -6px -10px;
+
+    .expand-header,
+    .scroll-wrapper .sections-wrapper {
+      padding-right: 10px;
+      padding-left: 5px;
+    }
   }
 
   kite-navigable-stack {
@@ -101,14 +107,53 @@ kite-sidebar {
   }
 
   footer {
-    display: block;
-    align-items: flex-end;
-    align-content: space-around;
-    justify-content: flex-end;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
     flex: 0 0 auto;
+    padding: @component-padding;
+    background: fade(@background-color-highlight, 50%);
+
+    .actions {
+      a {
+        background: @background-color-selected;
+        color: @text-color;
+        text-decoration: none;
+        padding: 0.2em 0.5em;
+        border-radius: 3px;
+        text-transform: uppercase;
+        font-size: 0.8em;
+        font-weight: 100;
+
+        span {
+          display: inline-block;
+          vertical-align: baseline;
+        }
+
+        svg {
+          height: 1em;
+          display: inline-block;
+          vertical-align: text-bottom;
+        }
+
+        svg polygon,
+        svg path {
+          fill: @text-color-highlight;
+        }
+
+        &:hover {
+          background: @text-color-info;
+          color: @text-color-highlight;
+        }
+      }
+
+      > * {
+        display: none;
+      }
+    }
   }
 
-  footer {
-    padding-top: @component-padding;
+  .has-scroll .actions > * {
+    display: inline-block;
   }
 }

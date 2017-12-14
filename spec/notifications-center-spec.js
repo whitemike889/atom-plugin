@@ -6,11 +6,11 @@ const os = require('os');
 const NotificationsCenter = require('../lib/notifications-center');
 const KiteApp = require('../lib/kite-app');
 const {
-  fakeKiteInstallPaths, withKiteNotReachable, withKiteNotRunning,
+  fakeKiteInstallPaths, withKiteNotReachable, // withKiteNotRunning,
   withKiteNotAuthenticated, withKiteWhitelistedPaths, sleep,
-  withKiteEnterpriseNotRunning, withBothKiteNotRunning,
-  withManyKiteNotRunning, withManyKiteEnterpriseNotRunning,
-  withManyOfBothKiteNotRunning,
+  // withKiteEnterpriseNotRunning, withBothKiteNotRunning,
+  // withManyKiteNotRunning, withManyKiteEnterpriseNotRunning,
+  // withManyOfBothKiteNotRunning,
 } = require('./spec-helpers');
 const {click} = require('./helpers/events');
 
@@ -575,45 +575,67 @@ describe('NotificationsCenter', () => {
       });
 
       withKiteNotAuthenticated(() => {
-        beforeEach(() => {
-          waitsForPromise(() => app.connect().then(() => {
-            notificationElement = getNotificationElement();
-            notification = notificationElement.getModel();
-          }));
-        });
+        describe('when a login form is present', () => {
+          let login;
 
-        it('notifies the user', () => {
-          const options = notification.getOptions();
+          beforeEach(() => {
+            login = document.createElement('kite-login');
+            document.body.appendChild(login);
+            waitsForPromise(() => app.connect().then(() => {
+              notificationElement = getNotificationElement();
+            }));
+          });
 
-          expect(notificationElement).not.toBeNull();
+          afterEach(() => {
+            document.body.removeChild(login);
+          });
 
-          expect(notification.getType()).toEqual('warning');
-          expect(notification.getMessage())
-          .toEqual('You need to login to the Kite engine');
-
-          expect(options.buttons.length).toEqual(1);
-          expect(options.buttons[0].text).toEqual('Login');
-          expect(options.dismissable).toBeTruthy();
-          expect(options.description)
-          .toEqual('Kite needs to be authenticated, so that it can access the index of your code stored on the cloud.');
-        });
-
-        describe('clicking on the Login button', () => {
-          it('triggers a login', () => {
-            spyOn(app, 'login').andReturn(Promise.resolve());
-            const button = queryNotificationSelector(notificationElement, 'a.btn');
-            click(button);
-
-            expect(app.login).toHaveBeenCalled();
+          it('does not notify the user', () => {
+            expect(notificationElement).toBeUndefined();
           });
         });
 
-        describe('when the same state is found after a new check', () => {
-          it('does not notify the user', () => {
-            atom.notifications.getNotifications()[0].dismiss();
+        describe('when no login form is present', () => {
+          beforeEach(() => {
             waitsForPromise(() => app.connect().then(() => {
-              expect(atom.notifications.getNotifications().length).toEqual(1);
+              notificationElement = getNotificationElement();
+              notification = notificationElement.getModel();
             }));
+          });
+
+          it('notifies the user', () => {
+            const options = notification.getOptions();
+
+            expect(notificationElement).not.toBeNull();
+
+            expect(notification.getType()).toEqual('warning');
+            expect(notification.getMessage())
+            .toEqual('You need to login to the Kite engine');
+
+            expect(options.buttons.length).toEqual(1);
+            expect(options.buttons[0].text).toEqual('Login');
+            expect(options.dismissable).toBeTruthy();
+            expect(options.description)
+            .toEqual('Kite needs to be authenticated, so that it can access the index of your code stored on the cloud.');
+          });
+
+          describe('clicking on the Login button', () => {
+            it('triggers a login', () => {
+              spyOn(app, 'login').andReturn(Promise.resolve());
+              const button = queryNotificationSelector(notificationElement, 'a.btn');
+              click(button);
+
+              expect(app.login).toHaveBeenCalled();
+            });
+          });
+
+          describe('when the same state is found after a new check', () => {
+            it('does not notify the user', () => {
+              atom.notifications.getNotifications()[0].dismiss();
+              waitsForPromise(() => app.connect().then(() => {
+                expect(atom.notifications.getNotifications().length).toEqual(1);
+              }));
+            });
           });
         });
       });

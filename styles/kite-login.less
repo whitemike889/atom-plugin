@@ -6,15 +6,27 @@ kite-login {
   margin: auto;
   display: block;
 
+  &:not(.account-creation) {
+    .for-signup {
+      display: none !important;
+    }
+  }
+
+  &.account-creation {
+    .for-login {
+      display: none !important;
+    }
+  }
+
   svg {
-    width: 100px;
+    width: auto;
     height: 45px;
     position: absolute;
     right: 2em;
     top: 0.5em;
 
-    path {
-      fill: @text-color-highlight;
+    polygon {
+      fill: @text-color-info;
     }
   }
 
@@ -37,8 +49,14 @@ kite-login {
       display: none;
     }
   }
+
+  .form-choice,
   .form-status {
-    margin-top: @component-padding;
+    margin: @component-padding 0;
+  }
+
+  .form-status {
+    text-align: center;
 
     &.hidden {
       display: none;
@@ -46,6 +64,24 @@ kite-login {
 
     &:empty {
       display: none;
+    }
+  }
+
+  .form-choice {
+    margin: @component-padding 0;
+
+    .badge.badge-medium {
+      vertical-align: baseline;
+      padding: 8px 10px;
+
+      &:not(.selected) {
+        background: transparent;
+        cursor: pointer;
+      }
+    }
+
+    a:last-child {
+      margin-left: @component-padding;
     }
   }
 }

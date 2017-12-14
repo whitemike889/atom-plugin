@@ -29,6 +29,8 @@ matplotlib.pyplot.plot()
 
 requests.get()
 
+__builtins__.list
+
 class A:
     def __init__(self, foo):
         self.foo = foo

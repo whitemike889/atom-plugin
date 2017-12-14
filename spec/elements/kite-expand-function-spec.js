@@ -15,7 +15,7 @@ describe('KiteExpandFunction', () => {
 
     it('fills the name and type section with provided data', () => {
       expect(element.querySelector('.expand-header .name').textContent)
-      .toEqual('Test.increment(n:int, *args, **kwargs)');
+      .toEqual('Test.\u200Bincrement(n:int, *args, **kwargs)');
       expect(element.querySelector('.expand-header .type').textContent).toEqual('function');
     });
 
@@ -68,7 +68,7 @@ describe('KiteExpandFunction', () => {
 
       it('fills the name and type section with provided data', () => {
         expect(element.querySelector('.expand-header .name').textContent)
-        .toEqual('Test.increment(n:int, …opts)');
+        .toEqual('Test.\u200Bincrement(n:int, …opts)');
         expect(element.querySelector('.expand-header .type').textContent).toEqual('function');
       });
 
@@ -103,7 +103,7 @@ describe('KiteExpandFunction', () => {
 
     it('fills the name and type section with provided data', () => {
       expect(element.querySelector('.expand-header .name').textContent)
-      .toEqual('B.increment(n:int=0)');
+      .toEqual('B.\u200Bincrement(n:int=0)');
       expect(element.querySelector('.expand-header .type').textContent).toEqual('function');
     });
 
