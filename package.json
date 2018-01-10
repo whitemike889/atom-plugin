@@ -14,6 +14,16 @@
     "lint:fix": "eslint --fix ."
   },
   "configSchema": {
+    "editorMetricsEnabled": {
+      "type": "string",
+      "enum": [
+        "not specified",
+        "yes",
+        "no"
+      ],
+      "default": "not specified",
+      "description": "Kite can periodically send information to our servers about the status of the Kite application to ensure that is is running correctly."
+    },
     "showKiteTourOnStartup": {
       "type": "boolean",
       "default": true,

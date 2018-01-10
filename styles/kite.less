@@ -1,6 +1,16 @@
 @import './variables';
 @import "../node_modules/kite-installer/styles/styles.less";
 
+.modal-metrics-row {
+  margin: 0 (-@half-padding);
+  overflow: hidden;
+  .modal-metrics-cell {
+    padding: 0 @half-padding;
+    width: 50%;
+    float: left;
+  }
+}
+
 .install-flow .title::before {
   content: none !important;
 }
