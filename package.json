@@ -24,11 +24,11 @@
       "default": "not specified",
       "description": "Kite can periodically send information to our servers about the status of the Kite application to ensure that is is running correctly."
     },
-    "showKiteTourOnStartup": {
+    "showDocsNotificationOnStartup": {
       "type": "boolean",
       "default": true,
-      "title": "Show Kite Tour On Startup",
-      "description": "Whether to display the Kite tour on startup."
+      "title": "Show Kite Docs Notification On Startup",
+      "description": "Whether to display the Kite docs notification on startup."
     },
     "enableCompletions": {
       "type": "boolean",
