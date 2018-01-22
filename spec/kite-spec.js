@@ -16,8 +16,6 @@ describe('Kite', () => {
     jasmineContent = document.querySelector('#jasmine-content');
     workspaceElement = atom.views.getView(atom.workspace);
 
-    atom.config.set('kite.showKiteTourOnStartup', false);
-
     jasmineContent.appendChild(workspaceElement);
 
     waitsForPromise(() => atom.packages.activatePackage('notifications').then(pkg => {
