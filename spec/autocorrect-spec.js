@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const http = require('http');
 const {withKiteWhitelistedPaths, withRoutes, fakeKiteInstallPaths, fakeResponse} = require('./spec-helpers');
+const {click} = require('./helpers/events');
 const projectPath = path.join(__dirname, 'fixtures');
 
 
@@ -17,6 +18,11 @@ fdescribe('autocorrect', () => {
     workspaceElement = atom.views.getView(atom.workspace);
 
     jasmineContent.appendChild(workspaceElement);
+
+    waitsForPromise(() => atom.packages.activatePackage('status-bar'));
+    waitsForPromise(() => atom.packages.activatePackage('kite').then(pkg => {
+      kitePkg = pkg.mainModule;
+    }));
   });
 
   describe('with the current project path not in the whitelist', () => {
@@ -24,9 +30,6 @@ fdescribe('autocorrect', () => {
       describe('when activated', () => {
         describe('and there is a supported file open', () => {
           beforeEach(() => {
-            waitsForPromise(() => atom.packages.activatePackage('kite').then(pkg => {
-              kitePkg = pkg.mainModule;
-            }));
             waitsForPromise(() => atom.workspace.open('errored.py').then(e => {
               editor = e;
               buffer = editor.getBuffer();
@@ -123,16 +126,115 @@ fdescribe('autocorrect', () => {
               ],
             ]);
 
-            it('changes the file content', () => {
+            beforeEach(() => {
               editor.save();
 
               waitsFor('buffer saved', () => buffer.buffer.save.calls.length > 0);
-              runs(() => {
+            });
+
+            it('changes the file content', () => {
+              expect(editor.getText()).toEqual('for x in list:\n    print(x)\n');
+            });
+
+            it('displays the number of fixed errors in the status bar', () => {
+              const status = kitePkg.getAutocorrectStatusItem();
+
+              expect(status.textContent).toEqual('1 error fixed');
+            });
+
+            describe('saving the file again with no errors this time', () => {
+              withRoutes([
+                [
+                  o => /^\/clientapi\/editor\/autocorrect$/.test(o.path),
+                  o => fakeResponse(200, fs.readFileSync(path.resolve(projectPath, 'autocorrect-no-fixes.json'))),
+                ],
+              ]);
+
+              beforeEach(() => {
+                editor.save();
+
+                waitsFor('buffer saved', () => buffer.buffer.save.calls.length > 1);
+              });
+
+              it('does not change the file content', () => {
                 expect(editor.getText()).toEqual('for x in list:\n    print(x)\n');
+              });
+
+              it('clears the status bar content', () => {
+                const status = kitePkg.getAutocorrectStatusItem();
+
+                expect(status.textContent).toEqual('');
+              });
+            });
+
+            describe('clicking on the status', () => {
+              let status, sidebar;
+
+              beforeEach(() => {
+                status = kitePkg.getAutocorrectStatusItem();
+                click(status);
+                sidebar = document.querySelector('kite-autocorrect-sidebar');
+              });
+
+              it('opens the autocorrect sidebar panel', () => {
+                expect(sidebar).not.toBeNull();
+              });
+
+              it('displays the diffs of last fix', () => {
+                const diff = sidebar.querySelector('.diff');
+
+                expect(diff).not.toBeNull();
+
+                expect(diff.querySelector('del .line-number').textContent).toEqual('0');
+                expect(diff.querySelector('del .line').textContent).toEqual('for x in list');
+
+                expect(diff.querySelector('ins .line-number').textContent).toEqual('0');
+                expect(diff.querySelector('ins .line').textContent).toEqual('for x in list:');
               });
             });
           });
 
+          describe('when the sidebar is open on a file fixes', () => {
+            let sidebar;
+
+            withRoutes([
+              [
+                o => /^\/clientapi\/editor\/autocorrect$/.test(o.path),
+                o => fakeResponse(200, fs.readFileSync(path.resolve(projectPath, 'autocorrect-with-fixes.json'))),
+              ],
+            ]);
+
+            beforeEach(() => {
+              editor.save();
+
+              waitsFor('buffer saved', () => buffer.buffer.save.calls.length > 0);
+              runs(() => kitePkg.toggleAutocorrectSidebar());
+              waitsFor('autocorrect sidebar', () => sidebar = document.querySelector('kite-autocorrect-sidebar'));
+              waitsFor('initial diff view', () => sidebar.querySelector('.diff'));
+            });
+
+            describe('then opening a new file', () => {
+              beforeEach(() => {
+                waitsForPromise(() => atom.workspace.open('sample.py'));
+              });
+
+              it('clears the sidebar content', () => {
+                const diff = sidebar.querySelector('.diff');
+
+                expect(diff).toBeNull();
+              });
+
+              describe('and switching back to the previous file', () => {
+                beforeEach(() => {
+                  waitsForPromise(() => atom.workspace.open('errored.py'));
+                });
+
+                it('displays back the diffs for that file', () => {
+                  expect(sidebar.querySelector('.diff')).not.toBeNull();
+                });
+              });
+            });
+          });
         });
       });
     });
