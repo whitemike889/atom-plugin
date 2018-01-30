@@ -195,7 +195,7 @@ fdescribe('autocorrect', () => {
           });
 
           describe('when the sidebar is open on a file fixes', () => {
-            let sidebar;
+            let sidebar, status;
 
             withRoutes([
               [
@@ -206,6 +206,8 @@ fdescribe('autocorrect', () => {
 
             beforeEach(() => {
               editor.save();
+
+              status = kitePkg.getAutocorrectStatusItem();
 
               waitsFor('buffer saved', () => buffer.buffer.save.calls.length > 0);
               runs(() => kitePkg.toggleAutocorrectSidebar());
@@ -224,6 +226,10 @@ fdescribe('autocorrect', () => {
                 expect(diff).toBeNull();
               });
 
+              it('clears the status bar content', () => {
+                expect(status.textContent).toEqual('');
+              });
+
               describe('and switching back to the previous file', () => {
                 beforeEach(() => {
                   waitsForPromise(() => atom.workspace.open('errored.py'));
@@ -232,6 +238,23 @@ fdescribe('autocorrect', () => {
                 it('displays back the diffs for that file', () => {
                   expect(sidebar.querySelector('.diff')).not.toBeNull();
                 });
+              });
+
+            });
+
+            describe('when new fixes are made while sidebar is open', () => {
+              beforeEach(() => {
+                editor.save();
+
+                waitsFor('buffer saved', () => buffer.buffer.save.calls.length > 1);
+              });
+
+              it('refreshes the sidebar content', () => {
+                expect(sidebar.querySelectorAll('.diff').length).toEqual(2);
+              });
+
+              it('clears the status bar content', () => {
+                expect(status.textContent).toEqual('');
               });
             });
           });
