@@ -131,7 +131,7 @@
     "element-resize-detector": "^1.1.11",
     "fuzzaldrin-plus": "^0.4.1",
     "getmac": "^1.2.1",
-    "kite-installer": "^0.24.1",
+    "kite-installer": "^0.24.2",
     "md5": "^2.2.0",
     "rollbar-browser": "1.9.3",
     "underscore-plus": "^1"
