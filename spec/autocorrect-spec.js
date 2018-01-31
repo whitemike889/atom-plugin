@@ -25,6 +25,11 @@ fdescribe('autocorrect', () => {
     }));
   });
 
+  afterEach(() => {
+    atom.config.set('kite.openAutocorrectSidebarOnSave', false);
+    kitePkg && kitePkg.toggleAutocorrectSidebar(false);
+  });
+
   describe('with the current project path not in the whitelist', () => {
     withKiteWhitelistedPaths(() => {
       describe('when activated', () => {
@@ -256,6 +261,47 @@ fdescribe('autocorrect', () => {
               it('clears the status bar content', () => {
                 expect(status.textContent).toEqual('');
               });
+            });
+
+            describe('toggling on the checkbox input', () => {
+              it('activates the corresponding setting', () => {
+                const input = sidebar.querySelector('input');
+                input.checked = true;
+                input.dispatchEvent(new window.Event('change'));
+
+                expect(atom.config.get('kite.openAutocorrectSidebarOnSave')).toBeTruthy();
+              });
+            });
+          });
+
+          describe('when the openAutocorrectSidebarOnSave is true', () => {
+            let sidebar, status;
+
+            withRoutes([
+              [
+                o => /^\/clientapi\/editor\/autocorrect$/.test(o.path),
+                o => fakeResponse(200, fs.readFileSync(path.resolve(projectPath, 'autocorrect-with-fixes.json'))),
+              ],
+            ]);
+
+            beforeEach(() => {
+              atom.config.set('kite.openAutocorrectSidebarOnSave', true);
+
+              editor.save();
+
+              status = kitePkg.getAutocorrectStatusItem();
+
+              waitsFor('buffer saved', () => buffer.buffer.save.calls.length > 0);
+              waitsFor('autocorrect sidebar', () => sidebar = document.querySelector('kite-autocorrect-sidebar'));
+              waitsFor('initial diff view', () => sidebar.querySelector('.diff'));
+            });
+
+            it('does not show the fixes count in the status bar', () => {
+              expect(status.textContent).toEqual('');
+            });
+
+            it('checks the checkbox', () => {
+              expect(sidebar.querySelector('input').checked).toBeTruthy();
             });
           });
         });
