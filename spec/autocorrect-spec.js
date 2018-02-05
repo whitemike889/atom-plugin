@@ -190,10 +190,10 @@ describe('autocorrect', () => {
 
                 expect(diff).not.toBeNull();
 
-                expect(diff.querySelector('del .line-number').textContent).toEqual('0');
+                expect(diff.querySelector('del .line-number').textContent).toEqual('1');
                 expect(diff.querySelector('del .line').textContent).toEqual('for x in list');
 
-                expect(diff.querySelector('ins .line-number').textContent).toEqual('0');
+                expect(diff.querySelector('ins .line-number').textContent).toEqual('1');
                 expect(diff.querySelector('ins .line').textContent).toEqual('for x in list:');
               });
             });
