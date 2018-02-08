@@ -1,5 +1,6 @@
 @import "variables";
 
+atom-panel.left kite-autocorrect-sidebar,
 atom-panel.left kite-sidebar {
   .kite-column {
     padding-right: @half-padding;
@@ -9,6 +10,7 @@ atom-panel.left kite-sidebar {
   }
 }
 
+atom-panel.right kite-autocorrect-sidebar,
 atom-panel.right kite-sidebar {
   .kite-column {
     padding-left: @half-padding;
@@ -18,6 +20,7 @@ atom-panel.right kite-sidebar {
   }
 }
 
+kite-autocorrect-sidebar,
 kite-sidebar {
   display: flex;
   font-size: 1em;
@@ -29,8 +32,6 @@ kite-sidebar {
     header > .btn.icon-x {
       display: none;
     }
-
-
   }
 
   .kite-sidebar-resizer {

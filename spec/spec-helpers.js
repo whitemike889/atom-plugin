@@ -6,8 +6,24 @@ const proc = require('child_process');
 const Plan = require('../lib/plan');
 const {merge} = require('../lib/utils');
 
-beforeEach(() => {
+beforeEach(function() {
   atom.config.set('kite.loggingLevel', 'error');
+
+  this.addMatchers({
+    toHaveBeenCalledWithPath(expected) {
+      const pass = this.actual.calls.some(call => call.args[0].path === expected);
+
+      if (pass) {
+        this.message = () =>
+          `Expected ${this.actual.methodName} to have been called with path '${expected}'`;
+      } else {
+        this.message = () =>
+          `Expected ${this.actual.methodName} to have been called with path '${expected}' but it hasn't`;
+      }
+
+      return pass;
+    },
+  });
 });
 
 function sleep(duration) {

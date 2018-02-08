@@ -65,6 +65,11 @@
       "default": false,
       "description": "Makes the sidebar appears on startup when enabled."
     },
+    "openAutocorrectSidebarOnSave": {
+      "type": "boolean",
+      "default": false,
+      "description": "Makes the autocorrect sidebar appears on save when enabled."
+    },
     "maxVisibleSuggestionsAlongSignature": {
       "type": "integer",
       "default": 3

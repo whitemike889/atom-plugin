@@ -1,0 +1,79 @@
+@import 'variables';
+
+kite-autocorrect-sidebar {
+  footer {
+    background: transparent !important;
+    padding: 0 !important;
+  }
+  .content {
+    flex: 1 1 auto;
+  }
+  .file {
+    font-size: 1.4em;
+    color: @text-color-highlight;
+  }
+  .diff {
+    margin: @component-padding 0;
+    margin-bottom: @double-padding;
+
+    &:not(:first-child) {
+      opacity: 0.7;
+    }
+  }
+  .diff-content {
+    margin-top: @component-padding;
+    background: white;
+    display: block;
+    padding: 0;
+    border-radius: 0;
+  }
+  del, ins {
+    display: flex;
+    flex-direction: row;
+    text-decoration: none;
+
+    .line-number {
+      width: 80px;
+      opacity: 0.5;
+      padding: @component-padding;
+      color: @background-color-selected;
+    }
+    .line {
+      padding: @component-padding;
+      padding-left: @triple-padding;
+      white-space: pre;
+      position: relative;
+      color: @base-background-color;
+    }
+  }
+  del {
+    background: fadeout(@red-color, 80%);
+
+    .line-number {
+      background: fadeout(@red-color, 60%);
+      text-align: left;
+    }
+    .line {
+      &::before {
+        content: '-';
+        position: absolute;
+        left: @component-padding;
+      }
+    }
+  }
+  ins {
+    background: fadeout(@green-color, 80%);
+
+    .line-number {
+      background: fadeout(@green-color, 60%);
+      text-align: right;
+    }
+    .line {
+      &::before {
+        content: '+';
+        position: absolute;
+        left: @component-padding;
+      }
+    }
+  }
+}
