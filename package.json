@@ -138,7 +138,7 @@
     "getmac": "^1.2.1",
     "kite-installer": "^0.24.2",
     "md5": "^2.2.0",
-    "rollbar-browser": "1.9.3",
+    "rollbar": "^2.3.8",
     "underscore-plus": "^1"
   },
   "devDependencies": {
