@@ -17,6 +17,10 @@ describe('autocorrect', () => {
     jasmineContent = document.querySelector('#jasmine-content');
     workspaceElement = atom.views.getView(atom.workspace);
 
+    // We want to test that our sidebar closes properly when not using the dock API.
+    atom.config.set('kite.useDockForSidebar', false);
+    atom.config.set('kite.openAutocorrectSidebarOnSave', false);
+
     jasmineContent.appendChild(workspaceElement);
 
     waitsForPromise(() => atom.packages.activatePackage('status-bar'));
@@ -26,7 +30,6 @@ describe('autocorrect', () => {
   });
 
   afterEach(() => {
-    atom.config.set('kite.openAutocorrectSidebarOnSave', false);
     kitePkg && kitePkg.toggleAutocorrectSidebar(false);
   });
 
@@ -178,7 +181,7 @@ describe('autocorrect', () => {
               beforeEach(() => {
                 status = kitePkg.getAutocorrectStatusItem();
                 click(status);
-                sidebar = document.querySelector('kite-autocorrect-sidebar');
+                sidebar = workspaceElement.querySelector('kite-autocorrect-sidebar');
               });
 
               it('opens the autocorrect sidebar panel', () => {
@@ -195,6 +198,18 @@ describe('autocorrect', () => {
 
                 expect(diff.querySelector('ins .line-number').textContent).toEqual('1');
                 expect(diff.querySelector('ins .line').textContent).toEqual('for x in list:');
+              });
+
+              describe('then clicking on the sidebar close button', () => {
+                beforeEach(() => {
+                  const button = sidebar.querySelector('button.icon-x');
+
+                  click(button);
+                });
+
+                it('removes the sidebar panel', () => {
+                  expect(workspaceElement.querySelector('kite-autocorrect-sidebar')).toBeNull();
+                });
               });
             });
           });
@@ -216,7 +231,7 @@ describe('autocorrect', () => {
 
               waitsFor('buffer saved', () => buffer.buffer.save.calls.length > 0);
               runs(() => kitePkg.toggleAutocorrectSidebar());
-              waitsFor('autocorrect sidebar', () => sidebar = document.querySelector('kite-autocorrect-sidebar'));
+              waitsFor('autocorrect sidebar', () => sidebar = workspaceElement.querySelector('kite-autocorrect-sidebar'));
               waitsFor('initial diff view', () => sidebar.querySelector('.diff'));
             });
 
@@ -292,7 +307,7 @@ describe('autocorrect', () => {
               status = kitePkg.getAutocorrectStatusItem();
 
               waitsFor('buffer saved', () => buffer.buffer.save.calls.length > 0);
-              waitsFor('autocorrect sidebar', () => sidebar = document.querySelector('kite-autocorrect-sidebar'));
+              waitsFor('autocorrect sidebar', () => sidebar = workspaceElement.querySelector('kite-autocorrect-sidebar'));
               waitsFor('initial diff view', () => sidebar.querySelector('.diff'));
             });
 
