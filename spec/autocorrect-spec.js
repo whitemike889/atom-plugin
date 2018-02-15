@@ -200,6 +200,14 @@ fdescribe('autocorrect', () => {
                 expect(diff.querySelector('ins .line').textContent).toEqual('for x in list:');
               });
 
+              it('displays the feedback buttons', () => {
+                const thumbUp = sidebar.querySelector('.diff .feedback-actions .thumb-up');
+                const thumbDown = sidebar.querySelector('.diff .feedback-actions .thumb-down');
+
+                expect(thumbUp).not.toBeNull();
+                expect(thumbDown).not.toBeNull();
+              });
+
               describe('then clicking on the sidebar close button', () => {
                 beforeEach(() => {
                   const button = sidebar.querySelector('button.icon-x');
@@ -209,6 +217,32 @@ fdescribe('autocorrect', () => {
 
                 it('removes the sidebar panel', () => {
                   expect(workspaceElement.querySelector('kite-autocorrect-sidebar')).toBeNull();
+                });
+              });
+
+              describe('clicking on the feedback button', () => {
+                withRoutes([
+                  [
+                    o => /^\/clientapi\/editor\/autocorrect\/feedback$/.test(o.path),
+                    o => fakeResponse(200),
+                  ],
+                ]);
+
+                it('thumb up sends a +1 request to the feedback endpoint', () => {
+                  const button = sidebar.querySelector('.diff .feedback-actions .thumb-up');
+
+                  click(button);
+
+                  expect(http.request).toHaveBeenCalledWithPath('/clientapi/editor/autocorrect/feedback');
+                });
+
+
+                it('thumb down sends a -1 request to the feedback endpoint', () => {
+                  const button = sidebar.querySelector('.diff .feedback-actions .thumb-down');
+
+                  click(button);
+
+                  expect(http.request).toHaveBeenCalledWithPath('/clientapi/editor/autocorrect/feedback');
                 });
               });
             });
