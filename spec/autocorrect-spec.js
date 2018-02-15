@@ -219,6 +219,9 @@ fdescribe('autocorrect', () => {
 
             withRoutes([
               [
+                o => /^\/clientapi\/editor\/autocorrect\/metrics$/.test(o.path),
+                o => fakeResponse(200),
+              ], [
                 o => /^\/clientapi\/editor\/autocorrect$/.test(o.path),
                 o => fakeResponse(200, fs.readFileSync(path.resolve(projectPath, 'autocorrect-hash-mismatch.json'))),
               ],
@@ -238,6 +241,10 @@ fdescribe('autocorrect', () => {
 
             it('clears the status bar content', () => {
               expect(status.textContent).toEqual('');
+            });
+
+            it('sends the received response to the metrics endpoint', () => {
+              expect(http.request).toHaveBeenCalledWithPath('/clientapi/editor/autocorrect/metrics');
             });
           });
 
