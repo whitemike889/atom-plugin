@@ -8,7 +8,7 @@ const {click} = require('./helpers/events');
 const projectPath = path.join(__dirname, 'fixtures');
 
 
-fdescribe('autocorrect', () => {
+describe('autocorrect', () => {
   let kitePkg, kiteEditor, editor, buffer, jasmineContent, workspaceElement;
 
   fakeKiteInstallPaths();
