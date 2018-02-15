@@ -8,7 +8,7 @@ const {click} = require('./helpers/events');
 const projectPath = path.join(__dirname, 'fixtures');
 
 
-describe('autocorrect', () => {
+fdescribe('autocorrect', () => {
   let kitePkg, kiteEditor, editor, buffer, jasmineContent, workspaceElement;
 
   fakeKiteInstallPaths();
@@ -154,7 +154,7 @@ describe('autocorrect', () => {
               withRoutes([
                 [
                   o => /^\/clientapi\/editor\/autocorrect$/.test(o.path),
-                  o => fakeResponse(200, fs.readFileSync(path.resolve(projectPath, 'autocorrect-no-fixes.json'))),
+                  o => fakeResponse(200, fs.readFileSync(path.resolve(projectPath, 'autocorrect-fixed-no-fixes.json'))),
                 ],
               ]);
 
@@ -214,6 +214,33 @@ describe('autocorrect', () => {
             });
           });
 
+          describe('when there are some errors to fix but the hash mismatches', () => {
+            let status;
+
+            withRoutes([
+              [
+                o => /^\/clientapi\/editor\/autocorrect$/.test(o.path),
+                o => fakeResponse(200, fs.readFileSync(path.resolve(projectPath, 'autocorrect-hash-mismatch.json'))),
+              ],
+            ]);
+
+            beforeEach(() => {
+              editor.save();
+
+              status = kitePkg.getAutocorrectStatusItem();
+
+              waitsFor('buffer saved', () => buffer.buffer.save.calls.length > 0);
+            });
+
+            it('does not change the file content', () => {
+              expect(editor.getText()).toEqual('for x in list\n    print(x)\n');
+            });
+
+            it('clears the status bar content', () => {
+              expect(status.textContent).toEqual('');
+            });
+          });
+
           describe('when the sidebar is open on a file fixes', () => {
             let sidebar, status;
 
@@ -263,6 +290,13 @@ describe('autocorrect', () => {
             });
 
             describe('when new fixes are made while sidebar is open', () => {
+              withRoutes([
+                [
+                  o => /^\/clientapi\/editor\/autocorrect$/.test(o.path),
+                  o => fakeResponse(200, fs.readFileSync(path.resolve(projectPath, 'autocorrect-fixed-with-fixes.json'))),
+                ],
+              ]);
+
               beforeEach(() => {
                 editor.save();
 
