@@ -228,21 +228,35 @@ describe('autocorrect', () => {
                   ],
                 ]);
 
-                it('thumb up sends a +1 request to the feedback endpoint', () => {
-                  const button = sidebar.querySelector('.diff .feedback-actions .thumb-up');
+                describe('thumb up', () => {
+                  beforeEach(() => {
+                    const button = sidebar.querySelector('.diff .feedback-actions .thumb-up');
 
-                  click(button);
+                    click(button);
+                  });
 
-                  expect(http.request).toHaveBeenCalledWithPath('/clientapi/editor/autocorrect/feedback');
+                  it('sends a +1 request to the feedback endpoint', () => {
+                    expect(http.request).toHaveBeenCalledWithPath('/clientapi/editor/autocorrect/feedback');
+                  });
+                  it('adds a feedback-sent class to the diff', () => {
+                    expect(sidebar.querySelector('.diff.feedback-sent')).not.toBeNull();
+                  });
                 });
 
+                describe('thumb down', () => {
+                  beforeEach(() => {
+                    const button = sidebar.querySelector('.diff .feedback-actions .thumb-down');
 
-                it('thumb down sends a -1 request to the feedback endpoint', () => {
-                  const button = sidebar.querySelector('.diff .feedback-actions .thumb-down');
+                    click(button);
+                  });
 
-                  click(button);
+                  it('thumb down sends a -1 request to the feedback endpoint', () => {
+                    expect(http.request).toHaveBeenCalledWithPath('/clientapi/editor/autocorrect/feedback');
+                  });
 
-                  expect(http.request).toHaveBeenCalledWithPath('/clientapi/editor/autocorrect/feedback');
+                  it('adds a feedback-sent class to the diff', () => {
+                    expect(sidebar.querySelector('.diff.feedback-sent')).not.toBeNull();
+                  });
                 });
               });
             });
