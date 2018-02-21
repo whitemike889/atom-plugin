@@ -11,6 +11,7 @@ const {
   withManyKiteEnterpriseNotRunning, withManyOfBothKiteNotRunning,
 } = require('../spec-helpers');
 const {click} = require('../helpers/events');
+require('../../lib/elements/kite-localtoken-anchor');
 
 describe('KiteStatusPanel', () => {
   fakeKiteInstallPaths();
@@ -439,7 +440,7 @@ describe('KiteStatusPanel', () => {
 
           const buttons = state.querySelectorAll('a');
           const path = encodeURI(editor.getPath());
-          const url = `http://localhost:46624/settings/permissions?filename=${path}`;
+          const url = `kite://settings/permissions?filename=${path}`;
 
           expect(buttons[0].href).toEqual(`kite-atom-internal://whitelist/${os.homedir()}`);
           expect(buttons[0].textContent).toEqual(`Enable for ${os.homedir()}`);
@@ -465,7 +466,7 @@ describe('KiteStatusPanel', () => {
             const state = status.querySelector('.status');
             const button = state.querySelector('a:last-child');
             const path = encodeURI(editor.getPath());
-            const url = `http://localhost:46624/settings/permissions?filename=${path}`;
+            const url = `kite://settings/permissions?filename=${path}`;
 
             spyOn(atom.applicationDelegate, 'openExternal');
             click(button);
