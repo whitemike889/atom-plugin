@@ -154,7 +154,7 @@ describe('autocorrect', () => {
               withRoutes([
                 [
                   o => /^\/clientapi\/editor\/autocorrect$/.test(o.path),
-                  o => fakeResponse(200, fs.readFileSync(path.resolve(projectPath, 'autocorrect-no-fixes.json'))),
+                  o => fakeResponse(200, fs.readFileSync(path.resolve(projectPath, 'autocorrect-fixed-no-fixes.json'))),
                 ],
               ]);
 
@@ -200,6 +200,14 @@ describe('autocorrect', () => {
                 expect(diff.querySelector('ins .line').textContent).toEqual('for x in list:');
               });
 
+              it('displays the feedback buttons', () => {
+                const thumbUp = sidebar.querySelector('.diff .feedback-actions .thumb-up');
+                const thumbDown = sidebar.querySelector('.diff .feedback-actions .thumb-down');
+
+                expect(thumbUp).not.toBeNull();
+                expect(thumbDown).not.toBeNull();
+              });
+
               describe('then clicking on the sidebar close button', () => {
                 beforeEach(() => {
                   const button = sidebar.querySelector('button.icon-x');
@@ -211,6 +219,80 @@ describe('autocorrect', () => {
                   expect(workspaceElement.querySelector('kite-autocorrect-sidebar')).toBeNull();
                 });
               });
+
+              describe('clicking on the feedback button', () => {
+                withRoutes([
+                  [
+                    o => /^\/clientapi\/editor\/autocorrect\/feedback$/.test(o.path),
+                    o => fakeResponse(200),
+                  ],
+                ]);
+
+                describe('thumb up', () => {
+                  beforeEach(() => {
+                    const button = sidebar.querySelector('.diff .feedback-actions .thumb-up');
+
+                    click(button);
+                  });
+
+                  it('sends a +1 request to the feedback endpoint', () => {
+                    expect(http.request).toHaveBeenCalledWithPath('/clientapi/editor/autocorrect/feedback');
+                  });
+                  it('adds a feedback-sent class to the diff', () => {
+                    expect(sidebar.querySelector('.diff.feedback-sent')).not.toBeNull();
+                  });
+                });
+
+                describe('thumb down', () => {
+                  beforeEach(() => {
+                    const button = sidebar.querySelector('.diff .feedback-actions .thumb-down');
+
+                    click(button);
+                  });
+
+                  it('thumb down sends a -1 request to the feedback endpoint', () => {
+                    expect(http.request).toHaveBeenCalledWithPath('/clientapi/editor/autocorrect/feedback');
+                  });
+
+                  it('adds a feedback-sent class to the diff', () => {
+                    expect(sidebar.querySelector('.diff.feedback-sent')).not.toBeNull();
+                  });
+                });
+              });
+            });
+          });
+
+          describe('when there are some errors to fix but the hash mismatches', () => {
+            let status;
+
+            withRoutes([
+              [
+                o => /^\/clientapi\/editor\/autocorrect\/metrics$/.test(o.path),
+                o => fakeResponse(200),
+              ], [
+                o => /^\/clientapi\/editor\/autocorrect$/.test(o.path),
+                o => fakeResponse(200, fs.readFileSync(path.resolve(projectPath, 'autocorrect-hash-mismatch.json'))),
+              ],
+            ]);
+
+            beforeEach(() => {
+              editor.save();
+
+              status = kitePkg.getAutocorrectStatusItem();
+
+              waitsFor('buffer saved', () => buffer.buffer.save.calls.length > 0);
+            });
+
+            it('does not change the file content', () => {
+              expect(editor.getText()).toEqual('for x in list\n    print(x)\n');
+            });
+
+            it('clears the status bar content', () => {
+              expect(status.textContent).toEqual('');
+            });
+
+            it('sends the received response to the metrics endpoint', () => {
+              expect(http.request).toHaveBeenCalledWithPath('/clientapi/editor/autocorrect/metrics');
             });
           });
 
@@ -263,6 +345,13 @@ describe('autocorrect', () => {
             });
 
             describe('when new fixes are made while sidebar is open', () => {
+              withRoutes([
+                [
+                  o => /^\/clientapi\/editor\/autocorrect$/.test(o.path),
+                  o => fakeResponse(200, fs.readFileSync(path.resolve(projectPath, 'autocorrect-fixed-with-fixes.json'))),
+                ],
+              ]);
+
               beforeEach(() => {
                 editor.save();
 
