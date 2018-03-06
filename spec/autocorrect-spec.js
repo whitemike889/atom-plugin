@@ -238,8 +238,13 @@ describe('autocorrect', () => {
                   it('sends a +1 request to the feedback endpoint', () => {
                     expect(http.request).toHaveBeenCalledWithPath('/clientapi/editor/autocorrect/feedback');
                   });
+
                   it('adds a feedback-sent class to the diff', () => {
                     expect(sidebar.querySelector('.diff.feedback-sent')).not.toBeNull();
+                  });
+
+                  it('adds a clicked class on the button', () => {
+                    expect(sidebar.querySelector('.diff .feedback-actions .thumb-up.clicked')).toExist();
                   });
                 });
 
@@ -256,6 +261,10 @@ describe('autocorrect', () => {
 
                   it('adds a feedback-sent class to the diff', () => {
                     expect(sidebar.querySelector('.diff.feedback-sent')).not.toBeNull();
+                  });
+
+                  it('adds a clicked class on the button', () => {
+                    expect(sidebar.querySelector('.diff .feedback-actions .thumb-down.clicked')).toExist();
                   });
                 });
               });

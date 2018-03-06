@@ -28,7 +28,14 @@ kite-autocorrect-sidebar {
     &.feedback-sent {
       .feedback-actions {
         pointer-events: none;
-        opacity: 0.5;
+
+        a {
+          opacity: 0.4;
+
+          &.clicked {
+            opacity: 0.7;
+          }
+        }
       }
     }
   }
@@ -43,6 +50,10 @@ kite-autocorrect-sidebar {
   .feedback-actions {
     text-align: right;
     margin-top: @component-padding;
+
+    a {
+      margin-right: @component-padding;
+    }
 
     a:hover {
       text-decoration: none;
