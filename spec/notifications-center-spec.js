@@ -542,10 +542,11 @@ describe('NotificationsCenter', () => {
 
       withKiteNotReachable(() => {
         beforeEach(() => {
-          waitsForPromise(() => app.connect().then(() => {
+          waitsForPromise(() => app.connect('pollingInterval')
+          .then(() => app.connect('pollingInterval'))
+          .then(() => {
             notificationElement = getNotificationElement();
             notification = notificationElement.getModel();
-
           }));
         });
 
@@ -597,7 +598,9 @@ describe('NotificationsCenter', () => {
 
         describe('when no login form is present', () => {
           beforeEach(() => {
-            waitsForPromise(() => app.connect().then(() => {
+            waitsForPromise(() => app.connect('pollingInterval')
+            .then(() => app.connect('pollingInterval'))  
+            .then(() => {
               notificationElement = getNotificationElement();
               notification = notificationElement.getModel();
             }));
