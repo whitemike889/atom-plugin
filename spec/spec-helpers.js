@@ -533,7 +533,6 @@ function withKiteWhitelistedPaths(paths, block) {
     paths = [];
   }
 
-  const tokenRe = /^\/api\/buffer\/atom\/(.*)\/.*\/tokens/;
   const authRe = /^\/clientapi\/permissions\/authorized\?filename=(.+)$/;
   const projectDirRe = /^\/clientapi\/projectdir\?filename=(.+)$/;
   const notifyRe = /^\/clientapi\/permissions\/notify\?filename=(.+)$/;
@@ -546,13 +545,13 @@ function withKiteWhitelistedPaths(paths, block) {
   const routes = [
     [
       o => {
-        const match = tokenRe.exec(o.path) || authRe.exec(o.path);
+        const match = authRe.exec(o.path);
         return match && whitelisted(match[1]);
       },
       o => fakeResponse(200, JSON.stringify({tokens: []})),
     ], [
       o => {
-        const match = tokenRe.exec(o.path) || authRe.exec(o.path);
+        const match = authRe.exec(o.path);
         return match && !whitelisted(match[1]);
       },
       o => fakeResponse(403),
@@ -573,7 +572,6 @@ function withKiteWhitelistedPaths(paths, block) {
 }
 
 function withKiteIgnoredPaths(paths) {
-  const tokenRe = /^\/api\/buffer\/atom\/.*\/(.*)\/tokens/;
   const authRe = /^\/clientapi\/permissions\/authorized\?filename=(.+)$/;
   const ignored = match => {
     const path = match.replace(/:/g, '/');
@@ -584,7 +582,7 @@ function withKiteIgnoredPaths(paths) {
   withRoutes([
     [
       o => {
-        const match = tokenRe.exec(o.path) || authRe.exec(o.path);
+        const match = authRe.exec(o.path);
         return o.method === 'GET' && match && ignored(match[1]);
       },
       o => fakeResponse(403),
