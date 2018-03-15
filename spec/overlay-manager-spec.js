@@ -5,7 +5,7 @@ const path = require('path');
 const http = require('http');
 const KiteApp = require('../lib/kite-app');
 const OverlayManager = require('../lib/overlay-manager');
-const {hoverPath} = require('../lib/urls');
+const {hoverPath, hoverPositionPath} = require('../lib/urls');
 const {
   withKiteWhitelistedPaths, withRoutes, fakeResponse,
 } = require('./spec-helpers');
@@ -86,7 +86,7 @@ describe('OverlayManager', () => {
         it('triggers a request for the editor at the given position', () => {
           waitsForPromise(() => OverlayManager.showHoverAtPosition(editor, [2, 8]).then(() => {
             expect(http.request.mostRecentCall.args[0].path)
-            .toEqual(hoverPath(editor, [[2, 4], [2, 9]]));
+            .toEqual(hoverPositionPath(editor, [2, 8]));
           }));
         });
       });
@@ -96,7 +96,7 @@ describe('OverlayManager', () => {
           OverlayManager.showHoverAtPosition(editor, [1, 0]);
 
           expect(http.request.mostRecentCall.args[0].path)
-          .not.toEqual(hoverPath(editor, [[1, 0], [1, 0]]));
+          .not.toEqual(hoverPositionPath(editor, [1, 0]));
         });
       });
 
