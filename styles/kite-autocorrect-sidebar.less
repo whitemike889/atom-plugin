@@ -67,11 +67,11 @@ kite-autocorrect-sidebar {
     .line-number {
       width: 80px;
       opacity: 0.5;
-      padding: @component-padding;
+      padding: 2px @component-padding;
       color: @text-color;
     }
     .line {
-      padding: @component-padding;
+      padding: 2px;
       padding-left: @triple-padding;
       white-space: pre;
       position: relative;
@@ -88,6 +88,7 @@ kite-autocorrect-sidebar {
     .line {
       &::before {
         content: '-';
+        opacity: 0.5;
         position: absolute;
         left: @component-padding;
       }
@@ -103,6 +104,7 @@ kite-autocorrect-sidebar {
     .line {
       &::before {
         content: '+';
+        opacity: 0.5;
         position: absolute;
         left: @component-padding;
       }
