@@ -48,17 +48,37 @@ kite-autocorrect-sidebar {
   }
 
   .feedback-actions {
-    text-align: right;
+    display: flex;
+    text-align: left;
     margin-top: @component-padding;
 
     a {
-      margin-right: @component-padding;
+      padding-left: @component-padding / 2;
+      padding-right: @component-padding / 2;
+      filter: saturate(0);
+      opacity: .5;
     }
 
     a:hover {
       text-decoration: none;
+      filter: none;
+      opacity: 1;
     }
   }
+  .feedback-feedback {
+    min-height: 3em; // Allocate room for at least two lines
+    padding-left: .4em;
+    color: transparent;
+    transition: color 300ms;
+    &.hint {
+      color: @text-color-subtle;
+    }
+    &.confirmation {
+      color: @text-color-highlight;
+    }
+  }
+
+
   del, ins {
     display: flex;
     flex-direction: row;
