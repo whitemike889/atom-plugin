@@ -73,9 +73,19 @@ kite-autocorrect-sidebar {
     .line {
       padding: @component-padding;
       padding-left: @triple-padding;
-      white-space: pre;
       position: relative;
       color: @text-color;
+
+      // Indent every line except the first one by 4 spaces
+      margin-left: 4ch;
+      text-indent: -4ch;
+
+      &::before {
+        opacity: 0.5;
+        position: absolute;
+        left: 0;
+        padding-left: @component-padding;
+      }
     }
   }
   del {
@@ -88,8 +98,6 @@ kite-autocorrect-sidebar {
     .line {
       &::before {
         content: '-';
-        position: absolute;
-        left: @component-padding;
       }
     }
   }
@@ -103,8 +111,6 @@ kite-autocorrect-sidebar {
     .line {
       &::before {
         content: '+';
-        position: absolute;
-        left: @component-padding;
       }
     }
   }
