@@ -18,6 +18,25 @@ kite-autocorrect-sidebar {
 
     &:not(:first-child) {
       opacity: 0.7;
+
+      .feedback-actions {
+        display: none;
+        pointer-events: none;
+      }
+    }
+
+    &.feedback-sent {
+      .feedback-actions {
+        pointer-events: none;
+
+        a {
+          opacity: 0.4;
+
+          &.clicked {
+            opacity: 0.7;
+          }
+        }
+      }
     }
   }
   .diff-content {
@@ -26,6 +45,19 @@ kite-autocorrect-sidebar {
     display: block;
     padding: 0;
     border-radius: 0;
+  }
+
+  .feedback-actions {
+    text-align: right;
+    margin-top: @component-padding;
+
+    a {
+      margin-right: @component-padding;
+    }
+
+    a:hover {
+      text-decoration: none;
+    }
   }
   del, ins {
     display: flex;
@@ -36,14 +68,14 @@ kite-autocorrect-sidebar {
       width: 80px;
       opacity: 0.5;
       padding: @component-padding;
-      color: @background-color-selected;
+      color: rgba(0,0,0,0.7);
     }
     .line {
       padding: @component-padding;
       padding-left: @triple-padding;
       white-space: pre;
       position: relative;
-      color: @base-background-color;
+      color: rgba(0,0,0,0.8);
     }
   }
   del {

@@ -1,2 +1,2 @@
-for x in list:
+for x in list
     print(x)
