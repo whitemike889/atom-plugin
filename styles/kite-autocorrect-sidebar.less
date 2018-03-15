@@ -68,21 +68,21 @@ kite-autocorrect-sidebar {
       width: 80px;
       opacity: 0.5;
       padding: @component-padding;
-      color: rgba(0,0,0,0.7);
+      color: @text-color;
     }
     .line {
       padding: @component-padding;
       padding-left: @triple-padding;
       white-space: pre;
       position: relative;
-      color: rgba(0,0,0,0.8);
+      color: @text-color;
     }
   }
   del {
-    background: fadeout(@red-color, 80%);
+    background-color: saturate(mix(@syntax-color-removed, @pane-item-background-color, 15%), 20%);
 
     .line-number {
-      background: fadeout(@red-color, 60%);
+      background-color: saturate(mix(@syntax-color-removed, @pane-item-background-color, 25%), 20%);
       text-align: left;
     }
     .line {
@@ -94,10 +94,10 @@ kite-autocorrect-sidebar {
     }
   }
   ins {
-    background: fadeout(@green-color, 80%);
+    background-color: saturate(mix(@syntax-color-added, @pane-item-background-color, 15%), 20%);
 
     .line-number {
-      background: fadeout(@green-color, 60%);
+      background-color: saturate(mix(@syntax-color-added, @pane-item-background-color, 25%), 20%);
       text-align: right;
     }
     .line {
