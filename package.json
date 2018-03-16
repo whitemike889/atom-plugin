@@ -56,10 +56,6 @@
       "default": 400,
       "description": "Defines the width of the sidebar. When the sidebar is displayed using the new dock API this value will serve as the preferred width."
     },
-    "useDockForSidebar": {
-      "type": "boolean",
-      "default": false
-    },
     "openSidebarOnStartup": {
       "type": "boolean",
       "default": false,
