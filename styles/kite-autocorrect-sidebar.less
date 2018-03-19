@@ -9,7 +9,10 @@ kite-autocorrect-sidebar {
     flex: 1 1 auto;
   }
   .file {
-    font-size: 1.4em;
+    font-size: 1em;
+    margin-bottom: .5em;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
     color: @text-color-highlight;
   }
   .diff {
@@ -17,14 +20,19 @@ kite-autocorrect-sidebar {
     margin-bottom: @double-padding;
 
     &:not(:first-child) {
-      opacity: 0.7;
+      .timestamp,
+      .diff-content {
+        opacity: 0.7;
+      }
 
       .feedback-actions {
         display: none;
         pointer-events: none;
       }
     }
-
+    &:first-child {
+      padding-bottom: 3em;
+    }
     &.feedback-sent {
       .feedback-actions {
         pointer-events: none;
@@ -73,9 +81,20 @@ kite-autocorrect-sidebar {
     .line {
       padding: @component-padding;
       padding-left: @triple-padding;
-      white-space: pre;
       position: relative;
       color: @text-color;
+      white-space: pre-wrap;
+
+      // Indent every line except the first one by 4 spaces
+      margin-left: 4ch;
+      text-indent: -4ch;
+
+      &::before {
+        opacity: 0.5;
+        position: absolute;
+        left: 0;
+        padding-left: @component-padding;
+      }
     }
   }
   del {
@@ -88,8 +107,6 @@ kite-autocorrect-sidebar {
     .line {
       &::before {
         content: '-';
-        position: absolute;
-        left: @component-padding;
       }
     }
   }
@@ -103,8 +120,6 @@ kite-autocorrect-sidebar {
     .line {
       &::before {
         content: '+';
-        position: absolute;
-        left: @component-padding;
       }
     }
   }

@@ -5,18 +5,12 @@ atom-panel.left kite-sidebar {
   .kite-column {
     padding-right: @half-padding;
   }
-  .kite-sidebar-resizer {
-    order: 2;
-  }
 }
 
 atom-panel.right kite-autocorrect-sidebar,
 atom-panel.right kite-sidebar {
   .kite-column {
     padding-left: @half-padding;
-  }
-  .kite-sidebar-resizer {
-    order: 0;
   }
 }
 
@@ -26,19 +20,6 @@ kite-sidebar {
   font-size: 1em;
   font-family: @font-family;
   flex-direction: row;
-
-  &.dockable {
-    .kite-sidebar-resizer,
-    header > .btn.icon-x {
-      display: none;
-    }
-  }
-
-  .kite-sidebar-resizer {
-    width: @half-padding;
-    cursor: ew-resize;
-    flex: 0 0 auto;
-  }
 
   h4 .sticky.fixed {
     background: @app-background-color;
