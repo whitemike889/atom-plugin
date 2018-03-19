@@ -66,9 +66,13 @@
       "default": true,
       "description": "Enables autocorrect feature on save."
     },
-    "openAutocorrectSidebarOnSave": {
-      "type": "boolean",
-      "default": false,
+    "actionWhenKiteFixesCode": {
+      "type": "string",
+      "default": "Reopen this sidebar",
+      "enum": [
+        "Reopen this sidebar",
+        "Do nothing"
+      ],
       "description": "Makes the autocorrect sidebar appears on save when enabled."
     },
     "maxVisibleSuggestionsAlongSignature": {
