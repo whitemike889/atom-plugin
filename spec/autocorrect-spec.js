@@ -8,7 +8,7 @@ const {click} = require('./helpers/events');
 const projectPath = path.join(__dirname, 'fixtures');
 
 
-fdescribe('autocorrect', () => {
+describe('autocorrect', () => {
   let kitePkg, kiteEditor, editor, buffer, jasmineContent, workspaceElement;
 
   fakeKiteInstallPaths();
@@ -211,12 +211,26 @@ fdescribe('autocorrect', () => {
                 expect(diff.querySelector('del strong')).not.toBeNull();
               });
 
+              it('selects the correct option in the actions list', () => {
+                expect(sidebar.querySelector('select').value).toEqual('Do nothing');
+              });
+
               it('displays the feedback buttons', () => {
                 const thumbUp = sidebar.querySelector('.diff .feedback-actions .thumb-up');
                 const thumbDown = sidebar.querySelector('.diff .feedback-actions .thumb-down');
 
                 expect(thumbUp).not.toBeNull();
                 expect(thumbDown).not.toBeNull();
+              });
+
+              describe('toggling on the checkbox input', () => {
+                it('desactivates the corresponding setting', () => {
+                  const input = sidebar.querySelector('input');
+                  input.checked = false;
+                  input.dispatchEvent(new window.Event('change'));
+
+                  expect(atom.config.get('kite.enableAutocorrect')).toBeFalsy();
+                });
               });
 
               describe('clicking on the feedback button', () => {
@@ -400,6 +414,10 @@ fdescribe('autocorrect', () => {
 
             it('does not show the fixes count in the status bar', () => {
               expect(status.textContent).toEqual('');
+            });
+
+            it('selects the correct option in the list', () => {
+              expect(sidebar.querySelector('select').value).toEqual('Reopen this sidebar');
             });
           });
         });

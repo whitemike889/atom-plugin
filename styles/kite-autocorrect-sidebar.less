@@ -4,6 +4,33 @@ kite-autocorrect-sidebar {
   footer {
     background: transparent !important;
     padding: 0 !important;
+    flex-direction: column;
+    font-size: 0.8em;
+
+    .settings-panel {
+      width: 100%;
+    }
+
+    .control-group.select {
+      padding-left: 2.25em;
+
+      label {
+        flex-direction: row;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+
+        .setting-title {
+          white-space: nowrap;
+          margin-right: @half-padding;
+        }
+
+        .form-control {
+          width: auto;
+          flex: 1 1 0;
+        }
+      }
+    }
   }
   code {
     font-family: var(--editor-font-family);
