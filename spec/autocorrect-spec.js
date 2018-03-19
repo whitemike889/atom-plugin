@@ -206,6 +206,9 @@ describe('autocorrect', () => {
 
                 expect(diff.querySelector('ins .line-number').textContent).toEqual('1');
                 expect(diff.querySelector('ins .line').textContent).toEqual('for x in list:');
+
+                expect(diff.querySelector('ins strong')).not.toBeNull();
+                expect(diff.querySelector('del strong')).not.toBeNull();
               });
 
               it('displays the feedback buttons', () => {

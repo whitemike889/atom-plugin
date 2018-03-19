@@ -5,11 +5,23 @@
   "diffs": [{
     "inserted": [{
       "text": "for x in list:",
-      "line": 0
+      "line": 0,
+      "emphasis": [{
+        "start_bytes": 13,
+        "end_bytes": 14,
+        "start_runes": 13,
+        "end_runes": 14
+      }]
     }],
     "deleted": [{
       "text": "for x in list",
-      "line": 0
+      "line": 0,
+      "emphasis": [{
+        "start_bytes": 12,
+        "end_bytes": 13,
+        "start_runes": 12,
+        "end_runes": 13
+      }]
     }]
   }]
 }

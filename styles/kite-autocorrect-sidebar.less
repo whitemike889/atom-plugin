@@ -129,6 +129,12 @@ kite-autocorrect-sidebar {
       background-color: saturate(mix(@syntax-color-removed, @pane-item-background-color, 25%), 20%);
       text-align: left;
     }
+    strong {
+      background-color: saturate(mix(@syntax-color-removed, @pane-item-background-color, 30%), 20%);
+      border: 1px solid saturate(mix(@syntax-color-removed, @pane-item-background-color, 45%), 20%);
+      padding: 0.2em;
+      border-radius: 2px;
+    }
     .line {
       &::before {
         content: '-';
@@ -144,6 +150,12 @@ kite-autocorrect-sidebar {
     .line-number {
       background-color: saturate(mix(@syntax-color-added, @pane-item-background-color, 25%), 20%);
       text-align: right;
+    }
+    strong {
+      background-color: saturate(mix(@syntax-color-added, @pane-item-background-color, 30%), 20%);
+      border: 1px solid saturate(mix(@syntax-color-added, @pane-item-background-color, 45%), 20%);
+      padding: 0.2em;
+      border-radius: 2px;
     }
     .line {
       &::before {
