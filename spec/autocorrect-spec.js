@@ -330,7 +330,7 @@ describe('autocorrect', () => {
               it('clears the sidebar content', () => {
                 const message = sidebar.querySelector('.diff .diffs');
 
-                expect(message.textContent).toEqual('No fixes made to errored.py yet.');
+                expect(message.textContent).toEqual('No fixes made to sample.py yet.');
               });
 
               it('clears the status bar content', () => {
