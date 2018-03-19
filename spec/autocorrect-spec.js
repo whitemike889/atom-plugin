@@ -328,9 +328,9 @@ describe('autocorrect', () => {
               });
 
               it('clears the sidebar content', () => {
-                const diff = sidebar.querySelector('.diff');
+                const message = sidebar.querySelector('.diff .diffs');
 
-                expect(diff).toBeNull();
+                expect(message.textContent).toEqual('No fixes made to sample.py yet.');
               });
 
               it('clears the status bar content', () => {
