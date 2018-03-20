@@ -168,6 +168,25 @@ fdescribe('autocorrect', () => {
               expect(kitePkg.codeCleanupVersion()).toEqual(1);
             });
 
+            describe('saving the file again with no errors this time', () => {
+              withRoutes([
+                [
+                  o => /^\/clientapi\/editor\/autocorrect$/.test(o.path),
+                  o => fakeResponse(200, fs.readFileSync(path.resolve(projectPath, 'autocorrect-fixed-no-fixes.json'))),
+                ],
+              ]);
+
+              beforeEach(() => {
+                editor.save();
+
+                waitsFor('buffer saved', () => buffer.buffer.save.calls.length > 1);
+              });
+
+              it('does not change the file content', () => {
+                expect(editor.getText()).toEqual('for x in list:\n    print(x)\n');
+              });
+            });
+
             describe('the first run experience', () => {
               beforeEach(() => {
                 waitsFor('autocorrect sidebar', () =>
@@ -276,13 +295,55 @@ fdescribe('autocorrect', () => {
               });
             });
 
-            xit('displays the number of fixed errors in the status bar', () => {
+            describe('saving the file again with no errors this time', () => {
+              withRoutes([
+                [
+                  o => /^\/clientapi\/editor\/autocorrect$/.test(o.path),
+                  o => fakeResponse(200, fs.readFileSync(path.resolve(projectPath, 'autocorrect-fixed-no-fixes.json'))),
+                ],
+              ]);
+
+              beforeEach(() => {
+                editor.save();
+
+                waitsFor('buffer saved', () => buffer.buffer.save.calls.length > 1);
+              });
+
+              it('does not change the file content', () => {
+                expect(editor.getText()).toEqual('for x in list:\n    print(x)\n');
+              });
+
+              it('clears the status bar content', () => {
+                const status = kitePkg.getAutocorrectStatusItem();
+
+                expect(status.textContent).toEqual('');
+              });
+            });
+          });
+
+          describe('when there is a version and the actionWhenKiteFixesCode is set to Cleanup quietly', () => {
+            withRoutes([
+              [
+                o => /^\/clientapi\/editor\/autocorrect$/.test(o.path),
+                o => fakeResponse(200, fs.readFileSync(path.resolve(projectPath, 'autocorrect-with-fixes.json'))),
+              ],
+            ]);
+
+            beforeEach(() => {
+              localStorage.setItem('kite.autocorrect_model_version', 1);
+
+              editor.save();
+
+              waitsFor('buffer saved', () => buffer.buffer.save.calls.length > 0);
+            });
+
+            it('displays the number of fixed errors in the status bar', () => {
               const status = kitePkg.getAutocorrectStatusItem();
 
               expect(status.textContent).toEqual('1 error fixed');
             });
 
-            xdescribe('saving the file again with no errors this time', () => {
+            describe('saving the file again with no errors this time', () => {
               withRoutes([
                 [
                   o => /^\/clientapi\/editor\/autocorrect$/.test(o.path),
@@ -307,7 +368,7 @@ fdescribe('autocorrect', () => {
               });
             });
 
-            xdescribe('clicking on the status', () => {
+            describe('clicking on the status', () => {
               let status, sidebar;
 
               beforeEach(() => {
@@ -320,8 +381,6 @@ fdescribe('autocorrect', () => {
               it('opens the autocorrect sidebar panel', () => {
                 expect(sidebar).not.toBeNull();
               });
-
-
             });
           });
 
