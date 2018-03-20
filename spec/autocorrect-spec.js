@@ -178,63 +178,6 @@ fdescribe('autocorrect', () => {
                 expect(messageBox).not.toBeNull();
               });
 
-              describe('clicking on the message box close button', () => {
-                beforeEach(() => {
-                  const button = messageBox.querySelector('button');
-                  click(button);
-                });
-
-                it('closes the message box', () => {
-                  expect(sidebar.querySelector('.message-box')).toBeNull();
-                });
-              });
-            });
-
-            xit('displays the number of fixed errors in the status bar', () => {
-              const status = kitePkg.getAutocorrectStatusItem();
-
-              expect(status.textContent).toEqual('1 error fixed');
-            });
-
-            xdescribe('saving the file again with no errors this time', () => {
-              withRoutes([
-                [
-                  o => /^\/clientapi\/editor\/autocorrect$/.test(o.path),
-                  o => fakeResponse(200, fs.readFileSync(path.resolve(projectPath, 'autocorrect-fixed-no-fixes.json'))),
-                ],
-              ]);
-
-              beforeEach(() => {
-                editor.save();
-
-                waitsFor('buffer saved', () => buffer.buffer.save.calls.length > 1);
-              });
-
-              it('does not change the file content', () => {
-                expect(editor.getText()).toEqual('for x in list:\n    print(x)\n');
-              });
-
-              it('clears the status bar content', () => {
-                const status = kitePkg.getAutocorrectStatusItem();
-
-                expect(status.textContent).toEqual('');
-              });
-            });
-
-            xdescribe('clicking on the status', () => {
-              let status, sidebar;
-
-              beforeEach(() => {
-                status = kitePkg.getAutocorrectStatusItem();
-                click(status);
-                waitsFor('autocorrect sidebar', () =>
-                  sidebar = workspaceElement.querySelector('kite-autocorrect-sidebar'));
-              });
-
-              it('opens the autocorrect sidebar panel', () => {
-                expect(sidebar).not.toBeNull();
-              });
-
               it('displays the diffs of last fix', () => {
                 const diff = sidebar.querySelector('.diff');
 
@@ -320,6 +263,65 @@ fdescribe('autocorrect', () => {
                   });
                 });
               });
+
+              describe('clicking on the message box close button', () => {
+                beforeEach(() => {
+                  const button = messageBox.querySelector('button');
+                  click(button);
+                });
+
+                it('closes the message box', () => {
+                  expect(sidebar.querySelector('.message-box')).toBeNull();
+                });
+              });
+            });
+
+            xit('displays the number of fixed errors in the status bar', () => {
+              const status = kitePkg.getAutocorrectStatusItem();
+
+              expect(status.textContent).toEqual('1 error fixed');
+            });
+
+            xdescribe('saving the file again with no errors this time', () => {
+              withRoutes([
+                [
+                  o => /^\/clientapi\/editor\/autocorrect$/.test(o.path),
+                  o => fakeResponse(200, fs.readFileSync(path.resolve(projectPath, 'autocorrect-fixed-no-fixes.json'))),
+                ],
+              ]);
+
+              beforeEach(() => {
+                editor.save();
+
+                waitsFor('buffer saved', () => buffer.buffer.save.calls.length > 1);
+              });
+
+              it('does not change the file content', () => {
+                expect(editor.getText()).toEqual('for x in list:\n    print(x)\n');
+              });
+
+              it('clears the status bar content', () => {
+                const status = kitePkg.getAutocorrectStatusItem();
+
+                expect(status.textContent).toEqual('');
+              });
+            });
+
+            xdescribe('clicking on the status', () => {
+              let status, sidebar;
+
+              beforeEach(() => {
+                status = kitePkg.getAutocorrectStatusItem();
+                click(status);
+                waitsFor('autocorrect sidebar', () =>
+                  sidebar = workspaceElement.querySelector('kite-autocorrect-sidebar'));
+              });
+
+              it('opens the autocorrect sidebar panel', () => {
+                expect(sidebar).not.toBeNull();
+              });
+
+
             });
           });
 
