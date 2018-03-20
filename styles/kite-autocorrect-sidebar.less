@@ -8,10 +8,8 @@ kite-autocorrect-sidebar {
   .settings-view {
     background: transparent !important;
     flex-direction: column;
-    font-size: 0.8em;
-    border-bottom: 1px solid @base-border-color;
-    margin: 0 (-@component-padding);
-    padding: 0 @component-padding @component-padding;
+    margin: 0;
+    padding: 0 0 @double-padding;
     position: relative;
 
     .settings-panel {
@@ -44,14 +42,19 @@ kite-autocorrect-sidebar {
       }
     }
   }
+  .content:not(:empty) {
+    border-top: 1px solid @base-border-color;
+    padding-top: @double-padding;
+  }
   code {
     font-family: var(--editor-font-family);
     font-size: var(--editor-font-size);
     line-height: var(--editor-line-height);
   }
-  .file {
+  h4 {
     font-size: 1em;
-    margin-bottom: .5em;
+    margin-bottom: 1.5em;
+    line-height: 1.5;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: @text-color-highlight;
@@ -70,9 +73,6 @@ kite-autocorrect-sidebar {
         display: none;
         pointer-events: none;
       }
-    }
-    &:first-child {
-      padding-bottom: 3em;
     }
     &.feedback-sent {
       .feedback-actions {
@@ -206,11 +206,12 @@ kite-autocorrect-sidebar {
   a.icon-question {
     position: absolute;
     top: 0;
-    right: @component-padding;
+    right: 0;
     z-index: 2;
-    font-size: 2.6em;
+    font-size: 1.9em;
+    color: @text-color-subtle;
     &:hover::before {
-      color: @text-color-info;
+      color: @text-color-highlight;
     }
     &::before {
       font-size: 1em;
@@ -226,28 +227,37 @@ kite-autocorrect-sidebar {
 
   .message-box {
     margin: 0 0 @component-padding;
-    padding: @component-padding;
+    padding: @double-padding (6 * @component-padding) @double-padding @double-padding;
     border-radius: @component-border-radius;
-    border: 1px solid @border-color;
-    background: @app-background-color;
+    background: mix(@app-background-color, #7f7f7f, 80%);
     position: relative;
+
+    h4 {
+      margin-top: 0;
+    }
 
     .btn-close {
       -webkit-appearance: none;
       background: transparent;
       border: none;
-      padding: 0.2em;
+      padding: 0.5em;
+      margin: calc(4px - 0.5em);
       position: absolute;
       right: @component-padding;
       top: @component-padding;
+      color: @text-color-subtle;
 
       .icon::before {
         margin-right: 0;
       }
+
+      &:hover {
+        color: @text-color-highlight;
+      }
     }
 
     p + .diff-content {
-      margin-top: -@component-padding
+      margin-top: -@component-padding;
     }
 
     .diff-content {
