@@ -5,6 +5,11 @@ kite-autocorrect-sidebar {
     background: transparent !important;
     padding: 0 !important;
   }
+  code {
+    font-family: var(--editor-font-family);
+    font-size: var(--editor-font-size);
+    line-height: var(--editor-line-height);
+  }
   .content {
     flex: 1 1 auto;
   }
@@ -95,11 +100,11 @@ kite-autocorrect-sidebar {
     .line-number {
       width: 80px;
       opacity: 0.5;
-      padding: @component-padding;
+      padding: 4px @component-padding;
       color: @text-color;
     }
     .line {
-      padding: @component-padding;
+      padding: 4px;
       padding-left: @triple-padding;
       position: relative;
       color: @text-color;
@@ -127,6 +132,9 @@ kite-autocorrect-sidebar {
     .line {
       &::before {
         content: '-';
+        opacity: 0.5;
+        position: absolute;
+        left: @component-padding;
       }
     }
   }
@@ -140,6 +148,9 @@ kite-autocorrect-sidebar {
     .line {
       &::before {
         content: '+';
+        opacity: 0.5;
+        position: absolute;
+        left: @component-padding;
       }
     }
   }
