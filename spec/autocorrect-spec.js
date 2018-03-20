@@ -19,7 +19,7 @@ fdescribe('autocorrect', () => {
 
     localStorage.removeItem('kite.autocorrect_model_version');
 
-    atom.config.set('kite.actionWhenKiteFixesCode', 'Do nothing');
+    atom.config.set('kite.actionWhenKiteFixesCode', 'Cleanup quietly');
 
     // Use these styles if you need to display the workspace when running the tests
     // jasmineContent.innerHTML = `
@@ -194,7 +194,7 @@ fdescribe('autocorrect', () => {
               });
 
               it('selects the correct option in the actions list', () => {
-                expect(sidebar.querySelector('select').value).toEqual('Do nothing');
+                expect(sidebar.querySelector('select').value).toEqual('Cleanup quietly');
               });
 
               it('displays the feedback buttons', () => {
