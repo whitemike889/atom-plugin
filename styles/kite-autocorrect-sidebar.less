@@ -1,5 +1,9 @@
 @import 'variables';
 
+.tab[data-type="kite-autocorrect-sidebar"] .icon-issue-opened::before {
+  color: @text-color-error;
+}
+
 kite-autocorrect-sidebar {
   .settings-view {
     background: transparent !important;
@@ -237,8 +241,21 @@ kite-autocorrect-sidebar {
       }
     }
 
+    p + .diff-content {
+      margin-top: -@component-padding
+    }
+
+    .diff-content {
+      margin-bottom: @double-padding;
+    }
+
     a {
       color: @text-color-info;
     }
+  }
+
+  .kite-column {
+    display: block !important;
+    overflow-y: auto !important;
   }
 }
