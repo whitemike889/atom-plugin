@@ -8,7 +8,7 @@ const {click} = require('./helpers/events');
 const projectPath = path.join(__dirname, 'fixtures');
 
 
-fdescribe('autocorrect', () => {
+describe('autocorrect', () => {
   let kitePkg, kiteEditor, editor, buffer, jasmineContent, workspaceElement;
 
   fakeKiteInstallPaths();
@@ -519,6 +519,51 @@ fdescribe('autocorrect', () => {
                   it('creates a message box for the changes', () => {
                     expect(sidebar.querySelector('.message-box')).toExist();
                   });
+                });
+              });
+
+              describe('when the sidebar is not visible', () => {
+                let notificationsPkg;
+
+                withRoutes([
+                  [
+                    o => /^\/clientapi\/editor\/autocorrect$/.test(o.path),
+                    o => fakeResponse(200, fs.readFileSync(path.resolve(projectPath, 'autocorrect-fixes-new-version.json'))),
+                  ], [
+                    o => /^\/api\/editor\/autocorrect\/model-info$/.test(o.path),
+                    o => fakeResponse(200, fs.readFileSync(path.resolve(projectPath, 'model-info.json'))),
+                  ],
+                ]);
+
+                beforeEach(() => {
+                  waitsForPromise(() =>
+                    atom.packages.activatePackage('notifications').then(pkg => {
+                      notificationsPkg = pkg.mainModule;
+                      notificationsPkg.initializeIfNotInitialized();
+
+                      spyOn(atom.notifications, 'addInfo').andCallThrough();
+                    }));
+
+                  runs(() => editor.save());
+
+                  waitsFor('buffer saved', () => buffer.buffer.save.calls.length > 0);
+                });
+
+                afterEach(() => {
+                  notificationsPkg.lastNotification = null;
+                  atom.notifications.clear();
+                });
+
+                it('stores the new clean up model version', () => {
+                  expect(kitePkg.codeCleanupVersion()).toEqual(2);
+                });
+
+                it('creates a notification', () => {
+                  expect(atom.notifications.addInfo).toHaveBeenCalled();
+
+                  const [content, options] = atom.notifications.addInfo.calls[0].args;
+                  expect(content).toEqual('#### Kite code clean-up was just updated\nSome string');
+                  expect(options.details).toEqual('for x in list:\nfor x in list');
                 });
               });
             });
