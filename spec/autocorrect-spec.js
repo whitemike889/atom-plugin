@@ -14,13 +14,20 @@ describe('autocorrect', () => {
   fakeKiteInstallPaths();
 
   beforeEach(() => {
-    jasmineContent = document.querySelector('#jasmine-content');
+    jasmineContent = document.body.querySelector('#jasmine-content');
     workspaceElement = atom.views.getView(atom.workspace);
 
-    // We want to test that our sidebar closes properly when not using the dock API.
-    atom.config.set('kite.useDockForSidebar', false);
     atom.config.set('kite.openAutocorrectSidebarOnSave', false);
 
+    // Use these styles if you need to display the workspace when running the tests
+    // jasmineContent.innerHTML = `
+    // <style>
+    //   atom-workspace {
+    //     z-index: 10000000;
+    //     height: 500px;
+    //     opacity: 0.5;
+    //   }
+    // </style>`;
     jasmineContent.appendChild(workspaceElement);
 
     waitsForPromise(() => atom.packages.activatePackage('status-bar'));
@@ -181,7 +188,8 @@ describe('autocorrect', () => {
               beforeEach(() => {
                 status = kitePkg.getAutocorrectStatusItem();
                 click(status);
-                sidebar = workspaceElement.querySelector('kite-autocorrect-sidebar');
+                waitsFor('autocorrect sidebar', () =>
+                  sidebar = workspaceElement.querySelector('kite-autocorrect-sidebar'));
               });
 
               it('opens the autocorrect sidebar panel', () => {
@@ -206,18 +214,6 @@ describe('autocorrect', () => {
 
                 expect(thumbUp).not.toBeNull();
                 expect(thumbDown).not.toBeNull();
-              });
-
-              describe('then clicking on the sidebar close button', () => {
-                beforeEach(() => {
-                  const button = sidebar.querySelector('button.icon-x');
-
-                  click(button);
-                });
-
-                it('removes the sidebar panel', () => {
-                  expect(workspaceElement.querySelector('kite-autocorrect-sidebar')).toBeNull();
-                });
               });
 
               describe('clicking on the feedback button', () => {
@@ -332,9 +328,9 @@ describe('autocorrect', () => {
               });
 
               it('clears the sidebar content', () => {
-                const diff = sidebar.querySelector('.diff');
+                const message = sidebar.querySelector('.diff .diffs');
 
-                expect(diff).toBeNull();
+                expect(message.textContent).toEqual('No fixes made to sample.py yet.');
               });
 
               it('clears the status bar content', () => {

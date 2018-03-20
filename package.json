@@ -1,7 +1,7 @@
 {
   "name": "kite",
   "main": "./lib/kite",
-  "version": "0.73.0",
+  "version": "0.74.0",
   "description": "Python programming copilot — Kite shows cloud-powered completions, documentation, and examples.",
   "repository": "https://github.com/kiteco/atom-plugin",
   "keywords": [],
@@ -55,10 +55,6 @@
       "type": "integer",
       "default": 400,
       "description": "Defines the width of the sidebar. When the sidebar is displayed using the new dock API this value will serve as the preferred width."
-    },
-    "useDockForSidebar": {
-      "type": "boolean",
-      "default": false
     },
     "openSidebarOnStartup": {
       "type": "boolean",
