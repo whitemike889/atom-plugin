@@ -35,7 +35,7 @@ kite-autocorrect-sidebar {
       label {
         flex-direction: row;
         display: flex;
-        align-items: center;
+        align-items: baseline;
         flex-wrap: wrap;
 
         .setting-title {
@@ -89,17 +89,6 @@ kite-autocorrect-sidebar {
         pointer-events: none;
       }
     }
-    &.feedback-sent {
-      .feedback-actions {
-        a {
-          opacity: 0.4;
-
-          &.clicked {
-            opacity: 0.7;
-          }
-        }
-      }
-    }
   }
   .diff-content {
     margin-top: @component-padding;
@@ -117,14 +106,16 @@ kite-autocorrect-sidebar {
     a {
       padding-left: @half-padding;
       padding-right: @half-padding;
-      filter: saturate(0);
-      opacity: .5;
-    }
 
-    a:hover {
-      text-decoration: none;
-      filter: none;
-      opacity: 1;
+      color: @text-color-subtle;
+
+      &:hover {
+        color: @text-color-highlight;
+      }
+      &.clicked {
+        color: @text-color-selected;
+        opacity: 1;
+      }
     }
   }
   .feedback-feedback {
@@ -151,6 +142,11 @@ kite-autocorrect-sidebar {
       opacity: 0.5;
       padding: 4px @component-padding;
       color: @text-color;
+    }
+    strong {
+      padding: 0.2em 0.1em;
+      margin: -0.2em -0.1em;
+      font-weight: inherit;
     }
     .line {
       padding: 4px;
@@ -179,18 +175,11 @@ kite-autocorrect-sidebar {
       text-align: left;
     }
     strong {
-      background-color: saturate(mix(@syntax-color-removed, @pane-item-background-color, 30%), 20%);
-      border: 1px solid saturate(mix(@syntax-color-removed, @pane-item-background-color, 45%), 20%);
-      padding: 0.2em;
-      border-radius: 2px;
-      font-weight: inherit;
+      background-color: saturate(mix(@syntax-color-removed, @pane-item-background-color, 35%), 20%);
     }
     .line {
       &::before {
         content: '-';
-        opacity: 0.5;
-        position: absolute;
-        left: @component-padding;
       }
     }
   }
@@ -202,28 +191,21 @@ kite-autocorrect-sidebar {
       text-align: right;
     }
     strong {
-      background-color: saturate(mix(@syntax-color-added, @pane-item-background-color, 30%), 20%);
-      border: 1px solid saturate(mix(@syntax-color-added, @pane-item-background-color, 45%), 20%);
-      padding: 0.2em;
-      border-radius: 2px;
-      font-weight: inherit;
+      background-color: saturate(mix(@syntax-color-added, @pane-item-background-color, 35%), 20%);
     }
     .line {
       &::before {
         content: '+';
-        opacity: 0.5;
-        position: absolute;
-        left: @component-padding;
       }
     }
   }
 
-  a.icon-question {
+  a.icon-info {
     position: absolute;
-    top: 0;
+    top: 0.4em;
     right: 0;
     z-index: 2;
-    font-size: 1.9em;
+    font-size: 1.5em;
     color: @text-color-subtle;
     &:hover::before {
       color: @text-color-highlight;
