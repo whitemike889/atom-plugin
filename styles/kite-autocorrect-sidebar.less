@@ -67,6 +67,13 @@ kite-autocorrect-sidebar {
     margin: @component-padding 0;
     margin-bottom: @double-padding;
 
+    kite-links a, kite-links a:hover, kite-links a:focus, kite-links a:active {
+      font-size: 1em;
+    }
+    .feedback-actions a {
+      white-space: nowrap;
+    }
+
     &:not(:first-child) {
       .timestamp,
       .diff-content {
