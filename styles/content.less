@@ -1,6 +1,41 @@
 @import "ui-variables";
 @import "variables";
 
+// TK finish light and dark
+kite-sidebar, kite-autocorrect-sidebar {
+  .syntax--variable {
+    //color: hsl(hue(@syntax-color-keyword), saturation(@syntax-color-keyword), 100-lightness(@syntax-color-keyword)) !important;
+    //color: black !important;
+  }
+  .syntax--keyword {
+    //color: hsl(hue(@syntax-color-keyword), saturation(@syntax-color-keyword), lightness(@syntax-color-keyword)) !important;
+    //color: @syntax-color-keyword !important;
+  }
+  .syntax--control {
+    //color: hsl(hue(@syntax-color-function), saturation(@syntax-color-function), lightness(@syntax-color-function)) !important;
+    //color: red !important;
+  }
+  .syntax--function {
+    //color: hsl(hue(@syntax-color-function), saturation(@syntax-color-function), 100 - lightness(@syntax-color-function)) !important;
+    //color: black !important;
+  }
+  .syntax--constant {
+    //color: hsl(hue(@syntax-color-constant), saturation(@syntax-color-constant), 100 - lightness(@syntax-color-constant)) !important;
+    //color: black !important;
+  }
+}
+/*@syntax-color-constant: red;//#DF6A73;
+@syntax-color-property: #DF6A73;
+@syntax-color-value: #D29B67;
+@syntax-color-function: #61AEEF;
+@syntax-color-method: @syntax-color-function;
+@syntax-color-class: #E5C17C;
+@syntax-color-keyword: #a431c4;
+@syntax-color-tag: #b72424;
+@syntax-color-attribute: #87400d;
+@syntax-color-import: #97C378;
+@syntax-color-snippet: #97C378;*/
+
 .unreachable {
   &, &:hover, &:active, &:focus {
     color: @text-color;
@@ -15,15 +50,15 @@
 
 .kite-section-strike {
   h4 {
-    background-color: @app-background-color;
-    display: inline-block;
-    padding-right: @component-padding;
+    //background-color: @app-background-color;
+    //display: inline-block;
+    //padding-right: @component-padding;
 
-    kite-active-search & {
+/*    kite-active-search & {
       background: @hover-background-color;
-    }
+    }*/
 
-    &:before {
+/*    &:before {
       content: '';
       border-top: 1px solid @text-color;
       position: absolute;
@@ -31,7 +66,7 @@
       z-index: -1;
       width: 100%;
       top: 0.5em;
-    }
+    }*/
   }
 }
 
@@ -58,9 +93,14 @@
 }
 
 .kite-code {
-  pre {
-    -webkit-user-select: text;
-    cursor: text;
+  pre,
+  code {
+    font-family: var(--editor-font-family);
+    font-size: var(--editor-font-size);
+    line-height: var(--editor-line-height);
+
+    background: inherit; // Defaults to no background color
+    padding: 0;
   }
 }
 
@@ -98,7 +138,7 @@
   display: flex;
   flex-direction: row;
   width: 100%;
-  align-items: center;
+  align-items: baseline;
 
   > * {
     flex: 1 1 0;
@@ -117,8 +157,8 @@
   }
 
   .name {
-    padding-left: @component-padding;
-    text-indent: -@component-padding;
+    padding-left: @sidebar-left-indent;
+    text-indent: -@sidebar-left-indent;
   }
 }
 
@@ -146,17 +186,24 @@
     }
   }
 
-  kite-expand-module, kite-expand-function, kite-expand-instance {
+  kite-expand-module, kite-expand-function, kite-expand-instance, kite-expand-unknown {
     flex-direction: column;
 
     .expand-header, .expand-extend {
       flex: 0 0 auto;
-      margin-bottom: @component-padding;
       overflow-x: auto;
+      z-index: 1;
+
+      background: @sidebar-header-background;
+      box-shadow: 0 3px 6px @tab-background-color;
+
+      padding: @component-padding @sidebar-horizontal-padding;
+      margin-right: -@sidebar-horizontal-padding;
 
       .signature a.kwargs {
         pointer-events: none;
         color: @text-color;
+        text-decoration: none;
 
         .parameter-name {
           color: @text-color;
@@ -202,6 +249,10 @@
         overflow-y: auto;
       }
     }
+
+    section.parameters + section.kwargs {
+      margin-top: -@double-padding;
+    }
   }
 
   a {
@@ -209,9 +260,15 @@
       pointer-events: none;
     }
 
+
     &[href] {
       &, &:hover, &:active, &:focus, code {
-        color: @text-color-info;
+        text-decoration: underline;
+        text-decoration-color: mix(@text-color, transparent, 66%); // TK
+      }
+      &:hover, &:hover * {
+        color: @button-background-color-selected;
+        text-decoration-color: @button-background-color-selected;
       }
     }
 
@@ -254,10 +311,13 @@
   }
 
   h4 {
-    font-weight: 400;
-    margin: 0;
-    color: @text-color-highlight;
-    font-size: 1.2em;
+    font-size: 1em;
+    margin-bottom: 0.5em;
+    line-height: 1.5;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-weight: normal;
+    color: @text-color-subtle;
 
     .sticky {
       padding: @component-padding 0;
@@ -285,7 +345,7 @@
 
   .type, .signature {
     color: @text-color;
-    word-break: break-word
+    word-break: break-word;
   }
 
   .split-line {
@@ -294,25 +354,53 @@
 
   section {
     margin: 0;
+    margin-bottom: @double-padding;
 
     .section-content {
-      margin-left: @component-padding;
+      margin-left: @sidebar-left-indent;
+      margin-top: 0;
     }
   }
   .expand-header {
-    font-size: 1.4em;
     color: @text-color-highlight;
+
+    code {
+      font-size: 1.2em;
+    }
+
+    .type {
+      font-size: .9em;
+      border: 1px solid @text-color;
+      display: inline-block;
+      flex: 0;
+      padding: .3em .5em;
+      margin-left: @half-padding;
+      line-height: .8;
+      border-radius: 100px;
+
+      a {
+        color: @text-color-info;
+        text-decoration: none;
+      }
+    }
   }
 
   .expand-extend {
     font-size: 1.2em;
+    outline: 3px solid red;
+    background: red;
+    // TK REMOVE
   }
+  .collapsible .icon.icon-unfold {
+    display: block;
+    text-align: center;
+    height: 3em;
+    line-height: 3.3em;
+    color: @text-color-subtle;
+    margin-left: @double-padding;
 
-  section {
-    margin-bottom: @triple-padding;
-
-    .section-content {
-      margin-top: @component-padding;
+    &:hover {
+      color: @button-background-color-selected;
     }
   }
 
@@ -322,7 +410,7 @@
     }
 
     &.collapse .section-content {
-      max-height: 250px;
+      max-height: 14.5em;
       position: relative;
       overflow: hidden;
     }
@@ -330,19 +418,36 @@
     &.collapse.overflow .section-content::after {
       content: '';
       position: absolute;
-      height: 30px;
       left: 0;
       right: 0;
       bottom: 0;
-      background-image: linear-gradient(to top, @app-background-color 0%, transparent 100%);
+      z-index: 0;
+      border-top: 1px solid @inset-panel-background-color;
     }
   }
 
   section.summary {
     .description {
-      margin-top: @component-padding;
       font-size: 1em;
-      color: @text-color-highlight;
+      color: @text-color;
+
+      line-height: 1.8;
+      p {
+        line-height: 1.8;
+      }
+      code {
+        line-height: 0; // Don’t allow code to change the rhythm of text
+        background: @base-background-color;
+        padding: 0.2em;
+        margin: -0.2em 0.1em;
+      }
+      em {
+        // Turn italics (which look bad) into brighter code
+        color: @text-color-highlight;
+        font-style: normal;
+        font-family: var(--editor-font-family);
+        font-size: var(--editor-font-size);
+      }
 
       h1, h2, h3, h4 {
         font-size: inherit;
@@ -378,7 +483,6 @@
     a.more-members {
       display: block;
       margin-top: @component-padding;
-      // margin-bottom: @double-padding;
     }
   }
 
@@ -414,6 +518,15 @@
     }
 
     pre {
+      // Indent every line except the first one by 4 spaces
+      padding-left: 4ch;
+      text-indent: -4ch;
+
+      -webkit-user-select: text;
+      cursor: text;
+
+      word-wrap: normal;
+      word-break: normal;
       white-space: pre-wrap;
     }
   }
@@ -498,10 +611,6 @@
     li {
       overflow: hidden;
 
-      & + li {
-        margin-top: @half-padding;
-      }
-
       .icon::before {
         margin: 0;
       }
@@ -547,6 +656,13 @@
     }
   }
 
+  ul li + li {
+    margin-top: @half-padding;
+  }
+  ul.code li + li {
+    margin-top: 0;
+  }
+
   dl, ul {
     // padding-right: @component-padding;
     margin: @component-padding 0 0;
@@ -554,7 +670,6 @@
     dt, li {
       color: @text-color;
       font-weight: normal;
-      font-size: 1.2em;
 
       .name {
         a, a:hover, a:active, a:focus {
@@ -571,34 +686,31 @@
       p {
         margin: 0;
       }
-
       a {
         font-size: 0.9em;
-      }
-    }
-
-    dt, dd, li {
-      & + dt, & + li {
-        margin-top: @component-padding;
       }
     }
   }
 
   pre {
     color: @text-color-highlight;
-    font-size: inherit;
-    margin-bottom: @half-padding;
+    // TK
 
     a.icon {
       &, &:hover, &:active, &:focus,  {
-        color: @text-color-info;
+        color: @button-background-color-selected;
       }
     }
   }
 
   p {
-    /* Default Atom p margin is assymetrical. Overriding for sanity */
+    /* Default Atom p margin is asymmetrical. Overriding for sanity */
     margin: 0.5em 0;
-
+  }
+  p:first-child {
+    // Helps with collapsing panels, since margin cannot be joined with
+    // adjacent margin when “overflow: hidden” is applied – but will be
+    // if it‘s not, resulting in shifting
+    margin-top: 0;
   }
 }

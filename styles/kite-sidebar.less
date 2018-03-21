@@ -21,6 +21,8 @@ kite-sidebar {
   font-family: @font-family;
   flex-direction: row;
 
+  background: @tab-background-color;
+
   h4 .sticky.fixed {
     background: @app-background-color;
 
@@ -37,7 +39,7 @@ kite-sidebar {
 
   .kite-column {
     display: flex;
-    padding: @component-padding;
+    padding: 0 0;// @double-padding;
     flex-direction: column;
     order: 1;
     flex: 1 1 auto;
@@ -59,15 +61,14 @@ kite-sidebar {
     }
   }
 
-  kite-navigable-stack, kite-navigable-stack-breadcrumb {
+  kite-navigable-stack,
+  kite-navigable-stack-breadcrumb {
     flex: 1 1 0;
-    overflow: hidden;
-    margin: 0 -6px -10px;
 
     .expand-header,
     .scroll-wrapper .sections-wrapper {
-      padding-right: 10px;
-      padding-left: 5px;
+      padding: 0 @sidebar-horizontal-padding;
+      padding-top: @component-padding;
     }
   }
 
@@ -78,7 +79,6 @@ kite-sidebar {
   }
 
   header {
-    margin-bottom: @component-padding;
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
@@ -94,7 +94,8 @@ kite-sidebar {
     justify-content: space-between;
     flex: 0 0 auto;
     padding: @component-padding;
-    background: fade(@background-color-highlight, 50%);
+    // background: fade(@background-color-highlight, 50%);
+    // TK
 
     .actions {
       a {

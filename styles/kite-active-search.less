@@ -1,53 +1,20 @@
 @import "variables";
+@import "content";
 
 @rate: 1;
 
-@keyframes collapser-appears {
-  0% {
-    width: 0;
-    display: none;
-  }
-  1% {
-    width: 0;
-    display: block;
-  }
-  60% {
-    width: 0;
-    opacity: 0;
-  }
-  100% {
-    width: @component-padding;
-    opacity: 1;
-  }
-}
-
-@keyframes pane-appears {
-  0% {
-    opacity: 0;
-    display: none;
-  }
-  1% {
-    opacity: 0;
-    display: block;
-  }
-  60% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
 kite-active-search {
+  .kite-code;
+
   display: flex;
   flex-direction: column;
-  background: @hover-background-color;
+  background: @tab-background-color;
   position: absolute;
   z-index: 100;
   box-shadow: -5px 0 10px rgba(0, 0, 0, 0.2);
   overflow: hidden;
-  padding: @half-padding;
-  transition: width (0.2s * @rate);
+  padding: @half-padding 0;
+  padding-left: @component-padding;
 
   &[position="hidden"] {
     display: none;
@@ -56,7 +23,7 @@ kite-active-search {
   &[position="top-right"] {
     top: 10%;
     right: 1px;
-    padding-left: @component-padding;
+    //padding-left: @component-padding;
 
     .collapser {
       left: 0;
@@ -66,7 +33,6 @@ kite-active-search {
   &[position="bottom-right"] {
     bottom: 10%;
     right: 1px;
-    padding-left: @component-padding + @half-padding;
 
     .collapser {
       left: 0;
@@ -76,11 +42,16 @@ kite-active-search {
   &.collapsed {
     width: 3.2em;
     height: 3.2em;
-    transition: width (0.1s * @rate), height (0.01s * @rate) ease (0.1s * @rate);
 
     kite-expand, .select-list, .collapser, .history {
       display: none;
     }
+  }
+
+  .expand-header,
+  .scroll-wrapper .sections-wrapper {
+    padding: 0 @sidebar-horizontal-padding;
+    padding-top: @component-padding;
   }
 
   h4 .sticky.fixed {
@@ -91,7 +62,7 @@ kite-active-search {
     }
   }
 
-  kite-navigable-stack section.collapsible.overflow {
+/*  kite-navigable-stack section.collapsible.overflow {
     .section-content + * {
       margin-bottom: @component-padding;
     }
@@ -99,32 +70,22 @@ kite-active-search {
     &.collapse .section-content::after {
       background-image: linear-gradient(to top, @hover-background-color 0%, transparent 100%);
     }
-  }
+  }*/
 
   &:not(.collapsed) {
     width: 400px;
     height: 80%;
 
     .expander {
-      pointer-events: none;
-    }
-
-    kite-expand, .select-list {
-      animation: pane-appears (0.5s * @rate);
-    }
-    .collapser {
-      animation: collapser-appears (0.5s * @rate);
+      display: none;
     }
   }
 
   atom-text-editor[mini] {
-    background: transparent;
+    background: @input-background-color;
     border-radius: 0;
-    border-top: none;
-    border-left: none;
-    border-right: none;
-    border-color: @base-background-color;
-    font-family: sans-serif;
+    border: none;
+    font-size: var(--editor-font-size);
 
     &.is-focused {
       background: transparent;
@@ -152,6 +113,11 @@ kite-active-search {
     top: 0;
     bottom: 0;
     cursor: pointer;
+    z-index: 20;
+
+    &:hover {
+      background: @border-color-hover;
+    }
 
     &::before {
       position: absolute;
@@ -165,7 +131,8 @@ kite-active-search {
   kite-expand {
     flex: 1 1 auto;
     max-height: none;
-    margin: 0 @half-padding 0;
+    margin: 0;
+    padding: 0;
 
     kite-navigable-stack-breadcrumb {
       position: static;
@@ -223,17 +190,27 @@ kite-active-search {
   }
 
   .history {
-    h4 {
-      padding-left: 0.875em;
+    padding: 0 @sidebar-horizontal-padding;
+    padding-top: @component-padding;
+
+    h4 { // Same as in content.less, TODO: unify
       font-size: 1em;
-      margin: 0;
-      font-weight: normal;
-      color: @text-color-highlight;
+      margin-bottom: 0.5em;
+      line-height: 1.5;
       text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-weight: normal;
+      color: @text-color-subtle;
+    }
+
+    .select-list.popover-list {
+      border: none;
+      margin-left: 0;
     }
 
     .select-list.popover-list ol.list-group li {
-      padding-left: @double-padding;
+      padding-left: 0;
+      //padding-left: @sidebar-left-indent;
     }
   }
 
@@ -243,22 +220,42 @@ kite-active-search {
     box-shadow: none;
     border-radius: 0;
     padding: 0;
+    //padding: 0 @sidebar-horizontal-padding;
+    margin: 0 @half-sidebar-left-indent;
+    border: 1px solid @button-background-color;
+    border-radius: @component-border-radius;
 
     atom-text-editor[mini] {
-      background: @hover-background-color;
-      padding-left: @component-padding;
-      padding-right: @component-padding;
+      //background: @hover-background-color;
+      //padding-left: 0;
+      //padding-left: @sidebar-left-indent;
+      padding-right: 0;
+      //font-size: 1em;
+
+      padding-left: @half-sidebar-left-indent;
+      padding-right: @half-sidebar-left-indent;
+
+      //padding-left: @component-padding;
+      //padding-right: @component-padding;
+      //margin-left: 0;
       margin-bottom: 0;
+
+      background: @input-background-color;
+      //border: 1px solid @button-background-color;
+      border-radius: 4px; // TK
     }
 
     &.has-results {
-      background: fadeout(@text-color-highlight, 90%);
-      border-bottom: 2px solid fadeout(@text-color-highlight, 50%);
+      //background: fadeout(@text-color-highlight, 90%);
+      //border-bottom: 2px solid fadeout(@text-color-highlight, 50%);
+      box-shadow: 0 3px 3px rgba(0, 0, 0, 0.2); // TK
+      margin-bottom: @component-padding;
+      z-index: 10;
 
       &.has-scroll {
-        padding-bottom: @component-padding * 2;
+        //padding-bottom: @component-padding * 2;
 
-        &:after {
+        /*&:after {
           content: '↓';
           display: block;
           color: @text-color;
@@ -276,7 +273,7 @@ kite-active-search {
           position: absolute;
           bottom: 0;
           right: 16px;
-        }
+        }*/
       }
     }
 
@@ -284,21 +281,24 @@ kite-active-search {
       max-height: 130px;
       margin-top: 0;
       padding: 0;
+      background: blue;
+      background: @app-background-color;
 
       p {
         margin: 1em 0;
-        padding-left: @component-padding;
+        padding-left: @sidebar-left-indent;
         padding-right: @component-padding;
       }
 
       li {
         font-size: 1.2em;
-        padding-left: @component-padding;
+        //padding-left: @component-padding;
+        padding-left: @half-sidebar-left-indent;
         padding-right: @component-padding;
         cursor: pointer;
 
         &.selected {
-          background: fadeout(@text-color-highlight, 90%);
+          background: @background-color-highlight;
         }
 
         small {
