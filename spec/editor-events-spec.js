@@ -20,7 +20,7 @@ describe('EditorEvents', () => {
       beforeEach(() => {
         waitsForPromise(() => atom.workspace.open('sample.py').then(e => {
           editor = e;
-          events = new EditorEvents(editor, true);
+          events = new EditorEvents(editor);
         }));
       });
 
