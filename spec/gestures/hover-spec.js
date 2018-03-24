@@ -4,7 +4,7 @@ const HoverGesture = require('../../lib/gestures/hover');
 const TokensList = require('../../lib/tokens-list');
 const {mousemove} = require('../helpers/events');
 
-describe('HoverGesture', () => {
+xdescribe('HoverGesture', () => {
   let editor, editorElement, gesture, activateSpy, deactivateSpy, tokensList, jasmineContent, workspaceElement;
 
   beforeEach(() => {

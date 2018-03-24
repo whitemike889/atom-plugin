@@ -3,7 +3,7 @@
 const CursorMoveGesture = require('../../lib/gestures/cursor-move');
 const TokensList = require('../../lib/tokens-list');
 
-describe('CursorMoveGesture', () => {
+xdescribe('CursorMoveGesture', () => {
   let editor, gesture, activateSpy, deactivateSpy, tokensList, jasmineContent, workspaceElement;
 
   beforeEach(() => {

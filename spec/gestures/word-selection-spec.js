@@ -3,7 +3,7 @@
 const WordSelectionGesture = require('../../lib/gestures/word-selection');
 const TokensList = require('../../lib/tokens-list');
 
-describe('WordSelectionGesture', () => {
+xdescribe('WordSelectionGesture', () => {
   let editor, gesture, activateSpy, deactivateSpy, tokensList, jasmineContent, workspaceElement;
 
   beforeEach(() => {
