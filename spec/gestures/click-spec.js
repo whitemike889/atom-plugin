@@ -4,7 +4,7 @@ const ClickGesture = require('../../lib/gestures/click');
 const TokensList = require('../../lib/tokens-list');
 const {click} = require('../helpers/events');
 
-describe('ClickGesture', () => {
+xdescribe('ClickGesture', () => {
   let editor, editorElement, gesture, activateSpy, deactivateSpy, tokensList, jasmineContent, workspaceElement;
 
   beforeEach(() => {

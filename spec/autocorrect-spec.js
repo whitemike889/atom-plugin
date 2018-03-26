@@ -52,7 +52,6 @@ describe('autocorrect', () => {
               spyOn(buffer.buffer, 'save').andCallFake(() => Promise.resolve());
             }));
             waitsFor('kite editor', () => kiteEditor = kitePkg.kiteEditorForEditor(editor));
-            waitsFor('kite editor tokens', () => kiteEditor.updateTokens());
             runs(() => {
               spyOn(kiteEditor, 'willSaveHook');
             });
@@ -94,7 +93,6 @@ describe('autocorrect', () => {
               spyOn(buffer.buffer, 'save').andCallFake(() => Promise.resolve());
             }));
             waitsFor('kite editor', () => kiteEditor = kitePkg.kiteEditorForEditor(editor));
-            waitsFor('kite editor tokens', () => kiteEditor.updateTokens());
             runs(() => {
               spyOn(kiteEditor, 'willSaveHook').andCallThrough();
             });
