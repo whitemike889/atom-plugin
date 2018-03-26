@@ -249,10 +249,6 @@ describe('autocorrect', () => {
                     expect(http.request).toHaveBeenCalledWithPath('/clientapi/editor/autocorrect/feedback');
                   });
 
-                  it('adds a feedback-sent class to the diff', () => {
-                    expect(sidebar.querySelector('.diff.feedback-sent')).not.toBeNull();
-                  });
-
                   it('adds a clicked class on the button', () => {
                     expect(sidebar.querySelector('.diff .feedback-actions .thumb-up.clicked')).toExist();
                   });
@@ -269,15 +265,33 @@ describe('autocorrect', () => {
                     expect(http.request).toHaveBeenCalledWithPath('/clientapi/editor/autocorrect/feedback');
                   });
 
-                  it('adds a feedback-sent class to the diff', () => {
-                    expect(sidebar.querySelector('.diff.feedback-sent')).not.toBeNull();
-                  });
-
                   it('adds a clicked class on the button', () => {
                     expect(sidebar.querySelector('.diff .feedback-actions .thumb-down.clicked')).toExist();
                   });
                 });
               });
+
+              describe('thumb up then down', () => {
+                beforeEach(() => {
+                  const button = sidebar.querySelector('.diff .feedback-actions .thumb-up');
+
+                  click(button);
+
+                  const button = sidebar.querySelector('.diff .feedback-actions .thumb-down');
+
+                  click(button);
+                });
+
+                it('adds a clicked class on the thumb down button', () => {
+                  expect(sidebar.querySelector('.diff .feedback-actions .thumb-down.clicked')).toExist();
+                });
+
+                it('removed a clicked class on the thumb up button', () => {
+                  expect(sidebar.querySelector('.diff .feedback-actions .thumb-up.clicked')).toBeNull();
+                });
+
+              });
+            });
 
               describe('clicking on the message box close button', () => {
                 beforeEach(() => {
