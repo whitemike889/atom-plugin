@@ -1,21 +1,68 @@
 @import 'variables';
 
+.tab[data-type="kite-autocorrect-sidebar"] .icon-issue-opened::before {
+  color: @text-color-error;
+}
+
 kite-autocorrect-sidebar {
-  footer {
+  .settings-view {
     background: transparent !important;
-    padding: 0 !important;
+    flex-direction: column;
+    margin: 0;
+    padding: 0 0 @double-padding;
+    position: relative;
+
+    .settings-panel {
+      width: 100%;
+    }
+
+    .setting-title, .form-control {
+      font-size: 1em;
+    }
+
+    .control-group.checkbox:not(.checked) + .control-group.select {
+      pointer-events: none;
+      opacity: 0.5;
+    }
+
+    &:not(.autocorrect-enabled) + .content {
+      display: none;
+    }
+
+    .control-group.select {
+      padding-left: 2.25em;
+
+      label {
+        flex-direction: row;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+
+        .setting-title {
+          white-space: nowrap;
+          margin-right: @half-padding;
+        }
+
+        .form-control {
+          width: auto;
+          flex: 1 1 0;
+        }
+      }
+    }
+  }
+  .content:not(:empty) {
+    border-top: 1px solid @base-border-color;
+    padding-top: @double-padding;
   }
   code {
     font-family: var(--editor-font-family);
     font-size: var(--editor-font-size);
     line-height: var(--editor-line-height);
   }
-  .content {
-    flex: 1 1 auto;
-  }
-  .file {
+  h4 {
     font-size: 1em;
-    margin-bottom: .5em;
+    margin-bottom: 1.5em;
+    line-height: 1.5;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: @text-color-highlight;
@@ -23,6 +70,13 @@ kite-autocorrect-sidebar {
   .diff {
     margin: @component-padding 0;
     margin-bottom: @double-padding;
+
+    kite-links a, kite-links a:hover, kite-links a:focus, kite-links a:active {
+      font-size: 1em;
+    }
+    .feedback-actions a {
+      white-space: nowrap;
+    }
 
     &:not(:first-child) {
       .timestamp,
@@ -35,13 +89,8 @@ kite-autocorrect-sidebar {
         pointer-events: none;
       }
     }
-    &:first-child {
-      padding-bottom: 3em;
-    }
     &.feedback-sent {
       .feedback-actions {
-        pointer-events: none;
-
         a {
           opacity: 0.4;
 
@@ -129,6 +178,13 @@ kite-autocorrect-sidebar {
       background-color: saturate(mix(@syntax-color-removed, @pane-item-background-color, 25%), 20%);
       text-align: left;
     }
+    strong {
+      background-color: saturate(mix(@syntax-color-removed, @pane-item-background-color, 30%), 20%);
+      border: 1px solid saturate(mix(@syntax-color-removed, @pane-item-background-color, 45%), 20%);
+      padding: 0.2em;
+      border-radius: 2px;
+      font-weight: inherit;
+    }
     .line {
       &::before {
         content: '-';
@@ -145,6 +201,13 @@ kite-autocorrect-sidebar {
       background-color: saturate(mix(@syntax-color-added, @pane-item-background-color, 25%), 20%);
       text-align: right;
     }
+    strong {
+      background-color: saturate(mix(@syntax-color-added, @pane-item-background-color, 30%), 20%);
+      border: 1px solid saturate(mix(@syntax-color-added, @pane-item-background-color, 45%), 20%);
+      padding: 0.2em;
+      border-radius: 2px;
+      font-weight: inherit;
+    }
     .line {
       &::before {
         content: '+';
@@ -153,5 +216,76 @@ kite-autocorrect-sidebar {
         left: @component-padding;
       }
     }
+  }
+
+  a.icon-question {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    font-size: 1.9em;
+    color: @text-color-subtle;
+    &:hover::before {
+      color: @text-color-highlight;
+    }
+    &::before {
+      font-size: 1em;
+      width: auto;
+      height: auto;
+      margin: 0;
+    }
+  }
+
+  .messages.has-messages + div .icon-question {
+    display: none;
+  }
+
+  .message-box {
+    margin: 0 0 @component-padding;
+    padding: @double-padding (6 * @component-padding) @double-padding @double-padding;
+    border-radius: @component-border-radius;
+    background: mix(@app-background-color, #7f7f7f, 80%);
+    position: relative;
+
+    h4 {
+      margin-top: 0;
+    }
+
+    .btn-close {
+      -webkit-appearance: none;
+      background: transparent;
+      border: none;
+      padding: 0.5em;
+      margin: calc(4px - 0.5em);
+      position: absolute;
+      right: @component-padding;
+      top: @component-padding;
+      color: @text-color-subtle;
+
+      .icon::before {
+        margin-right: 0;
+      }
+
+      &:hover {
+        color: @text-color-highlight;
+      }
+    }
+
+    p + .diff-content {
+      margin-top: -@component-padding;
+    }
+
+    .diff-content {
+      margin-bottom: @double-padding;
+    }
+
+    a {
+      color: @text-color-info;
+    }
+  }
+
+  .kite-column {
+    display: block !important;
+    overflow-y: auto !important;
   }
 }
