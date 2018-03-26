@@ -18,7 +18,7 @@ describe('autocorrect', () => {
 
     localStorage.removeItem('kite.autocorrect_model_version');
 
-    atom.config.set('kite.actionWhenKiteFixesCode', 'Cleanup quietly');
+    atom.config.set('kite.actionWhenKiteFixesCode', 'Clean up quietly');
 
     // Use these styles if you need to display the workspace when running the tests
     // jasmineContent.innerHTML = `
@@ -209,7 +209,7 @@ describe('autocorrect', () => {
               });
 
               it('selects the correct option in the actions list', () => {
-                expect(sidebar.querySelector('select').value).toEqual('Cleanup quietly');
+                expect(sidebar.querySelector('select').value).toEqual('Clean up quietly');
               });
 
               it('displays the feedback buttons', () => {
@@ -407,9 +407,9 @@ describe('autocorrect', () => {
               });
             });
 
-            describe('with Cleanup quietly setting', () => {
+            describe('with Clean up quietly setting', () => {
               beforeEach(() => {
-                atom.config.set('kite.actionWhenKiteFixesCode', 'Cleanup quietlyr');
+                atom.config.set('kite.actionWhenKiteFixesCode', 'Clean up quietlyr');
               });
 
               describe('when the sidebar is open, but not active', () => {
