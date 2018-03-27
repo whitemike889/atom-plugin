@@ -19,7 +19,7 @@ describe('autocorrect', () => {
 
     localStorage.removeItem('kite.autocorrect_model_version');
 
-    atom.config.set('kite.actionWhenKiteFixesCode', AUTOCORRECT_DONT_SHOW_SIDEBAR);
+    atom.config.set('kite.actionWhenErrorRescueFixesCode', AUTOCORRECT_DONT_SHOW_SIDEBAR);
 
     // Use these styles if you need to display the workspace when running the tests
     // jasmineContent.innerHTML = `
@@ -227,7 +227,7 @@ describe('autocorrect', () => {
                   input.checked = false;
                   input.dispatchEvent(new window.Event('change'));
 
-                  expect(atom.config.get('kite.enableAutocorrect')).toBeFalsy();
+                  expect(atom.config.get('kite.enableErrorRescue')).toBeFalsy();
                 });
               });
 
@@ -332,7 +332,7 @@ describe('autocorrect', () => {
 
             describe('with reopen this sidebar setting', () => {
               beforeEach(() => {
-                atom.config.set('kite.actionWhenKiteFixesCode', AUTOCORRECT_SHOW_SIDEBAR);
+                atom.config.set('kite.actionWhenErrorRescueFixesCode', AUTOCORRECT_SHOW_SIDEBAR);
               });
 
               describe('and the version does not change', () => {
@@ -423,7 +423,7 @@ describe('autocorrect', () => {
 
             describe('with Clean up quietly setting', () => {
               beforeEach(() => {
-                atom.config.set('kite.actionWhenKiteFixesCode', AUTOCORRECT_DONT_SHOW_SIDEBAR);
+                atom.config.set('kite.actionWhenErrorRescueFixesCode', AUTOCORRECT_DONT_SHOW_SIDEBAR);
               });
 
               describe('when the sidebar is open, but not active', () => {
@@ -674,7 +674,7 @@ describe('autocorrect', () => {
             });
           });
 
-          describe('when the actionWhenKiteFixesCode is set to reopen the sidebar', () => {
+          describe('when the actionWhenErrorRescueFixesCode is set to reopen the sidebar', () => {
             let sidebar;
 
             withRoutes([
@@ -685,7 +685,7 @@ describe('autocorrect', () => {
             ]);
 
             beforeEach(() => {
-              atom.config.set('kite.actionWhenKiteFixesCode', AUTOCORRECT_SHOW_SIDEBAR);
+              atom.config.set('kite.actionWhenErrorRescueFixesCode', AUTOCORRECT_SHOW_SIDEBAR);
 
               editor.save();
 
