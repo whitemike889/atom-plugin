@@ -273,11 +273,11 @@ describe('autocorrect', () => {
 
               describe('thumb up then down', () => {
                 beforeEach(() => {
-                  const button = sidebar.querySelector('.diff .feedback-actions .thumb-up');
+                  let button = sidebar.querySelector('.diff .feedback-actions .thumb-up');
 
                   click(button);
 
-                  const button = sidebar.querySelector('.diff .feedback-actions .thumb-down');
+                  button = sidebar.querySelector('.diff .feedback-actions .thumb-down');
 
                   click(button);
                 });
@@ -291,7 +291,6 @@ describe('autocorrect', () => {
                 });
 
               });
-            });
 
               describe('clicking on the message box close button', () => {
                 beforeEach(() => {
