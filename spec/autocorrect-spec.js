@@ -470,7 +470,7 @@ describe('autocorrect', () => {
                   expect(kitePkg.codeCleanupVersion()).toEqual(2);
                 });
 
-                fdescribe('the sidebar panel tab', () => {
+                describe('the sidebar panel tab', () => {
                   it('has a specific icon', () => {
                     expect(sidebar.getIconName()).toEqual('info');
                   });
