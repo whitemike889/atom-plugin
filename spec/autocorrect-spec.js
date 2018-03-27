@@ -458,7 +458,7 @@ describe('autocorrect', () => {
 
                 describe('the sidebar panel tab', () => {
                   it('has a specific icon', () => {
-                    expect(kitePkg.autocorrectSidebar.getIconName()).toEqual('issue-opened');
+                    expect(kitePkg.autocorrectSidebar.getIconName()).toEqual('info');
                   });
 
                   it('creates a message box for the changes', () => {
@@ -503,7 +503,7 @@ describe('autocorrect', () => {
 
                 describe('the sidebar panel tab', () => {
                   it('does not have a specific icon', () => {
-                    expect(kitePkg.autocorrectSidebar.getIconName()).not.toEqual('issue-opened');
+                    expect(kitePkg.autocorrectSidebar.getIconName()).not.toEqual('info');
                   });
 
                   it('creates a message box for the changes', () => {
