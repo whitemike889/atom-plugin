@@ -456,7 +456,7 @@ describe('autocorrect', () => {
 
                   spy = jasmine.createSpy();
 
-                  kitePkg.autocorrectSidebar.onDidChangeIcon(spy);
+                  sidebar.onDidChangeIcon(spy);
 
                   waitsFor('buffer saved', () => buffer.buffer.save.calls.length > 0);
                   waitsFor('icon changed', () => spy.calls.length > 0);
@@ -470,13 +470,26 @@ describe('autocorrect', () => {
                   expect(kitePkg.codeCleanupVersion()).toEqual(2);
                 });
 
-                describe('the sidebar panel tab', () => {
+                fdescribe('the sidebar panel tab', () => {
                   it('has a specific icon', () => {
-                    expect(kitePkg.autocorrectSidebar.getIconName()).toEqual('info');
+                    expect(sidebar.getIconName()).toEqual('info');
                   });
 
                   it('creates a message box for the changes', () => {
                     expect(sidebar.querySelector('.message-box')).toExist();
+                  });
+
+                  describe('when activated', () => {
+                    it('sees its icon disappear', () => {
+                      expect(sidebar.getIconName()).toEqual('info');
+
+                      const spy = jasmine.createSpy();
+                      sidebar.onDidChangeIcon(spy);
+                      const pane = atom.workspace.paneForURI(sidebar.getURI());
+                      pane.setActiveItem(sidebar);
+                      expect(spy).toHaveBeenCalled();
+                      expect(sidebar.getIconName()).toBeUndefined();
+                    });
                   });
                 });
               });
@@ -517,7 +530,7 @@ describe('autocorrect', () => {
 
                 describe('the sidebar panel tab', () => {
                   it('does not have a specific icon', () => {
-                    expect(kitePkg.autocorrectSidebar.getIconName()).not.toEqual('info');
+                    expect(sidebar.getIconName()).not.toEqual('info');
                   });
 
                   it('creates a message box for the changes', () => {
