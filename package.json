@@ -71,7 +71,7 @@
       "default": "Reopen this sidebar",
       "enum": [
         "Reopen this sidebar",
-        "Cleanup quietly"
+        "Clean up quietly"
       ],
       "description": "Makes the autocorrect sidebar appears on save when enabled."
     },
