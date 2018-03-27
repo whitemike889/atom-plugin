@@ -580,7 +580,7 @@ describe('autocorrect', () => {
 
                   const [content, options] = atom.notifications.addInfo.calls[0].args;
                   expect(content).toEqual('#### Kite code clean-up was just updated\nSome string');
-                  expect(options.details).toEqual('for x in list:\nfor x in list');
+                  expect(options.detail).toEqual('for x in list:\nfor x in list');
                 });
               });
             });
