@@ -73,7 +73,7 @@
         "Reopen sidebar",
         "Fix code quietly"
       ],
-      "description": "Show the Error Rescue sidebar whenever it makes changes, or do it in the background."
+      "description": "Choose whether Error Rescue should (re)open its sidebar upon making fixes, or do it quietly"
     },
     "maxVisibleSuggestionsAlongSignature": {
       "type": "integer",
