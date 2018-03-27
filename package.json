@@ -68,9 +68,9 @@
     },
     "actionWhenKiteFixesCode": {
       "type": "string",
-      "default": "Reopen this sidebar",
+      "default": "Reopen sidebar",
       "enum": [
-        "Reopen this sidebar",
+        "Reopen sidebar",
         "Clean up quietly"
       ],
       "description": "Makes the autocorrect sidebar appears on save when enabled."

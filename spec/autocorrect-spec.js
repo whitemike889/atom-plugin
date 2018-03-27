@@ -6,6 +6,7 @@ const http = require('http');
 const {withKiteWhitelistedPaths, withRoutes, fakeKiteInstallPaths, fakeResponse} = require('./spec-helpers');
 const {click} = require('./helpers/events');
 const projectPath = path.join(__dirname, 'fixtures');
+const {AUTOCORRECT_SHOW_SIDEBAR, AUTOCORRECT_DONT_SHOW_SIDEBAR} = require('../lib/constants');
 
 describe('autocorrect', () => {
   let kitePkg, kiteEditor, editor, buffer, jasmineContent, workspaceElement;
@@ -18,7 +19,7 @@ describe('autocorrect', () => {
 
     localStorage.removeItem('kite.autocorrect_model_version');
 
-    atom.config.set('kite.actionWhenKiteFixesCode', 'Clean up quietly');
+    atom.config.set('kite.actionWhenKiteFixesCode', AUTOCORRECT_DONT_SHOW_SIDEBAR);
 
     // Use these styles if you need to display the workspace when running the tests
     // jasmineContent.innerHTML = `
@@ -209,7 +210,7 @@ describe('autocorrect', () => {
               });
 
               it('selects the correct option in the actions list', () => {
-                expect(sidebar.querySelector('select').value).toEqual('Clean up quietly');
+                expect(sidebar.querySelector('select').value).toEqual(AUTOCORRECT_DONT_SHOW_SIDEBAR);
               });
 
               it('displays the feedback buttons', () => {
@@ -331,7 +332,7 @@ describe('autocorrect', () => {
 
             describe('with reopen this sidebar setting', () => {
               beforeEach(() => {
-                atom.config.set('kite.actionWhenKiteFixesCode', 'Reopen this sidebar');
+                atom.config.set('kite.actionWhenKiteFixesCode', AUTOCORRECT_SHOW_SIDEBAR);
               });
 
               describe('and the version does not change', () => {
@@ -422,7 +423,7 @@ describe('autocorrect', () => {
 
             describe('with Clean up quietly setting', () => {
               beforeEach(() => {
-                atom.config.set('kite.actionWhenKiteFixesCode', 'Clean up quietlyr');
+                atom.config.set('kite.actionWhenKiteFixesCode', AUTOCORRECT_DONT_SHOW_SIDEBAR);
               });
 
               describe('when the sidebar is open, but not active', () => {
@@ -671,7 +672,7 @@ describe('autocorrect', () => {
             ]);
 
             beforeEach(() => {
-              atom.config.set('kite.actionWhenKiteFixesCode', 'Reopen this sidebar');
+              atom.config.set('kite.actionWhenKiteFixesCode', AUTOCORRECT_SHOW_SIDEBAR);
 
               editor.save();
 
@@ -681,7 +682,7 @@ describe('autocorrect', () => {
             });
 
             it('selects the correct option in the list', () => {
-              expect(sidebar.querySelector('select').value).toEqual('Reopen this sidebar');
+              expect(sidebar.querySelector('select').value).toEqual(AUTOCORRECT_SHOW_SIDEBAR);
             });
           });
         });
