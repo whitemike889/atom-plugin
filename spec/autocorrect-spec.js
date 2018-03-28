@@ -100,7 +100,7 @@ describe('autocorrect', () => {
           });
 
           it('does not have a clean up model version', () => {
-            expect(kitePkg.codeCleanupVersion()).toBeNull();
+            expect(kitePkg.errorRescueVersion()).toBeNull();
           });
 
           it('invokes the will-save hook', () => {
@@ -137,7 +137,7 @@ describe('autocorrect', () => {
             });
 
             it('does not store the model version', () => {
-              expect(kitePkg.codeCleanupVersion()).toBeNull();
+              expect(kitePkg.errorRescueVersion()).toBeNull();
             });
           });
 
@@ -162,7 +162,7 @@ describe('autocorrect', () => {
             });
 
             it('stores the clean up model version', () => {
-              expect(kitePkg.codeCleanupVersion()).toEqual(1);
+              expect(kitePkg.errorRescueVersion()).toEqual(1);
             });
 
             describe('saving the file again with no errors this time', () => {
@@ -396,7 +396,7 @@ describe('autocorrect', () => {
                   });
 
                   it('stores the new clean up model version', () => {
-                    expect(kitePkg.codeCleanupVersion()).toEqual(2);
+                    expect(kitePkg.errorRescueVersion()).toEqual(2);
                   });
 
                   describe('the sidebar panel', () => {
@@ -467,7 +467,7 @@ describe('autocorrect', () => {
                 });
 
                 it('stores the new clean up model version', () => {
-                  expect(kitePkg.codeCleanupVersion()).toEqual(2);
+                  expect(kitePkg.errorRescueVersion()).toEqual(2);
                 });
 
                 describe('the sidebar panel tab', () => {
@@ -525,7 +525,7 @@ describe('autocorrect', () => {
                 });
 
                 it('stores the new clean up model version', () => {
-                  expect(kitePkg.codeCleanupVersion()).toEqual(2);
+                  expect(kitePkg.errorRescueVersion()).toEqual(2);
                 });
 
                 describe('the sidebar panel tab', () => {
@@ -572,7 +572,7 @@ describe('autocorrect', () => {
                 });
 
                 it('stores the new clean up model version', () => {
-                  expect(kitePkg.codeCleanupVersion()).toEqual(2);
+                  expect(kitePkg.errorRescueVersion()).toEqual(2);
                 });
 
                 it('creates a notification', () => {
