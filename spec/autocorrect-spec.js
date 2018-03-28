@@ -579,7 +579,7 @@ describe('autocorrect', () => {
                   expect(atom.notifications.addInfo).toHaveBeenCalled();
 
                   const [content, options] = atom.notifications.addInfo.calls[0].args;
-                  expect(content).toEqual('#### Kite code clean-up was just updated\nSome string');
+                  expect(content).toEqual('#### Kite Error Rescue has just been updated\nSome string');
                   expect(options.detail).toEqual('for x in list:\nfor x in list');
                 });
               });
