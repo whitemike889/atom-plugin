@@ -61,19 +61,19 @@
       "default": false,
       "description": "Makes the sidebar appears on startup when enabled."
     },
-    "enableAutocorrect": {
+    "enableErrorRescue": {
       "type": "boolean",
       "default": true,
-      "description": "Enables autocorrect feature on save."
+      "description": "Allow Error Rescue to make code fixes on save"
     },
-    "actionWhenKiteFixesCode": {
+    "actionWhenErrorRescueFixesCode": {
       "type": "string",
       "default": "Reopen sidebar",
       "enum": [
         "Reopen sidebar",
-        "Clean up quietly"
+        "Fix code quietly"
       ],
-      "description": "Makes the autocorrect sidebar appears on save when enabled."
+      "description": "Choose whether Error Rescue should (re)open its sidebar upon making fixes, or do it quietly"
     },
     "maxVisibleSuggestionsAlongSignature": {
       "type": "integer",
