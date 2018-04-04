@@ -32,6 +32,7 @@ kite-navigable-stack-breadcrumb {
   padding-top: @half-padding;
   margin-bottom: -@half-padding;
   z-index: 1;
+  max-width: 100%;
 
   background: @sidebar-header-background;
 
@@ -65,6 +66,8 @@ kite-navigable-stack-breadcrumb {
     overflow-x: auto;
     flex: 1 1 0;
     position: relative;
+    //max-width: 100%;
+    //background: red;
 
     &::-webkit-scrollbar {
       display: none;
@@ -76,6 +79,13 @@ kite-navigable-stack-breadcrumb {
       a {
         color: @text-color-subtle;
         text-decoration: underline;
+        max-width: 10em;
+        display: inline-block;
+        vertical-align: middle;
+
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
 
         &:focus {
           text-decoration: none;
@@ -88,6 +98,7 @@ kite-navigable-stack-breadcrumb {
 
       &:not(:last-child) {
         &:after {
+          vertical-align: middle;
           content: '›';
           color: @text-color-subtle;
           margin-left: 0.4em;

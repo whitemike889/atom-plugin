@@ -110,16 +110,12 @@ kite-sidebar, kite-autocorrect-sidebar {
 
     > .icon {
       position: absolute;
-      top: 0.2em;
+      //top: 0.2em;
     }
 
     > a, > span {
       padding-left: 1.5em;
       padding-right: 1.5em;
-
-      span {
-        display: inline-block;
-      }
 
       .icon {
         position: absolute;
@@ -130,8 +126,28 @@ kite-sidebar, kite-autocorrect-sidebar {
   }
 }
 
+.kite-icon-list,
+.kite-list {
+  ul li {
+    position: relative;
+
+    > a, > span {
+      display: block; // 100% width click target
+      padding-bottom: @half-padding;
+      padding-right: 1.5em; // Prevents text from touching the chevron
+
+      .icon { // Chevron
+        position: absolute;
+        top: 0.2em;
+        right: -0.8em; // Right tip aligns with right margin
+        color: @text-color-subtle;
+      }
+    }
+  }
+}
+
 .kite-examples-list {
-  .kite-icon-list;
+  .kite-list;
 }
 
 .kite-split-line {
@@ -186,7 +202,8 @@ kite-sidebar, kite-autocorrect-sidebar {
     }
   }
 
-  kite-expand-module, kite-expand-function, kite-expand-instance, kite-expand-unknown {
+  kite-expand-module, kite-expand-function, kite-expand-instance,
+  kite-expand-unknown, kite-curated-example, kite-examples-list {
     flex-direction: column;
 
     .expand-header, .expand-extend {
@@ -364,7 +381,7 @@ kite-sidebar, kite-autocorrect-sidebar {
   .expand-header {
     color: @text-color-highlight;
 
-    code {
+    .name {
       font-size: 1.2em;
     }
 
@@ -541,49 +558,26 @@ kite-sidebar, kite-autocorrect-sidebar {
           justify-content: space-between;
         }
 
-        .usage-bullet {
-          width: 0.8em;
-          height: 0.8em;
-          border-radius: 50%;
-          background-color: @background-color-highlight;
-          margin-right: 0.5em;
-          flex-grow: 0;
-          flex-shrink: 0;
-        }
-
         .usage {
           flex-grow: 1;
-          padding: 0.5em;
-          // padding-left: 2em;
           margin: 0;
+          padding-bottom: @component-padding;
 
           & + .usage {
             margin-top: 1px;
           }
 
-          // &::before {
-          //   content: '\25cf';
-          //   color: lighten(@background-color-selected, 20%);
-          //   position: absolute;
-          //   left: 0.5em;
-          // }
-
           pre {
             margin: 0;
-            background-color: transparent;
-            font-family: inherit;
-            padding: 0;
-            overflow-x: auto;
-            white-space: pre;
-
-            code {
-              font-family: inherit;
-            }
           }
 
           .links {
             display: inline-block;
             white-space: nowrap;
+
+            .icon:before {
+              color: @text-color-subtle;
+            }
 
             .web-link {
               cursor: pointer;
@@ -617,35 +611,15 @@ kite-sidebar, kite-autocorrect-sidebar {
 
       .icon, > .file, > .example, > .link {
         display: inline-block;
-        vertical-align: middle;
-      }
-
-      .file, .example, .link {
-        font-weight: 300;
-        color: @text-color-highlight;
-
-        .icon {
-          color: @text-color;
-          font-weight: 0.8em;
-        }
-      }
-
-      .icon {
-        line-height: 1em;
+        //vertical-align: middle;
       }
 
       .icon-file-code::before {
-        color: @text-color-info;
+        color: @text-color-subtle;
         font-size: 1.2em;
         line-height: 1em;
         height: 1em;
-      }
-
-      .icon-code::before {
-        color: @text-color-success;
-        font-size: 1.2em;
-        line-height: 1em;
-        height: 1em;
+        //outline: 1px solid red;
       }
 
       pre {
