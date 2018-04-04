@@ -5,15 +5,21 @@
 }
 
 kite-autocorrect-sidebar {
+  //padding: @component-padding @sidebar-horizontal-padding;
+  .header {
+    background: @sidebar-header-background;
+    padding: @double-padding @sidebar-horizontal-padding @double-padding;
+    margin: 0 -@sidebar-horizontal-padding;
+
+  }
   .settings-view {
-    background: transparent !important;
-    flex-direction: column;
-    margin: 0;
-    padding: 0 0 @double-padding;
+    //background: transparent !important;
+    //flex-direction: column;
     position: relative;
 
     .settings-panel {
       width: 100%;
+      //text-align: center;
     }
 
     .setting-title, .form-control {
@@ -21,26 +27,25 @@ kite-autocorrect-sidebar {
     }
 
     .control-group.checkbox {
-      padding-left: 3.25em;
+      padding-left: 40px + @sidebar-left-indent;
+      margin-bottom: .5em;
+
     }
     .control-group.checkbox:not(.checked) + .control-group.select {
       pointer-events: none;
       opacity: 0.5;
     }
 
-    &:not(.autocorrect-enabled) + .content {
-      display: none;
-    }
-
     input.input-toggle {
-      margin-left: -3.25em;
+      margin-left: -40px;
     }
     &:not(.autocorrect-enabled) + .content {
       display: none;
     }
 
     .control-group.select {
-      padding-left: 3.25em;
+      padding-left: @sidebar-left-indent;
+      padding-right: @sidebar-left-indent;
 
       label {
         flex-direction: row;
@@ -61,25 +66,31 @@ kite-autocorrect-sidebar {
     }
   }
   .content:not(:empty) {
-    border-top: 1px solid @base-border-color;
-    padding-top: @double-padding;
+    padding-top: @component-padding;
   }
   code {
     font-family: var(--editor-font-family);
     font-size: var(--editor-font-size);
     line-height: var(--editor-line-height);
+    // TODO: All of this is also present in content.less in .kite-code.
+    // Could this be unified?
   }
   h4 {
     font-size: 1em;
-    margin-bottom: 1.5em;
+    margin-bottom: 0.5em;
     line-height: 1.5;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: @text-color-highlight;
+    letter-spacing: 0.16em;
+    font-weight: normal;
+    color: @text-color-subtle;
+    // TODO: All of this above is duplicated verbatim from content.less.
+    // Could this be unified?
+    margin-left: -@sidebar-left-indent;
   }
   .diff {
     margin: @component-padding 0;
     margin-bottom: @double-padding;
+    margin-left: @sidebar-left-indent;
 
     kite-links a, kite-links a:hover, kite-links a:focus, kite-links a:active {
       font-size: 1em;
@@ -94,6 +105,9 @@ kite-autocorrect-sidebar {
         pointer-events: none;
       }
     }
+  }
+  .message, .timestamp {
+    margin-top: @component-padding;
   }
   .diff-content {
     margin-top: @component-padding;
@@ -150,11 +164,6 @@ kite-autocorrect-sidebar {
       padding: 4px @component-padding;
       color: @text-color;
       border-right: 1px solid fadeout(@text-color, 90%);
-    }
-    strong {
-      padding: 0.2em 0.1em;
-      margin: -0.2em -0.1em;
-      font-weight: inherit;
     }
     strong {
       padding: 0.2em 0.1em;
@@ -226,7 +235,7 @@ kite-autocorrect-sidebar {
     }
   }
 
-  a.icon-info {
+  a.icon-question {
     position: absolute;
     top: 0.4em;
     right: 0;
@@ -249,7 +258,7 @@ kite-autocorrect-sidebar {
   }
 
   .message-box {
-    margin: 0 0 @component-padding;
+    margin: @component-padding 0 @component-padding;
     padding: @double-padding (6 * @component-padding) @double-padding @double-padding;
     border-radius: @component-border-radius;
     background: @inset-panel-background-color;
@@ -257,6 +266,8 @@ kite-autocorrect-sidebar {
 
     h4 {
       margin-top: 0;
+      margin-left: 0;
+      margin-bottom: @component-padding;
     }
 
     .btn-close {
@@ -295,5 +306,7 @@ kite-autocorrect-sidebar {
   .kite-column {
     display: block !important;
     overflow-y: auto !important;
+
+    padding: 0 @sidebar-horizontal-padding !important;
   }
 }
