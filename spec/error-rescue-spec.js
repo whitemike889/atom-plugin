@@ -6,9 +6,9 @@ const http = require('http');
 const {withKiteWhitelistedPaths, withRoutes, fakeKiteInstallPaths, fakeResponse} = require('./spec-helpers');
 const {click} = require('./helpers/events');
 const projectPath = path.join(__dirname, 'fixtures');
-const {AUTOCORRECT_SHOW_SIDEBAR, AUTOCORRECT_DONT_SHOW_SIDEBAR} = require('../lib/constants');
+const {ERROR_RESCUE_SHOW_SIDEBAR, ERROR_RESCUE_DONT_SHOW_SIDEBAR} = require('../lib/constants');
 
-describe('autocorrect', () => {
+describe('error rescue', () => {
   let kitePkg, kiteEditor, editor, buffer, jasmineContent, workspaceElement;
 
   fakeKiteInstallPaths();
@@ -19,7 +19,7 @@ describe('autocorrect', () => {
 
     localStorage.removeItem('kite.autocorrect_model_version');
 
-    atom.config.set('kite.actionWhenErrorRescueFixesCode', AUTOCORRECT_DONT_SHOW_SIDEBAR);
+    atom.config.set('kite.actionWhenErrorRescueFixesCode', ERROR_RESCUE_DONT_SHOW_SIDEBAR);
 
     // Use these styles if you need to display the workspace when running the tests
     // jasmineContent.innerHTML = `
@@ -38,7 +38,7 @@ describe('autocorrect', () => {
   });
 
   afterEach(() => {
-    kitePkg && kitePkg.toggleAutocorrectSidebar(false);
+    kitePkg && kitePkg.toggleErrorRescueSidebar(false);
     localStorage.removeItem('autocorrect_model_version');
   });
 
@@ -100,7 +100,7 @@ describe('autocorrect', () => {
           });
 
           it('does not have a clean up model version', () => {
-            expect(kitePkg.codeCleanupVersion()).toBeNull();
+            expect(kitePkg.errorRescueVersion()).toBeNull();
           });
 
           it('invokes the will-save hook', () => {
@@ -137,7 +137,7 @@ describe('autocorrect', () => {
             });
 
             it('does not store the model version', () => {
-              expect(kitePkg.codeCleanupVersion()).toBeNull();
+              expect(kitePkg.errorRescueVersion()).toBeNull();
             });
           });
 
@@ -162,7 +162,7 @@ describe('autocorrect', () => {
             });
 
             it('stores the clean up model version', () => {
-              expect(kitePkg.codeCleanupVersion()).toEqual(1);
+              expect(kitePkg.errorRescueVersion()).toEqual(1);
             });
 
             describe('saving the file again with no errors this time', () => {
@@ -187,7 +187,7 @@ describe('autocorrect', () => {
             describe('the first run experience', () => {
               beforeEach(() => {
                 waitsFor('autocorrect sidebar', () =>
-                  sidebar = workspaceElement.querySelector('kite-autocorrect-sidebar'));
+                  sidebar = workspaceElement.querySelector('kite-error-rescue-sidebar'));
                 runs(() => messageBox = sidebar.querySelector('.message-box'));
               });
               it('has a message box', () => {
@@ -210,7 +210,7 @@ describe('autocorrect', () => {
               });
 
               it('selects the correct option in the actions list', () => {
-                expect(sidebar.querySelector('select').value).toEqual(AUTOCORRECT_DONT_SHOW_SIDEBAR);
+                expect(sidebar.querySelector('select').value).toEqual(ERROR_RESCUE_DONT_SHOW_SIDEBAR);
               });
 
               it('displays the feedback buttons', () => {
@@ -332,7 +332,7 @@ describe('autocorrect', () => {
 
             describe('with reopen this sidebar setting', () => {
               beforeEach(() => {
-                atom.config.set('kite.actionWhenErrorRescueFixesCode', AUTOCORRECT_SHOW_SIDEBAR);
+                atom.config.set('kite.actionWhenErrorRescueFixesCode', ERROR_RESCUE_SHOW_SIDEBAR);
               });
 
               describe('and the version does not change', () => {
@@ -358,7 +358,7 @@ describe('autocorrect', () => {
                 describe('the sidebar panel', () => {
                   beforeEach(() => {
                     waitsFor('autocorrect sidebar', () =>
-                    sidebar = workspaceElement.querySelector('kite-autocorrect-sidebar'));
+                    sidebar = workspaceElement.querySelector('kite-error-rescue-sidebar'));
                   });
 
                   it('is open again', () => {
@@ -396,13 +396,13 @@ describe('autocorrect', () => {
                   });
 
                   it('stores the new clean up model version', () => {
-                    expect(kitePkg.codeCleanupVersion()).toEqual(2);
+                    expect(kitePkg.errorRescueVersion()).toEqual(2);
                   });
 
                   describe('the sidebar panel', () => {
                     beforeEach(() => {
                       waitsFor('autocorrect sidebar', () =>
-                      sidebar = workspaceElement.querySelector('kite-autocorrect-sidebar'));
+                      sidebar = workspaceElement.querySelector('kite-error-rescue-sidebar'));
                     });
 
                     it('is open again', () => {
@@ -423,17 +423,17 @@ describe('autocorrect', () => {
 
             describe('with Clean up quietly setting', () => {
               beforeEach(() => {
-                atom.config.set('kite.actionWhenErrorRescueFixesCode', AUTOCORRECT_DONT_SHOW_SIDEBAR);
+                atom.config.set('kite.actionWhenErrorRescueFixesCode', ERROR_RESCUE_DONT_SHOW_SIDEBAR);
               });
 
               describe('when the sidebar is open, but not active', () => {
                 let sidebar, spy;
 
                 beforeEach(() => {
-                  kitePkg.toggleAutocorrectSidebar(true);
+                  kitePkg.toggleErrorRescueSidebar(true);
 
                   waitsFor('autocorrect sidebar', () =>
-                    sidebar = workspaceElement.querySelector('kite-autocorrect-sidebar'));
+                    sidebar = workspaceElement.querySelector('kite-error-rescue-sidebar'));
 
                   waitsForPromise(() => {
                     const pane = atom.workspace.getRightDock().getActivePane();
@@ -467,7 +467,7 @@ describe('autocorrect', () => {
                 });
 
                 it('stores the new clean up model version', () => {
-                  expect(kitePkg.codeCleanupVersion()).toEqual(2);
+                  expect(kitePkg.errorRescueVersion()).toEqual(2);
                 });
 
                 describe('the sidebar panel tab', () => {
@@ -508,10 +508,10 @@ describe('autocorrect', () => {
                 ]);
 
                 beforeEach(() => {
-                  kitePkg.toggleAutocorrectSidebar(true);
+                  kitePkg.toggleErrorRescueSidebar(true);
 
                   waitsFor('autocorrect sidebar', () =>
-                    sidebar = workspaceElement.querySelector('kite-autocorrect-sidebar'));
+                    sidebar = workspaceElement.querySelector('kite-error-rescue-sidebar'));
 
                   runs(() => {
                     editor.save();
@@ -525,7 +525,7 @@ describe('autocorrect', () => {
                 });
 
                 it('stores the new clean up model version', () => {
-                  expect(kitePkg.codeCleanupVersion()).toEqual(2);
+                  expect(kitePkg.errorRescueVersion()).toEqual(2);
                 });
 
                 describe('the sidebar panel tab', () => {
@@ -572,7 +572,7 @@ describe('autocorrect', () => {
                 });
 
                 it('stores the new clean up model version', () => {
-                  expect(kitePkg.codeCleanupVersion()).toEqual(2);
+                  expect(kitePkg.errorRescueVersion()).toEqual(2);
                 });
 
                 it('creates a notification', () => {
@@ -626,8 +626,8 @@ describe('autocorrect', () => {
               editor.save();
 
               waitsFor('buffer saved', () => buffer.buffer.save.calls.length > 0);
-              // runs(() => kitePkg.toggleAutocorrectSidebar());
-              waitsFor('autocorrect sidebar', () => sidebar = workspaceElement.querySelector('kite-autocorrect-sidebar'));
+              // runs(() => kitePkg.toggleErrorRescueSidebar());
+              waitsFor('autocorrect sidebar', () => sidebar = workspaceElement.querySelector('kite-error-rescue-sidebar'));
               waitsFor('initial diff view', () => sidebar.querySelector('.diff'));
             });
 
@@ -685,17 +685,17 @@ describe('autocorrect', () => {
             ]);
 
             beforeEach(() => {
-              atom.config.set('kite.actionWhenErrorRescueFixesCode', AUTOCORRECT_SHOW_SIDEBAR);
+              atom.config.set('kite.actionWhenErrorRescueFixesCode', ERROR_RESCUE_SHOW_SIDEBAR);
 
               editor.save();
 
               waitsFor('buffer saved', () => buffer.buffer.save.calls.length > 0);
-              waitsFor('autocorrect sidebar', () => sidebar = workspaceElement.querySelector('kite-autocorrect-sidebar'));
+              waitsFor('autocorrect sidebar', () => sidebar = workspaceElement.querySelector('kite-error-rescue-sidebar'));
               waitsFor('initial diff view', () => sidebar.querySelector('.diff'));
             });
 
             it('selects the correct option in the list', () => {
-              expect(sidebar.querySelector('select').value).toEqual(AUTOCORRECT_SHOW_SIDEBAR);
+              expect(sidebar.querySelector('select').value).toEqual(ERROR_RESCUE_SHOW_SIDEBAR);
             });
           });
         });
