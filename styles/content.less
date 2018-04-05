@@ -2,6 +2,70 @@
 @import "variables";
 
 // TK finish light and dark
+.smart-text-color (@a, @b) when ((lightness(@a) >= 50%) and (lightness(@b) >= 50%)) {
+  //background: red;
+  border: 1px solid red;
+  .syntax--variable {
+    color: hsl(hue(@syntax-color-keyword), saturation(@syntax-color-keyword), 100 - lightness(@syntax-color-keyword)) !important;
+    //color: black !important;
+  }
+  .syntax--keyword {
+    color: hsl(hue(@syntax-color-keyword), saturation(@syntax-color-keyword), 100 - lightness(@syntax-color-keyword)) !important;
+    //color: black !important;
+  }
+  .syntax--control {
+    color: hsl(hue(@syntax-color-function), saturation(@syntax-color-function), 100 - lightness(@syntax-color-function)) !important;
+    //color: red !important;
+  }
+  .syntax--function {
+    color: hsl(hue(@syntax-color-function), saturation(@syntax-color-function), 100 - lightness(@syntax-color-function)) !important;
+    //color: black !important;
+  }
+  .syntax--constant {
+    color: hsl(hue(@syntax-color-constant), saturation(@syntax-color-constant), 100 - lightness(@syntax-color-constant)) !important;
+    //color: black !important;
+  }
+  .syntax--meta {
+    color: hsl(hue(@syntax-text-color), saturation(@syntax-text-color), 100 - lightness(@syntax-text-color)) !important;
+    //color: black !important;
+  }
+}
+.smart-text-color (@a, @b) when ((lightness(@a) < 50%) and (lightness(@b) < 50%)) {
+  border: 1px solid green;
+  .syntax--variable {
+    color: hsl(hue(@syntax-color-keyword), saturation(@syntax-color-keyword), .7) !important;
+    //color: white !important;
+  }
+  .syntax--keyword {
+    color: hsl(hue(@syntax-color-keyword), saturation(@syntax-color-keyword), .7) !important;
+    //color: white !important;
+  }
+  .syntax--control {
+    color: hsl(hue(@syntax-color-function), saturation(@syntax-color-function), .7) !important;
+    //color: white !important;
+  }
+  .syntax--function {
+    color: hsl(hue(@syntax-color-function), saturation(@syntax-color-function), .7) !important;
+    //color: white !important;
+  }
+  .syntax--constant {
+    color: hsl(hue(@syntax-color-constant), saturation(@syntax-color-constant), .7) !important;
+    //color: white !important;
+  }
+  .syntax--meta {
+    color: hsl(hue(@syntax-text-color), saturation(@syntax-text-color), .7) !important;
+    //color: white !important;
+  }
+}
+/*
+.smart-text-color (@a, @b) when (lightness(@a) < 50% && lightness(@b) >= 50%) {
+  background: green;
+}*/
+
+kite-sidebar {
+  .smart-text-color(@syntax-text-color, @tab-background-color);
+}
+
 kite-sidebar, kite-autocorrect-sidebar {
   .syntax--variable {
     //color: hsl(hue(@syntax-color-keyword), saturation(@syntax-color-keyword), 100-lightness(@syntax-color-keyword)) !important;
