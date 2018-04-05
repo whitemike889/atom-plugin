@@ -1,104 +1,6 @@
 @import "ui-variables";
 @import "variables";
-
-// TK finish light and dark
-.smart-text-color (@a, @b) when ((lightness(@a) >= 50%) and (lightness(@b) >= 50%)) {
-  //background: red;
-  border: 1px solid red;
-  .syntax--variable {
-    color: hsl(hue(@syntax-color-keyword), saturation(@syntax-color-keyword), 100 - lightness(@syntax-color-keyword)) !important;
-    //color: black !important;
-  }
-  .syntax--keyword {
-    color: hsl(hue(@syntax-color-keyword), saturation(@syntax-color-keyword), 100 - lightness(@syntax-color-keyword)) !important;
-    //color: black !important;
-  }
-  .syntax--control {
-    color: hsl(hue(@syntax-color-function), saturation(@syntax-color-function), 100 - lightness(@syntax-color-function)) !important;
-    //color: red !important;
-  }
-  .syntax--function {
-    color: hsl(hue(@syntax-color-function), saturation(@syntax-color-function), 100 - lightness(@syntax-color-function)) !important;
-    //color: black !important;
-  }
-  .syntax--constant {
-    color: hsl(hue(@syntax-color-constant), saturation(@syntax-color-constant), 100 - lightness(@syntax-color-constant)) !important;
-    //color: black !important;
-  }
-  .syntax--meta {
-    color: hsl(hue(@syntax-text-color), saturation(@syntax-text-color), 100 - lightness(@syntax-text-color)) !important;
-    //color: black !important;
-  }
-}
-.smart-text-color (@a, @b) when ((lightness(@a) < 50%) and (lightness(@b) < 50%)) {
-  border: 1px solid green;
-  .syntax--variable {
-    color: hsl(hue(@syntax-color-keyword), saturation(@syntax-color-keyword), .7) !important;
-    //color: white !important;
-  }
-  .syntax--keyword {
-    color: hsl(hue(@syntax-color-keyword), saturation(@syntax-color-keyword), .7) !important;
-    //color: white !important;
-  }
-  .syntax--control {
-    color: hsl(hue(@syntax-color-function), saturation(@syntax-color-function), .7) !important;
-    //color: white !important;
-  }
-  .syntax--function {
-    color: hsl(hue(@syntax-color-function), saturation(@syntax-color-function), .7) !important;
-    //color: white !important;
-  }
-  .syntax--constant {
-    color: hsl(hue(@syntax-color-constant), saturation(@syntax-color-constant), .7) !important;
-    //color: white !important;
-  }
-  .syntax--meta {
-    color: hsl(hue(@syntax-text-color), saturation(@syntax-text-color), .7) !important;
-    //color: white !important;
-  }
-}
-/*
-.smart-text-color (@a, @b) when (lightness(@a) < 50% && lightness(@b) >= 50%) {
-  background: green;
-}*/
-
-kite-sidebar {
-  .smart-text-color(@syntax-text-color, @tab-background-color);
-}
-
-kite-sidebar, kite-autocorrect-sidebar {
-  .syntax--variable {
-    //color: hsl(hue(@syntax-color-keyword), saturation(@syntax-color-keyword), 100-lightness(@syntax-color-keyword)) !important;
-    //color: black !important;
-  }
-  .syntax--keyword {
-    //color: hsl(hue(@syntax-color-keyword), saturation(@syntax-color-keyword), lightness(@syntax-color-keyword)) !important;
-    //color: @syntax-color-keyword !important;
-  }
-  .syntax--control {
-    //color: hsl(hue(@syntax-color-function), saturation(@syntax-color-function), lightness(@syntax-color-function)) !important;
-    //color: red !important;
-  }
-  .syntax--function {
-    //color: hsl(hue(@syntax-color-function), saturation(@syntax-color-function), 100 - lightness(@syntax-color-function)) !important;
-    //color: black !important;
-  }
-  .syntax--constant {
-    //color: hsl(hue(@syntax-color-constant), saturation(@syntax-color-constant), 100 - lightness(@syntax-color-constant)) !important;
-    //color: black !important;
-  }
-}
-/*@syntax-color-constant: red;//#DF6A73;
-@syntax-color-property: #DF6A73;
-@syntax-color-value: #D29B67;
-@syntax-color-function: #61AEEF;
-@syntax-color-method: @syntax-color-function;
-@syntax-color-class: #E5C17C;
-@syntax-color-keyword: #a431c4;
-@syntax-color-tag: #b72424;
-@syntax-color-attribute: #87400d;
-@syntax-color-import: #97C378;
-@syntax-color-snippet: #97C378;*/
+@import "color";
 
 .unreachable {
   &, &:hover, &:active, &:focus {
@@ -424,9 +326,11 @@ kite-sidebar, kite-autocorrect-sidebar {
     white-space: nowrap;
   }
 
-  .type, .signature {
-    color: @text-color;
+  .signature {
     word-break: break-word;
+  }
+  .type {
+    color: @text-color;
   }
 
   .split-line {
@@ -447,6 +351,20 @@ kite-sidebar, kite-autocorrect-sidebar {
 
     .name {
       font-size: 1.2em;
+
+      code {
+        font-size: inherit;
+
+        // TK override syntax highlighting
+        color: @text-color !important;
+
+        .syntax--python {
+          color: @text-color-highlight !important;
+        }
+        .syntax--operator {
+          color: @text-color !important;
+        }
+      }
     }
 
     .type {
@@ -731,9 +649,6 @@ kite-sidebar, kite-autocorrect-sidebar {
   }
 
   pre {
-    color: @text-color-highlight;
-    // TK
-
     a.icon {
       &, &:hover, &:active, &:focus,  {
         color: @button-background-color-selected;
