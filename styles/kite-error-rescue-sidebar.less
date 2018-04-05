@@ -1,10 +1,10 @@
 @import 'variables';
 
-.tab[data-type="kite-autocorrect-sidebar"] .icon-info::before {
+.tab[data-type="kite-error-rescue-sidebar"] .icon-info::before {
   color: @text-color-info;
 }
 
-kite-autocorrect-sidebar {
+kite-error-rescue-sidebar {
   .settings-view {
     background: transparent !important;
     flex-direction: column;
@@ -28,14 +28,14 @@ kite-autocorrect-sidebar {
       opacity: 0.5;
     }
 
-    &:not(.autocorrect-enabled) + .content {
+    &:not(.error-rescue-enabled) + .content {
       display: none;
     }
 
     input.input-toggle {
       margin-left: -3.25em;
     }
-    &:not(.autocorrect-enabled) + .content {
+    &:not(.error-rescue-enabled) + .content {
       display: none;
     }
 
