@@ -1,6 +1,6 @@
 
 '.platform-win32 atom-text-editor:not([mini])':
-  'ctrl-alt-shift-k': 'kite:expand-at-cursor'
+  'ctrl-alt-shift-k': 'kite:docs-at-cursor'
   'ctrl-alt-k': 'kite:open-in-web'
 
 '.platform-win32 kite-login':
