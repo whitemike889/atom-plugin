@@ -5,7 +5,7 @@ kite-signature {
   display: block;
   padding: @component-padding;
   background: @app-background-color;
-  font-size: 1em;
+  //font-size: 1em;
   font-family: @font-family;
   max-width: 30em;
   min-width: 20em;
@@ -22,13 +22,22 @@ kite-signature {
   }
 
   pre {
-    font-family: inherit;
-    font-size: 1em;
+    //font-family: inherit;
+    //font-size: 1em;
     padding: 0;
     background: transparent;
-    margin-left: @half-padding;
-    color: @text-color;
+    //margin-left: @half-padding;
+    //color: @text-color;
     cursor: default;
+    padding-left: 4ch;
+    text-indent: -4ch;
+
+    -webkit-user-select: text;
+    cursor: text;
+
+    word-wrap: normal;
+    word-break: normal;
+    white-space: pre-wrap;
 
     .line {
       white-space: pre-wrap;
@@ -36,17 +45,8 @@ kite-signature {
     }
   }
 
-  h4 {
-    cursor: default;
-  }
-
   .parameter.ellipsis {
     color: @text-color-subtle;
-  }
-
-  .kite-pro-features{
-    font-size: 0.9em;
-    opacity: 0.7;
   }
 
   .parameter-name {
@@ -55,10 +55,12 @@ kite-signature {
 
   .parameter-highlight .parameter-name {
     padding: 0 3px;
-    font-weight: bold;
     border-radius: 2px;
     display: inline-block;
-    color: @text-color-highlight;
+    text-indent: 0;
+
+    background: @background-color-highlight;
+    color: @text-color-highlight !important;
   }
 
   .parameter-highlight a .parameter-name,
@@ -75,14 +77,13 @@ kite-signature {
 
     kite-links {
       text-align: left;
+      margin: 0; // Overrides -1em; not sure why kite-links are used here.
     }
 
     dl {
       overflow-y: auto;
       max-height: 200px;
       margin-top: 0;
-      margin-left: @half-padding;
-
     }
 
     dt {
@@ -100,6 +101,18 @@ kite-signature {
 
   section.kwargs.visible {
     display: block;
+  }
+
+  h4 {
+    cursor: default;
+  }
+
+  .kite-pro-features {
+    font-size: 0.9em;
+    color: @text-color-subtle;
+    a {
+      color: inherit;
+    }
   }
 }
 

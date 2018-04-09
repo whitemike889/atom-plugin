@@ -139,48 +139,43 @@ kite-search {
       margin-top: @component-padding;
     }
 
-    footer {
-      display: flex !important;
+    footer { // TO DO the same as in kite-sidebar.less
+      display: flex;
       flex-direction: row;
       justify-content: space-between;
       flex: 0 0 auto;
-      padding: @component-padding;
-      background: fade(@background-color-highlight, 50%);
+      z-index: 1000;
+      height: 4em;
+      line-height: 4em;
+      color: @text-color-subtle;
+      padding: 0 @sidebar-horizontal-padding;
+      border-top: 1px solid @sidebar-header-background;
+      border-bottom: 1px solid @sidebar-header-background; // To separate from the editor status line
 
       .actions {
         a {
-          background: @background-color-selected;
-          color: @text-color;
+          color: @text-color-subtle;
           text-decoration: none;
-          padding: 0.2em 0.5em;
-          border-radius: 3px;
-          text-transform: uppercase;
-          font-size: 0.8em;
-          font-weight: 100;
-
-          span {
-            display: inline-block;
-            vertical-align: middle;
-          }
-
-          svg {
-            height: 1em;
-            display: inline-block;
-            vertical-align: middle;
-          }
-
-          svg polygon,
-          svg path {
-            fill: @text-color-highlight;
-          }
 
           &:hover {
-            background: @text-color-info;
-            color: @text-color-highlight;
+            text-decoration: none;
+          }
+          span {
+            text-decoration: underline;
           }
         }
+        a + a:before {
+          content: ' · ';
+          padding: 0 0.2em;
+          color: @text-color-subtle;
+        }
 
-        > * { display: none; }
+        > * {
+          display: none;
+        }
+      }
+      kite-logo.badge {
+        margin-top: 2em;
       }
     }
   }

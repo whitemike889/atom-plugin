@@ -81,7 +81,7 @@
     }
 
     > a, > span {
-      padding-left: 1.2em;
+      padding-left: 1.3em;
       padding-right: 1.5em;
 
       .icon {
@@ -102,6 +102,8 @@
       display: block; // 100% width click target
       padding-bottom: @half-padding;
       padding-right: 1.5em; // Prevents text from touching the chevron
+
+      //text-decoration: none;
 
       .icon { // Chevron
         position: absolute;
@@ -196,7 +198,7 @@
     }
 
     section.summary,
-    section.examples,
+    section.how-to,
     section.links,
     section.usages,
     section.examples-from-your-code {
@@ -204,7 +206,17 @@
     }
 
     section .kite-pro-features {
+      text-align: center;
+      border: 1px dashed @inset-panel-background-color;
+      border-radius: 10px;
+      padding: @component-padding;
+      margin-top: @component-padding;
       margin-bottom: @component-padding;
+      color: @text-color-subtle;
+      a {
+        color: inherit;
+        white-space: nowrap;
+      }
     }
 
     section.summary {
@@ -325,13 +337,11 @@
 
   .type {
     white-space: nowrap;
+    color: @text-color;
   }
 
   .signature {
     word-break: break-word;
-  }
-  .type {
-    color: @text-color;
   }
 
   .split-line {
@@ -442,6 +452,7 @@
         margin: -0.2em 0.1em;
       }
       em {
+        line-height: 0; // Don’t allow code to change the rhythm of text
         // Turn italics (which look bad) into brighter code
         color: @text-color-highlight;
         font-style: normal;
@@ -478,44 +489,52 @@
         flex: 0 0 auto;
       }
     }
-
-    a.more-members {
-      display: block;
-      margin-top: @component-padding;
-    }
   }
 
-  section.examples {
-    a.more-examples {
-      display: block;
-      margin-top: @component-padding;
-      margin-bottom: @double-padding;
-    }
-
+  section.how-to {
     .kite-examples-list;
   }
 
   section.links {
-    a.more-links {
-      display: block;
-      margin-top: @component-padding;
-      margin-bottom: @double-padding;
+    .kite-examples-list;
+  }
+
+  section.popular-members a.more-members,
+  section.how-to a.more-examples,
+  section.links a.more-links {
+    display: block;
+    margin-top: @half-padding;
+    margin-bottom: @double-padding;
+    margin-right: -@half-padding;
+    position: relative;
+    border-top: 1px solid @inset-panel-background-color;
+    padding-top: @component-padding;
+
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
     }
 
-    .kite-examples-list;
+    .icon { // Chevron
+      position: absolute;
+      top: 0.6em;
+      right: -0.8em; // Right tip aligns with right margin
+      color: @text-color-subtle;
+      // TODO Unify with Chevron elsewhere in the file
+    }
   }
 
   section.definition {
     .kite-icon-list;
+
+    a {
+      text-decoration-line: underline;
+    }
   }
 
   section.patterns,
   section.examples-from-your-code {
-    .kite-pro-features {
-      font-size: 1.2em;
-      padding-left: @component-padding;
-    }
-
     pre {
       // Indent every line except the first one by 4 spaces
       padding-left: 4ch;
@@ -601,7 +620,7 @@
         font-size: 1.2em;
         line-height: 1em;
         height: 1em;
-        margin-right: -0.3em;
+        margin-right: -0.2em;
         //outline: 1px solid red;
       }
 
@@ -667,4 +686,9 @@
     // if it‘s not, resulting in shifting
     margin-top: 0;
   }
+}
+
+.line-colon {
+  color: @text-color-subtle;
+  letter-spacing: 0.2em;
 }
