@@ -2,7 +2,7 @@
 
 const http = require('http');
 const path = require('path');
-const {Installation} = require('kite-installer');
+const {install: {Install}} = require('kite-installer');
 const {fakeKiteInstallPaths, withKiteWhitelistedPaths, sleep, withFakeServer, fakeResponse} = require('./spec-helpers');
 
 const projectPath = path.join(__dirname, 'fixtures');
@@ -52,14 +52,7 @@ describe('Kite', () => {
 
       it('opens the install flow in a new tab', () => {
         const item = atom.workspace.getActivePaneItem();
-        expect(item instanceof Installation).toBeTruthy();
-      });
-
-      it('places the flow in the create account step', () => {
-        const item = atom.workspace.getActivePaneItem();
-        const view = atom.views.getView(item);
-
-        expect(view.querySelector('.create-account-step:not(.hidden)')).toExist();
+        expect(item instanceof Install).toBeTruthy();
       });
     });
   });
