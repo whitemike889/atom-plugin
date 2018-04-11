@@ -103,13 +103,20 @@
       padding-bottom: @half-padding;
       padding-right: 1.5em; // Prevents text from touching the chevron
 
-      //text-decoration: none;
+      text-decoration: none;
 
       .icon { // Chevron
         position: absolute;
-        top: 0.2em;
+        top: 0;
         right: -0.8em; // Right tip aligns with right margin
         color: @text-color-subtle;
+      }
+
+      &:hover {
+        text-decoration: none;
+        .icon {
+          color: @button-background-color-selected;
+        }
       }
     }
   }
@@ -380,13 +387,13 @@
 
     .type {
       font-size: .9em;
-      border: 1px solid @text-color;
       display: inline-block;
       flex: 0;
       padding: .3em .5em;
       margin-left: @half-padding;
-      line-height: .8;
-      border-radius: 100px;
+      line-height: 1.1;
+      border: 1px solid @text-color-subtle;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, .5);
 
       a {
         color: @text-color-info;
@@ -432,7 +439,7 @@
       right: 0;
       bottom: 0;
       z-index: 0;
-      border-top: 1px solid @inset-panel-background-color;
+      border-top: 1px solid @subtle-border-color;
     }
   }
 
@@ -507,21 +514,23 @@
     margin-bottom: @double-padding;
     margin-right: -@half-padding;
     position: relative;
-    border-top: 1px solid @inset-panel-background-color;
+    border-top: 1px solid @subtle-border-color;
     padding-top: @component-padding;
 
     text-decoration: none;
 
-    &:hover {
-      text-decoration: underline;
-    }
-
     .icon { // Chevron
       position: absolute;
-      top: 0.6em;
+      top: 0.8em;
       right: -0.8em; // Right tip aligns with right margin
       color: @text-color-subtle;
       // TODO Unify with Chevron elsewhere in the file
+    }
+
+    &:hover {
+      .icon {
+        color: @button-background-color-selected;
+      }
     }
   }
 
@@ -539,6 +548,9 @@
       // Indent every line except the first one by 4 spaces
       padding-left: 4ch;
       text-indent: -4ch;
+
+      border: 0;
+      background: transparent;
 
       -webkit-user-select: text;
       cursor: text;

@@ -12,6 +12,11 @@ kite-error-rescue-sidebar {
     margin: 0 -@sidebar-horizontal-padding;
 
   }
+
+  .kite-column:not(.error-rescue-enabled) .content {
+    display: none;
+  }
+
   .settings-view {
     //background: transparent !important;
     //flex-direction: column;
@@ -39,13 +44,10 @@ kite-error-rescue-sidebar {
     input.input-toggle {
       margin-left: -40px;
     }
-    &:not(.error-rescue-enabled) + .content {
-      display: none;
-    }
 
     .control-group.select {
       padding-left: @sidebar-left-indent;
-      padding-right: @sidebar-left-indent;
+      //padding-right: @sidebar-left-indent;
 
       label {
         flex-direction: row;
@@ -72,6 +74,7 @@ kite-error-rescue-sidebar {
     font-family: var(--editor-font-family);
     font-size: var(--editor-font-size);
     line-height: var(--editor-line-height);
+
     // TODO: All of this is also present in content.less in .kite-code.
     // Could this be unified?
   }
@@ -98,6 +101,9 @@ kite-error-rescue-sidebar {
     .feedback-actions a {
       white-space: nowrap;
     }
+    .icon.icon-file-code::before {
+      margin-right: 0; // Optical adjustment
+    }
 
     &:not(:first-child) {
       .feedback-actions {
@@ -123,9 +129,6 @@ kite-error-rescue-sidebar {
     margin-top: @component-padding;
 
     a {
-      padding-left: @half-padding;
-      padding-right: @half-padding;
-
       color: @text-color-subtle;
 
       &:hover {
@@ -138,15 +141,20 @@ kite-error-rescue-sidebar {
     }
   }
   .feedback-feedback {
-    min-height: 3em; // Allocate room for at least two lines
-    padding-left: .4em;
+    display: block;
+    min-height: 2em;
+    margin-top: 0.5em;
+    padding-top: 0.5em;
+    border-top: 1px solid transparent;
+    // padding-left: .4em;
     color: transparent;
-    transition: color 300ms;
     &.hint {
       color: @text-color-subtle;
+      border-top-color: @subtle-border-color;
     }
     &.confirmation {
       color: @text-color-highlight;
+      border-top-color: @subtle-border-color;
     }
   }
 
@@ -156,14 +164,14 @@ kite-error-rescue-sidebar {
     flex-direction: row;
     text-decoration: none;
 
-    border: 1px solid fadeout(@text-color, 90%);
+    border: 1px solid @subtle-border-color;
 
     .line-number {
       width: 80px;
       opacity: 0.5;
       padding: 4px @component-padding;
       color: @text-color;
-      border-right: 1px solid fadeout(@text-color, 90%);
+      border-right: 1px solid @subtle-border-color;
     }
     strong {
       padding: 0.2em 0.1em;
@@ -258,10 +266,10 @@ kite-error-rescue-sidebar {
   }
 
   .message-box {
-    margin: @component-padding 0 @component-padding;
+    margin: 0 0 @double-padding;
     padding: @double-padding (6 * @component-padding) @double-padding @double-padding;
     border-radius: @component-border-radius;
-    background: @inset-panel-background-color;
+    background: @app-background-color;
     position: relative;
 
     h4 {
