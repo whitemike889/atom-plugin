@@ -4,13 +4,15 @@
 kite-status-panel {
   display: flex;
   flex-direction: column;
-  background: @hover-background-color;
-  box-shadow: 0 0 10px rgba(0,0,0,0.4);
+  background: @app-background-color;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.4);
   padding: @component-padding;
   position: fixed;
   min-width: 200px;
   transform: translate(-100%, -100%);
   border-radius: 4px;
+  //outline: 1px solid red;
+  overflow: hidden;
   z-index: 100;
 
   .enterprise {
@@ -51,8 +53,13 @@ kite-status-panel {
     text-transform: uppercase;
   }
 
-  .subscription {
+  .subscription.split-line {
+    background: @sidebar-header-background;
+    padding: @component-padding;
+    margin: -@component-padding;
     margin-bottom: @component-padding;
+    box-sizing: border-box;
+    width: auto;
   }
 
   .split-line {
@@ -65,10 +72,11 @@ kite-status-panel {
   .links {
     list-style: none;
     padding: 0 @half-padding 0;
+    line-height: 1.8;
 
     &:nth-child(1n+2) {
       padding: @component-padding @half-padding 0;
-      border-top: 1px solid @base-background-color;
+      border-top: 1px solid @subtle-border-color;
     }
 
     li + li {
@@ -76,13 +84,22 @@ kite-status-panel {
     }
 
     a:not(.btn) {
+      &:before {
+        margin-right: 0.5em;
+        //color: @text-color-subtle;
+      }
       &, &:active, &:visited, &:focus {
         color: @text-color-highlight;
         font-size: 1.1em;
-
+        width: 100%;
+        padding: 0;
+        display: inline-block;
+      }
+      &:hover {
+        color: @text-color-info !important;
       }
       &.kite-gift {
-        &, &:active, &:visited, &:focus {
+        &, &:active, &:visited, &:focus, &:hover, &:before {
           color: @text-color-error;
         }
       }
@@ -108,7 +125,7 @@ kite-status-panel {
 
     &:nth-child(1n+2) {
       padding: @component-padding @half-padding 0;
-      border-top: 1px solid @base-background-color;
+      border-top: 1px solid @subtle-border-color;
     }
 
     .dot {
@@ -116,6 +133,7 @@ kite-status-panel {
       line-height: 0.5em;
       vertical-align: sub;
       display: inline-block;
+      margin-left: 0.5em;
     }
 
     .ready .dot {

@@ -1,43 +1,32 @@
 @import "variables";
 
 kite-links {
-  display: flex;
-  //width: 100%;
-  align-items: center;
-  align-content: center;
 
-  .flex-separator {
-    //outline: 1px solid red;
-    flex-grow: 1;
+  &.one-line {
+    margin-top: @component-padding;
+    margin-left: -0.9em;
+
+    line-height: 1.0;
+
+    .flex-separator {
+      flex-grow: 1;
+    }
+
+    display: flex;
+    align-items: center;
+    align-content: center;
   }
-
-  line-height: 1.0;
-  //display: block;
-  * {
-    //vertical-align: baseline;
-  }
-  margin-top: @component-padding;
-  margin-left: -0.9em;
-
-  //outline: 1px solid red;
-
   a, a:hover, a:focus, a:active {
     color: @text-color-info;
     font-size: 1rem;
     flex: 0;
-    text-decoration: none !important; // TK
+    text-decoration: none !important;
     display: inline-block;
     padding: 1em 0.3em;
     margin: -1em 0;
-    //outline: 1px solid green;
   }
-
-  /*a {
-    opacity: 0.85;
-  }*/
-
   a:hover {
-    color: @text-color-highlight !important; // TK
+    color: @text-color-highlight !important;
     text-decoration: underline;
   }
 
