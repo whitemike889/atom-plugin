@@ -1,3 +1,26 @@
+/* NATURAL STATE OVERRIDE */
+
+.kite-code {
+  pre,
+  code {
+    //background: white !important;
+  }
+}
+
+
+.kite-code {
+  pre,
+  code {
+    * {
+      //color: @text-color !important;
+    }
+  }
+}
+
+
+
+
+
 .kite-code {
   pre,
   code {
@@ -24,7 +47,7 @@
   .syntax--punctuation, .syntax--punctuation > span,
   .syntax--constant, .syntax--constant > span,
   .syntax--keyword, .syntax--keyword > span {
-    color: hsl(hue(@syntax-color-keyword), saturation(@syntax-color-keyword), .4) !important;
+    color: hsl(hue(@syntax-color-variable), saturation(@syntax-color-variable), .4) !important;
   }
 }
 
@@ -39,6 +62,6 @@
   .syntax--punctuation, .syntax--punctuation > span,
   .syntax--constant, .syntax--constant > span,
   .syntax--keyword, .syntax--keyword > span {
-    color: hsl(hue(@syntax-color-keyword), saturation(@syntax-color-keyword), .8) !important;
+    color: hsl(hue(@syntax-color-variable), saturation(@syntax-color-variable), .7) !important;
   }
 }
