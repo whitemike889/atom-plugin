@@ -190,7 +190,7 @@
       background: @sidebar-header-background;
       box-shadow: 0 3px 6px @tab-background-color;
 
-      padding: @component-padding @sidebar-horizontal-padding;
+      padding: (1.5 * @component-padding) @sidebar-horizontal-padding;
       margin-right: -@sidebar-horizontal-padding;
 
       .signature a.kwargs {
@@ -336,6 +336,14 @@
         }
       }
     }
+
+    .learn-more {
+      position: absolute;
+      color: @text-color-subtle;
+      right: -0.5em; // Right-alignment
+      padding: 0.5em;
+      margin: -0.5em;
+    }
   }
 
   .highlight-title h4 {
@@ -368,20 +376,25 @@
     color: @text-color-highlight;
 
     .name {
-      font-size: 1.2em;
+      font-size: 1.4em;
 
       code {
         font-size: inherit;
 
-        // TK override syntax highlighting
-        color: @text-color !important;
+        color: @text-color;
 
-        .syntax--python {
+        //filter: grayscale(0.5);
+
+        // TK override syntax highlighting
+        /*color: @text-color-subtle !important;
+
+        .syntax--python,
+        .syntax--python * {
           color: @text-color-highlight !important;
         }
         .syntax--operator {
-          color: @text-color !important;
-        }
+          color: @text-color-subtle !important;
+        }*/
       }
     }
 
