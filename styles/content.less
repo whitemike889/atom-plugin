@@ -6,7 +6,7 @@
   &, &:hover, &:active, &:focus {
     color: @text-color;
     opacity: 0.6;
-    text-decoration: none;
+    text-decoration-line: none;
   }
 
   * {
@@ -65,6 +65,8 @@
     font-size: var(--editor-font-size);
     line-height: var(--editor-line-height);
 
+    //font-size: 30px; // DEBUG
+
     background: inherit; // Defaults to no background color
     padding: 0;
   }
@@ -103,7 +105,7 @@
       padding-bottom: @half-padding;
       padding-right: 1.5em; // Prevents text from touching the chevron
 
-      text-decoration: none;
+      text-decoration-line: none;
 
       .icon { // Chevron
         position: absolute;
@@ -113,7 +115,7 @@
       }
 
       &:hover {
-        text-decoration: none;
+        text-decoration-line: none;
         .icon {
           color: @button-background-color-selected;
         }
@@ -196,7 +198,7 @@
       .signature a.kwargs {
         pointer-events: none;
         color: @text-color;
-        text-decoration: none;
+        text-decoration-line: none;
 
         .parameter-name {
           color: @text-color;
@@ -410,7 +412,7 @@
 
       a {
         color: @text-color-info;
-        text-decoration: none;
+        text-decoration-line: none;
       }
     }
   }
@@ -525,7 +527,7 @@
     border-top: 1px solid @subtle-border-color;
     padding-top: @component-padding;
 
-    text-decoration: none;
+    text-decoration-line: none;
 
     .icon { // Chevron
       position: absolute;
@@ -545,7 +547,7 @@
   section.definition {
     .kite-icon-list;
 
-    a {
+    ul li > a {
       text-decoration-line: underline;
     }
   }
@@ -564,7 +566,7 @@
       cursor: text;
 
       word-wrap: normal;
-      word-break: normal;
+      word-break: break-word;
       white-space: pre-wrap;
     }
   }
@@ -609,7 +611,7 @@
               color: lighten(@text-color, 8%);
               &:hover {
                 opacity: 1;
-                text-decoration: none;
+                text-decoration-line: none;
               }
             }
           }
