@@ -23,7 +23,6 @@ kite-search {
   &[position="top-right"] {
     top: 10%;
     right: 1px;
-    //padding-left: @component-padding;
 
     .collapser {
       left: 0;
@@ -61,16 +60,6 @@ kite-search {
       background: mix(@hover-background-color, @text-color-info, 90%);
     }
   }
-
-/*  kite-navigable-stack section.collapsible.overflow {
-    .section-content + * {
-      margin-bottom: @component-padding;
-    }
-
-    &.collapse .section-content::after {
-      background-image: linear-gradient(to top, @hover-background-color 0%, transparent 100%);
-    }
-  }*/
 
   &:not(.collapsed) {
     width: 400px;
@@ -232,7 +221,6 @@ kite-search {
 
     .select-list.popover-list ol.list-group li {
       padding-left: 0;
-      //padding-left: @sidebar-left-indent;
     }
   }
 
@@ -242,61 +230,24 @@ kite-search {
     box-shadow: none;
     border-radius: 0;
     padding: 0;
-    //padding: 0 @sidebar-horizontal-padding;
     margin: 0 @half-sidebar-left-indent;
     border: 1px solid @button-background-color;
     border-radius: @component-border-radius;
 
     atom-text-editor[mini] {
-      //background: @hover-background-color;
-      //padding-left: 0;
-      //padding-left: @sidebar-left-indent;
-      padding-right: 0;
-      //font-size: 1em;
-
       padding-left: @half-sidebar-left-indent;
       padding-right: @half-sidebar-left-indent;
 
-      //padding-left: @component-padding;
-      //padding-right: @component-padding;
-      //margin-left: 0;
       margin-bottom: 0;
 
       background: @input-background-color;
-      //border: 1px solid @button-background-color;
       border-radius: 4px; // TK
     }
 
     &.has-results {
-      //background: fadeout(@text-color-highlight, 90%);
-      //border-bottom: 2px solid fadeout(@text-color-highlight, 50%);
       box-shadow: 0 3px 3px rgba(0, 0, 0, 0.2); // TK
       margin-bottom: @component-padding;
       z-index: 10;
-
-      &.has-scroll {
-        //padding-bottom: @component-padding * 2;
-
-        /*&:after {
-          content: '↓';
-          display: block;
-          color: @text-color;
-          opacity: 0.6;
-          position: absolute;
-          bottom: 0;
-          right: 4px;
-        }
-
-        &:before {
-          content: '↑';
-          display: block;
-          color: @text-color;
-          opacity: 0.6;
-          position: absolute;
-          bottom: 0;
-          right: 16px;
-        }*/
-      }
     }
 
     ol.list-group {
@@ -314,7 +265,6 @@ kite-search {
 
       li {
         font-size: 1.2em;
-        //padding-left: @component-padding;
         padding-left: @half-sidebar-left-indent;
         padding-right: @component-padding;
         cursor: pointer;
