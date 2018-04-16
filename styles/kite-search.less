@@ -43,7 +43,7 @@ kite-search {
     width: 3.2em;
     height: 3.2em;
 
-    kite-expand, .select-list, .collapser, .history {
+    kite-expand, > header, .select-list, .collapser, .history {
       display: none;
     }
   }
@@ -184,19 +184,46 @@ kite-search {
     display: inline-block;
   }
 
+  h4 { // Same as in content.less, TODO: unify
+    font-size: 1em;
+    margin-bottom: 0.5em;
+    line-height: 1.5;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-weight: normal;
+    color: @text-color-subtle;
+  }
+
+  > header {
+    padding: 0 @sidebar-horizontal-padding;
+    padding-bottom: @component-padding;
+  }
+
+  .btn-close {
+    -webkit-appearance: none;
+    background: transparent;
+    border: none;
+    padding: 0.5em;
+    margin: calc(-2px - 0.5em);
+    position: absolute;
+    right: @component-padding;
+    top: @component-padding;
+    color: @text-color-subtle;
+
+    .icon::before {
+      margin-right: 0;
+    }
+
+    &:hover {
+      color: @text-color-highlight;
+    }
+  } // TODO: unify – this is very similar as in kite-error-rescue-sidebar.js
+
+
   .history {
     padding: 0 @sidebar-horizontal-padding;
     padding-top: @component-padding;
 
-    h4 { // Same as in content.less, TODO: unify
-      font-size: 1em;
-      margin-bottom: 0.5em;
-      line-height: 1.5;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      font-weight: normal;
-      color: @text-color-subtle;
-    }
 
     .select-list.popover-list {
       border: none;
