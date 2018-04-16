@@ -5,7 +5,6 @@
 }
 
 kite-error-rescue-sidebar {
-  //padding: @component-padding @sidebar-horizontal-padding;
   .header {
     background: @sidebar-header-background;
     padding: @double-padding @sidebar-horizontal-padding @double-padding;
@@ -18,13 +17,10 @@ kite-error-rescue-sidebar {
   }
 
   .settings-view {
-    //background: transparent !important;
-    //flex-direction: column;
     position: relative;
 
     .settings-panel {
       width: 100%;
-      //text-align: center;
     }
 
     .setting-title, .form-control {
@@ -47,7 +43,6 @@ kite-error-rescue-sidebar {
 
     .control-group.select {
       padding-left: @sidebar-left-indent;
-      //padding-right: @sidebar-left-indent;
 
       label {
         flex-direction: row;
@@ -75,8 +70,7 @@ kite-error-rescue-sidebar {
     font-size: var(--editor-font-size);
     line-height: var(--editor-line-height);
 
-    // TODO: All of this is also present in content.less in .kite-code.
-    // Could this be unified?
+    // TODO: Opportunity to unify CSS: All of this is also present in content.less in .kite-code.
   }
   h4 {
     font-size: 1em;
@@ -86,8 +80,7 @@ kite-error-rescue-sidebar {
     letter-spacing: 0.16em;
     font-weight: normal;
     color: @text-color-subtle;
-    // TODO: All of this above is duplicated verbatim from content.less.
-    // Could this be unified?
+    // TODO: Opportunity to unify CSS: All of this above is duplicated verbatim from content.less.
     margin-left: -@sidebar-left-indent;
   }
   .diff {
@@ -146,7 +139,6 @@ kite-error-rescue-sidebar {
     margin-top: 0.5em;
     padding-top: 0.5em;
     border-top: 1px solid transparent;
-    // padding-left: .4em;
     color: transparent;
     &.hint {
       color: @text-color-subtle;
@@ -157,7 +149,6 @@ kite-error-rescue-sidebar {
       border-top-color: @subtle-border-color;
     }
   }
-
 
   del, ins {
     display: flex;

@@ -15,25 +15,6 @@
 }
 
 .kite-section-strike {
-  h4 {
-    //background-color: @app-background-color;
-    //display: inline-block;
-    //padding-right: @component-padding;
-
-/*    kite-search & {
-      background: @hover-background-color;
-    }*/
-
-/*    &:before {
-      content: '';
-      border-top: 1px solid @text-color;
-      position: absolute;
-      display: block;
-      z-index: -1;
-      width: 100%;
-      top: 0.5em;
-    }*/
-  }
 }
 
 .kite-caption {
@@ -65,8 +46,6 @@
     font-size: var(--editor-font-size);
     line-height: var(--editor-line-height);
 
-    //font-size: 30px; // DEBUG
-
     background: inherit; // Defaults to no background color
     padding: 0;
   }
@@ -78,8 +57,6 @@
 
     > .icon {
       position: absolute;
-      //top: 0.2em;
-      //outline: 2px solid red;
     }
 
     > a, > span {
@@ -229,9 +206,6 @@
     }
 
     section.summary {
-      // flex: 0 1 auto;
-      // overflow-y: auto;
-
       pre code {
         white-space: pre;
       }
@@ -342,7 +316,7 @@
     .learn-more {
       position: absolute;
       color: @text-color-subtle;
-      right: -0.5em; // Right-alignment
+      right: -0.5em; // Right alignment
       padding: 0.5em;
       margin: -0.5em;
     }
@@ -382,21 +356,7 @@
 
       code {
         font-size: inherit;
-
         color: @text-color;
-
-        //filter: grayscale(0.5);
-
-        // TK override syntax highlighting
-        /*color: @text-color-subtle !important;
-
-        .syntax--python,
-        .syntax--python * {
-          color: @text-color-highlight !important;
-        }
-        .syntax--operator {
-          color: @text-color-subtle !important;
-        }*/
       }
     }
 
@@ -463,13 +423,13 @@
         line-height: 1.8;
       }
       code {
-        line-height: 0; // Don’t allow code to change the rhythm of text
+        line-height: 0; // Don’t allow code to change the vertical rhythm of text
         background: @base-background-color;
         padding: 0.2em;
         margin: -0.2em 0.1em;
       }
       em {
-        line-height: 0; // Don’t allow code to change the rhythm of text
+        line-height: 0; // Don’t allow code to change the vertical rhythm of text
         // Turn italics (which look bad) into brighter code
         color: @text-color-highlight;
         font-style: normal;
@@ -530,11 +490,11 @@
     text-decoration-line: none;
 
     .icon { // Chevron
+      // TODO: Opportunity to unify CSS: This section is repeated elsewhere in this file
       position: absolute;
       top: 0.8em;
       right: -0.8em; // Right tip aligns with right margin
       color: @text-color-subtle;
-      // TODO Unify with Chevron elsewhere in the file
     }
 
     &:hover {
@@ -634,7 +594,6 @@
 
       .icon, > .file, > .example, > .link {
         display: inline-block;
-        //vertical-align: middle;
       }
 
       .icon-file-code::before {
@@ -643,7 +602,6 @@
         line-height: 1em;
         height: 1em;
         margin-right: -0.2em;
-        //outline: 1px solid red;
       }
 
       pre {
@@ -662,7 +620,6 @@
   }
 
   dl, ul {
-    // padding-right: @component-padding;
     margin: @component-padding 0 0;
 
     dt, li {
@@ -671,8 +628,6 @@
 
       .name {
         a, a:hover, a:active, a:focus {
-          // color: @text-color-highlight;
-
           &.unreachable {
             .unreachable;
           }

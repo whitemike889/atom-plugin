@@ -6,7 +6,6 @@ kite-hover {
   flex-direction: column;
   background: @app-background-color;
   color: @text-color-highlight;
-  //border: 1px solid @border-color;
   padding: @half-padding @component-padding;
   padding-bottom: @component-padding;
   border-radius: @component-border-radius;
@@ -23,18 +22,14 @@ kite-hover {
     background: inherit;
   }
 
-  .type {
-    font-size: .9em;
+  .type { // TODO: Opportunity to unify CSS: This is very similar as elsewhere, with the exception of font size and different margins
+    font-size: .8em;
     display: inline-block;
     flex: 0;
     padding: .3em .5em;
-    margin-left: @half-padding;
     line-height: 1.1;
     border: 1px solid @text-color-subtle;
     box-shadow: 0 1px 2px rgba(0, 0, 0, .5);
-
-    // TK replicate above
-    font-size: .8em;
     margin-right: -.2em;
     margin-left: 3em !important;
   }

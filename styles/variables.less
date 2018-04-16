@@ -1,6 +1,8 @@
 @import "syntax-variables";
 @import "ui-variables";
 
+// Colors
+
 // Using the git-diff colors so they are visible on your syntax theme.
 @red-color: @syntax-color-removed;
 @green-color: @syntax-color-added;
@@ -10,7 +12,9 @@
 @border-color-hover: mix(@text-color-highlight, @overlay-background-color, 50%);
 @hover-background-color: mix(@text-color-highlight, @overlay-background-color, 10%);
 
-@subtle-border-color: @sidebar-header-background; //fadeout(@text-color, 90%);
+@subtle-border-color: @sidebar-header-background;
+
+// Padding
 
 @half-padding: @component-padding / 2;
 @double-padding: @component-padding * 2;

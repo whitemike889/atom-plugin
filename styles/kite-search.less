@@ -128,7 +128,7 @@ kite-search {
       margin-top: @component-padding;
     }
 
-    footer { // TO DO the same as in kite-sidebar.less
+    footer { // TODO: Opportunity to unify CSS: This is the same as in kite-sidebar.less
       display: flex;
       flex-direction: row;
       justify-content: space-between;
@@ -173,7 +173,7 @@ kite-search {
     display: inline-block;
   }
 
-  h4 { // Same as in content.less, TODO: unify
+  h4 { // TODO: Opportunity to unify CSS: This is the same as in content.less
     font-size: 1em;
     margin-bottom: 0.5em;
     line-height: 1.5;
@@ -188,7 +188,7 @@ kite-search {
     padding-bottom: @component-padding;
   }
 
-  .btn-close {
+  .btn-close {// TODO: Opportunity to unify CSS: This is very similar as in kite-error-rescue-sidebar.js
     -webkit-appearance: none;
     background: transparent;
     border: none;
@@ -206,8 +206,7 @@ kite-search {
     &:hover {
       color: @text-color-highlight;
     }
-  } // TODO: unify – this is very similar as in kite-error-rescue-sidebar.js
-
+  }
 
   .history {
     padding: 0 @sidebar-horizontal-padding;
@@ -241,11 +240,11 @@ kite-search {
       margin-bottom: 0;
 
       background: @input-background-color;
-      border-radius: 4px; // TK
+      border-radius: @component-border-radius;
     }
 
     &.has-results {
-      box-shadow: 0 3px 3px rgba(0, 0, 0, 0.2); // TK
+      box-shadow: 0 3px 3px rgba(0, 0, 0, 0.2);
       margin-bottom: @component-padding;
       z-index: 10;
     }
