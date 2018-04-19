@@ -115,7 +115,8 @@ describe('KiteSignature', () => {
 
     it('fills the name section with provided data', () => {
       expect(element.querySelector('.name').textContent)
-      .toEqual(`JSON.stringify(${
+      // Zero-width space below
+      .toEqual(`JSON.stringify( + "​" + ${
         [
           'value',
           'replacer',
@@ -137,7 +138,8 @@ describe('KiteSignature', () => {
 
       it('renders the rest argument in the signature', () => {
         expect(element.querySelector('.name').textContent)
-        .toEqual(`JSON.stringify(${
+        // Zero-width space below
+        .toEqual(`JSON.stringify(` + "​" + `${
           [
             'value',
             'replacer',
