@@ -637,7 +637,7 @@ describe('error rescue', () => {
               });
 
               it('clears the sidebar content', () => {
-                const message = sidebar.querySelector('.diff .diffs .message');
+                const message = sidebar.querySelector('.diffs .diff .message');
 
                 expect(message.textContent).toEqual('No fixes made to sample.py yet.');
               });
