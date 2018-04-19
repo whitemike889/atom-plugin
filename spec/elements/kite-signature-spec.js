@@ -20,7 +20,8 @@ describe('KiteSignature', () => {
 
     it('fills the name section with provided data', () => {
       expect(element.querySelector('.name').textContent)
-      .toEqual(`json.dumps(${
+      // Zero-width space below
+      .toEqual(`json.dumps(` + "​" + `${
         [
           'obj',
           'skipkeys',
