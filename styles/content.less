@@ -205,10 +205,6 @@
     }
 
     section.summary {
-      pre code {
-        white-space: pre;
-      }
-
       .kite-table;
     }
 
@@ -423,9 +419,19 @@
       }
       code {
         line-height: 0; // Don’t allow code to change the vertical rhythm of text
-        background: @base-background-color;
         padding: 0.2em;
         margin: -0.2em 0.1em;
+      }
+      pre,
+      code {
+        background: @base-background-color;
+        word-wrap: normal;
+        word-break: break-word;
+        white-space: pre-wrap;
+      }
+      pre {
+        padding-left: 4ch;
+        text-indent: -4ch;
       }
       em {
         line-height: 0; // Don’t allow code to change the vertical rhythm of text
