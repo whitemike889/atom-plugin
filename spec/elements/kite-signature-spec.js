@@ -116,7 +116,7 @@ describe('KiteSignature', () => {
     it('fills the name section with provided data', () => {
       expect(element.querySelector('.name').textContent)
       // Zero-width space below
-      .toEqual(`JSON.stringify( + "​" + ${
+      .toEqual(`JSON.stringify(` + "​" + `${
         [
           'value',
           'replacer',

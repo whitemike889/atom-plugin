@@ -222,7 +222,7 @@ describe('error rescue', () => {
               });
 
               describe('toggling on the checkbox input', () => {
-                it('desactivates the corresponding setting', () => {
+                it('deactivates the corresponding setting', () => {
                   const input = sidebar.querySelector('input');
                   input.checked = false;
                   input.dispatchEvent(new window.Event('change'));
