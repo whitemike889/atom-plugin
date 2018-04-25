@@ -222,7 +222,7 @@ describe('error rescue', () => {
               });
 
               describe('toggling on the checkbox input', () => {
-                it('desactivates the corresponding setting', () => {
+                it('deactivates the corresponding setting', () => {
                   const input = sidebar.querySelector('input');
                   input.checked = false;
                   input.dispatchEvent(new window.Event('change'));
@@ -378,7 +378,8 @@ describe('error rescue', () => {
                   withRoutes([
                     [
                       o => /^\/clientapi\/editor\/autocorrect$/.test(o.path),
-                      o => fakeResponse(200, fs.readFileSync(path.resolve(projectPath, 'autocorrect-fixes-new-version.json'))),
+                      o => fakeResponse(200,
+                          fs.readFileSync(path.resolve(projectPath, 'autocorrect-fixes-new-version.json'))),
                     ], [
                       o => /^\/api\/editor\/autocorrect\/model-info$/.test(o.path),
                       o => fakeResponse(200, fs.readFileSync(path.resolve(projectPath, 'model-info.json'))),
@@ -444,7 +445,8 @@ describe('error rescue', () => {
                 withRoutes([
                   [
                     o => /^\/clientapi\/editor\/autocorrect$/.test(o.path),
-                    o => fakeResponse(200, fs.readFileSync(path.resolve(projectPath, 'autocorrect-fixes-new-version.json'))),
+                    o => fakeResponse(200,
+                        fs.readFileSync(path.resolve(projectPath, 'autocorrect-fixes-new-version.json'))),
                   ], [
                     o => /^\/api\/editor\/autocorrect\/model-info$/.test(o.path),
                     o => fakeResponse(200, fs.readFileSync(path.resolve(projectPath, 'model-info.json'))),
@@ -495,12 +497,13 @@ describe('error rescue', () => {
               });
 
               describe('when the sidebar is open and active', () => {
-                let sidebar, spy;
+                let sidebar;
 
                 withRoutes([
                   [
                     o => /^\/clientapi\/editor\/autocorrect$/.test(o.path),
-                    o => fakeResponse(200, fs.readFileSync(path.resolve(projectPath, 'autocorrect-fixes-new-version.json'))),
+                    o => fakeResponse(200,
+                        fs.readFileSync(path.resolve(projectPath, 'autocorrect-fixes-new-version.json'))),
                   ], [
                     o => /^\/api\/editor\/autocorrect\/model-info$/.test(o.path),
                     o => fakeResponse(200, fs.readFileSync(path.resolve(projectPath, 'model-info.json'))),
@@ -545,7 +548,8 @@ describe('error rescue', () => {
                 withRoutes([
                   [
                     o => /^\/clientapi\/editor\/autocorrect$/.test(o.path),
-                    o => fakeResponse(200, fs.readFileSync(path.resolve(projectPath, 'autocorrect-fixes-new-version.json'))),
+                    o => fakeResponse(200,
+                        fs.readFileSync(path.resolve(projectPath, 'autocorrect-fixes-new-version.json'))),
                   ], [
                     o => /^\/api\/editor\/autocorrect\/model-info$/.test(o.path),
                     o => fakeResponse(200, fs.readFileSync(path.resolve(projectPath, 'model-info.json'))),
@@ -627,7 +631,8 @@ describe('error rescue', () => {
 
               waitsFor('buffer saved', () => buffer.buffer.save.calls.length > 0);
               // runs(() => kitePkg.toggleErrorRescueSidebar());
-              waitsFor('autocorrect sidebar', () => sidebar = workspaceElement.querySelector('kite-error-rescue-sidebar'));
+              waitsFor('autocorrect sidebar',
+                () => sidebar = workspaceElement.querySelector('kite-error-rescue-sidebar'));
               waitsFor('initial diff view', () => sidebar.querySelector('.diff'));
             });
 
@@ -637,7 +642,7 @@ describe('error rescue', () => {
               });
 
               it('clears the sidebar content', () => {
-                const message = sidebar.querySelector('.diff .diffs');
+                const message = sidebar.querySelector('.diffs .diff .message');
 
                 expect(message.textContent).toEqual('No fixes made to sample.py yet.');
               });
@@ -658,7 +663,8 @@ describe('error rescue', () => {
               withRoutes([
                 [
                   o => /^\/clientapi\/editor\/autocorrect$/.test(o.path),
-                  o => fakeResponse(200, fs.readFileSync(path.resolve(projectPath, 'autocorrect-fixed-with-fixes.json'))),
+                  o => fakeResponse(200,
+                      fs.readFileSync(path.resolve(projectPath, 'autocorrect-fixed-with-fixes.json'))),
                 ],
               ]);
 
@@ -680,7 +686,8 @@ describe('error rescue', () => {
             withRoutes([
               [
                 o => /^\/clientapi\/editor\/autocorrect$/.test(o.path),
-                o => fakeResponse(200, fs.readFileSync(path.resolve(projectPath, 'autocorrect-with-fixes.json'))),
+                o => fakeResponse(200,
+                    fs.readFileSync(path.resolve(projectPath, 'autocorrect-with-fixes.json'))),
               ],
             ]);
 
@@ -690,7 +697,8 @@ describe('error rescue', () => {
               editor.save();
 
               waitsFor('buffer saved', () => buffer.buffer.save.calls.length > 0);
-              waitsFor('autocorrect sidebar', () => sidebar = workspaceElement.querySelector('kite-error-rescue-sidebar'));
+              waitsFor('autocorrect sidebar',
+                  () => sidebar = workspaceElement.querySelector('kite-error-rescue-sidebar'));
               waitsFor('initial diff view', () => sidebar.querySelector('.diff'));
             });
 
