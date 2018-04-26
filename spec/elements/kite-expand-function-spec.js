@@ -6,6 +6,10 @@ const {reportFromHover} = require('../../lib/kite-data-utils');
 describe('KiteExpandFunction', () => {
   let json, element;
 
+  beforeEach(() => {
+    waitsForPromise(() => atom.packages.activatePackage('language-python'));
+  });
+
   describe('with hover data', () => {
     beforeEach(() => {
       json = require('../fixtures/test/increment.json');
