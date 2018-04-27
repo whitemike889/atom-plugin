@@ -21,11 +21,10 @@
     animation-fill-mode: both;
 
     @keyframes expand-at-cursor-highlight-disappearing {
-      50% {
+      50%, 100% {
         background-position-x: calc(~"100% + 2em"); // Syntax to allow CSS to do the calculation, not LESS
       }
       100% {
-        background-position-x: calc(~"100% + 2em"); // Syntax to allow CSS to do the calculation, not LESS
         opacity: 0;
       }
     }
