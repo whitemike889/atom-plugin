@@ -32,7 +32,7 @@ describe('KiteHover', () => {
       it('sets the name of the hover using the provided value', () => {
         const name = hover.querySelector('.name');
 
-        expect(name.textContent).toEqual('Test.increment');
+        expect(name.textContent).toEqual('Test.\u200bincrement');
       });
 
       it('sets the return type of the hover using the provided value', () => {
@@ -50,7 +50,7 @@ describe('KiteHover', () => {
       it('sets the name of the hover using the provided value', () => {
         const name = hover.querySelector('.name');
 
-        expect(name.textContent).toEqual('Test.increment');
+        expect(name.textContent).toEqual('Test.\u200bincrement');
       });
 
       it('uses the kind for the type', () => {
