@@ -542,10 +542,11 @@ describe('NotificationsCenter', () => {
 
       withKiteNotReachable(() => {
         beforeEach(() => {
-          waitsForPromise(() => app.connect().then(() => {
+          waitsForPromise(() => app.connect('pollingInterval')
+          .then(() => app.connect('pollingInterval'))
+          .then(() => {
             notificationElement = getNotificationElement();
             notification = notificationElement.getModel();
-
           }));
         });
 
@@ -597,7 +598,9 @@ describe('NotificationsCenter', () => {
 
         describe('when no login form is present', () => {
           beforeEach(() => {
-            waitsForPromise(() => app.connect().then(() => {
+            waitsForPromise(() => app.connect('pollingInterval')
+            .then(() => app.connect('pollingInterval'))
+            .then(() => {
               notificationElement = getNotificationElement();
               notification = notificationElement.getModel();
             }));
@@ -616,7 +619,7 @@ describe('NotificationsCenter', () => {
             expect(options.buttons[0].text).toEqual('Login');
             expect(options.dismissable).toBeTruthy();
             expect(options.description)
-            .toEqual('Kite needs to be authenticated, so that it can access the index of your code stored on the cloud.');
+            .toEqual('Kite needs to be authenticated to access the index of your code stored on the cloud.');
           });
 
           describe('clicking on the Login button', () => {

@@ -1,11 +1,12 @@
 @import "ui-variables";
 @import "variables";
+@import "syntax-highlighting";
 
 .unreachable {
   &, &:hover, &:active, &:focus {
     color: @text-color;
     opacity: 0.6;
-    text-decoration: none;
+    text-decoration-line: none;
   }
 
   * {
@@ -14,25 +15,6 @@
 }
 
 .kite-section-strike {
-  h4 {
-    background-color: @app-background-color;
-    display: inline-block;
-    padding-right: @component-padding;
-
-    kite-active-search & {
-      background: @hover-background-color;
-    }
-
-    &:before {
-      content: '';
-      border-top: 1px solid @text-color;
-      position: absolute;
-      display: block;
-      z-index: -1;
-      width: 100%;
-      top: 0.5em;
-    }
-  }
 }
 
 .kite-caption {
@@ -58,9 +40,14 @@
 }
 
 .kite-code {
-  pre {
-    -webkit-user-select: text;
-    cursor: text;
+  pre,
+  code {
+    font-family: var(--editor-font-family);
+    font-size: var(--editor-font-size);
+    line-height: var(--editor-line-height);
+
+    background: inherit; // Defaults to no background color
+    padding: 0;
   }
 }
 
@@ -70,16 +57,11 @@
 
     > .icon {
       position: absolute;
-      top: 0.2em;
     }
 
     > a, > span {
-      padding-left: 1.5em;
+      padding-left: 1.3em;
       padding-right: 1.5em;
-
-      span {
-        display: inline-block;
-      }
 
       .icon {
         position: absolute;
@@ -90,15 +72,44 @@
   }
 }
 
+.kite-icon-list,
+.kite-list {
+  ul li {
+    position: relative;
+
+    > a, > span {
+      display: block; // 100% width click target
+      padding-bottom: @half-padding;
+      padding-right: 1.5em; // Prevents text from touching the chevron
+
+      text-decoration-line: none;
+
+      .icon { // Chevron
+        position: absolute;
+        top: 0;
+        right: -0.8em; // Right tip aligns with right margin
+        color: @text-color-subtle;
+      }
+
+      &:hover {
+        text-decoration-line: none;
+        .icon {
+          color: @button-background-color-selected;
+        }
+      }
+    }
+  }
+}
+
 .kite-examples-list {
-  .kite-icon-list;
+  .kite-list;
 }
 
 .kite-split-line {
   display: flex;
   flex-direction: row;
   width: 100%;
-  align-items: center;
+  align-items: baseline;
 
   > * {
     flex: 1 1 0;
@@ -117,8 +128,8 @@
   }
 
   .name {
-    padding-left: @component-padding;
-    text-indent: -@component-padding;
+    padding-left: @sidebar-left-indent;
+    text-indent: -@sidebar-left-indent;
   }
 }
 
@@ -146,17 +157,25 @@
     }
   }
 
-  kite-expand-module, kite-expand-function, kite-expand-instance {
+  kite-expand-module, kite-expand-function, kite-expand-instance,
+  kite-expand-unknown, kite-curated-example, kite-examples-list {
     flex-direction: column;
 
-    .expand-header, .expand-extend {
+    .expand-header {
       flex: 0 0 auto;
-      margin-bottom: @component-padding;
       overflow-x: auto;
+      z-index: 1;
+
+      background: @sidebar-header-background;
+      box-shadow: 0 3px 6px @tab-background-color;
+
+      padding: (1.5 * @component-padding) @sidebar-horizontal-padding;
+      margin-right: -@sidebar-horizontal-padding;
 
       .signature a.kwargs {
         pointer-events: none;
         color: @text-color;
+        text-decoration-line: none;
 
         .parameter-name {
           color: @text-color;
@@ -165,7 +184,7 @@
     }
 
     section.summary,
-    section.examples,
+    section.how-to,
     section.links,
     section.usages,
     section.examples-from-your-code {
@@ -173,17 +192,20 @@
     }
 
     section .kite-pro-features {
+      text-align: center;
+      border: 1px dashed @inset-panel-background-color;
+      border-radius: 10px;
+      padding: @component-padding;
+      margin-top: @component-padding;
       margin-bottom: @component-padding;
+      color: @text-color-subtle;
+      a {
+        color: inherit;
+        white-space: nowrap;
+      }
     }
 
     section.summary {
-      // flex: 0 1 auto;
-      // overflow-y: auto;
-
-      pre code {
-        white-space: pre;
-      }
-
       .kite-table;
     }
 
@@ -202,6 +224,10 @@
         overflow-y: auto;
       }
     }
+
+    section.parameters + section.kwargs {
+      margin-top: -@double-padding;
+    }
   }
 
   a {
@@ -209,9 +235,15 @@
       pointer-events: none;
     }
 
+
     &[href] {
       &, &:hover, &:active, &:focus, code {
-        color: @text-color-info;
+        text-decoration: underline;
+        text-decoration-color: mix(@text-color, transparent, 66%);
+      }
+      &:hover, &:hover * {
+        color: @button-background-color-selected;
+        text-decoration-color: @button-background-color-selected;
       }
     }
 
@@ -254,10 +286,13 @@
   }
 
   h4 {
-    font-weight: 400;
-    margin: 0;
-    color: @text-color-highlight;
-    font-size: 1.2em;
+    font-size: 1em;
+    margin-bottom: 0.5em;
+    line-height: 1.5;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-weight: normal;
+    color: @text-color-subtle;
 
     .sticky {
       padding: @component-padding 0;
@@ -273,6 +308,14 @@
         }
       }
     }
+
+    .learn-more {
+      position: absolute;
+      color: @text-color-subtle;
+      right: -0.5em; // Right alignment
+      padding: 0.5em;
+      margin: -0.5em;
+    }
   }
 
   .highlight-title h4 {
@@ -281,11 +324,11 @@
 
   .type {
     white-space: nowrap;
+    color: @text-color;
   }
 
-  .type, .signature {
-    color: @text-color;
-    word-break: break-word
+  .signature {
+    word-break: break-word;
   }
 
   .split-line {
@@ -294,25 +337,55 @@
 
   section {
     margin: 0;
+    margin-bottom: @double-padding;
 
     .section-content {
-      margin-left: @component-padding;
+      margin-left: @sidebar-left-indent;
+      margin-top: 0;
     }
   }
   .expand-header {
-    font-size: 1.4em;
     color: @text-color-highlight;
+
+    .name {
+      font-size: 1.4em;
+
+      word-break: break-word;
+
+      code {
+        font-size: inherit;
+        color: @text-color;
+      }
+    }
+
+    .type {
+      font-size: .9em;
+      display: inline-block;
+      flex: 0;
+      padding: .3em .5em;
+      margin-left: @half-padding;
+      line-height: 1.1;
+      border: 1px solid @text-color-subtle;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, .5);
+
+      a {
+        color: @text-color-info;
+        text-decoration-line: none;
+      }
+    }
   }
 
-  .expand-extend {
-    font-size: 1.2em;
-  }
+  .collapsible .icon.icon-fold,
+  .collapsible .icon.icon-unfold {
+    display: block;
+    text-align: center;
+    height: 3em;
+    line-height: 3.3em;
+    color: @text-color-subtle;
+    margin-left: @double-padding;
 
-  section {
-    margin-bottom: @triple-padding;
-
-    .section-content {
-      margin-top: @component-padding;
+    &:hover {
+      color: @button-background-color-selected;
     }
   }
 
@@ -322,7 +395,7 @@
     }
 
     &.collapse .section-content {
-      max-height: 250px;
+      max-height: 14.5em;
       position: relative;
       overflow: hidden;
     }
@@ -330,19 +403,47 @@
     &.collapse.overflow .section-content::after {
       content: '';
       position: absolute;
-      height: 30px;
       left: 0;
       right: 0;
       bottom: 0;
-      background-image: linear-gradient(to top, @app-background-color 0%, transparent 100%);
+      z-index: 0;
+      border-top: 1px solid @subtle-border-color;
     }
   }
 
   section.summary {
     .description {
-      margin-top: @component-padding;
       font-size: 1em;
-      color: @text-color-highlight;
+      color: @text-color;
+
+      line-height: 1.8;
+      p {
+        line-height: 1.8;
+      }
+      pre,
+      code {
+        background: @base-background-color;
+        word-wrap: normal;
+        word-break: break-word;
+        white-space: pre-wrap;
+      }
+      code {
+        line-height: 0; // Don’t allow code to change the vertical rhythm of text
+        padding: 0.2em;
+        margin: -0.2em 0.1em;
+      }
+      pre {
+        padding-left: 4ch;
+        text-indent: -4ch;
+      }
+      em {
+        line-height: 0; // Don’t allow code to change the vertical rhythm of text
+        // Turn italics (which look bad) into brighter code
+        color: @text-color-highlight;
+        font-style: normal;
+        font-family: var(--editor-font-family);
+        font-size: var(--editor-font-size);
+      }
 
       h1, h2, h3, h4 {
         font-size: inherit;
@@ -362,8 +463,7 @@
     }
   }
 
-  section.top-attributes,
-  section.top-members {
+  section.popular-members {
     .split-line {
       .name {
         flex: 1 1 auto;
@@ -374,46 +474,67 @@
         flex: 0 0 auto;
       }
     }
-
-    a.more-members {
-      display: block;
-      margin-top: @component-padding;
-      // margin-bottom: @double-padding;
-    }
   }
 
-  section.examples {
-    a.more-examples {
-      display: block;
-      margin-top: @component-padding;
-      margin-bottom: @double-padding;
-    }
-
+  section.how-to {
     .kite-examples-list;
   }
 
   section.links {
-    a.more-links {
-      display: block;
-      margin-top: @component-padding;
-      margin-bottom: @double-padding;
+    .kite-examples-list;
+  }
+
+  section.popular-members a.more-members,
+  section.how-to a.more-examples,
+  section.links a.more-links {
+    display: block;
+    margin-top: @half-padding;
+    margin-bottom: @double-padding;
+    margin-right: -@half-padding;
+    position: relative;
+    border-top: 1px solid @subtle-border-color;
+    padding-top: @component-padding;
+
+    text-decoration-line: none;
+
+    .icon { // Chevron
+      // TODO: Opportunity to unify CSS: This section is repeated elsewhere in this file
+      position: absolute;
+      top: 0.8em;
+      right: -0.8em; // Right tip aligns with right margin
+      color: @text-color-subtle;
     }
 
-    .kite-examples-list;
+    &:hover {
+      .icon {
+        color: @button-background-color-selected;
+      }
+    }
   }
 
   section.definition {
     .kite-icon-list;
+
+    ul li > a {
+      text-decoration-line: underline;
+    }
   }
 
   section.patterns,
   section.examples-from-your-code {
-    .kite-pro-features {
-      font-size: 1.2em;
-      padding-left: @component-padding;
-    }
-
     pre {
+      // Indent every line except the first one by 4 spaces
+      padding-left: 4ch;
+      text-indent: -4ch;
+
+      border: 0;
+      background: transparent;
+
+      -webkit-user-select: text;
+      cursor: text;
+
+      word-wrap: normal;
+      word-break: break-word;
       white-space: pre-wrap;
     }
   }
@@ -428,49 +549,26 @@
           justify-content: space-between;
         }
 
-        .usage-bullet {
-          width: 0.8em;
-          height: 0.8em;
-          border-radius: 50%;
-          background-color: @background-color-highlight;
-          margin-right: 0.5em;
-          flex-grow: 0;
-          flex-shrink: 0;
-        }
-
         .usage {
           flex-grow: 1;
-          padding: 0.5em;
-          // padding-left: 2em;
           margin: 0;
+          padding-bottom: @component-padding;
 
           & + .usage {
             margin-top: 1px;
           }
 
-          // &::before {
-          //   content: '\25cf';
-          //   color: lighten(@background-color-selected, 20%);
-          //   position: absolute;
-          //   left: 0.5em;
-          // }
-
           pre {
             margin: 0;
-            background-color: transparent;
-            font-family: inherit;
-            padding: 0;
-            overflow-x: auto;
-            white-space: pre;
-
-            code {
-              font-family: inherit;
-            }
           }
 
           .links {
             display: inline-block;
             white-space: nowrap;
+
+            .icon:before {
+              color: @text-color-subtle;
+            }
 
             .web-link {
               cursor: pointer;
@@ -481,7 +579,7 @@
               color: lighten(@text-color, 8%);
               &:hover {
                 opacity: 1;
-                text-decoration: none;
+                text-decoration-line: none;
               }
             }
           }
@@ -498,45 +596,20 @@
     li {
       overflow: hidden;
 
-      & + li {
-        margin-top: @half-padding;
-      }
-
       .icon::before {
         margin: 0;
       }
 
       .icon, > .file, > .example, > .link {
         display: inline-block;
-        vertical-align: middle;
-      }
-
-      .file, .example, .link {
-        font-weight: 300;
-        color: @text-color-highlight;
-
-        .icon {
-          color: @text-color;
-          font-weight: 0.8em;
-        }
-      }
-
-      .icon {
-        line-height: 1em;
       }
 
       .icon-file-code::before {
-        color: @text-color-info;
+        color: @text-color-subtle;
         font-size: 1.2em;
         line-height: 1em;
         height: 1em;
-      }
-
-      .icon-code::before {
-        color: @text-color-success;
-        font-size: 1.2em;
-        line-height: 1em;
-        height: 1em;
+        margin-right: -0.2em;
       }
 
       pre {
@@ -547,19 +620,22 @@
     }
   }
 
+  ul li + li {
+    margin-top: @half-padding;
+  }
+  ul.code li + li {
+    margin-top: 0;
+  }
+
   dl, ul {
-    // padding-right: @component-padding;
     margin: @component-padding 0 0;
 
     dt, li {
       color: @text-color;
       font-weight: normal;
-      font-size: 1.2em;
 
       .name {
         a, a:hover, a:active, a:focus {
-          // color: @text-color-highlight;
-
           &.unreachable {
             .unreachable;
           }
@@ -571,34 +647,33 @@
       p {
         margin: 0;
       }
-
       a {
         font-size: 0.9em;
-      }
-    }
-
-    dt, dd, li {
-      & + dt, & + li {
-        margin-top: @component-padding;
       }
     }
   }
 
   pre {
-    color: @text-color-highlight;
-    font-size: inherit;
-    margin-bottom: @half-padding;
-
     a.icon {
       &, &:hover, &:active, &:focus,  {
-        color: @text-color-info;
+        color: @button-background-color-selected;
       }
     }
   }
 
   p {
-    /* Default Atom p margin is assymetrical. Overriding for sanity */
+    /* Default Atom p margin is asymmetrical. Overriding for sanity */
     margin: 0.5em 0;
-
   }
+  p:first-child {
+    // Helps with collapsing panels, since margin cannot be joined with
+    // adjacent margin when “overflow: hidden” is applied – but will be
+    // if it‘s not, resulting in shifting
+    margin-top: 0;
+  }
+}
+
+.line-colon {
+  color: @text-color-subtle;
+  letter-spacing: 0.2em;
 }

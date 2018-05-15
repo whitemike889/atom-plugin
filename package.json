@@ -1,7 +1,7 @@
 {
   "name": "kite",
   "main": "./lib/kite",
-  "version": "0.68.0",
+  "version": "0.90.0",
   "description": "Python programming copilot — Kite shows cloud-powered completions, documentation, and examples.",
   "repository": "https://github.com/kiteco/atom-plugin",
   "keywords": [],
@@ -22,25 +22,26 @@
         "no"
       ],
       "default": "not specified",
-      "description": "Kite can periodically send information to our servers about the status of the Kite application to ensure that is is running correctly."
+      "title": "Editor metrics enabled",
+      "description": "Kite can periodically send information to our servers about the status of the Kite application to ensure that is is running correctly"
     },
-    "showDocsNotificationOnStartup": {
+    "showWelcomeNotificationOnStartup": {
       "type": "boolean",
       "default": true,
-      "title": "Show Kite Docs Notification On Startup",
-      "description": "Whether to display the Kite docs notification on startup."
+      "title": "Show welcome notification on startup",
+      "description": "Whether to display the Kite welcome notification on startup"
     },
     "enableCompletions": {
       "type": "boolean",
       "default": true,
-      "title": "Enable Completions",
+      "title": "Enable completions",
       "description": "Show auto-completions from Kite as Atom suggestions"
     },
     "enableHoverUI": {
       "type": "boolean",
       "default": true,
-      "title": "Enable Hover UI",
-      "description": "Show hover informations when placing the mouse over a symbol"
+      "title": "Enable hover info",
+      "description": "Show hover information when placing the mouse over a programming expression"
     },
     "sidebarPosition": {
       "type": "string",
@@ -49,48 +50,62 @@
         "left",
         "right"
       ],
-      "description": "Defines where to place the sidebar in the Atom UI."
+      "title": "Sidebar position",
+      "description": "Defines where to place the sidebar"
     },
     "sidebarWidth": {
       "type": "integer",
       "default": 400,
-      "description": "Defines the width of the sidebar. When the sidebar is displayed using the new dock API this value will serve as the preferred width."
-    },
-    "useDockForSidebar": {
-      "type": "boolean",
-      "default": false
+      "title": "Sidebar width",
+      "description": "Defines the width of the sidebar. When the sidebar is displayed using the new dock API, this value will serve as the preferred width."
     },
     "openSidebarOnStartup": {
       "type": "boolean",
       "default": false,
-      "description": "Makes the sidebar appears on startup when enabled."
+      "title": "Open sidebar on startup",
+      "description": "Makes the sidebar appear on Atom startup"
     },
-    "openAutocorrectSidebarOnSave": {
+    "enableErrorRescue": {
       "type": "boolean",
-      "default": false,
-      "description": "Makes the autocorrect sidebar appears on save when enabled."
+      "default": true,
+      "title": "Enable Error Rescue",
+      "description": "Allow Error Rescue to make code fixes on save"
+    },
+    "actionWhenErrorRescueFixesCode": {
+      "type": "string",
+      "default": "Reopen sidebar",
+      "enum": [
+        "Reopen sidebar",
+        "Fix code quietly"
+      ],
+      "title": "Action when Error Rescue fixes code",
+      "description": "Choose whether Error Rescue should (re)open its sidebar upon making fixes, or do it quietly"
     },
     "maxVisibleSuggestionsAlongSignature": {
       "type": "integer",
-      "default": 3
+      "default": 3,
+      "title": "Max visible suggestions along signature"
     },
-    "activeSearchPosition": {
+    "searchIconPosition": {
       "type": "string",
       "default": "top-right",
       "enum": [
         "top-right",
         "bottom-right",
         "hidden"
-      ]
+      ],
+      "title": "Search icon position"
     },
     "hideDocumentationWhenSignatureIsAvailable": {
       "type": "boolean",
       "default": true,
-      "description": "If both a signature and documentation is available at the same only the signature will be visible."
+      "title": "Hide documentation when signature is available",
+      "description": "Display only signature if both the signature and documentation are available at the same time"
     },
     "collapseLongSummaries": {
       "type": "boolean",
-      "default": true
+      "default": true,
+      "title": "Collapse long summaries"
     },
     "loggingLevel": {
       "type": "string",
@@ -103,18 +118,21 @@
         "warning",
         "error"
       ],
-      "description": "The verbosity level of Kite's logs."
+      "title": "Logging level",
+      "description": "The verbosity level of Kite logs"
     },
     "pollingInterval": {
       "type": "integer",
       "default": 15000,
       "min": 1000,
-      "max": 60000
+      "max": 60000,
+      "title": "Polling interval"
     },
     "developerMode": {
       "type": "boolean",
       "default": false,
-      "description": "Enable Kite developer mode, displaying received data in the various UIs."
+      "title": "Developer mode",
+      "description": "Enable Kite developer mode, displaying received data in the various UIs"
     }
   },
   "providedServices": {
@@ -136,10 +154,11 @@
     "element-resize-detector": "^1.1.11",
     "fuzzaldrin-plus": "^0.4.1",
     "getmac": "^1.2.1",
-    "kite-installer": "^0.24.2",
+    "kite-installer": "^1.0.3",
     "md5": "^2.2.0",
     "rollbar": "^2.3.8",
-    "underscore-plus": "^1"
+    "underscore-plus": "^1",
+    "tiny-relative-date": "^1.3.0"
   },
   "devDependencies": {
     "babel-eslint": "^6.1.2",

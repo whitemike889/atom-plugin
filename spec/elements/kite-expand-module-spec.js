@@ -23,7 +23,7 @@ describe('KiteExpandModule', () => {
   // });
 
   it('displays the first two members in the member section', () => {
-    const lis = element.querySelectorAll('section.top-members li');
+    const lis = element.querySelectorAll('section.popular-members li');
 
     expect(lis.length).toEqual(2);
 
@@ -32,9 +32,9 @@ describe('KiteExpandModule', () => {
   });
 
   it('displays the show more link', () => {
-    const link = element.querySelector('section.top-members a.more-members');
+    const link = element.querySelector('section.popular-members a.more-members');
 
-    expect(link.textContent).toEqual('See 228 more members');
+    expect(link.textContent.trim()).toEqual('All 230 members');
   });
 
   describe('when the module has no members', () => {
@@ -44,7 +44,7 @@ describe('KiteExpandModule', () => {
     });
 
     it('does not render a members section', () => {
-      expect(element.querySelector('section.top-members')).not.toExist();
+      expect(element.querySelector('section.popular-members')).not.toExist();
     });
   });
 
@@ -55,7 +55,7 @@ describe('KiteExpandModule', () => {
     });
 
     it('does not render the show more link', () => {
-      const link = element.querySelector('section.top-members a.more-members');
+      const link = element.querySelector('section.popular-members a.more-members');
 
       expect(link).not.toExist();
     });

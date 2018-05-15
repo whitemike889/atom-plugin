@@ -1,6 +1,6 @@
 
 '.platform-darwin atom-text-editor:not([mini])':
-  'ctrl-alt-k': 'kite:expand-at-cursor'
+  'ctrl-alt-k': 'kite:docs-at-cursor'
   'cmd-alt-k': 'kite:open-in-web'
 
 '.platform-darwin kite-login':

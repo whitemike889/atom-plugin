@@ -6,6 +6,10 @@ const {reportFromHover} = require('../../lib/kite-data-utils');
 describe('KiteExpandFunction', () => {
   let json, element;
 
+  beforeEach(() => {
+    waitsForPromise(() => atom.packages.activatePackage('language-python'));
+  });
+
   describe('with hover data', () => {
     beforeEach(() => {
       json = require('../fixtures/test/increment.json');
@@ -15,7 +19,7 @@ describe('KiteExpandFunction', () => {
 
     it('fills the name and type section with provided data', () => {
       expect(element.querySelector('.expand-header .name').textContent)
-      .toEqual('Test.\u200Bincrement(n:int, *args, **kwargs)');
+      .toEqual('Test.\u200Bincrement');
       expect(element.querySelector('.expand-header .type').textContent).toEqual('function');
     });
 
@@ -68,7 +72,7 @@ describe('KiteExpandFunction', () => {
 
       it('fills the name and type section with provided data', () => {
         expect(element.querySelector('.expand-header .name').textContent)
-        .toEqual('Test.\u200Bincrement(n:int, …opts)');
+        .toEqual('Test.\u200Bincrement');
         expect(element.querySelector('.expand-header .type').textContent).toEqual('function');
       });
 
@@ -103,7 +107,7 @@ describe('KiteExpandFunction', () => {
 
     it('fills the name and type section with provided data', () => {
       expect(element.querySelector('.expand-header .name').textContent)
-      .toEqual('B.\u200Bincrement(n:int=0)');
+      .toEqual('B.\u200Bincrement');
       expect(element.querySelector('.expand-header .type').textContent).toEqual('function');
     });
 
