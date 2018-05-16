@@ -309,4 +309,22 @@ kite-error-rescue-sidebar {
 
     padding: 0 @sidebar-horizontal-padding !important;
   }
+
+  footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    flex: 0 0 auto;
+    z-index: 1000;
+    height: 4em;
+    line-height: 4em;
+    color: @text-color-subtle;
+    padding: 0 @sidebar-horizontal-padding;
+    border-top: none;
+    border-bottom: none; // To separate from the editor status line
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    box-shadow: 0 -3px 6px @tab-background-color;
+  }
 }

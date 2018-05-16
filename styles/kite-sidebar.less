@@ -102,8 +102,6 @@ kite-sidebar {
     line-height: 4em;
     color: @text-color-subtle;
     padding: 0 @sidebar-horizontal-padding;
-    border-top: 1px solid @subtle-border-color;
-    border-bottom: 1px solid @subtle-border-color; // To separate from the editor status line
 
     box-shadow: 0 -3px 6px @tab-background-color;
 
@@ -136,5 +134,12 @@ kite-sidebar {
 
   .has-scroll .actions > * {
     display: inline-block;
+  }
+}
+
+kite-sidebar {
+  footer {
+    border-top: 1px solid @subtle-border-color;
+    border-bottom: 1px solid @subtle-border-color; // To separate from the editor status line
   }
 }

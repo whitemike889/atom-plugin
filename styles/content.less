@@ -191,6 +191,22 @@
       .kite-section-strike;
     }
 
+    section.highlight-section {
+      z-index: 10000;
+      animation-fill-mode: both;
+      animation-name: section-highlight-animation;
+      animation-duration: 1250ms;
+    }
+
+    @keyframes section-highlight-animation {
+      0% {
+        background-color: @hover-background-color;
+      }
+      100% {
+        background-color: @tab-background-color;
+      }
+    }
+
     section .kite-pro-features {
       text-align: center;
       border: 1px dashed @inset-panel-background-color;
