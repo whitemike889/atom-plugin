@@ -133,7 +133,7 @@ describe('Kite', () => {
                   });
                 });
 
-                xit('notifies the user', () => {
+                it('notifies the user', () => {
                   waitsFor('notification', () => workspaceElement.querySelector('atom-notification'));
                 });
 
@@ -150,10 +150,10 @@ describe('Kite', () => {
                   editor.emitter.emit('did-change-path', editor.getPath());
                 });
 
-                xit('notifies the user', () => {
+                it('does not notify the user', () => {
                   sleep(100);
                   runs(() => {
-                    expect(workspaceElement.querySelector('atom-notification')).toExist();
+                    expect(workspaceElement.querySelector('atom-notification')).not.toExist();
                   });
                 });
               });
