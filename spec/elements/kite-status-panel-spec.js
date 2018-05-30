@@ -439,7 +439,7 @@ describe('KiteStatusPanel', () => {
 
           const buttons = state.querySelectorAll('a');
           const path = encodeURI(editor.getPath());
-          const url = `kite://settings/permissions?filename=${path}`;
+          const url = `kite-atom-internal://open-copilot-permissions?filename=${path}`;
 
           expect(buttons[0].href).toEqual(`kite-atom-internal://whitelist/${os.homedir()}`);
           expect(buttons[0].textContent).toEqual(`Enable for ${os.homedir()}`);
