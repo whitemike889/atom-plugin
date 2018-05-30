@@ -2,7 +2,6 @@
 
 const os = require('os');
 const {withKite, withKitePaths} = require('kite-api/test/helpers/kite');
-const {StateController} = require('kite-installer');
 
 const NotificationsCenter = require('../lib/notifications-center');
 const KiteApp = require('../lib/kite-app');
@@ -28,8 +27,6 @@ describe('NotificationsCenter', () => {
   let app, notifications, notificationsPkg, workspaceElement, notificationElement, notification, editor;
 
   beforeEach(() => {
-    spyOn(StateController.client, 'request').andCallThrough();
-
     app = new KiteApp();
     notifications = new NotificationsCenter(app);
 
