@@ -241,7 +241,11 @@ describe('KiteStatusPanel', () => {
     });
   });
 
-  withKite({runningEnterprise: false}, () => {
+  withKite({
+    runningEnterprise: false,
+    allInstallPaths: [],
+    allEnterpriseInstallPaths: ['/path/to/app'],
+  }, () => {
     beforeEach(() => {
       waitsForPromise(() => status.show().catch(err => console.log(err)));
     });
@@ -276,6 +280,7 @@ describe('KiteStatusPanel', () => {
 
   withKite({
     runningEnterprise: false,
+    allInstallPaths: [],
     allEnterpriseInstallPaths: ['/path/to/app', '/path/to/app2'],
   }, () => {
     beforeEach(() => {

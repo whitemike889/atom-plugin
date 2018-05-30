@@ -173,11 +173,6 @@ describe('Kite', () => {
                 const v = atom.views.getView(editor);
                 v.dispatchEvent(new Event('focus'));
               });
-              waitsFor('kite editor', () => kitePkg.kiteEditorForEditor(editor));
-              runs(() => {
-                advanceClock(200);
-                advanceClock(100);
-              });
               waitsFor('notify endpoint call', () => {
                 const {path} = StateController.client.request.mostRecentCall.args[0];
                 return /^\/clientapi\/permissions/.test(path);
