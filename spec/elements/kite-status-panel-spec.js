@@ -1,7 +1,7 @@
 'use strict';
 
 const os = require('os');
-const {withKite} = require('kite-connect/test/helpers/support');
+const {withKite} = require('kite-api/test/helpers/kite');
 const KiteApp = require('../../lib/kite-app');
 const KiteStatusPanel = require('../../lib/elements/kite-status-panel');
 const {

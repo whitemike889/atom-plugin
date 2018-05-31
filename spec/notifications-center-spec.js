@@ -1,7 +1,7 @@
 'use strict';
 
 const os = require('os');
-const {withKite} = require('kite-connect/test/helpers/support');
+const {withKite} = require('kite-api/test/helpers/kite');
 
 // const {StateController} = require('kite-installer');
 const NotificationsCenter = require('../lib/notifications-center');
