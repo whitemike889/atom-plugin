@@ -247,7 +247,7 @@ describe('KiteStatusPanel', () => {
     allEnterpriseInstallPaths: ['/path/to/app'],
   }, () => {
     beforeEach(() => {
-      waitsForPromise(() => status.show().catch(err => console.log(err)));
+      waitsForPromise(() => status.show());
     });
 
     it('does not display the account status', () => {
