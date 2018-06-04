@@ -8,7 +8,7 @@ const {click} = require('./helpers/events');
 const projectPath = path.join(__dirname, 'fixtures');
 const {ERROR_RESCUE_SHOW_SIDEBAR, ERROR_RESCUE_DONT_SHOW_SIDEBAR} = require('../lib/constants');
 
-describe('error rescue', () => {
+xdescribe('error rescue', () => {
   let kitePkg, kiteEditor, editor, buffer, jasmineContent, workspaceElement;
 
   fakeKiteInstallPaths();
