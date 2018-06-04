@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const {StateController} = require('kite-installer');
+const KiteAPI = require('kite-api');
 const {withKite, withKiteRoutes, withKitePaths} = require('kite-api/test/helpers/kite');
 const {fakeResponse} = require('kite-api/test/helpers/http');
 const KiteApp = require('../lib/kite-app');
@@ -28,7 +28,7 @@ describe('OverlayManager', () => {
   const editorQueryAll = (selector) => editorElement.querySelectorAll(selector);
 
   beforeEach(() => {
-    spyOn(StateController.client, 'request').andCallThrough();
+    spyOn(KiteAPI, 'request').andCallThrough();
 
     app = new KiteApp();
     showSpy = jasmine.createSpy();
@@ -89,7 +89,7 @@ describe('OverlayManager', () => {
         describe('when the position matches a word', () => {
           it('triggers a request for the editor at the given position', () => {
             waitsForPromise(() => OverlayManager.showHoverAtPosition(editor, [2, 8]).then(() => {
-              expect(StateController.client.request.mostRecentCall.args[0].path)
+              expect(KiteAPI.request.mostRecentCall.args[0].path)
               .toEqual(hoverPositionPath(editor, [2, 8]));
             }));
           });
@@ -99,7 +99,7 @@ describe('OverlayManager', () => {
           it('does not triggers a request', () => {
             OverlayManager.showHoverAtPosition(editor, [1, 0]);
 
-            expect(StateController.client.request.mostRecentCall.args[0].path)
+            expect(KiteAPI.request.mostRecentCall.args[0].path)
             .not.toEqual(hoverPositionPath(editor, [1, 0]));
           });
         });

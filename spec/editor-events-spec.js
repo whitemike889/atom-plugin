@@ -1,6 +1,6 @@
 'use strict';
 
-const {StateController} = require('kite-installer');
+const KiteAPI = require('kite-api');
 const {withKite, withKiteRoutes} = require('kite-api/test/helpers/kite');
 const {fakeResponse} = require('kite-api/test/helpers/http');
 
@@ -10,7 +10,7 @@ describe('EditorEvents', () => {
   let editor, events;
 
   beforeEach(() => {
-    spyOn(StateController.client, 'request').andCallThrough();
+    spyOn(KiteAPI, 'request').andCallThrough();
   });
 
   withKite({reachable: true}, () => {
@@ -41,8 +41,8 @@ describe('EditorEvents', () => {
 
             advanceClock(10);
 
-            expect(StateController.client.request).toHaveBeenCalled();
-            expect(StateController.client.request.callCount).toEqual(1);
+            expect(KiteAPI.request).toHaveBeenCalled();
+            expect(KiteAPI.request.callCount).toEqual(1);
           });
         });
       });

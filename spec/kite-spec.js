@@ -1,7 +1,8 @@
 'use strict';
 
 const path = require('path');
-const {StateController, install: {Install}} = require('kite-installer');
+const {install: {Install}} = require('kite-installer');
+const KiteAPI = require('kite-api');
 const {withKite, withKiteRoutes, withKitePaths} = require('kite-api/test/helpers/kite');
 const {fakeResponse} = require('kite-api/test/helpers/http');
 const {sleep} = require('./spec-helpers');
@@ -12,7 +13,7 @@ describe('Kite', () => {
   let workspaceElement, jasmineContent, notificationsPkg, kitePkg, editor;
 
   beforeEach(() => {
-    spyOn(StateController.client, 'request').andCallThrough();
+    spyOn(KiteAPI, 'request').andCallThrough();
 
     jasmineContent = document.querySelector('#jasmine-content');
     workspaceElement = atom.views.getView(atom.workspace);
@@ -84,7 +85,7 @@ describe('Kite', () => {
                   v.dispatchEvent(new Event('focus'));
                 });
                 waitsFor('notify endpoint call', () => {
-                  const {path} = StateController.client.request.mostRecentCall.args[0];
+                  const {path} = KiteAPI.request.mostRecentCall.args[0];
                   return /^\/clientapi\/permissions/.test(path);
                 });
                 sleep(100);
@@ -179,7 +180,7 @@ describe('Kite', () => {
                 advanceClock(100);
               });
               waitsFor('notify endpoint call', () => {
-                const {path} = StateController.client.request.mostRecentCall.args[0];
+                const {path} = KiteAPI.request.mostRecentCall.args[0];
                 return /^\/clientapi\/permissions/.test(path);
               });
               sleep(100);

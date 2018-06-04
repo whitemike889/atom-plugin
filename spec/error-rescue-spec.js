@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const {StateController} = require('kite-installer');
+const KiteAPI = require('kite-api');
 const {fakeResponse} = require('kite-api/test/helpers/http');
 const {withKite, withKiteRoutes, withKitePaths} = require('kite-api/test/helpers/kite');
 const {click} = require('./helpers/events');
@@ -13,7 +13,7 @@ xdescribe('error rescue', () => {
   let kitePkg, kiteEditor, editor, buffer, jasmineContent, workspaceElement;
 
   beforeEach(() => {
-    spyOn(StateController.client, 'request').andCallThrough();
+    spyOn(KiteAPI, 'request').andCallThrough();
 
     jasmineContent = document.body.querySelector('#jasmine-content');
     workspaceElement = atom.views.getView(atom.workspace);
@@ -121,9 +121,9 @@ xdescribe('error rescue', () => {
 
               waitsFor('buffer saved', () => buffer.buffer.save.calls.length > 0);
               runs(() => {
-                expect(StateController.client.request)
+                expect(KiteAPI.request)
                 .toHaveBeenCalledWithPath('/clientapi/editor/autocorrect/validation/on-save');
-                expect(StateController.client.request)
+                expect(KiteAPI.request)
                 .toHaveBeenCalledWithPath('/clientapi/editor/autocorrect');
               });
             });
@@ -251,7 +251,7 @@ xdescribe('error rescue', () => {
                     });
 
                     it('sends a +1 request to the feedback endpoint', () => {
-                      expect(StateController.client.request).toHaveBeenCalledWithPath('/clientapi/editor/autocorrect/feedback');
+                      expect(KiteAPI.request).toHaveBeenCalledWithPath('/clientapi/editor/autocorrect/feedback');
                     });
 
                     it('adds a clicked class on the button', () => {
@@ -267,7 +267,7 @@ xdescribe('error rescue', () => {
                     });
 
                     it('thumb down sends a -1 request to the feedback endpoint', () => {
-                      expect(StateController.client.request).toHaveBeenCalledWithPath('/clientapi/editor/autocorrect/feedback');
+                      expect(KiteAPI.request).toHaveBeenCalledWithPath('/clientapi/editor/autocorrect/feedback');
                     });
 
                     it('adds a clicked class on the button', () => {
@@ -415,7 +415,7 @@ xdescribe('error rescue', () => {
                       });
 
                       it('makes a call to the model info endpoint', () => {
-                        expect(StateController.client.request).toHaveBeenCalledWithPath('/api/editor/autocorrect/model-info');
+                        expect(KiteAPI.request).toHaveBeenCalledWithPath('/api/editor/autocorrect/model-info');
                       });
 
                       it('creates a message box for the changes', () => {
@@ -469,7 +469,7 @@ xdescribe('error rescue', () => {
                   });
 
                   it('makes a call to the model info endpoint', () => {
-                    expect(StateController.client.request).toHaveBeenCalledWithPath('/api/editor/autocorrect/model-info');
+                    expect(KiteAPI.request).toHaveBeenCalledWithPath('/api/editor/autocorrect/model-info');
                   });
 
                   it('stores the new clean up model version', () => {
@@ -528,7 +528,7 @@ xdescribe('error rescue', () => {
                   });
 
                   it('makes a call to the model info endpoint', () => {
-                    expect(StateController.client.request).toHaveBeenCalledWithPath('/api/editor/autocorrect/model-info');
+                    expect(KiteAPI.request).toHaveBeenCalledWithPath('/api/editor/autocorrect/model-info');
                   });
 
                   it('stores the new clean up model version', () => {
@@ -616,7 +616,7 @@ xdescribe('error rescue', () => {
               });
 
               it('sends the received response to the metrics endpoint', () => {
-                expect(StateController.client.request).toHaveBeenCalledWithPath('/clientapi/editor/autocorrect/metrics');
+                expect(KiteAPI.request).toHaveBeenCalledWithPath('/clientapi/editor/autocorrect/metrics');
               });
             });
 
