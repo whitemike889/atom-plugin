@@ -80,8 +80,6 @@ describe('Kite', () => {
               runs(() => {
                 const v = atom.views.getView(editor);
                 v.dispatchEvent(new Event('focus'));
-                advanceClock(200);
-                advanceClock(100);
               });
               waitsFor('notify endpoint call', () => {
                 const {path} = http.request.mostRecentCall.args[0];
