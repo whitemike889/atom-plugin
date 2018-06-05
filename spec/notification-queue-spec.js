@@ -13,7 +13,7 @@ const findNotification = () => {
   notificationElement = atom.views.getView(notification);
 };
 
-fdescribe('NotificationQueue', () => {
+describe('NotificationQueue', () => {
   beforeEach(() => {
     waitsForPromise(() =>
       atom.packages.activatePackage('notifications').then(pkg => {
