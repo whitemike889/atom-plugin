@@ -2,7 +2,7 @@
 
 const {remote: {BrowserWindow}} = require('electron');
 const Session = require('../lib/session');
-const TestStore = require('./stores/test');
+const MemoryStore = require('../lib/stores/memory');
 
 const getWindow = () => ({getTitle() { return 'title'; }});
 
@@ -11,7 +11,7 @@ describe('Session', () => {
   beforeEach(() => {
     windows = [];
     session = new Session();
-    session.store = new TestStore();
+    session.store = new MemoryStore();
     spyOn(BrowserWindow, 'getAllWindows').andCallFake(() => windows);
   });
 
