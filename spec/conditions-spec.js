@@ -1,7 +1,7 @@
 'use strict';
 
 const MemoryStore = require('../lib/stores/memory');
-const {all, any, once, oncePerWindow} = require('../lib/conditions');
+const {all, any, fromSetting, once, oncePerWindow} = require('../lib/conditions');
 
 const truthy = () => true;
 const falsy = () => false;
@@ -60,6 +60,23 @@ describe('conditions', () => {
         oncePerWindow.store.setItem('kite.notifications.id', true);
         expect(oncePerWindow('kite.notifications.')({id: 'id'})).toBeFalsy();
       });
+    });
+  });
+
+  describe('fromSetting()', () => {
+    afterEach(() => {
+      atom.config.unset('kite.testSetting');
+    });
+
+    it('returns the value of the corresponding setting', () => {
+      atom.config.set('kite.testSetting', true);
+      expect(fromSetting('kite.testSetting')()).toBeTruthy();
+
+      atom.config.set('kite.testSetting', false);
+      expect(fromSetting('kite.testSetting')()).toBeFalsy();
+
+      atom.config.unset('kite.testSetting');
+      expect(fromSetting('kite.testSetting')()).toBeFalsy();
     });
   });
 
