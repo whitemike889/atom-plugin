@@ -78,6 +78,16 @@ describe('conditions', () => {
       atom.config.unset('kite.testSetting');
       expect(fromSetting('kite.testSetting')()).toBeFalsy();
     });
+    describe('with a value', () => {
+      it('returns the value of the corresponding setting', () => {
+        atom.config.set('kite.testSetting', 'value');
+        expect(fromSetting('kite.testSetting', 'value')()).toBeTruthy();
+        expect(fromSetting('kite.testSetting', 'other value')()).toBeFalsy();
+
+        atom.config.unset('kite.testSetting');
+        expect(fromSetting('kite.testSetting')()).toBeFalsy();
+      });
+    });
   });
 
   // For now we'll rely on window rather than sessions
