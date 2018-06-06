@@ -31,6 +31,12 @@
       "title": "Show welcome notification on startup",
       "description": "Whether to display the Kite welcome notification on startup"
     },
+    "showEditorVacanciesNotificationOnStartup": {
+      "type": "boolean",
+      "default": true,
+      "title": "Show editor vacancies notification on startup",
+      "description": "Whether to display the Kite vacancies notification on startup"
+    },
     "enableCompletions": {
       "type": "boolean",
       "default": true,
