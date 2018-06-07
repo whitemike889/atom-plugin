@@ -230,6 +230,8 @@ describe('Kite', () => {
                   editor = atom.workspace.getActiveTextEditor();
                   spyOn(editor, 'getPath')
                   .andReturn(path.join(projectPath, 'file.py'));
+                  spyOn(editor, 'getURI')
+                  .andReturn(path.join(projectPath, 'file.py'));
                   editor.emitter.emit('did-change-path', editor.getPath());
                   advanceClock(200);
                   sleep(100);
