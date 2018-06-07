@@ -65,22 +65,6 @@
       "title": "Open sidebar on startup",
       "description": "Makes the sidebar appear on Atom startup"
     },
-    "enableErrorRescue": {
-      "type": "boolean",
-      "default": true,
-      "title": "Enable Error Rescue",
-      "description": "Allow Error Rescue to make code fixes on save"
-    },
-    "actionWhenErrorRescueFixesCode": {
-      "type": "string",
-      "default": "Reopen sidebar",
-      "enum": [
-        "Reopen sidebar",
-        "Fix code quietly"
-      ],
-      "title": "Action when Error Rescue fixes code",
-      "description": "Choose whether Error Rescue should (re)open its sidebar upon making fixes, or do it quietly"
-    },
     "maxVisibleSuggestionsAlongSignature": {
       "type": "integer",
       "default": 3,
