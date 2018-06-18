@@ -1,7 +1,7 @@
 'use strict';
 
 const KiteAPI = require('kite-api');
-const {loadResponseForEditor, jsonPath} = require('../utils');
+const {loadResponseForEditor} = require('../utils');
 
 module.exports = (expectation) => {
   beforeEach(() => {
@@ -11,7 +11,7 @@ module.exports = (expectation) => {
         this.env.equals_(
           JSON.parse(KiteAPI.request.mostRecentCall.args[1]),
           loadResponseForEditor(
-            jsonPath(expectation.properties.body),
+            expectation.properties.body,
             atom.workspace.getActiveTextEditor()));
     });
   });

@@ -24,23 +24,30 @@ function walk(p, callback) {
 }
 
 function loadResponseForEditor(p, e) {
-  const data = require(p);
+  let body;
+  switch (typeof p) {
+    case 'object':
+      body = p;
+      break;
+    case 'string':
+      body = require(jsonPath(p));
+  }
 
-  for (const k in data) {
-    const v = data[k];
+  for (const k in body) {
+    const v = body[k];
     if (v === 'filled-out-by-testrunner') {
       switch (k) {
         case 'source':
-          data[k] = 'atom';
+          body[k] = 'atom';
           break;
         case 'filename':
-          data[k] = e.getPath();
+          body[k] = e.getPath();
           break;
       }
     }
   }
 
-  return data;
+  return body;
 }
 
 module.exports = {

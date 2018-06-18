@@ -42,6 +42,35 @@
         "method": "POST",
         "body": "data/http/event/file_request_selection.json"
       }
+    },
+    {
+      "description": "typing in the buffer",
+      "step": "action",
+      "type": "input_text",
+      "properties": {
+        "text": "\n"
+      }
+    },
+    {
+      "description": "sends edit event",
+      "step": "expect",
+      "type": "request",
+      "properties": {
+        "path": "/clientapi/editor/event",
+        "method": "POST",
+        "body": {
+          "source": "filled-out-by-testrunner",
+          "filename": "filled-out-by-testrunner",
+          "text": "import json\n",
+          "action": "edit",
+          "selections": [
+            {
+              "start": 12,
+              "end": 12
+            }
+          ]
+        }
+      }
     }
   ]
 }
