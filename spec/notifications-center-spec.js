@@ -706,7 +706,7 @@ describe('NotificationsCenter', () => {
 
           expect(notification.getType()).toEqual('warning');
           expect(notification.getMessage())
-          .toEqual(`The Kite engine is disabled for ${atom.workspace.getActiveTextEditor().getPath()}`);
+          .toEqual(`The Kite engine is disabled for ${editor.getPath()}`);
 
           expect(options.buttons.length).toEqual(3);
           expect(options.buttons[0].text).toEqual('Settings');
@@ -715,6 +715,49 @@ describe('NotificationsCenter', () => {
           expect(options.dismissable).toBeTruthy();
           expect(options.description)
           .toEqual('Would you like to enable Kite for Python files in:');
+        });
+
+        describe('when a second not whitelisted notification is shown', () => {
+          let secondEditor, secondNotification, secondNotificationElement;
+          beforeEach(() => {
+            waitsForPromise(() => atom.workspace.open('other_sample.py').then(e => {
+              secondEditor = e;
+            }));
+            runs(() => {
+              notifications.warnNotWhitelisted(secondEditor, '/path/to/dir');
+            });
+            sleep(100);
+            waitsFor('second notification', () => {
+              secondNotificationElement = getNotificationElement();
+              secondNotification = secondNotificationElement.getModel();
+              return secondNotification !== notification;
+            });
+          });
+
+          it('displays a second notification and close the first one', () => {
+            expect(secondNotification).not.toBe(notification);
+            expect(notification.dismissed).toBeTruthy();
+          });
+
+          describe('switching back to the first editor', () => {
+            beforeEach(() => {
+              runs(() => {
+                atom.workspace.getActivePane().setActiveItem(editor);
+                notifications.warnNotWhitelisted(editor, '/path/to/dir');
+              });
+              sleep(100);
+              waitsFor('third notification', () => {
+                notificationElement = getNotificationElement();
+                notification = notificationElement.getModel();
+                return secondNotification !== notification;
+              });
+            });
+
+            it('displays a third notification and close the first one', () => {
+              expect(secondNotification).not.toBe(notification);
+              expect(secondNotification.dismissed).toBeTruthy();
+            });
+          });
         });
 
         describe('clicking on the homedir button', () => {
