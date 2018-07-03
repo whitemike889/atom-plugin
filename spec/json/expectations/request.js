@@ -1,20 +1,92 @@
 'use strict';
 
 const KiteAPI = require('kite-api');
-const {loadResponseForEditor} = require('../utils');
+const {waitsFor, loadPayload, substituteFromContext, buildContextForEditor, itForExpectation} = require('../utils');
+
+let closeMatches;
+const getDesc = (expectation) => () => {
+  const base = [
+    'request to',
+    expectation.properties.method,
+    expectation.properties.path,
+    'in test',
+    expectation.description,
+    'with',
+    JSON.stringify(expectation.properties.body),
+  ];
+
+  if (closeMatches.length > 0) {
+    base.push('\nbut some calls were close');
+    closeMatches.forEach(({path, method, payload}) => {
+      base.push(`\n - ${method} ${path} = ${payload}`);
+    });
+  } else {
+    base.push('\nbut no calls were anywhere close');
+  }
+
+  return base.join(' ');
+};
+
+const mostRecentCallMatching = (exPath, exMethod, exPayload, context = {}, env) => {
+  const calls = KiteAPI.request.calls;
+  closeMatches = [];
+  let matched = false;
+
+  exPath = substituteFromContext(exPath, context);
+  exPayload = exPayload && substituteFromContext(loadPayload(exPayload), context);
+
+  // console.log('--------------------')
+  // console.log(exPath, exPayload)
+
+  if (calls.length === 0) { return false; }
+
+  return calls.reverse().reduce((b, c, i, a) => {
+    let [{path, method}, payload] = c.args;
+    method = method || 'GET';
+
+    // b is false here only if we found a call that partially matches
+    // the expected parameters, eg. same endpoint but different method/payload
+    // so that mean the most recent call to the expected endpoint is not the one
+    // we were looking for, and the assertion must fail immediately
+    if (!b || matched) { return b; }
+
+    // console.log(path, method, payload);
+
+    if (path === exPath) {
+      if (method === exMethod) {
+        closeMatches.push({path, method, payload});
+        if (!exPayload || env.equals_(JSON.parse(payload), exPayload)) {
+          matched = true;
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        // not the right method = failure
+        return false;
+      }
+    } else {
+      // not the good path, we pass up true unless we've reached the first call
+      if (i === a.length - 1 && !matched) {
+        return false;
+      } else {
+        return b;
+      }
+    }
+  }, true);
+};
 
 module.exports = (expectation) => {
-  beforeEach(() => {
-    waitsFor(`request to '${expectation.properties.path}'`, function() {
-      return KiteAPI.request.mostRecentCall.args[0].path === expectation.properties.path &&
-        KiteAPI.request.mostRecentCall.args[0].method === expectation.properties.method &&
-        this.env.equals_(
-          JSON.parse(KiteAPI.request.mostRecentCall.args[1]),
-          loadResponseForEditor(
-            expectation.properties.body,
-            atom.workspace.getActiveTextEditor()));
-    });
+  beforeEach(function() {
+    waitsFor(getDesc(expectation), () => {
+      return mostRecentCallMatching(
+        expectation.properties.path,
+        expectation.properties.method,
+        expectation.properties.body,
+        buildContextForEditor(atom.workspace.getActiveTextEditor()),
+        this.env);
+    }, 300);
   });
 
-  it(expectation.description, () => {});
+  itForExpectation(expectation);
 };

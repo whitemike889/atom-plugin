@@ -6,10 +6,47 @@ const path = require('path');
 const base = path.resolve(__dirname, '..');
 
 function jsonPath(p) {
-  return path.join(base, 'json', p);
+  return path.join(base, '..', 'node_modules', 'editors-json-tests', p);
 }
 
-function walk(p, callback) {
+function waitsFor(m, f, t, i) {
+  if (typeof m == 'function' && typeof f != 'function') {
+    i = t;
+    t = f;
+    f = m;
+    m = 'something to happen';
+  }
+
+  const intervalTime = i || 10;
+  const timeoutDuration = t || 2000;
+
+  waitsForPromise(() => new Promise((resolve, reject) => {
+    const interval = setInterval(() => {
+      if (f()) {
+        clearTimeout(timeout);
+        clearInterval(interval);
+        resolve();
+      }
+    }, intervalTime);
+
+    const timeout = setTimeout(() => {
+      clearInterval(interval);
+      let msg;
+      if (typeof m == 'function') {
+        msg = `Waited ${timeoutDuration}ms for ${m()}`;
+      } else {
+        msg = `Waited ${timeoutDuration}ms for ${m} but nothing happened`;
+      }
+      reject(new Error(msg));
+    }, timeoutDuration);
+  }));
+}
+
+function walk(p, ext, callback) {
+  if (typeof ext == 'function') {
+    callback = ext;
+    ext = undefined;
+  }
   if (fs.existsSync(p)) {
     const stats = fs.lstatSync(p);
 
@@ -18,12 +55,52 @@ function walk(p, callback) {
 
       content.forEach(s => walk(path.join(p, s), callback));
     } else {
-      callback(p);
+      if (!ext || path.extname(p) === ext) {
+        callback(p);
+      }
     }
   }
 }
 
-function loadResponseForEditor(p, e) {
+
+function readValueAtPath(path, object) {
+  if (!path) { return object; }
+
+  return path.split(/\./g).reduce((memo, key) => {
+    if (memo == undefined) { return memo; }
+    return memo[key];
+  }, object);
+}
+
+function substituteFromContext(data, context) {
+  let string = JSON.stringify(data);
+
+  string = string.replace(/<<([^>]+)>>/g, (m, k) => readValueAtPath(k, context));
+
+  return JSON.parse(string);
+}
+
+function cleanPath(p) {
+  return encodeURI(normalizeDriveLetter(p))
+  .replace(/^([a-zA-Z]):/, (m, d) => `/windows/${d}`)
+  .replace(/\/|\\|%5C/g, ':');
+}
+
+function normalizeDriveLetter(str) {
+  return str.replace(/^[a-z]:/, m => m.toUpperCase());
+}
+
+function buildContextForEditor(e) {
+  return {
+    plugin: 'atom',
+    editor: {
+      filename: e.getPath(),
+      filename_escaped: cleanPath(e.getPath()),
+    },
+  };
+}
+
+function loadPayload(p) {
   let body;
   switch (typeof p) {
     case 'object':
@@ -32,26 +109,36 @@ function loadResponseForEditor(p, e) {
     case 'string':
       body = require(jsonPath(p));
   }
-
-  for (const k in body) {
-    const v = body[k];
-    if (v === 'filled-out-by-testrunner') {
-      switch (k) {
-        case 'source':
-          body[k] = 'atom';
-          break;
-        case 'filename':
-          body[k] = e.getPath();
-          break;
-      }
-    }
-  }
-
   return body;
+}
+
+function itForExpectation(expectation, block = () => {}) {
+  if (expectation.ignore) {
+    xit(expectation.description, block);
+  } else if (expectation.focus) {
+    ffit(expectation.description, block);
+  } else {
+    it(expectation.description, block);
+  }
+}
+
+function describeForTest(test, description, block) {
+  if (test.ignore) {
+    xdescribe(description, block);
+  } else if (test.focus) {
+    ffdescribe(description, block);
+  } else {
+    describe(description, block);
+  }
 }
 
 module.exports = {
   jsonPath,
   walk,
-  loadResponseForEditor,
+  loadPayload,
+  substituteFromContext,
+  buildContextForEditor,
+  itForExpectation,
+  describeForTest,
+  waitsFor,
 };
