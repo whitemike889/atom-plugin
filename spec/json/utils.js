@@ -119,8 +119,6 @@ function buildContext() {
     }, context.editors);
   });
 
-  console.log(context);
-
   return context;
 }
 
