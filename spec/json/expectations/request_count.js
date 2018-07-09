@@ -1,6 +1,6 @@
 'use strict';
 
-const {waitsFor, loadPayload, substituteFromContext, buildContextForEditor, itForExpectation} = require('../utils');
+const {waitsFor, loadPayload, substituteFromContext, buildContext, itForExpectation} = require('../utils');
 const KiteAPI = require('kite-api');
 
 const callsMatching = (exPath, exMethod, exPayload, context = {}) => {
@@ -48,7 +48,7 @@ module.exports = (expectation) => {
           expectation.properties.path,
           expectation.properties.method,
           expectation.properties.body,
-          buildContextForEditor(atom.workspace.getActiveTextEditor()));
+          buildContext());
 
       // console.log(calls);
 

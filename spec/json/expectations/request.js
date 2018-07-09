@@ -1,7 +1,7 @@
 'use strict';
 
 const KiteAPI = require('kite-api');
-const {waitsFor, loadPayload, substituteFromContext, buildContextForEditor, itForExpectation} = require('../utils');
+const {waitsFor, loadPayload, substituteFromContext, buildContext, itForExpectation} = require('../utils');
 
 let closeMatches;
 const getDesc = (expectation) => () => {
@@ -12,7 +12,7 @@ const getDesc = (expectation) => () => {
     'in test',
     expectation.description,
     'with',
-    JSON.stringify(expectation.properties.body),
+    JSON.stringify(substituteFromContext(expectation.properties.body, buildContext())),
   ];
 
   if (closeMatches.length > 0) {
@@ -83,7 +83,7 @@ module.exports = (expectation) => {
         expectation.properties.path,
         expectation.properties.method,
         expectation.properties.body,
-        buildContextForEditor(atom.workspace.getActiveTextEditor()),
+        buildContext(),
         this.env);
     }, 300);
   });

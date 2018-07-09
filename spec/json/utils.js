@@ -4,9 +4,10 @@ const fs = require('fs');
 const path = require('path');
 
 const base = path.resolve(__dirname, '..');
+const testBase = path.join(base, '..', 'node_modules', 'editors-json-tests');
 
 function jsonPath(p) {
-  return path.join(base, '..', 'node_modules', 'editors-json-tests', p);
+  return path.join(testBase, p);
 }
 
 function waitsFor(m, f, t, i) {
@@ -62,12 +63,26 @@ function walk(p, ext, callback) {
   }
 }
 
-
 function readValueAtPath(path, object) {
   if (!path) { return object; }
 
   return path.split(/\./g).reduce((memo, key) => {
     if (memo == undefined) { return memo; }
+    return memo[key];
+  }, object);
+}
+
+function writeValueAtPath(path, value, object) {
+  if (!object) { object = {}; }
+
+  return path.split(/\./g).reduce((memo, key, i, a) => {
+    if (i === a.length - 1) {
+      memo[key] = value;
+      return object;
+    } else if (memo[key] == undefined) {
+      memo[key] = {};
+      return memo[key];
+    }
     return memo[key];
   }, object);
 }
@@ -90,14 +105,23 @@ function normalizeDriveLetter(str) {
   return str.replace(/^[a-z]:/, m => m.toUpperCase());
 }
 
-function buildContextForEditor(e) {
-  return {
+function buildContext() {
+  const context = {
     plugin: 'atom',
-    editor: {
+    editors: {},
+  };
+
+  atom.workspace.getTextEditors().forEach(e => {
+    const relativePath = path.relative(testBase, e.getPath());
+    writeValueAtPath(relativePath, {
       filename: e.getPath(),
       filename_escaped: cleanPath(e.getPath()),
-    },
-  };
+    }, context.editors);
+  });
+
+  console.log(context);
+
+  return context;
 }
 
 function loadPayload(p) {
@@ -137,7 +161,7 @@ module.exports = {
   walk,
   loadPayload,
   substituteFromContext,
-  buildContextForEditor,
+  buildContext,
   itForExpectation,
   describeForTest,
   waitsFor,
