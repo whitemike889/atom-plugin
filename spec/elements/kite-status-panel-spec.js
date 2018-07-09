@@ -72,7 +72,7 @@ describe('KiteStatusPanel', () => {
       });
     });
 
-    withPlan('trialing pro with more than 7 days remaining', {
+    withPlan('trialing pro with more than 6 days remaining', {
       status: 'trialing',
       active_subscription: 'pro',
       features: {},
