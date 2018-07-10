@@ -41,19 +41,25 @@ const getDesc = expectation => () => {
 };
 
 
-module.exports = (expectation) => {
+module.exports = (expectation, not) => {
   beforeEach(() => {
-    return waitsFor(getDesc(expectation), () => {
+    const promise = waitsFor(getDesc(expectation), () => {
       calls = callsMatching(
           expectation.properties.path,
           expectation.properties.method,
           expectation.properties.body,
           buildContext());
 
-      // console.log(calls);
+      console.log(calls.length);
 
       return calls.length === expectation.properties.count;
     }, 300);
+
+    if (not) {
+      waitsForPromise({shouldReject: true}, () => promise);
+    } else {
+      waitsForPromise(() => promise);
+    }
   });
 
   itForExpectation(expectation);

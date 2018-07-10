@@ -76,9 +76,9 @@ const mostRecentCallMatching = (exPath, exMethod, exPayload, context = {}, env) 
   }, true);
 };
 
-module.exports = (expectation) => {
+module.exports = (expectation, not) => {
   beforeEach(function() {
-    waitsFor(getDesc(expectation), () => {
+    const promise = waitsFor(getDesc(expectation), () => {
       return mostRecentCallMatching(
         expectation.properties.path,
         expectation.properties.method,
@@ -86,6 +86,12 @@ module.exports = (expectation) => {
         buildContext(),
         this.env);
     }, 300);
+
+    if (not) {
+      waitsForPromise({shouldReject: true}, () => promise);
+    } else {
+      waitsForPromise(() => promise);
+    }
   });
 
   itForExpectation(expectation);

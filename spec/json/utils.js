@@ -21,7 +21,7 @@ function waitsFor(m, f, t, i) {
   const intervalTime = i || 10;
   const timeoutDuration = t || 2000;
 
-  waitsForPromise(() => new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     const interval = setInterval(() => {
       if (f()) {
         clearTimeout(timeout);
@@ -40,7 +40,7 @@ function waitsFor(m, f, t, i) {
       }
       reject(new Error(msg));
     }, timeoutDuration);
-  }));
+  });
 }
 
 function walk(p, ext, callback) {
@@ -154,6 +154,62 @@ function describeForTest(test, description, block) {
   }
 }
 
+const NotificationsMock = {
+  LEVELS: {
+    success: 'addSuccess',
+    info: 'addInfo',
+    warning: 'addWarning',
+    warn: 'addWarning',
+    error: 'addError',
+  },
+
+  initialize() {
+    this.notifications = [];
+    spyOn(atom.notifications, 'addSuccess').andCallFake((...args) => this.registerNotification('success', ...args)),
+    spyOn(atom.notifications, 'addInfo').andCallFake((...args) => this.registerNotification('info', ...args)),
+    spyOn(atom.notifications, 'addWarning').andCallFake((...args) => this.registerNotification('warning', ...args)),
+    spyOn(atom.notifications, 'addError').andCallFake((...args) => this.registerNotification('error', ...args)),
+    this.initialized = true;
+  },
+  cleanup() {
+    this.notifications = [];
+    delete this.lastNotification;
+  },
+  notificationsForLevel(level) {
+    return this.notifications.filter(n => n.level === level);
+  },
+  newNotification() {
+    const lastNotification = this.notifications[this.notifications.length - 1];
+    const created = lastNotification != this.lastNotification;
+
+    if (created) {
+      this.lastNotification = lastNotification;
+    }
+    return created;
+  },
+  registerNotification(level, message, options) {
+    const notification = {
+      level,
+      message,
+      options,
+      dispose() {},
+    };
+    this.notifications.push(notification);
+    return notification;
+  },
+
+};
+
+if (!NotificationsMock.initialized) {
+  beforeEach(() => {
+    NotificationsMock.initialize();
+  });
+
+  afterEach(() => {
+    NotificationsMock.cleanup();
+  });
+}
+
 module.exports = {
   jsonPath,
   walk,
@@ -163,4 +219,5 @@ module.exports = {
   itForExpectation,
   describeForTest,
   waitsFor,
+  NotificationsMock,
 };
