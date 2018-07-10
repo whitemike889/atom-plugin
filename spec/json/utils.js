@@ -165,10 +165,27 @@ const NotificationsMock = {
 
   initialize() {
     this.notifications = [];
-    spyOn(atom.notifications, 'addSuccess').andCallFake((...args) => this.registerNotification('success', ...args)),
-    spyOn(atom.notifications, 'addInfo').andCallFake((...args) => this.registerNotification('info', ...args)),
-    spyOn(atom.notifications, 'addWarning').andCallFake((...args) => this.registerNotification('warning', ...args)),
-    spyOn(atom.notifications, 'addError').andCallFake((...args) => this.registerNotification('error', ...args)),
+    const safeAddSuccess = atom.notifications.addSuccess;
+    const safeAddInfo = atom.notifications.addInfo;
+    const safeAddWarning = atom.notifications.addWarning;
+    const safeAddError = atom.notifications.addError;
+
+    spyOn(atom.notifications, 'addSuccess').andCallFake((...args) => {
+      this.registerNotification('success', ...args);
+      return safeAddSuccess.apply(atom.notifications, args);
+    });
+    spyOn(atom.notifications, 'addInfo').andCallFake((...args) => {
+      this.registerNotification('info', ...args);
+      return safeAddInfo.apply(atom.notifications, args);
+    });
+    spyOn(atom.notifications, 'addWarning').andCallFake((...args) => {
+      this.registerNotification('warning', ...args);
+      return safeAddWarning.apply(atom.notifications, args);
+    });
+    spyOn(atom.notifications, 'addError').andCallFake((...args) => {
+      this.registerNotification('error', ...args);
+      return safeAddError.apply(atom.notifications, args);
+    });
     this.initialized = true;
   },
   cleanup() {
@@ -192,10 +209,8 @@ const NotificationsMock = {
       level,
       message,
       options,
-      dispose() {},
     };
     this.notifications.push(notification);
-    return notification;
   },
 
 };
