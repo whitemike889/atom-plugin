@@ -54,26 +54,11 @@
       "default": 3,
       "title": "Max visible suggestions along signature"
     },
-    "searchIconPosition": {
-      "type": "string",
-      "default": "top-right",
-      "enum": [
-        "top-right",
-        "bottom-right",
-        "hidden"
-      ],
-      "title": "Search icon position"
-    },
     "hideDocumentationWhenSignatureIsAvailable": {
       "type": "boolean",
       "default": true,
       "title": "Hide documentation when signature is available",
       "description": "Display only signature if both the signature and documentation are available at the same time"
-    },
-    "collapseLongSummaries": {
-      "type": "boolean",
-      "default": true,
-      "title": "Collapse long summaries"
     },
     "loggingLevel": {
       "type": "string",
