@@ -50,8 +50,6 @@ module.exports = (expectation, not) => {
           expectation.properties.body,
           buildContext());
 
-      console.log(calls.length);
-
       return calls.length === expectation.properties.count;
     }, 300);
 

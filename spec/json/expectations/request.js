@@ -11,9 +11,12 @@ const getDesc = (expectation) => () => {
     expectation.properties.path,
     'in test',
     expectation.description,
-    'with',
-    JSON.stringify(substituteFromContext(expectation.properties.body, buildContext())),
   ];
+
+  if (expectation.properties.body) {
+    base.push('with');
+    base.push(JSON.stringify(substituteFromContext(expectation.properties.body, buildContext())));
+  }
 
   if (closeMatches.length > 0) {
     base.push('\nbut some calls were close');
