@@ -5,7 +5,7 @@ const {install: {Install}} = require('kite-installer');
 const KiteAPI = require('kite-api');
 const {withKite, withKiteRoutes, withKitePaths} = require('kite-api/test/helpers/kite');
 const {fakeResponse} = require('kite-api/test/helpers/http');
-const {sleep} = require('./spec-helpers');
+const {sleep, newCallTo} = require('./spec-helpers');
 
 const projectPath = path.join(__dirname, 'fixtures');
 
@@ -84,10 +84,7 @@ describe('Kite', () => {
                   const v = atom.views.getView(editor);
                   v.dispatchEvent(new Event('focus'));
                 });
-                waitsFor('notify endpoint call', () => {
-                  const {path} = KiteAPI.request.mostRecentCall.args[0];
-                  return /^\/clientapi\/permissions/.test(path);
-                });
+                waitsFor('notify endpoint call', newCallTo(/^\/clientapi\/permissions/));
                 sleep(100);
               });
 
@@ -179,10 +176,7 @@ describe('Kite', () => {
                 advanceClock(200);
                 advanceClock(100);
               });
-              waitsFor('notify endpoint call', () => {
-                const {path} = KiteAPI.request.mostRecentCall.args[0];
-                return /^\/clientapi\/permissions/.test(path);
-              });
+              waitsFor('notify endpoint call', newCallTo(/^\/clientapi\/permissions/));
               sleep(100);
             });
 

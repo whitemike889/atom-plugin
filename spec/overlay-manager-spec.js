@@ -126,46 +126,18 @@ describe('OverlayManager', () => {
 
             expect(showSpy).toHaveBeenCalled();
           });
+        });
+      });
 
-          describe('querying the same range again', () => {
-            beforeEach(() => {
-              waitsForPromise(() =>
-              OverlayManager.showHoverAtPosition(editor, [2, 7]));
-            });
-
-            it('leaves the previous decoration in place', () => {
-              const newHover = editorQuery('kite-hover');
-              expect(newHover).toBe(hover);
-            });
-
-          });
-
-          describe('querying a different range', () => {
-            beforeEach(() => {
-              waitsForPromise(() =>
-              OverlayManager.showHoverAtPosition(editor, [0, 1]));
-            });
-
-            it('destroys the previous decoration and creates a new one', () => {
-              expect(editorQueryAll('kite-hover').length).toEqual(1);
-              expect(dismissSpy).toHaveBeenCalled();
-
-              const newHover = editorQuery('kite-hover');
-              expect(newHover).not.toBe(hover);
-            });
-          });
+      describe('when the position does not match the position of a token', () => {
+        beforeEach(() => {
+          waitsForPromise(() =>
+            OverlayManager.showHoverAtPosition(editor, [2, 8]));
         });
 
-        describe('when the position does not match the position of a token', () => {
-          beforeEach(() => {
-            waitsForPromise(() =>
-            OverlayManager.showHoverAtPosition(editor, [2, 8]));
-          });
-
-          it('does not displays an overlay decoration', () => {
-            const hover = editorQuery('kite-hover');
-            expect(hover).not.toExist();
-          });
+        it('does not displays an overlay decoration', () => {
+          const hover = editorQuery('kite-hover');
+          expect(hover).not.toExist();
         });
       });
     });

@@ -226,8 +226,13 @@ describe('NotificationsCenter', () => {
           beforeEach(() => {
             app.emitter.emit('did-get-unauthorized', {message: 'Some error'});
 
-            notificationElement = getNotificationElement();
-            notification = notificationElement.getModel();
+            waitsFor('notification', () => {
+              notificationElement = getNotificationElement();
+              if (notificationElement) {
+                notification = notificationElement.getModel();
+              }
+              return notificationElement;
+            });
           });
 
           it('notifies the user', () => {
@@ -379,8 +384,13 @@ describe('NotificationsCenter', () => {
                 data: 5,
               });
 
-              notificationElement = getNotificationElement();
-              notification = notificationElement.getModel();
+              waitsFor('notification', () => {
+                notificationElement = getNotificationElement();
+                if (notificationElement) {
+                  notification = notificationElement.getModel();
+                }
+                return notificationElement;
+              });
             });
 
             it('notifies the user', () => {

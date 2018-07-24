@@ -67,28 +67,27 @@ describe('KiteStatusPanel', () => {
       });
     });
 
-    withPlan('trialing pro with more than 5 days remaining', {
+    withPlan('trialing pro with more than 6 days remaining', {
       status: 'trialing',
       active_subscription: 'pro',
       features: {},
       trial_days_remaining: 9,
       started_kite_pro_trial: true,
     }, () => {
-      it('displays a pro badge with the remaining days', () => {
+      it('displays a pro badge without the remaining days', () => {
         waitsForPromise(() => status.show().then(() => {
           expect(status.querySelector('.split-line .left .pro')).toExist();
           const days = status.querySelector('.split-line .left .kite-trial-days');
-          expect(days).toExist();
-          expect(days.textContent).toEqual('Trial: 9 days left');
+          expect(days).not.toExist();
         }));
       });
 
-      it('displays a link to upgrade to a pro account', () => {
+      it('displays a link to the pro account help page', () => {
         waitsForPromise(() => status.show().then(() => {
           const link = status.querySelector('.split-line .right a');
           expect(link).toExist();
-          expect(link.textContent).toEqual('Upgrade');
-          expect(link.href).toEqual('http://localhost:46624/redirect/pro');
+          expect(link.textContent).toEqual("What's this?");
+          expect(link.href).toEqual('https://help.kite.com/article/65-kite-pro');
         }));
       });
     });
@@ -100,13 +99,13 @@ describe('KiteStatusPanel', () => {
       trial_days_remaining: 3,
       started_kite_pro_trial: true,
     }, () => {
-      it('displays a pro badge with the remaining days in red text', () => {
+      it('displays a pro badge with the remaining days in normal text', () => {
         waitsForPromise(() => status.show().then(() => {
           expect(status.querySelector('.split-line .left .pro')).toExist();
           const days = status.querySelector('.split-line .left .kite-trial-days');
           expect(days).toExist();
           expect(days.textContent).toEqual('Trial: 3 days left');
-          expect(days.classList.contains('text-danger'));
+          expect(days.classList.contains('text-danger')).toBeFalsy();
         }));
       });
 

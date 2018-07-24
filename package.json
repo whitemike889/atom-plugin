@@ -1,7 +1,7 @@
 {
   "name": "kite",
   "main": "./lib/kite",
-  "version": "0.95.0",
+  "version": "0.99.0",
   "description": "Python programming copilot — Kite shows cloud-powered completions, documentation, and examples.",
   "repository": "https://github.com/kiteco/atom-plugin",
   "keywords": [],
@@ -49,53 +49,16 @@
       "title": "Enable hover info",
       "description": "Show hover information when placing the mouse over a programming expression"
     },
-    "sidebarPosition": {
-      "type": "string",
-      "default": "right",
-      "enum": [
-        "left",
-        "right"
-      ],
-      "title": "Sidebar position",
-      "description": "Defines where to place the sidebar"
-    },
-    "sidebarWidth": {
-      "type": "integer",
-      "default": 400,
-      "title": "Sidebar width",
-      "description": "Defines the width of the sidebar. When the sidebar is displayed using the new dock API, this value will serve as the preferred width."
-    },
-    "openSidebarOnStartup": {
-      "type": "boolean",
-      "default": false,
-      "title": "Open sidebar on startup",
-      "description": "Makes the sidebar appear on Atom startup"
-    },
     "maxVisibleSuggestionsAlongSignature": {
       "type": "integer",
       "default": 3,
       "title": "Max visible suggestions along signature"
-    },
-    "searchIconPosition": {
-      "type": "string",
-      "default": "top-right",
-      "enum": [
-        "top-right",
-        "bottom-right",
-        "hidden"
-      ],
-      "title": "Search icon position"
     },
     "hideDocumentationWhenSignatureIsAvailable": {
       "type": "boolean",
       "default": true,
       "title": "Hide documentation when signature is available",
       "description": "Display only signature if both the signature and documentation are available at the same time"
-    },
-    "collapseLongSummaries": {
-      "type": "boolean",
-      "default": true,
-      "title": "Collapse long summaries"
     },
     "loggingLevel": {
       "type": "string",
@@ -144,9 +107,9 @@
     "element-resize-detector": "^1.1.11",
     "fuzzaldrin-plus": "^0.4.1",
     "getmac": "^1.2.1",
-    "kite-installer": "git://github.com/kiteco/kite-installer.git#cn-switch-to-kite-api",
-    "kite-api": "git://github.com/kiteco/kite-api-js.git#master",
-    "kite-connect": "git://github.com/kiteco/kite-connect-js.git#master",
+    "kite-installer": "^2.0.2",
+    "kite-api": "^1.0.1",
+    "kite-connector": "^1.0.0",
     "md5": "^2.2.0",
     "rollbar": "^2.3.8",
     "underscore-plus": "^1",
