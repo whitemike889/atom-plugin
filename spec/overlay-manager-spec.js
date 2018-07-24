@@ -2,13 +2,12 @@
 
 const fs = require('fs');
 const path = require('path');
-const http = require('http');
+const KiteAPI = require('kite-api');
+const {withKite, withKiteRoutes, withKitePaths} = require('kite-api/test/helpers/kite');
+const {fakeResponse} = require('kite-api/test/helpers/http');
 const KiteApp = require('../lib/kite-app');
 const OverlayManager = require('../lib/overlay-manager');
-const {hoverPath, hoverPositionPath} = require('../lib/urls');
-const {
-  withKiteWhitelistedPaths, withRoutes, fakeResponse,
-} = require('./spec-helpers');
+const {hoverPositionPath} = require('../lib/urls');
 
 const projectPath = path.join(__dirname, 'fixtures');
 
@@ -29,6 +28,8 @@ describe('OverlayManager', () => {
   const editorQueryAll = (selector) => editorElement.querySelectorAll(selector);
 
   beforeEach(() => {
+    spyOn(KiteAPI, 'request').andCallThrough();
+
     app = new KiteApp();
     showSpy = jasmine.createSpy();
     dismissSpy = jasmine.createSpy();
@@ -70,84 +71,60 @@ describe('OverlayManager', () => {
     }
   });
 
-  withKiteWhitelistedPaths([projectPath], () => {
-    beforeEach(() => {
-      waitsForPromise(() => atom.packages.activatePackage('kite'));
-      waitsForPromise(() => app.connect());
-    });
-
-    describe('.showHoverAtPosition()', () => {
+  withKite({logged: true}, () => {
+    withKitePaths({
+      whitelist: [projectPath],
+    }, undefined, () => {
       beforeEach(() => {
-        OverlayManager.onDidShowHover(showSpy);
-        OverlayManager.onDidDismiss(dismissSpy);
+        waitsForPromise(() => atom.packages.activatePackage('kite'));
+        waitsForPromise(() => app.connect());
       });
 
-      describe('when the position matches a word', () => {
-        it('triggers a request for the editor at the given position', () => {
-          waitsForPromise(() => OverlayManager.showHoverAtPosition(editor, [2, 8]).then(() => {
-            expect(http.request.mostRecentCall.args[0].path)
-            .toEqual(hoverPositionPath(editor, [2, 8]));
-          }));
-        });
-      });
-
-      describe('when the position does not match a word', () => {
-        it('does not triggers a request', () => {
-          OverlayManager.showHoverAtPosition(editor, [1, 0]);
-
-          expect(http.request.mostRecentCall.args[0].path)
-          .not.toEqual(hoverPositionPath(editor, [1, 0]));
-        });
-      });
-
-      describe('when the position match the position of a token', () => {
-        let hover;
-
-        withRoutes([
-          [
-            o => /^\/api\/buffer\/atom/.test(o.path),
-            o => fakeResponse(200, fs.readFileSync(path.resolve(__dirname, 'fixtures/hello.json'))),
-          ],
-        ]);
-
+      describe('.showHoverAtPosition()', () => {
         beforeEach(() => {
-          waitsForPromise(() =>
+          OverlayManager.onDidShowHover(showSpy);
+          OverlayManager.onDidDismiss(dismissSpy);
+        });
+
+        describe('when the position matches a word', () => {
+          it('triggers a request for the editor at the given position', () => {
+            waitsForPromise(() => OverlayManager.showHoverAtPosition(editor, [2, 8]).then(() => {
+              expect(KiteAPI.request.mostRecentCall.args[0].path)
+              .toEqual(hoverPositionPath(editor, [2, 8]));
+            }));
+          });
+        });
+
+        describe('when the position does not match a word', () => {
+          it('does not triggers a request', () => {
+            OverlayManager.showHoverAtPosition(editor, [1, 0]);
+
+            expect(KiteAPI.request.mostRecentCall.args[0].path)
+            .not.toEqual(hoverPositionPath(editor, [1, 0]));
+          });
+        });
+
+        describe('when the position match the position of a token', () => {
+          let hover;
+
+          withKiteRoutes([
+            [
+              o => /^\/api\/buffer\/atom/.test(o.path),
+              o => fakeResponse(200, fs.readFileSync(path.resolve(__dirname, 'fixtures/hello.json'))),
+            ],
+          ]);
+
+          beforeEach(() => {
+            waitsForPromise(() =>
             OverlayManager.showHoverAtPosition(editor, [2, 8]));
-          runs(() => hover = editorQuery('kite-hover'));
-        });
-
-        it('displays an overlay decoration with the results from the API', () => {
-          expect(hover).toExist();
-          expect(hover.querySelector('.name').textContent.trim().replace(/\s+/, ' ')).toEqual('hello');
-
-          expect(showSpy).toHaveBeenCalled();
-        });
-
-        describe('querying the same range again', () => {
-          beforeEach(() => {
-            waitsForPromise(() =>
-              OverlayManager.showHoverAtPosition(editor, [2, 7]));
+            runs(() => hover = editorQuery('kite-hover'));
           });
 
-          it('leaves the previous decoration in place', () => {
-            const newHover = editorQuery('kite-hover');
-            expect(newHover).toBe(hover);
-          });
+          it('displays an overlay decoration with the results from the API', () => {
+            expect(hover).toExist();
+            expect(hover.querySelector('.name').textContent.trim().replace(/\s+/, ' ')).toEqual('hello');
 
-        });
-
-        describe('querying a different range', () => {
-          beforeEach(() => {
-            waitsForPromise(() =>
-              OverlayManager.showHoverAtPosition(editor, [0, 1]));
-          });
-
-          it('destroys the previous decoration and creates a new one', () => {
-            expect(editorQueryAll('kite-hover').length).toEqual(1);
-            expect(dismissSpy).toHaveBeenCalled();
-
-            const newHover = editorQuery('kite-hover');
-            expect(newHover).not.toBe(hover);
+            expect(showSpy).toHaveBeenCalled();
           });
         });
       });

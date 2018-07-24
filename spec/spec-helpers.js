@@ -5,6 +5,8 @@ const http = require('http');
 const proc = require('child_process');
 const Plan = require('../lib/plan');
 const {merge} = require('../lib/utils');
+const {withKiteRoutes} = require('kite-api/test/helpers/kite');
+const KiteAPI = require('kite-api');
 
 beforeEach(function() {
   atom.config.set('kite.loggingLevel', 'error');
@@ -616,7 +618,7 @@ function withRoutes(routes) {
 
 function withPlan(description, plan, block) {
   describe(description, () => {
-    withRoutes([
+    withKiteRoutes([
       [
         o => o.path.indexOf('/clientapi/plan') === 0,
         o => fakeResponse(200, JSON.stringify(plan)),
@@ -648,6 +650,20 @@ function withFakePlan(description, plan, block) {
   });
 }
 
+function newCallTo(endpoint) {
+  const initialCount = countCalls();
+  return () => countCalls() > initialCount;
+
+  function countCalls() {
+    return KiteAPI.request.calls.filter(c => {
+      const {path} = c.args[0];
+      return typeof endpoint == 'string'
+        ? path === endpoint
+        : endpoint.test(path);
+    }).length;
+  }
+}
+
 module.exports = {
   fakeProcesses, fakeRequestMethod, fakeResponse, fakeKiteInstallPaths,
 
@@ -664,5 +680,5 @@ module.exports = {
   withKiteAuthenticated, withKiteNotAuthenticated,
   withKiteWhitelistedPaths, withKiteBlacklistedPaths, withKiteIgnoredPaths,
   withFakeServer, withRoutes, withPlan, withFakePlan,
-  sleep,
+  sleep, newCallTo,
 };

@@ -107,7 +107,9 @@
     "element-resize-detector": "^1.1.11",
     "fuzzaldrin-plus": "^0.4.1",
     "getmac": "^1.2.1",
-    "kite-installer": "^1.0.4",
+    "kite-installer": "^2.0.2",
+    "kite-api": "^1.0.1",
+    "kite-connector": "^1.0.0",
     "md5": "^2.2.0",
     "rollbar": "^2.3.8",
     "underscore-plus": "^1",
@@ -124,6 +126,7 @@
     "eslint-plugin-prefer-object-spread": "^1.1.0",
     "eslint-plugin-react": "^5.2.2",
     "fbjs": "^0.8.6",
-    "javascript-obfuscator": "^0.8.3"
+    "javascript-obfuscator": "^0.8.3",
+    "sinon": "^2.3.5"
   }
 }
