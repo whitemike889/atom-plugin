@@ -28,6 +28,33 @@ beforeEach(function() {
 
       return pass;
     },
+    toHaveBeenCalledWithPayload(expected) {
+      const payload = JSON.parse(this.actual.mostRecentCall.args[1]);
+      const payloadKeys = Object.keys(payload);
+      const expectedKeys = Object.keys(expected);
+
+      if (payloadKeys.length !== expectedKeys.length) {
+        this.message = () =>
+          `Expected ${this.actual.methodName} to have been called with payload containing '${expectedKeys}' but payload had '${payloadKeys}'`;
+        return false;
+      }
+
+      if (!payloadKeys.every(k => expectedKeys.includes(k))) {
+        this.message = () =>
+        `Expected ${this.actual.methodName} to have been called with payload containing '${expectedKeys}' but payload had '${payloadKeys}'`;
+        return false;
+      }
+
+      if (!this.env.equals_(expected, payload)) {
+        this.message = () =>
+        `Expected ${this.actual.methodName} to have been called with payload '${JSON.stringify(expected)}' but it was with '${JSON.stringify(payload)}'`;
+        return false;
+      }
+
+      this.message = () =>
+        `Expected ${this.actual.methodName} to have been called with payload '${JSON.stringify(expected)}'`;
+      return true;
+    },
   });
 });
 

@@ -60,7 +60,7 @@ describe('Kite', () => {
   });
 
   withKite({logged: true}, () => {
-    describe('with the current project path not in the whitelist', () => {
+    xdescribe('with the current project path not in the whitelist', () => {
       withKitePaths({}, undefined, () => {
         describe('when activated', () => {
           describe('and there is no file open', () => {
