@@ -10,6 +10,9 @@ const KiteAPI = require('kite-api');
 
 beforeEach(function() {
   atom.config.set('kite.loggingLevel', 'error');
+  atom.config.set('kite.showEditorVacanciesNotificationOnStartup', false);
+  atom.config.set('kite.showWelcomeNotificationOnStartup', false);
+  atom.config.set('kite.editorMetricsEnabled', 'no');
 
   this.addMatchers({
     toHaveBeenCalledWithPath(expected) {
