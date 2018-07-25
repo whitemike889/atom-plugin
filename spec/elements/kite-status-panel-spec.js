@@ -3,21 +3,38 @@
 const path = require('path');
 const {withKite, withKiteRoutes, withKitePaths} = require('kite-api/test/helpers/kite');
 const {fakeResponse} = require('kite-api/test/helpers/http');
-const KiteApp = require('../../lib/kite-app');
-const KiteStatusPanel = require('../../lib/elements/kite-status-panel');
 const {withPlan} = require('../spec-helpers');
 const {click} = require('../helpers/events');
 
 describe('KiteStatusPanel', () => {
 
-  let status, app;
+  let status, app, jasmineContent, workspaceElement, notificationsPkg;
 
   beforeEach(() => {
-    app = new KiteApp();
-    status = new KiteStatusPanel();
-    status.setApp(app);
+    jasmineContent = document.querySelector('#jasmine-content');
+    workspaceElement = atom.views.getView(atom.workspace);
 
-    document.body.appendChild(status);
+    jasmineContent.appendChild(workspaceElement);
+    jasmine.useRealClock();
+
+    waitsForPromise(() => atom.packages.activatePackage('notifications').then(pkg => {
+      notificationsPkg = pkg.mainModule;
+      notificationsPkg.initializeIfNotInitialized();
+    }));
+
+    waitsForPromise(() => atom.packages.activatePackage('kite').then(pkg => {
+      app = pkg.mainModule.app;
+      status = pkg.mainModule.getStatusPanel();
+
+      document.body.appendChild(status);
+    }));
+  });
+
+  afterEach(() => {
+    notificationsPkg.lastNotification = null;
+    atom.notifications.clear();
+    delete status.starting;
+    delete status.installing;
   });
 
   withKite({logged: true}, () => {
@@ -430,16 +447,13 @@ describe('KiteStatusPanel', () => {
         started_kite_pro_trial: false,
       }, () => {
         describe('with a file not in the whitelist', () => {
+          let notification;
           beforeEach(() => {
-            app.kite = {
-              isEditorWhitelisted(e) { return false; },
-              notifications: {
-                pauseNotifications() {},
-                resumeNotifications() {},
-              },
-            };
-
             waitsForPromise(() => atom.workspace.open('sample.py').then(e => editor = e));
+            waitsFor('notification', () => notification = notificationsPkg.lastNotification);
+            runs(() => {
+              spyOn(notification, 'dismiss').andCallThrough();
+            });
             waitsForPromise(() => status.show());
           });
 
@@ -469,6 +483,16 @@ describe('KiteStatusPanel', () => {
               click(button);
 
               expect(app.whitelist).toHaveBeenCalledWith(path.dirname(editor.getPath()));
+            });
+
+            it('dismiss the whitelist notification', () => {
+              const state = status.querySelector('.status');
+              const button = state.querySelector('a');
+
+              spyOn(app, 'whitelist').andReturn(Promise.resolve());
+              click(button);
+
+              expect(notification.dismiss).toHaveBeenCalled();
             });
           });
 
