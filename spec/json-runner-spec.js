@@ -32,6 +32,10 @@ describe('JSON tests', () => {
     atom.config.set('autocomplete-plus.enableAutoActivation', true);
     atom.config.set('autocomplete-plus.autoActivationDelay', 0);
 
+    waitsForPromise(() => atom.packages.activatePackage('about'));
+    runs(() => {
+      atom.commands.dispatch(workspaceElement, 'application:about');
+    });
     waitsForPromise('autocomplete-plus activation', () => atom.packages.activatePackage('autocomplete-plus'));
     waitsForPromise('language-python activation', () => atom.packages.activatePackage('language-python'));
   });
