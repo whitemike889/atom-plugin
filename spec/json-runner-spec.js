@@ -3,7 +3,7 @@
 const path = require('path');
 const KiteAPI = require('kite-api');
 const {withKite, withKitePaths} = require('kite-api/test/helpers/kite');
-const {jsonPath, walk, describeForTest} = require('./json/utils');
+const {jsonPath, walk, describeForTest, featureSetPath} = require('./json/utils');
 
 const ACTIONS = {};
 const EXPECTATIONS = {};
@@ -18,6 +18,8 @@ walk(path.resolve(__dirname, 'json', 'expectations'), '.js', file => {
   EXPECTATIONS[key] = require(file);
 });
 const safeRequest = KiteAPI.request;
+
+const featureSet = require(featureSetPath());
 
 describe('JSON tests', () => {
   beforeEach(() => {
@@ -44,9 +46,12 @@ describe('JSON tests', () => {
     KiteAPI.request = () => Promise.resolve();
   });
 
-  walk(jsonPath('tests'), (testFile) => {
-    buildTest(require(testFile), testFile);
+  featureSet.forEach(feature => {
+    walk(jsonPath('tests', feature), (testFile) => {
+      buildTest(require(testFile), testFile);
+    });
   });
+
 });
 
 function kiteSetup(setup) {
@@ -60,9 +65,9 @@ function kiteSetup(setup) {
 
 function pathsSetup(setup) {
   return {
-    whitelist: setup.whitelist && setup.whitelist.map(jsonPath),
-    blacklist: setup.blacklist && setup.blacklist.map(jsonPath),
-    ignored: setup.ignored && setup.ignored.map(jsonPath),
+    whitelist: setup.whitelist && setup.whitelist.map(p => jsonPath(p)),
+    blacklist: setup.blacklist && setup.blacklist.map(p => jsonPath(p)),
+    ignored: setup.ignored && setup.ignored.map(p => jsonPath(p)),
   };
 }
 

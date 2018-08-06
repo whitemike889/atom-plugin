@@ -6,8 +6,14 @@ const path = require('path');
 const base = path.resolve(__dirname, '..');
 const testBase = path.join(base, '..', 'node_modules', 'editors-json-tests');
 
-function jsonPath(p) {
-  return path.join(testBase, p);
+function jsonPath(...p) {
+  return path.join(testBase, ...p);
+}
+
+function featureSetPath() {
+  return fs.existsSync(jsonPath('tests/atom.json'))
+    ? jsonPath('tests/atom.json')
+    : jsonPath('tests/default.json');
 }
 
 function waitsFor(m, f, t, i) {
@@ -235,4 +241,5 @@ module.exports = {
   describeForTest,
   waitsFor,
   NotificationsMock,
+  featureSetPath,
 };
