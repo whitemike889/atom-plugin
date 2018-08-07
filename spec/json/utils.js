@@ -16,6 +16,37 @@ function featureSetPath() {
     : jsonPath('tests/default.json');
 }
 
+function waitsForPromise(...args) {
+  var fn, label, shouldReject, timeout;
+  label = null;
+  if (args.length > 1) {
+    ({shouldReject, timeout, label} = args[0]);
+  } else {
+    shouldReject = false;
+  }
+  if (label == null) {
+    label = 'promise to be resolved or rejected';
+  }
+  fn = args[args.length - 1];
+
+  return window.waitsFor(function(moveOn) {
+    const promise = fn();
+    if (shouldReject) {
+      promise.catch(moveOn);
+      return promise.then(function() {
+        jasmine.getEnv().currentSpec.fail(typeof label == 'function' ? label() : label);
+        return moveOn();
+      });
+    } else {
+      promise.then(moveOn);
+      return promise.catch(function(error) {
+        jasmine.getEnv().currentSpec.fail(`Expected promise to be resolved, but it was rejected with: ${(error != null ? error.message : void 0)} ${jasmine.pp(error)}`);
+        return moveOn();
+      });
+    }
+  }, timeout);
+}
+
 function waitsFor(m, f, t, i) {
   if (typeof m == 'function' && typeof f != 'function') {
     i = t;
@@ -240,6 +271,7 @@ module.exports = {
   itForExpectation,
   describeForTest,
   waitsFor,
+  waitsForPromise,
   NotificationsMock,
   featureSetPath,
 };

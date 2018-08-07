@@ -1,6 +1,6 @@
 'use strict';
 
-const {waitsFor, loadPayload, substituteFromContext, buildContext, itForExpectation} = require('../utils');
+const {waitsFor, waitsForPromise, loadPayload, substituteFromContext, buildContext, itForExpectation} = require('../utils');
 const KiteAPI = require('kite-api');
 
 const callsMatching = (exPath, exMethod, exPayload, context = {}) => {
@@ -43,7 +43,7 @@ const getDesc = expectation => () => {
 
 module.exports = (expectation, not) => {
   beforeEach(() => {
-    const promise = waitsFor(getDesc(expectation), () => {
+    const promise = waitsFor(() => {
       calls = callsMatching(
           expectation.properties.path,
           expectation.properties.method,
@@ -54,9 +54,9 @@ module.exports = (expectation, not) => {
     }, 300);
 
     if (not) {
-      waitsForPromise({shouldReject: true}, () => promise);
+      waitsForPromise({label: getDesc(), shouldReject: true}, () => promise);
     } else {
-      waitsForPromise(() => promise);
+      waitsForPromise({label: getDesc()}, () => promise);
     }
   });
 

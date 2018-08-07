@@ -4,14 +4,12 @@ const {waitsFor, substituteFromContext, buildContext, itForExpectation, Notifica
 
 module.exports = (expectation, not) => {
   beforeEach(() => {
-    const promise = waitsFor(`${expectation.properties.level} notification`, () => {
-      return NotificationsMock.newNotification();
-    }, 100);
+    const promise = waitsFor(() => NotificationsMock.newNotification(), 100);
 
     if (not) {
-      waitsForPromise({shouldReject: true}, () => promise);
+      waitsForPromise({shouldReject: true, label: `${expectation.properties.level} notification`}, () => promise);
     } else {
-      waitsForPromise(() => promise);
+      waitsForPromise({label: `${expectation.properties.level} notification`}, () => promise);
     }
   });
 

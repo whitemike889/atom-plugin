@@ -1,12 +1,12 @@
 'use strict';
 
 const KiteAPI = require('kite-api');
-const {waitsFor, loadPayload, substituteFromContext, buildContext, itForExpectation} = require('../utils');
+const {waitsFor, waitsForPromise, loadPayload, substituteFromContext, buildContext, itForExpectation} = require('../utils');
 
-let closeMatches;
-const getDesc = (expectation) => () => {
+let closeMatches, exactMatch;
+const getDesc = (expectation, not) => () => {
   const base = [
-    'request to',
+    `expect ${not ? 'no ' : ''}request to`,
     expectation.properties.method,
     expectation.properties.path,
     'in test',
@@ -18,13 +18,22 @@ const getDesc = (expectation) => () => {
     base.push(JSON.stringify(substituteFromContext(expectation.properties.body, buildContext())));
   }
 
-  if (closeMatches.length > 0) {
-    base.push('\nbut some calls were close');
-    closeMatches.forEach(({path, method, payload}) => {
-      base.push(`\n - ${method} ${path} = ${payload}`);
-    });
-  } else {
-    base.push('\nbut no calls were anywhere close');
+  if (not) {
+    if (exactMatch) {
+      base.push('but a call matched');
+      base.push(`\n - ${exactMatch.method} ${exactMatch.path} ${exactMatch.payload}`);
+    } else {
+      base.push('and no calls matched');
+    }
+  }  else {
+    if (closeMatches.length > 0) {
+      base.push('\nbut some calls were close');
+      closeMatches.forEach(({path, method, payload}) => {
+        base.push(`\n - ${method} ${path} ${payload}`);
+      });
+    } else {
+      base.push('\nbut no calls were anywhere close');
+    }
   }
 
   return base.join(' ');
@@ -33,6 +42,7 @@ const getDesc = (expectation) => () => {
 const mostRecentCallMatching = (exPath, exMethod, exPayload, context = {}, env) => {
   const calls = KiteAPI.request.calls;
   closeMatches = [];
+  exactMatch = null;
   let matched = false;
 
   exPath = substituteFromContext(exPath, context);
@@ -59,6 +69,7 @@ const mostRecentCallMatching = (exPath, exMethod, exPayload, context = {}, env) 
       if (method === exMethod) {
         closeMatches.push({path, method, payload});
         if (!exPayload || env.equals_(JSON.parse(payload), exPayload)) {
+          exactMatch = {path, method, payload};
           matched = true;
           return true;
         } else {
@@ -81,7 +92,7 @@ const mostRecentCallMatching = (exPath, exMethod, exPayload, context = {}, env) 
 
 module.exports = (expectation, not) => {
   beforeEach(function() {
-    const promise = waitsFor(getDesc(expectation), () => {
+    const promise = waitsFor(() => {
       return mostRecentCallMatching(
         expectation.properties.path,
         expectation.properties.method,
@@ -91,9 +102,9 @@ module.exports = (expectation, not) => {
     }, 300);
 
     if (not) {
-      waitsForPromise({shouldReject: true}, () => promise);
+      waitsForPromise({label: getDesc(expectation, not), shouldReject: true}, () => promise);
     } else {
-      waitsForPromise(() => promise);
+      waitsForPromise({label: getDesc(expectation, not)}, () => promise);
     }
   });
 

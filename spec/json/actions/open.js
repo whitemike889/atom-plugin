@@ -1,12 +1,12 @@
-const {jsonPath} = require('../utils');
+const {jsonPath, waitsForPromise} = require('../utils');
 const Kite = require('../../../lib/kite');
 
 'use strict';
 
-module.exports = (action) => {
+module.exports = (action, testData) => {
   beforeEach(() => {
     let editor;
-    waitsForPromise('file opened and focused', () => {
+    waitsForPromise({label: 'file opened and focused'}, () => {
       return atom.workspace.open(jsonPath(action.properties.file))
       .then(e => {
         editor = e;
@@ -15,12 +15,14 @@ module.exports = (action) => {
         throw err;
       });
     });
-    waitsFor('kite editor', () =>
+    if (testData.setup.kited === 'authenticated') {
+      waitsFor('kite editor', () =>
       !/\.py$/.test(action.properties.file) ||
       Kite.kiteEditorForEditor(editor), 50);
 
-    waitsFor('kite whitelist state', () =>
+      waitsFor('kite whitelist state', () =>
       !/\.py$/.test(action.properties.file) ||
       Kite.whitelistedEditorIDs[editor.id] != undefined, 50);
+    }
   });
 };

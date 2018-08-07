@@ -17,13 +17,11 @@ walk(path.resolve(__dirname, 'json', 'expectations'), '.js', file => {
   const key = path.basename(file).replace(path.extname(file), '');
   EXPECTATIONS[key] = require(file);
 });
-const safeRequest = KiteAPI.request;
 
 const featureSet = require(featureSetPath());
 
 describe('JSON tests', () => {
   beforeEach(() => {
-    KiteAPI.request = safeRequest;
     jasmine.useRealClock();
     const jasmineContent = document.querySelector('#jasmine-content');
 
@@ -34,16 +32,16 @@ describe('JSON tests', () => {
     atom.config.set('autocomplete-plus.enableAutoActivation', true);
     atom.config.set('autocomplete-plus.autoActivationDelay', 0);
 
-    waitsForPromise(() => atom.packages.activatePackage('about'));
+    waitsForPromise({label: 'about package activation'}, () => atom.packages.activatePackage('about'));
     runs(() => {
       atom.commands.dispatch(workspaceElement, 'application:about');
     });
-    waitsForPromise('autocomplete-plus activation', () => atom.packages.activatePackage('autocomplete-plus'));
-    waitsForPromise('language-python activation', () => atom.packages.activatePackage('language-python'));
-  });
-
-  afterEach(() => {
-    KiteAPI.request = () => Promise.resolve();
+    waitsForPromise({
+      label: 'autocomplete-plus package activation',
+    }, () => atom.packages.activatePackage('autocomplete-plus'));
+    waitsForPromise({
+      label: 'language-python package activation',
+    }, () => atom.packages.activatePackage('language-python'));
   });
 
   featureSet.forEach(feature => {
@@ -58,8 +56,16 @@ function kiteSetup(setup) {
   switch (setup) {
     case 'authenticated':
       return {logged: true};
+    case 'unsupported':
+      return {supported: false};
+    case 'uninstalled':
+      return {installed: false};
+    case 'unreachable':
+      return {reachable: false};
+    case 'unlogged':
+      return {logged: false};
     default:
-      return {};
+      return {supported: false};
   }
 }
 
@@ -78,34 +84,39 @@ function buildTest(data, file) {
         spyOn(KiteAPI, 'request').andCallThrough();
         atom.project.setPaths([path.resolve(__dirname, '..')]);
 
-        waitsForPromise('kite activation', () => atom.packages.activatePackage('kite'));
+        waitsForPromise({label: 'kite activation'}, () => atom.packages.activatePackage('kite'));
         // console.log('start ------------------------------------------');
       });
 
       afterEach(() => {
         // console.log('end ------------------------------------------');
       });
-      withKitePaths(pathsSetup(data.setup), undefined, () => {
+      const block = () => {
         data.test.reverse().reduce((f, s) => {
           switch (s.step) {
             case 'action':
-              return buildAction(s, f);
+              return buildAction(s, data, f);
             case 'expect':
-              return buildExpectation(s, f);
+              return buildExpectation(s, data, f);
             case 'expect_not':
-              return buildExpectation(s, f, true);
+              return buildExpectation(s, data, f, true);
             default:
               return f;
           }
         }, () => {})();
-      });
+      };
+      if (/reachable|authenticated/.test(data.setup.kited)) {
+        withKitePaths(pathsSetup(data.setup), undefined, block);
+      } else {
+        block();
+      }
     });
   });
 }
 
-function buildAction(action, block) {
+function buildAction(action, testData, block) {
   return () => describe(action.description, () => {
-    ACTIONS[action.type] && ACTIONS[action.type](action);
+    ACTIONS[action.type] && ACTIONS[action.type](action, testData);
 
     describe('', () => {
       block && block();
@@ -113,10 +124,10 @@ function buildAction(action, block) {
   });
 }
 
-function buildExpectation(expectation, block, not) {
+function buildExpectation(expectation, testData, block, not) {
   return () => {
 
-    EXPECTATIONS[expectation.type] && EXPECTATIONS[expectation.type](expectation, not);
+    EXPECTATIONS[expectation.type] && EXPECTATIONS[expectation.type](expectation, not, testData);
 
     describe('', () => {
       block && block();
