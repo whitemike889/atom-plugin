@@ -26,13 +26,17 @@ const getDesc = (expectation, not) => () => {
       base.push('and no calls matched');
     }
   }  else {
-    if (closeMatches.length > 0) {
+    if (closeMatches && closeMatches.length > 0) {
       base.push('\nbut some calls were close');
       closeMatches.forEach(({path, method, payload}) => {
         base.push(`\n - ${method} ${path} ${payload}`);
       });
     } else {
       base.push('\nbut no calls were anywhere close');
+      KiteAPI.request.calls.forEach(call => {
+        const [{method, path}, payload] = call.args;
+        base.push(`\n - ${method || 'GET'} ${path} ${payload || ''}`);
+      });
     }
   }
 

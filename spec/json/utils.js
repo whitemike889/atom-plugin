@@ -29,6 +29,8 @@ function waitsForPromise(...args) {
   }
   fn = args[args.length - 1];
 
+  if (typeof label == 'function')  {console.log(label());}
+
   return window.waitsFor(function(moveOn) {
     const promise = fn();
     if (shouldReject) {
@@ -40,7 +42,7 @@ function waitsForPromise(...args) {
     } else {
       promise.then(moveOn);
       return promise.catch(function(error) {
-        jasmine.getEnv().currentSpec.fail(`Expected promise to be resolved, but it was rejected with: ${(error != null ? error.message : void 0)} ${jasmine.pp(error)}`);
+        jasmine.getEnv().currentSpec.fail(`${typeof label == 'function' ? label() : label}, but it was rejected with: ${(error != null ? error.message : void 0)} ${jasmine.pp(error)}`);
         return moveOn();
       });
     }

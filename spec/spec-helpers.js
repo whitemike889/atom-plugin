@@ -14,6 +14,17 @@ beforeEach(function() {
   atom.config.set('kite.showWelcomeNotificationOnStartup', false);
   atom.config.set('kite.editorMetricsEnabled', 'no');
 
+  const styles = document.createElement('style');
+  styles.textContent = `
+.spec-reporter .result-message.fail, .spec-reporter .stack-trace.padded {
+  text-overflow: none;
+  display: block;
+  -webkit-box-orient: initial;
+  -webkit-line-clamp: initial;
+  overflow: visible;
+}`;
+  document.body.appendChild(styles);
+
   this.addMatchers({
     toHaveBeenCalledWithPath(expected) {
       const pass = this.actual.calls.some(call => call.args[0].path === expected);

@@ -12,7 +12,7 @@ const callsMatching = (exPath, exMethod, exPayload, context = {}) => {
   // console.log('--------------------')
   // console.log(exPath, exPayload)
 
-  if (calls.length === 0) { return false; }
+  if (!calls || calls.length === 0) { return false; }
 
   return calls.reverse().filter((c) => {
     let [{path, method}, payload] = c.args;
@@ -33,9 +33,14 @@ const getDesc = expectation => () => {
     'in test',
     expectation.description,
     'but',
-    calls.length,
+    calls ? calls.length : 0,
     'were found',
   ];
+
+  KiteAPI.request.calls.forEach(call => {
+    const [{method, path}, payload] = call.args;
+    base.push(`\n - ${method || 'GET'} ${path} ${payload || ''}`);
+  });
 
   return base.join(' ');
 };
@@ -54,9 +59,9 @@ module.exports = (expectation, not) => {
     }, 300);
 
     if (not) {
-      waitsForPromise({label: getDesc(), shouldReject: true}, () => promise);
+      waitsForPromise({label: getDesc(expectation), shouldReject: true}, () => promise);
     } else {
-      waitsForPromise({label: getDesc()}, () => promise);
+      waitsForPromise({label: getDesc(expectation)}, () => promise);
     }
   });
 
