@@ -12,7 +12,7 @@ const callsMatching = (exPath, exMethod, exPayload, context = {}) => {
   // console.log('--------------------')
   // console.log(exPath, exPayload)
 
-  if (!calls || calls.length === 0) { return false; }
+  if (!calls || calls.length === 0) { return []; }
 
   return calls.reverse().filter((c) => {
     let [{path, method}, payload] = c.args;
@@ -48,7 +48,7 @@ const getDesc = expectation => () => {
 
 module.exports = (expectation, not) => {
   beforeEach(() => {
-    const promise = waitsFor(() => {
+    const promise = waitsFor('calls matching request', () => {
       calls = callsMatching(
           expectation.properties.path,
           expectation.properties.method,

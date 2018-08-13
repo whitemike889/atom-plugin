@@ -29,20 +29,22 @@ function waitsForPromise(...args) {
   }
   fn = args[args.length - 1];
 
-  if (typeof label == 'function')  {console.log(label());}
+  // if (typeof label == 'function')  {console.log(label());}
 
-  return window.waitsFor(function(moveOn) {
+  return window.waitsFor('request promise resolution', (moveOn) => {
     const promise = fn();
     if (shouldReject) {
-      promise.catch(moveOn);
-      return promise.then(function() {
+      return promise.then(() => {
         jasmine.getEnv().currentSpec.fail(typeof label == 'function' ? label() : label);
         return moveOn();
-      });
+      }, moveOn);
     } else {
-      promise.then(moveOn);
-      return promise.catch(function(error) {
-        jasmine.getEnv().currentSpec.fail(`${typeof label == 'function' ? label() : label}, but it was rejected with: ${(error != null ? error.message : void 0)} ${jasmine.pp(error)}`);
+      return promise.then(moveOn, (error) => {
+        jasmine.getEnv().currentSpec.fail(`${
+          typeof label == 'function' ? label() : label
+        }, but it was rejected with: ${
+          (error != null ? error.message : void 0)
+        } ${jasmine.pp(error)}`);
         return moveOn();
       });
     }
