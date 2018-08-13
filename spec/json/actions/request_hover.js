@@ -1,10 +1,14 @@
 'use strict';
 
+const Kite = require('../../../lib/kite');
+
 module.exports = (action) => {
   beforeEach(() => {
     const editor = atom.workspace.getActiveTextEditor();
-    const view = atom.views.getView(editor);
-    const event = new CustomEvent('kite:docs-at-cursor', {bubbles: true, cancelable: true});
-    view.dispatchEvent(event);
+    const kiteEditor = Kite.kiteEditorForEditor(editor);
+
+    if (kiteEditor) {
+      kiteEditor.hoverGesture.emitter.emit('did-activate', {position: editor.getCursorBufferPosition()});
+    }
   });
 };
