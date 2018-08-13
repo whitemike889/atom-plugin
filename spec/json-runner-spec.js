@@ -2,8 +2,10 @@
 
 const path = require('path');
 const KiteAPI = require('kite-api');
-const {withKite, withKitePaths} = require('kite-api/test/helpers/kite');
-const {jsonPath, walk, describeForTest, featureSetPath} = require('./json/utils');
+
+const {withKite, withKitePaths, withKiteRoutes} = require('kite-api/test/helpers/kite');
+const {fakeResponse} = require('kite-connector/test/helpers/http');
+const {jsonPath, walk, describeForTest, featureSetPath, substituteFromContext, buildContext} = require('./json/utils');
 
 const ACTIONS = {};
 const EXPECTATIONS = {};
@@ -32,10 +34,6 @@ describe('JSON tests', () => {
     atom.config.set('autocomplete-plus.enableAutoActivation', true);
     atom.config.set('autocomplete-plus.autoActivationDelay', 0);
 
-    waitsForPromise({label: 'about package activation'}, () => atom.packages.activatePackage('about'));
-    runs(() => {
-      atom.commands.dispatch(workspaceElement, 'application:about');
-    });
     waitsForPromise({
       label: 'autocomplete-plus package activation',
     }, () => atom.packages.activatePackage('autocomplete-plus'));
@@ -112,7 +110,27 @@ function buildTest(data, file) {
         }, () => {})();
       };
       if (/reachable|authenticated/.test(data.setup.kited)) {
-        withKitePaths(pathsSetup(data.setup), undefined, block);
+        withKitePaths(pathsSetup(data.setup), undefined, () => {
+          if (data.setup.routes) {
+            withKiteRoutes(data.setup.routes.map(r => {
+              const reg = new RegExp(substituteFromContext(r.match, buildContext()));
+
+              return [
+                o => reg.test(o.path),
+                o => {
+                  if (r.response.body) {
+                    const body = require(jsonPath(r.response.body));
+                    return fakeResponse(r.response.status, JSON.stringify(body));
+                  } else {
+                    return fakeResponse(r.response.status);
+                  }
+                },
+              ];
+
+            }));
+          }
+          block();
+        });
       } else {
         block();
       }
