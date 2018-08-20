@@ -8,7 +8,7 @@ beforeEach(() => {
   OverlayManager.reset();
   OverlayManager.hoverDefault.hide = 0;
   OverlayManager.hoverDefault.show = 0;
-  spyOn(KiteHover.prototype, 'setData');
+  spyOn(KiteHover.prototype, 'setData').andCallThrough();
 });
 
 module.exports = (expectation, not) => {
