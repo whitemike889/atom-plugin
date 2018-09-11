@@ -6,7 +6,7 @@ const {jsonPath} = require('../utils');
 module.exports = (action) => {
   beforeEach(() => {
     updateKitePaths({
-      blacklist: action.properties.blacklist.map(jsonPath),
+      blacklist: action.properties.blacklist.map(p => jsonPath(p)),
     });
   });
 };

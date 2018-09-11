@@ -1,6 +1,6 @@
 'use strict';
 
-const {waitsFor, loadPayload, substituteFromContext, buildContext, itForExpectation} = require('../utils');
+const {waitsFor, waitsForPromise, loadPayload, substituteFromContext, buildContext, itForExpectation} = require('../utils');
 const KiteAPI = require('kite-api');
 
 const callsMatching = (exPath, exMethod, exPayload, context = {}) => {
@@ -12,7 +12,7 @@ const callsMatching = (exPath, exMethod, exPayload, context = {}) => {
   // console.log('--------------------')
   // console.log(exPath, exPayload)
 
-  if (calls.length === 0) { return false; }
+  if (!calls || calls.length === 0) { return []; }
 
   return calls.reverse().filter((c) => {
     let [{path, method}, payload] = c.args;
@@ -33,9 +33,14 @@ const getDesc = expectation => () => {
     'in test',
     expectation.description,
     'but',
-    calls.length,
+    calls ? calls.length : 0,
     'were found',
   ];
+
+  KiteAPI.request.calls.forEach(call => {
+    const [{method, path}, payload] = call.args;
+    base.push(`\n - ${method || 'GET'} ${path} ${payload || ''}`);
+  });
 
   return base.join(' ');
 };
@@ -43,7 +48,7 @@ const getDesc = expectation => () => {
 
 module.exports = (expectation, not) => {
   beforeEach(() => {
-    const promise = waitsFor(getDesc(expectation), () => {
+    const promise = waitsFor('calls matching request', () => {
       calls = callsMatching(
           expectation.properties.path,
           expectation.properties.method,
@@ -54,9 +59,9 @@ module.exports = (expectation, not) => {
     }, 300);
 
     if (not) {
-      waitsForPromise({shouldReject: true}, () => promise);
+      waitsForPromise({label: getDesc(expectation), shouldReject: true}, () => promise);
     } else {
-      waitsForPromise(() => promise);
+      waitsForPromise({label: getDesc(expectation)}, () => promise);
     }
   });
 

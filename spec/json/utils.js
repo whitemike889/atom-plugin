@@ -6,8 +6,49 @@ const path = require('path');
 const base = path.resolve(__dirname, '..');
 const testBase = path.join(base, '..', 'node_modules', 'editors-json-tests');
 
-function jsonPath(p) {
-  return path.join(testBase, p);
+function jsonPath(...p) {
+  return path.join(testBase, ...p);
+}
+
+function featureSetPath() {
+  return fs.existsSync(jsonPath('tests/atom.json'))
+    ? jsonPath('tests/atom.json')
+    : jsonPath('tests/default.json');
+}
+
+function waitsForPromise(...args) {
+  var fn, label, shouldReject, timeout;
+  label = null;
+  if (args.length > 1) {
+    ({shouldReject, timeout, label} = args[0]);
+  } else {
+    shouldReject = false;
+  }
+  if (label == null) {
+    label = 'promise to be resolved or rejected';
+  }
+  fn = args[args.length - 1];
+
+  // if (typeof label == 'function')  {console.log(label());}
+
+  return window.waitsFor('request promise resolution', (moveOn) => {
+    const promise = fn();
+    if (shouldReject) {
+      return promise.then(() => {
+        jasmine.getEnv().currentSpec.fail(typeof label == 'function' ? label() : label);
+        return moveOn();
+      }, moveOn);
+    } else {
+      return promise.then(moveOn, (error) => {
+        jasmine.getEnv().currentSpec.fail(`${
+          typeof label == 'function' ? label() : label
+        }, but it was rejected with: ${
+          (error != null ? error.message : void 0)
+        } ${jasmine.pp(error)}`);
+        return moveOn();
+      });
+    }
+  }, timeout);
 }
 
 function waitsFor(m, f, t, i) {
@@ -234,5 +275,7 @@ module.exports = {
   itForExpectation,
   describeForTest,
   waitsFor,
+  waitsForPromise,
   NotificationsMock,
+  featureSetPath,
 };

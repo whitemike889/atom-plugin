@@ -2,8 +2,10 @@
 
 const path = require('path');
 const KiteAPI = require('kite-api');
-const {withKite, withKitePaths} = require('kite-api/test/helpers/kite');
-const {jsonPath, walk, describeForTest} = require('./json/utils');
+
+const {withKite, withKitePaths, withKiteRoutes} = require('kite-api/test/helpers/kite');
+const {fakeResponse} = require('kite-connector/test/helpers/http');
+const {jsonPath, walk, describeForTest, featureSetPath, substituteFromContext, buildContext} = require('./json/utils');
 
 const ACTIONS = {};
 const EXPECTATIONS = {};
@@ -17,11 +19,11 @@ walk(path.resolve(__dirname, 'json', 'expectations'), '.js', file => {
   const key = path.basename(file).replace(path.extname(file), '');
   EXPECTATIONS[key] = require(file);
 });
-const safeRequest = KiteAPI.request;
+
+const featureSet = require(featureSetPath());
 
 describe('JSON tests', () => {
   beforeEach(() => {
-    KiteAPI.request = safeRequest;
     jasmine.useRealClock();
     const jasmineContent = document.querySelector('#jasmine-content');
 
@@ -32,37 +34,50 @@ describe('JSON tests', () => {
     atom.config.set('autocomplete-plus.enableAutoActivation', true);
     atom.config.set('autocomplete-plus.autoActivationDelay', 0);
 
-    waitsForPromise(() => atom.packages.activatePackage('about'));
-    runs(() => {
-      atom.commands.dispatch(workspaceElement, 'application:about');
+    waitsForPromise({
+      label: 'autocomplete-plus package activation',
+    }, () => atom.packages.activatePackage('autocomplete-plus'));
+    waitsForPromise({
+      label: 'language-python package activation',
+    }, () => atom.packages.activatePackage('language-python'));
+  });
+
+  featureSet.forEach(feature => {
+    walk(jsonPath('tests', feature), (testFile) => {
+      buildTest(require(testFile), testFile);
     });
-    waitsForPromise('autocomplete-plus activation', () => atom.packages.activatePackage('autocomplete-plus'));
-    waitsForPromise('language-python activation', () => atom.packages.activatePackage('language-python'));
   });
 
-  afterEach(() => {
-    KiteAPI.request = () => Promise.resolve();
-  });
-
-  walk(jsonPath('tests'), (testFile) => {
-    buildTest(require(testFile), testFile);
-  });
 });
 
 function kiteSetup(setup) {
   switch (setup) {
     case 'authenticated':
       return {logged: true};
+    case 'unsupported':
+    case 'not_supported':
+      return {supported: false};
+    case 'uninstalled':
+    case 'not_installed':
+      return {installed: false};
+    case 'not_running':
+      return {running: false};
+    case 'unreachable':
+    case 'not_reachable':
+      return {reachable: false};
+    case 'unlogged':
+    case 'not_logged':
+      return {logged: false};
     default:
-      return {};
+      return {supported: false};
   }
 }
 
 function pathsSetup(setup) {
   return {
-    whitelist: setup.whitelist && setup.whitelist.map(jsonPath),
-    blacklist: setup.blacklist && setup.blacklist.map(jsonPath),
-    ignored: setup.ignored && setup.ignored.map(jsonPath),
+    whitelist: setup.whitelist && setup.whitelist.map(p => jsonPath(p)),
+    blacklist: setup.blacklist && setup.blacklist.map(p => jsonPath(p)),
+    ignored: setup.ignored && setup.ignored.map(p => jsonPath(p)),
   };
 }
 
@@ -73,34 +88,59 @@ function buildTest(data, file) {
         spyOn(KiteAPI, 'request').andCallThrough();
         atom.project.setPaths([path.resolve(__dirname, '..')]);
 
-        waitsForPromise('kite activation', () => atom.packages.activatePackage('kite'));
+        waitsForPromise({label: 'kite activation'}, () => atom.packages.activatePackage('kite'));
         // console.log('start ------------------------------------------');
       });
 
       afterEach(() => {
         // console.log('end ------------------------------------------');
       });
-      withKitePaths(pathsSetup(data.setup), undefined, () => {
+      const block = () => {
         data.test.reverse().reduce((f, s) => {
           switch (s.step) {
             case 'action':
-              return buildAction(s, f);
+              return buildAction(s, data, f);
             case 'expect':
-              return buildExpectation(s, f);
+              return buildExpectation(s, data, f);
             case 'expect_not':
-              return buildExpectation(s, f, true);
+              return buildExpectation(s, data, f, true);
             default:
               return f;
           }
         }, () => {})();
-      });
+      };
+      if (/reachable|authenticated/.test(data.setup.kited)) {
+        withKitePaths(pathsSetup(data.setup), undefined, () => {
+          if (data.setup.routes) {
+            withKiteRoutes(data.setup.routes.map(r => {
+              const reg = new RegExp(substituteFromContext(r.match, buildContext()));
+
+              return [
+                o => reg.test(o.path),
+                o => {
+                  if (r.response.body) {
+                    const body = require(jsonPath(r.response.body));
+                    return fakeResponse(r.response.status, JSON.stringify(body));
+                  } else {
+                    return fakeResponse(r.response.status);
+                  }
+                },
+              ];
+
+            }));
+          }
+          block();
+        });
+      } else {
+        block();
+      }
     });
   });
 }
 
-function buildAction(action, block) {
+function buildAction(action, testData, block) {
   return () => describe(action.description, () => {
-    ACTIONS[action.type] && ACTIONS[action.type](action);
+    ACTIONS[action.type] && ACTIONS[action.type](action, testData);
 
     describe('', () => {
       block && block();
@@ -108,10 +148,10 @@ function buildAction(action, block) {
   });
 }
 
-function buildExpectation(expectation, block, not) {
+function buildExpectation(expectation, testData, block, not) {
   return () => {
 
-    EXPECTATIONS[expectation.type] && EXPECTATIONS[expectation.type](expectation, not);
+    EXPECTATIONS[expectation.type] && EXPECTATIONS[expectation.type](expectation, not, testData);
 
     describe('', () => {
       block && block();
