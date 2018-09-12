@@ -22,7 +22,7 @@ walk(path.resolve(__dirname, 'json', 'expectations'), '.js', file => {
 
 const featureSet = require(featureSetPath());
 
-describe('JSON tests', () => {
+fdescribe('JSON tests', () => {
   beforeEach(() => {
     jasmine.useRealClock();
     const jasmineContent = document.querySelector('#jasmine-content');
