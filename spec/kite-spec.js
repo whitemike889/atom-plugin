@@ -31,6 +31,82 @@ describe('Kite', () => {
     atom.notifications.clear();
   });
 
+  fdescribe('modules', () => {
+    beforeEach(() => {
+      waitsForPromise(() => atom.packages.activatePackage('kite').then(pkg => {
+        kitePkg = pkg.mainModule;
+      }));
+    });
+
+    describe('.registerModule()', () => {
+      it('throws if the module does not respect the interface', () => {
+        expect(() => kitePkg.registerModule()).toThrow();
+        expect(() => kitePkg.registerModule('name')).toThrow();
+        expect(() => kitePkg.registerModule('name', 'name')).toThrow();
+        expect(() => kitePkg.registerModule('name', {})).toThrow();
+        expect(() => kitePkg.registerModule('name', {init() {}})).toThrow();
+        expect(() => kitePkg.registerModule('name', {dispose() {}})).toThrow();
+        expect(() => kitePkg.registerModule('name', {
+          init() {},
+          dispose() {},
+        })).not.toThrow();
+      });
+
+      it('throws when trying to register two modules with the same name', () => {
+        kitePkg.registerModule('name', {
+          init() {},
+          dispose() {},
+        });
+        expect(() => kitePkg.registerModule('name', {
+          init() {},
+          dispose() {},
+        })).toThrow();
+      });
+
+      it('activates modules asynchronously to avoid circular dependencies issues', () => {
+        const a = {
+          init: jasmine.createSpy(),
+          dispose: jasmine.createSpy(),
+        };
+        const b = {
+          init: jasmine.createSpy(),
+          dispose: jasmine.createSpy(),
+        };
+        kitePkg.registerModule('a', a);
+        kitePkg.registerModule('b', b);
+
+        expect(a.init).not.toHaveBeenCalled();
+        expect(b.init).not.toHaveBeenCalled();
+
+        waitsFor('a.init', () => a.init.calls.length);
+        runs(() => {
+          expect(b.init).toHaveBeenCalled();
+        });
+      });
+
+      it('disposes all plugins when it is itself being disposed of', () => {
+        const a = {
+          init: jasmine.createSpy(),
+          dispose: jasmine.createSpy(),
+        };
+        const b = {
+          init: jasmine.createSpy(),
+          dispose: jasmine.createSpy(),
+        };
+        kitePkg.registerModule('a', a);
+        kitePkg.registerModule('b', b);
+
+        waitsFor('a.init', () => a.init.calls.length);
+        runs(() => {
+          kitePkg.deactivate();
+
+          expect(a.dispose).toHaveBeenCalled();
+          expect(b.dispose).toHaveBeenCalled();
+        });
+      });
+    });
+  });
+
   withKite({installed: false}, () => {
     withKiteRoutes([[
       o => o.path === '/atom/events',
