@@ -105,6 +105,31 @@ describe('Kite', () => {
         });
       });
     });
+
+    describe('.getModule()', () => {
+      let a, b;
+      beforeEach(() => {
+        a = {
+          init: jasmine.createSpy(),
+          dispose: jasmine.createSpy(),
+        };
+        b = {
+          init: jasmine.createSpy(),
+          dispose: jasmine.createSpy(),
+        };
+        waitsForPromise(() => atom.packages.activatePackage('kite').then(pkg => {
+          kitePkg = pkg.mainModule;
+          kitePkg.registerModule('a', a);
+          kitePkg.registerModule('b', b);
+        }));
+      });
+
+      it('returns the corresponding module or undefined', () => {
+        expect(kitePkg.getModule('a')).toBe(a);
+        expect(kitePkg.getModule('b')).toBe(b);
+        expect(kitePkg.getModule('c')).toBeUndefined();
+      });
+    });
   });
 
   withKite({installed: false}, () => {
