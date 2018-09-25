@@ -31,7 +31,7 @@ describe('Kite', () => {
     atom.notifications.clear();
   });
 
-  fdescribe('modules', () => {
+  describe('modules', () => {
     beforeEach(() => {
       waitsForPromise(() => atom.packages.activatePackage('kite').then(pkg => {
         kitePkg = pkg.mainModule;
