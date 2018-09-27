@@ -1,12 +1,9 @@
 'use strict';
 
-const os = require('os');
 const KiteAPI = require('kite-api');
-const {withKite, withKiteAccountRoutes} = require('kite-api/test/helpers/kite');
-const {fakeResponse} = require('kite-api/test/helpers/http');
+const {withKite} = require('kite-api/test/helpers/kite');
 
 const KiteApp = require('../lib/kite-app');
-const {click} = require('./helpers/events');
 
 describe('KiteApp', () => {
   let changeSpy, readySpy, app;
@@ -117,239 +114,15 @@ describe('KiteApp', () => {
       expect(KiteAPI.runKiteAndWait).toHaveBeenCalledWith(30, 2500);
     });
   });
-  withKite({reachable: true}, () => {
 
-    describe('.login()', () => {
-      let workspaceElement, jasmineContent, loginForm, spy;
+  describe('.login()', () => {
+    it('opens the kite copilot', () => {
+      spyOn(atom.applicationDelegate, 'openExternal');
 
-      beforeEach(() => {
-        spy = jasmine.createSpy();
-        workspaceElement = atom.views.getView(atom.workspace);
-        jasmineContent = document.querySelector('#jasmine-content');
+      app.login();
 
-        jasmineContent.appendChild(workspaceElement);
-
-        app.onDidShowLogin(spy);
-        app.login();
-
-
-        loginForm = workspaceElement.querySelector('kite-login');
-      });
-
-      it('opens a login modal', () => {
-        expect(loginForm).toExist();
-      });
-
-      it('emits a did-show-login event', () => {
-        expect(spy).toHaveBeenCalled();
-      });
-
-      describe('when submitted', () => {
-        let spy;
-        describe('with no data', () => {
-          beforeEach(() => {
-            spy = jasmine.createSpy();
-
-            app.onDidShowLoginError(spy);
-
-            click(loginForm.submitBtn);
-
-            waitsFor(() => spy.callCount);
-          });
-
-          it('displays the corresponding error', () => {
-            expect(loginForm.querySelector('.form-status').textContent)
-          .toEqual('No email provided');
-          });
-        });
-
-        describe('with just an email', () => {
-          beforeEach(() => {
-            spy = jasmine.createSpy();
-
-            app.onDidShowLoginError(spy);
-
-            loginForm.emailInput.value = 'foo@bar.com';
-            click(loginForm.submitBtn);
-
-            waitsFor(() => spy.callCount);
-          });
-
-          it('displays the corresponding error', () => {
-            expect(loginForm.querySelector('.form-status').textContent)
-          .toEqual('No password provided');
-          });
-        });
-
-        describe('with all the data but an invalid email', () => {
-          withKiteAccountRoutes([
-            [
-              o => /\/api\/account\/login/.test(o.path),
-              o => fakeResponse(401, JSON.stringify({code: 6})),
-            ],
-          ], () => {
-            beforeEach(() => {
-              spy = jasmine.createSpy();
-
-              app.onDidShowLoginError(spy);
-
-              loginForm.emailInput.value = 'foo@bar.com';
-              loginForm.passwordInput.value = 'password';
-              click(loginForm.submitBtn);
-
-              waitsFor(() => spy.callCount);
-            });
-
-            it('displays the corresponding error', () => {
-              expect(loginForm.querySelector('.form-status').textContent)
-            .toEqual('Invalid Password');
-            });
-          });
-        });
-
-        describe('for an unauthorized account', () => {
-          withKiteAccountRoutes([
-            [
-              o => /\/api\/account\/login/.test(o.path),
-              o => fakeResponse(401, JSON.stringify({code: 1})),
-            ],
-          ], () => {
-            beforeEach(() => {
-              spy = jasmine.createSpy();
-
-              app.onDidShowLoginError(spy);
-
-              loginForm.emailInput.value = 'foo@bar.com';
-              loginForm.passwordInput.value = 'password';
-              click(loginForm.submitBtn);
-
-              waitsFor(() => spy.callCount);
-            });
-
-            it('displays the corresponding error', () => {
-              expect(loginForm.querySelector('.form-status').textContent)
-            .toEqual('Unauthorized');
-            });
-          });
-        });
-
-        describe('for a passwordless account', () => {
-          withKiteAccountRoutes([
-            [
-              o => /\/api\/account\/login/.test(o.path),
-              o => fakeResponse(401, JSON.stringify({code: 9})),
-            ],
-          ], () => {
-            beforeEach(() => {
-              spy = jasmine.createSpy();
-
-              loginForm.onDidShowPasswordLessForm(spy);
-
-              loginForm.emailInput.value = 'foo@bar.com';
-              loginForm.passwordInput.value = 'password';
-              click(loginForm.submitBtn);
-
-              waitsFor(() => spy.callCount);
-            });
-
-            it('adds the password-less class to the form', () => {
-              expect(loginForm.classList.contains('password-less')).toBeTruthy();
-            });
-
-            it('does not display and error', () => {
-              expect(loginForm.querySelector('.form-status').textContent)
-            .toEqual('');
-            });
-          });
-        });
-
-        describe('with valid data', () => {
-          withKiteAccountRoutes([
-            [
-              o => /\/api\/account\/login/.test(o.path),
-              o => fakeResponse(200),
-            ],
-          ], () => {
-            beforeEach(() => {
-              spy = jasmine.createSpy();
-
-              app.onDidAuthenticate(spy);
-
-              loginForm.emailInput.value = 'foo@bar.com';
-              loginForm.passwordInput.value = 'password';
-              click(loginForm.submitBtn);
-
-              waitsFor(() => spy.callCount);
-            });
-
-            it('removes the modal', () => {
-              expect(workspaceElement.querySelector('kite-login')).not.toExist();
-            });
-          });
-        });
-      });
-
-      describe('when the password is reset', () => {
-        beforeEach(() => {
-          spyOn(os, 'platform').andReturn('darwin');
-          spyOn(atom.applicationDelegate, 'openExternal');
-
-          spy = jasmine.createSpy();
-          app.onDidResetPassword(spy);
-
-
-          click(loginForm.resetBtn);
-        });
-
-        it('emits a did-reset-password event', () => {
-          expect(spy).toHaveBeenCalled();
-        });
-
-        it('opens the reset password link in a browser', () => {
-          expect(atom.applicationDelegate.openExternal)
-        .toHaveBeenCalledWith('https://kite.com/reset-password?email=');
-        });
-
-        it('removes the modal', () => {
-          expect(workspaceElement.querySelector('kite-login')).not.toExist();
-        });
-      });
-
-      describe('when cancelled', () => {
-        it('removes the modal', () => {
-          loginForm.cancel();
-
-          expect(workspaceElement.querySelector('kite-login')).not.toExist();
-        });
-      });
-    });
-
-    describe('.authenticate()', () => {
-      beforeEach(() => {
-        spyOn(KiteAPI.Account, 'login').andCallFake(() => Promise.resolve());
-      });
-
-      it('calls the KiteAPI.Account.login method', () => {
-        const data = {};
-
-        app.authenticate(data);
-
-        expect(KiteAPI.Account.login).toHaveBeenCalledWith(data);
-      });
-    });
-
-    describe('.whitelist()', () => {
-      beforeEach(() => {
-        spyOn(KiteAPI, 'whitelistPath').andCallFake(() => Promise.resolve());
-      });
-
-      it('calls the KiteAPI.whitelistPath method', () => {
-        const path = '/path/to/other/dir/';
-
-        app.whitelist(path);
-
-        expect(KiteAPI.whitelistPath).toHaveBeenCalledWith(path);
-      });
+      expect(atom.applicationDelegate.openExternal)
+      .toHaveBeenCalledWith('kite://home');
     });
   });
 });
