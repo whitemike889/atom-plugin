@@ -427,10 +427,19 @@ describe('KiteStatusPanel', () => {
         it('displays the kite login', () => {
           const button = status.querySelector('a.btn');
 
-          spyOn(app, 'login').andReturn(Promise.resolve());
+          spyOn(app, 'login');
           click(button);
 
           expect(app.login).toHaveBeenCalled();
+        });
+
+        it('closes the status panel', () => {
+          const button = status.querySelector('a.btn');
+
+          spyOn(app, 'login');
+          click(button);
+
+          expect(status.parentNode).toBeNull();
         });
       });
     });
