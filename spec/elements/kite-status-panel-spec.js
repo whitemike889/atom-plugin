@@ -501,7 +501,7 @@ describe('KiteStatusPanel', () => {
               spyOn(app, 'whitelist').andReturn(Promise.resolve());
               click(button);
 
-              expect(notification.dismiss).toHaveBeenCalled();
+              waitsFor('dismiss called', () => notification.dismiss.callCount);
             });
           });
 
