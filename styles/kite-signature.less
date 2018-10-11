@@ -2,7 +2,8 @@
 @import "content";
 
 kite-signature {
-  display: block;
+  display: flex;
+  flex-direction: column;
   padding: @component-padding;
   background: @app-background-color;
   font-family: @font-family;
@@ -27,6 +28,8 @@ kite-signature {
 
   .kite-signature-wrapper {
     margin: 0;
+    display: flex;
+    flex-direction: column;
   }
 
   pre {
@@ -104,7 +107,7 @@ kite-signature {
   }
 
   section.kwargs.visible {
-    display: block;
+    display: flex;
   }
 
   h4 {
@@ -118,6 +121,26 @@ kite-signature {
       color: inherit;
     }
   }
+
+  &.compact-mode {
+    position: relative;
+    min-height: 4em;
+    .kite-signature-wrapper {
+      position: absolute;
+      top: @component-padding;
+      left: @component-padding;
+      right: @component-padding;
+      bottom: @component-padding;
+    }
+    .scrollable {
+      overflow: auto;
+      display: flex;
+      flex-grow: 1;
+      flex-shrink: 1;
+      flex-direction: column;
+    }
+  }
+
 }
 
 atom-text-editor kite-signature {
