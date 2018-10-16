@@ -78,3 +78,4 @@ Kite exposes many commands so that you can setup your own keybindings for them.
 |`kite:editor-plugin-settings`|Opens the Kite plugin settings in Atom.|
 |`kite:help`|Open Kite help into your browser.|
 |`kite:status`|Open the Kite status panel.|
+|`kite:tutorial`|Open the Kite interactive onboarding tutorial.|
