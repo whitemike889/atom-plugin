@@ -28,14 +28,8 @@
     "showWelcomeNotificationOnStartup": {
       "type": "boolean",
       "default": true,
-      "title": "Show welcome notification on startup",
-      "description": "Whether to display the Kite welcome notification on startup"
-    },
-    "showKiteOnboarding": {
-      "type": "boolean",
-      "default": true,
-      "title": "Show interactive onboarding tutorial on startup",
-      "description": "Whether to show the Kite interactive onboarding tutorial on startup"
+      "title": "Show welcome features on startup",
+      "description": "Whether to display the Kite welcome features on startup"
     },
     "showEditorVacanciesNotificationOnStartup": {
       "type": "boolean",
