@@ -1,11 +1,60 @@
 @import "variables";
 @import "content";
 
+atom-overlay {
+  z-index: 14 !important;
+}
+
 autocomplete-suggestion-list[no-documentation] {
   .suggestion-description {
     display: none;
     overflow-y: auto !important;
   }
+}
+
+autocomplete-suggestion-list.with-kite-signature {
+  display: grid !important;
+  grid-template-areas: "comp sig"
+                       "docs sig";
+  grid-template-rows: min-content 1fr;
+  grid-template-columns: min-content 1fr;
+
+  .suggestion-list-scroller {
+    grid-area: comp;
+  }
+
+  .suggestion-description {
+    grid-area: docs;
+
+    .suggestion-description-content {
+      height: 100%;
+      max-height: none;
+      display: flex;
+    }
+
+    .kite-completions {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+
+      .kite-completion-description {
+        flex: 1 1 0;
+        display: block;
+        -webkit-line-clamp: unset !important;
+        -webkit-box-orient: unset !important;
+
+        &:not(:empty) {
+          min-height: 5em;
+          min-width: 20em;
+        }
+      }
+    }
+  }
+
+  kite-signature {
+    grid-area: sig;
+  }
+
 }
 
 kite-signature {
