@@ -170,6 +170,8 @@ describe('Kite', () => {
     beforeEach(() => {
       atom.config.set('core.useTreeSitterParsers', true);
 
+      atom.reload = () => undefined;
+
       waitsForPromise(() => atom.packages.activatePackage('kite').then(pkg => {
         kitePkg = pkg.mainModule;
       }));
