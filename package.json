@@ -1,7 +1,7 @@
 {
   "name": "kite",
   "main": "./lib/kite",
-  "version": "0.113.0",
+  "version": "0.115.0",
   "description": "Python programming copilot — Kite shows cloud-powered completions, documentation, and examples.",
   "repository": "https://github.com/kiteco/atom-plugin",
   "keywords": [],
@@ -28,8 +28,8 @@
     "showWelcomeNotificationOnStartup": {
       "type": "boolean",
       "default": true,
-      "title": "Show welcome notification on startup",
-      "description": "Whether to display the Kite welcome notification on startup"
+      "title": "Show welcome features on startup",
+      "description": "Whether to display the Kite welcome features on startup"
     },
     "showEditorVacanciesNotificationOnStartup": {
       "type": "boolean",
@@ -108,7 +108,7 @@
     "fuzzaldrin-plus": "^0.4.1",
     "getmac": "1.2.1",
     "kite-installer": "^3.0.1",
-    "kite-api": "^2.0.5",
+    "kite-api": "^2.1.0",
     "kite-connector": "^2.0.1",
     "md5": "^2.2.0",
     "rollbar": "^2.3.8",
