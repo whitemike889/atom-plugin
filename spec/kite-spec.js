@@ -6,6 +6,7 @@ const KiteAPI = require('kite-api');
 const {withKite, withKiteRoutes, withKitePaths} = require('kite-api/test/helpers/kite');
 const {fakeResponse} = require('kite-api/test/helpers/http');
 const {sleep, newCallTo} = require('./spec-helpers');
+const {click} = require('./helpers/events');
 
 const projectPath = path.join(__dirname, 'fixtures');
 
@@ -158,6 +159,37 @@ describe('Kite', () => {
         expect(item instanceof Install).toBeTruthy();
       });
     });
+  });
+
+  describe('when tree-sitter is enabled', () => {
+    const queryNotificationSelectorAll = (notificationElement, selector) =>
+      notificationElement.element
+        ? notificationElement.element.querySelectorAll(selector)
+        : notificationElement.querySelectorAll(selector);
+
+    beforeEach(() => {
+      atom.config.set('core.useTreeSitterParsers', true);
+
+      waitsForPromise(() => atom.packages.activatePackage('kite').then(pkg => {
+        kitePkg = pkg.mainModule;
+      }));
+    });
+
+    it('notifies the user', () => {
+      expect(workspaceElement.querySelector('atom-notification')).toExist();
+    });
+
+    describe('clicking on the turn off button', () => {
+      it('changes the setting value', () => {
+        const notificationElement = workspaceElement.querySelector('atom-notification');
+
+        const button = queryNotificationSelectorAll(notificationElement, 'a.btn')[0];
+        click(button);
+        expect(atom.config.get('core.useTreeSitterParsers')).toBeFalsy();
+
+      });
+    });
+
   });
 
   withKite({logged: true}, () => {
