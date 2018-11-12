@@ -69,9 +69,11 @@ describe('signature + completion', () => {
         beforeEach(() => {
           expect(completionList).not.toBeNull();
 
-          expect(completionList.querySelector('kite-signature')).not.toBeNull();
+          waitsFor('signature', () => completionList.querySelector('kite-signature'));
 
-          atom.commands.dispatch(editorView, 'autocomplete-plus:confirm');
+          runs(() => {
+            atom.commands.dispatch(editorView, 'autocomplete-plus:confirm');
+          });
         });
 
         it('inserts the suggestion but leave the signature visible', () => {
