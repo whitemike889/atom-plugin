@@ -60,7 +60,7 @@ describe('signature + completion', () => {
           Kite.kiteEditorForEditor(editor));
 
         waitsFor('kite whitelist state', () =>
-          Kite.whitelistedEditorIDs[editor.id] != undefined);
+          Kite.getModule('editors').whitelistedEditorByID[editor.id] != undefined);
 
         runs(() => {
           editor.setCursorBufferPosition([2, Number.POSITIVE_INFINITY]);

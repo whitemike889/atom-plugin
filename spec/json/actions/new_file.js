@@ -23,7 +23,7 @@ module.exports = (action, testData) => {
 
       waitsFor('kite whitelist state', () =>
       !/\.py$/.test(action.properties.file) ||
-      Kite.whitelistedEditorIDs[editor.id] != undefined, 50);
+      Kite.getModule('editors').whitelistedEditorByID[editor.id] != undefined, 50);
     }
   });
 };

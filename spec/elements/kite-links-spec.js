@@ -27,7 +27,6 @@ describe('KiteLinks', () => {
         }));
         waitsForPromise(() => atom.workspace.open('sample.py').then(e => {
           editor = e;
-          Kite.subscribeToEditor(e);
         }));
         waitsFor(() => kiteEditor = Kite.kiteEditorForEditor(editor));
       });
