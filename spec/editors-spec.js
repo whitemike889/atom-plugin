@@ -219,6 +219,43 @@ describe('editors module', () => {
       });
     });
 
+    describe('.hasSupportedFileOpen()', () => {
+      beforeEach(() => {
+        waitsForPromise(() => module.init());
+      });
+
+      describe('when a suported file is open', () => {
+        it('returns true', () => {
+          expect(module.hasSupportedFileOpen()).toBeFalsy();
+          waitsForPromise(() => atom.workspace.open('sample.py').then(e => { editor = e; }));
+          runs(() => {
+            expect(module.hasSupportedFileOpen()).toBeTruthy();
+          });
+        });
+      });
+    });
+
+    describe('.hasActiveSupportedFile()', () => {
+      beforeEach(() => {
+        waitsForPromise(() => module.init());
+      });
+
+      describe('when a suported file is open', () => {
+        it('returns true', () => {
+          expect(module.hasActiveSupportedFile()).toBeFalsy();
+          waitsForPromise(() => atom.workspace.open('sample.py').then(e => { editor = e; }));
+          runs(() => {
+            expect(module.hasActiveSupportedFile()).toBeTruthy();
+          });
+          waitsForPromise(() => atom.workspace.open('hello.json').then(e => { editor = e; }));
+          runs(() => {
+            expect(module.hasActiveSupportedFile()).toBeFalsy();
+          });
+        });
+      });
+    });
+
+
     describe('on dispose', () => {
       beforeEach(() => {
         waitsForPromise(() => atom.workspace.open('sample.py').then(e => { editor = e; }));
