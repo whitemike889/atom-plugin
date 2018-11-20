@@ -57,7 +57,7 @@ describe('signature + completion', () => {
           }));
 
         waitsFor('kite editor', () =>
-          Kite.kiteEditorForEditor(editor));
+          Kite.getModule('editors').kiteEditorForEditor(editor));
 
         waitsFor('kite whitelist state', () =>
           Kite.getModule('editors').whitelistedEditorByID[editor.id] != undefined);

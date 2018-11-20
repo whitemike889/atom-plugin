@@ -4,13 +4,22 @@ const {withKite, withKitePaths} = require('kite-api/test/helpers/kite');
 
 const KiteApp = require('../../lib/kite-app');
 const KiteStatus = require('../../lib/elements/kite-status');
+const KiteEditors = require('../../lib/editors');
 
 describe('KiteStatus', () => {
-  let status, app;
+  let status, app, editors;
 
   beforeEach(() => {
     app = new KiteApp();
     status = new KiteStatus();
+    editors = new KiteEditors();
+    app.kite = {
+      getModule(mod) {
+        if (mod === 'editors') {
+          return editors;
+        }
+      },
+    };
     status.setApp(app);
 
     document.body.appendChild(status);

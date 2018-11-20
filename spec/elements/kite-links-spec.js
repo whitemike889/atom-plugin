@@ -28,7 +28,7 @@ describe('KiteLinks', () => {
         waitsForPromise(() => atom.workspace.open('sample.py').then(e => {
           editor = e;
         }));
-        waitsFor(() => kiteEditor = Kite.kiteEditorForEditor(editor));
+        waitsFor(() => kiteEditor = Kite.getModule('editors').kiteEditorForEditor(editor));
       });
 
       describe('for internal goto urls', () => {
