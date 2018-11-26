@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const {withKite, withKiteRoutes, withKitePaths} = require('kite-api/test/helpers/kite');
 const {fakeResponse} = require('kite-api/test/helpers/http');
+const completions = require('../lib/completions');
 
 const projectPath = path.join(__dirname, 'fixtures');
 let Kite;
@@ -22,6 +23,8 @@ describe('signature + completion', () => {
     jasmineContent.appendChild(workspaceElement);
 
     waitsForPromise('package activation', () => atom.packages.activatePackage('language-python'));
+    delete completions.signaturePanel;
+    delete completions.suggestionListElement;
   });
 
   withKite({logged: true}, () => {
@@ -42,6 +45,9 @@ describe('signature + completion', () => {
         waitsForPromise('package activation', () =>
           atom.packages.activatePackage('kite').then(pkg => {
             Kite = pkg.mainModule;
+
+            spyOn(completions, 'loadSignature').andCallThrough();
+            spyOn(completions, 'clearSignature').andCallThrough();
           }));
 
         waitsForPromise('open editor', () =>
@@ -69,7 +75,9 @@ describe('signature + completion', () => {
         beforeEach(() => {
           expect(completionList).not.toBeNull();
 
-          waitsFor('signature', () => completionList.querySelector('kite-signature'));
+          waitsFor('load signature call', () => completions.loadSignature.callCount > 0);
+          waitsFor('no clear sig call', () => completions.clearSignature.callCount === 0);
+          waitsFor('first signature display', () => completionList.querySelector('kite-signature'));
 
           runs(() => {
             atom.commands.dispatch(editorView, 'autocomplete-plus:confirm');
@@ -80,7 +88,7 @@ describe('signature + completion', () => {
           const list = editorView.querySelector('autocomplete-suggestion-list');
           expect(list).not.toBeNull();
 
-          waitsFor('signature', () => list.querySelector('kite-signature'));
+          waitsFor('second signature display', () => list.querySelector('kite-signature'));
 
           waitsFor('empty list', () => list.querySelectorAll('li').length === 0);
         });
