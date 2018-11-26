@@ -8,7 +8,7 @@ const {fakeResponse} = require('kite-api/test/helpers/http');
 const projectPath = path.join(__dirname, 'fixtures');
 let Kite;
 
-describe('signature + completion', () => {
+xdescribe('signature + completion', () => {
   let workspaceElement, jasmineContent, editor, editorView, completionList;
 
   beforeEach(() => {
