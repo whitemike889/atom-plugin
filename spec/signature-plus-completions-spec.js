@@ -4,11 +4,12 @@ const fs = require('fs');
 const path = require('path');
 const {withKite, withKiteRoutes, withKitePaths} = require('kite-api/test/helpers/kite');
 const {fakeResponse} = require('kite-api/test/helpers/http');
+const completions = require('../lib/completions');
 
 const projectPath = path.join(__dirname, 'fixtures');
 let Kite;
 
-xdescribe('signature + completion', () => {
+describe('signature + completion', () => {
   let workspaceElement, jasmineContent, editor, editorView, completionList;
 
   beforeEach(() => {
@@ -22,6 +23,8 @@ xdescribe('signature + completion', () => {
     jasmineContent.appendChild(workspaceElement);
 
     waitsForPromise('package activation', () => atom.packages.activatePackage('language-python'));
+    delete completions.signaturePanel;
+    delete completions.suggestionListElement;
   });
 
   withKite({logged: true}, () => {
