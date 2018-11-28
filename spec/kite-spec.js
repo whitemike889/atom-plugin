@@ -195,7 +195,7 @@ describe('Kite', () => {
   });
 
   withKite({running: false}, () => {
-    describe('when startKitedAtStartup is disabled', () => {
+    describe('when startKiteAtStartup is disabled', () => {
       beforeEach(() => {
         atom.config.set('');
         spyOn(KiteAPI, 'runKiteAndWait');
@@ -207,9 +207,9 @@ describe('Kite', () => {
         expect(KiteAPI.runKiteAndWait).not.toHaveBeenCalled();
       });
     });
-    describe('when startKitedAtStartup is enabled', () => {
+    describe('when startKiteAtStartup is enabled', () => {
       beforeEach(() => {
-        atom.config.set('kite.startKitedAtStartup', true);
+        atom.config.set('kite.startKiteAtStartup', true);
         spyOn(KiteAPI, 'runKiteAndWait');
         waitsForPromise(() => atom.packages.activatePackage('kite').then(pkg => {
           kitePkg = pkg.mainModule;
