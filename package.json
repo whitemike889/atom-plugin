@@ -86,6 +86,11 @@
       "default": false,
       "title": "Developer mode",
       "description": "Enable Kite developer mode, displaying received data in the various UIs"
+    },
+    "startKitedAtStartup": {
+      "type": "boolean",
+      "default": false,
+      "description": "Automatically start Kite process on startup if it's not already running."
     }
   },
   "providedServices": {
