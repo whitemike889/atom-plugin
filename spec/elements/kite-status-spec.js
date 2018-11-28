@@ -33,6 +33,8 @@ describe('KiteStatus', () => {
     it('changes its status to UNINSTALLED', () => {
       waitsForPromise(() => app.connect().then(() => {
         expect(status.getAttribute('status')).toEqual('uninstalled');
+        expect(status.querySelector('.text').textContent).toEqual('Kite: not installed');
+        expect(status.querySelector('svg')).not.toBeNull();
       }));
     });
   });
@@ -41,6 +43,8 @@ describe('KiteStatus', () => {
     it('changes its status to INSTALLED', () => {
       waitsForPromise(() => app.connect().then(() => {
         expect(status.getAttribute('status')).toEqual('installed');
+        expect(status.querySelector('.text').textContent).toEqual('Kite: not running');
+        expect(status.querySelector('svg')).not.toBeNull();
       }));
     });
   });
@@ -57,6 +61,8 @@ describe('KiteStatus', () => {
     it('changes its status to REACHABLE', () => {
       waitsForPromise(() => app.connect().then(() => {
         expect(status.getAttribute('status')).toEqual('reachable');
+        expect(status.querySelector('.text').textContent).toEqual('Kite: not logged in');
+        expect(status.querySelector('svg')).not.toBeNull();
       }));
     });
   });
@@ -66,6 +72,7 @@ describe('KiteStatus', () => {
       it('changes its status to AUTHENTICATED', () => {
         waitsForPromise(() => app.connect().then(() => {
           expect(status.getAttribute('status')).toEqual('authenticated');
+          expect(status.querySelector('.text').textContent).toEqual('');
         }));
       });
     });
