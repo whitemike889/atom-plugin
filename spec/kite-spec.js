@@ -194,6 +194,34 @@ describe('Kite', () => {
 
   });
 
+  withKite({running: false}, () => {
+    describe('when startKiteAtStartup is disabled', () => {
+      beforeEach(() => {
+        atom.config.set('kite.startKiteAtStartup', false);
+        spyOn(KiteAPI, 'runKiteAndWait');
+        waitsForPromise(() => atom.packages.activatePackage('kite').then(pkg => {
+          kitePkg = pkg.mainModule;
+        }));
+      });
+      it('starts Kite on package activation', () => {
+        expect(KiteAPI.runKiteAndWait).not.toHaveBeenCalled();
+      });
+    });
+    describe('when startKiteAtStartup is enabled', () => {
+      beforeEach(() => {
+        atom.config.set('kite.startKiteAtStartup', true);
+        spyOn(KiteAPI, 'runKiteAndWait');
+        waitsForPromise(() => atom.packages.activatePackage('kite').then(pkg => {
+          kitePkg = pkg.mainModule;
+        }));
+      });
+      it('starts Kite on package activation', () => {
+        waitsFor(() => KiteAPI.runKiteAndWait.callCount > 0);
+      });
+    });
+
+  });
+
   withKite({logged: true}, () => {
     xdescribe('with the current project path not in the whitelist', () => {
       withKitePaths({}, undefined, () => {
