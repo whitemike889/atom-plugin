@@ -214,7 +214,7 @@ describe('Kite', () => {
                 waitsForPromise(() => atom.workspace.open('sample.py').then(e => {
                   editor = e;
                 }));
-                waitsFor('kite editor', () => kitePkg.kiteEditorForEditor(editor));
+                waitsFor('kite editor', () => kitePkg.getModule('editors').kiteEditorForEditor(editor));
                 runs(() => {
                   const v = atom.views.getView(editor);
                   v.dispatchEvent(new Event('focus'));
@@ -228,7 +228,7 @@ describe('Kite', () => {
               });
 
               it('subscribes to the editor events', () => {
-                expect(kitePkg.hasEditorSubscription(editor)).toBeTruthy();
+                expect(kitePkg.getModule('editors').hasEditorSubscription(editor)).toBeTruthy();
               });
             });
 
@@ -271,7 +271,7 @@ describe('Kite', () => {
                   });
 
                   it('subscribes to the editor events', () => {
-                    expect(kitePkg.hasEditorSubscription(editor)).toBeTruthy();
+                    expect(kitePkg.getModule('editors').hasEditorSubscription(editor)).toBeTruthy();
                   });
                 });
 
@@ -306,7 +306,7 @@ describe('Kite', () => {
                 const v = atom.views.getView(editor);
                 v.dispatchEvent(new Event('focus'));
               });
-              waitsFor('kite editor', () => kitePkg.kiteEditorForEditor(editor));
+              waitsFor('kite editor', () => kitePkg.getModule('editors').kiteEditorForEditor(editor));
               runs(() => {
                 advanceClock(200);
                 advanceClock(100);
@@ -322,7 +322,7 @@ describe('Kite', () => {
             it('subscribes to the editor events', () => {
               sleep(100);
               runs(() => {
-                expect(kitePkg.hasEditorSubscription(editor)).toBeTruthy();
+                expect(kitePkg.getModule('editors').hasEditorSubscription(editor)).toBeTruthy();
               });
             });
           });
@@ -374,7 +374,7 @@ describe('Kite', () => {
                 });
 
                 it('subscribes to the editor events', () => {
-                  expect(kitePkg.hasEditorSubscription(editor)).toBeTruthy();
+                  expect(kitePkg.getModule('editors').hasEditorSubscription(editor)).toBeTruthy();
                 });
               });
 
@@ -445,7 +445,7 @@ describe('Kite', () => {
                     sleep(100);
                     runs(() => {
                       const editor = atom.workspace.getActiveTextEditor();
-                      expect(kitePkg.hasEditorSubscription(editor)).toBeTruthy();
+                      expect(kitePkg.getModule('editors').hasEditorSubscription(editor)).toBeTruthy();
                     });
                   });
                 });
@@ -481,7 +481,7 @@ describe('Kite', () => {
                 const v = atom.views.getView(editor);
                 v.dispatchEvent(new Event('focus'));
               });
-              waitsFor('kite editor', () => kitePkg.kiteEditorForEditor(editor));
+              waitsFor('kite editor', () => kitePkg.getModule('editors').kiteEditorForEditor(editor));
               runs(() => advanceClock(200));
             });
 
@@ -490,7 +490,7 @@ describe('Kite', () => {
             });
 
             it('subscribes to the editor events', () => {
-              expect(kitePkg.hasEditorSubscription(editor)).toBeTruthy();
+              expect(kitePkg.getModule('editors').hasEditorSubscription(editor)).toBeTruthy();
             });
 
             describe('when the file path is changed', () => {
@@ -504,7 +504,7 @@ describe('Kite', () => {
                 it('unsubscribes from the editor events', () => {
                   sleep(100);
                   runs(() => {
-                    expect(kitePkg.hasEditorSubscription(editor)).toBeFalsy();
+                    expect(kitePkg.getModule('editors').hasEditorSubscription(editor)).toBeFalsy();
                   });
                 });
               });

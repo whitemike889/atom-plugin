@@ -19,11 +19,11 @@ module.exports = (action, testData) => {
     if (testData.setup.kited === 'authenticated') {
       waitsFor('kite editor', () =>
       !/\.py$/.test(action.properties.file) ||
-      Kite.kiteEditorForEditor(editor), 50);
+      Kite.getModule('editors').kiteEditorForEditor(editor), 50);
 
       waitsFor('kite whitelist state', () =>
       !/\.py$/.test(action.properties.file) ||
-      Kite.whitelistedEditorIDs[editor.id] != undefined, 50);
+      Kite.getModule('editors').whitelistedEditorByID[editor.id] != undefined, 50);
     }
   });
 };

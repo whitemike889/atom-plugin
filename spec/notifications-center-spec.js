@@ -5,6 +5,7 @@ const {withKite, withKitePaths} = require('kite-api/test/helpers/kite');
 
 const NotificationsCenter = require('../lib/notifications-center');
 const KiteApp = require('../lib/kite-app');
+const KiteEditors = require('../lib/editors');
 const {sleep} = require('./spec-helpers');
 const {click} = require('./helpers/events');
 
@@ -28,6 +29,14 @@ describe('NotificationsCenter', () => {
 
   beforeEach(() => {
     app = new KiteApp();
+    const editors = new KiteEditors();
+    app.kite = {
+      getModule(mod) {
+        if (mod === 'editors') {
+          return editors;
+        }
+      },
+    };
     notifications = new NotificationsCenter(app);
 
     workspaceElement = atom.views.getView(atom.workspace);
