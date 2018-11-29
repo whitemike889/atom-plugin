@@ -197,7 +197,7 @@ describe('Kite', () => {
   withKite({running: false}, () => {
     describe('when startKiteAtStartup is disabled', () => {
       beforeEach(() => {
-        atom.config.set('');
+        atom.config.set('kite.startKiteAtStartup', false);
         spyOn(KiteAPI, 'runKiteAndWait');
         waitsForPromise(() => atom.packages.activatePackage('kite').then(pkg => {
           kitePkg = pkg.mainModule;
