@@ -6,6 +6,10 @@ const path = require('path');
 const base = path.resolve(__dirname, '..');
 const testBase = path.join(base, '..', 'node_modules', 'editors-json-tests');
 
+function inLiveEnvironment() {
+  return process.env.LIVE_ENVIRONMENT != undefined;
+}
+
 function jsonPath(...p) {
   return path.join(testBase, ...p);
 }
@@ -64,10 +68,19 @@ function waitsFor(m, f, t, i) {
 
   return new Promise((resolve, reject) => {
     const interval = setInterval(() => {
-      if (f()) {
-        clearTimeout(timeout);
-        clearInterval(interval);
-        resolve();
+      const res = f();
+      if (res) {
+        if (res.then) {
+          res.then(() => {
+            clearTimeout(timeout);
+            clearInterval(interval);
+            resolve();
+          }, (err) => {});
+        } else {
+          clearTimeout(timeout);
+          clearInterval(interval);
+          resolve();
+        }
       }
     }, intervalTime);
 
@@ -267,15 +280,16 @@ if (!NotificationsMock.initialized) {
 }
 
 module.exports = {
-  jsonPath,
-  walk,
-  loadPayload,
-  substituteFromContext,
   buildContext,
-  itForExpectation,
   describeForTest,
+  featureSetPath,
+  inLiveEnvironment,
+  itForExpectation,
+  jsonPath,
+  loadPayload,
+  NotificationsMock,
+  substituteFromContext,
   waitsFor,
   waitsForPromise,
-  NotificationsMock,
-  featureSetPath,
+  walk,
 };

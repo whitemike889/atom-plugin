@@ -1,7 +1,10 @@
 'use strict';
 
 const KiteAPI = require('kite-api');
-const {waitsFor, waitsForPromise, loadPayload, substituteFromContext, buildContext, itForExpectation} = require('../utils');
+const {
+  waitsFor, waitsForPromise, loadPayload, substituteFromContext,
+  buildContext, itForExpectation, inLiveEnvironment,
+} = require('../utils');
 
 let closeMatches, exactMatch;
 const getDesc = (expectation, not) => () => {
@@ -28,14 +31,14 @@ const getDesc = (expectation, not) => () => {
   }  else {
     if (closeMatches && closeMatches.length > 0) {
       base.push('\nbut some calls were close');
-      closeMatches.forEach(({path, method, payload}) => {
-        base.push(`\n - ${method} ${path} ${payload}`);
+      closeMatches.forEach(({path, method, body}) => {
+        base.push(`\n - ${method} ${path} ${body}`);
       });
     } else {
       base.push('\nbut no calls were anywhere close');
       KiteAPI.request.calls.forEach(call => {
-        const [{method, path}, payload] = call.args;
-        base.push(`\n - ${method || 'GET'} ${path} ${payload || ''}`);
+        const [{method, path}, body] = call.args;
+        base.push(`\n - ${method || 'GET'} ${path} ${body || ''}`);
       });
     }
   }
@@ -43,8 +46,14 @@ const getDesc = (expectation, not) => () => {
   return base.join(' ');
 };
 
-const mostRecentCallMatching = (exPath, exMethod, exPayload, context = {}, env) => {
-  const calls = KiteAPI.request.calls;
+const mostRecentCallMatching = (data, exPath, exMethod, exPayload, context = {}, env) => {
+  const calls = data || KiteAPI.request.calls.map(c => {
+    return {
+      path: c.args[0].path,
+      method: c.args[0].method,
+      body: c.args[1],
+    };
+  });
   closeMatches = [];
   exactMatch = null;
   let matched = false;
@@ -58,22 +67,20 @@ const mostRecentCallMatching = (exPath, exMethod, exPayload, context = {}, env) 
   if (calls.length === 0) { return false; }
 
   return calls.reverse().reduce((b, c, i, a) => {
-    let [{path, method}, payload] = c.args;
+    let {path, method, body} = c;
     method = method || 'GET';
 
     // b is false here only if we found a call that partially matches
-    // the expected parameters, eg. same endpoint but different method/payload
+    // the expected parameters, eg. same endpoint but different method/body
     // so that mean the most recent call to the expected endpoint is not the one
     // we were looking for, and the assertion must fail immediately
     if (!b || matched) { return b; }
 
-    // console.log(path, method, payload);
-
     if (path === exPath) {
       if (method === exMethod) {
-        closeMatches.push({path, method, payload});
-        if (!exPayload || env.equals_(JSON.parse(payload), exPayload)) {
-          exactMatch = {path, method, payload};
+        closeMatches.push({path, method, body});
+        if (!exPayload || env.equals_(JSON.parse(body), exPayload)) {
+          exactMatch = {path, method, body};
           matched = true;
           return true;
         } else {
@@ -97,13 +104,29 @@ const mostRecentCallMatching = (exPath, exMethod, exPayload, context = {}, env) 
 module.exports = (expectation, not) => {
   beforeEach(function() {
     const promise = waitsFor(() => {
-      return mostRecentCallMatching(
-        expectation.properties.path,
-        expectation.properties.method,
-        expectation.properties.body,
-        buildContext(),
-        this.env);
-    }, 300);
+      if (inLiveEnvironment()) {
+        return KiteAPI.requestJSON({path: '/testapi/request-history'})
+        .then((data) => {
+          if (!mostRecentCallMatching(
+            data,
+            expectation.properties.path,
+            expectation.properties.method,
+            expectation.properties.body,
+            buildContext(),
+            this.env)) {
+            throw new Error('fail');
+          }
+        });
+      } else {
+        return mostRecentCallMatching(
+          null,
+          expectation.properties.path,
+          expectation.properties.method,
+          expectation.properties.body,
+          buildContext(),
+          this.env);
+      }
+    }, 1500, 50);
 
     if (not) {
       waitsForPromise({label: getDesc(expectation, not), shouldReject: true}, () => promise);

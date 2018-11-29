@@ -2,10 +2,13 @@
 
 const path = require('path');
 const KiteAPI = require('kite-api');
+const KiteConnect = require('kite-connector');
 
 const {withKite, withKitePaths, withKiteRoutes} = require('kite-api/test/helpers/kite');
 const {fakeResponse} = require('kite-connector/test/helpers/http');
-const {jsonPath, walk, describeForTest, featureSetPath, substituteFromContext, buildContext} = require('./json/utils');
+const {jsonPath, walk, describeForTest, featureSetPath, substituteFromContext, buildContext, inLiveEnvironment} = require('./json/utils');
+const NodeClient = require('kite-connector/lib/clients/node');
+// const BrowserClient = require('kite-connector/lib/clients/browser');
 
 const ACTIONS = {};
 const EXPECTATIONS = {};
@@ -82,11 +85,25 @@ function pathsSetup(setup) {
 }
 
 function buildTest(data, file) {
+  if (data.live_environment === false) {
+    return;
+  }
+
   describeForTest(data, `${data.description} ('${file}')`, () => {
     withKite(kiteSetup(data.setup.kited), () => {
       beforeEach(() => {
-        spyOn(KiteAPI, 'request').andCallThrough();
-        atom.project.setPaths([path.resolve(__dirname, '..')]);
+        if (inLiveEnvironment()) {
+          KiteConnect.client = new NodeClient('localhost', '56624');
+          waitsForPromise(() => KiteConnect.request({
+            path: '/testapi/request-history/reset',
+            method: 'POST',
+          }));
+        }
+
+        runs(() => {
+          spyOn(KiteAPI, 'request').andCallThrough();
+          atom.project.setPaths([path.resolve(__dirname, '..')]);
+        });
 
         waitsForPromise({label: 'kite activation'}, () => atom.packages.activatePackage('kite'));
         // console.log('start ------------------------------------------');
@@ -109,7 +126,7 @@ function buildTest(data, file) {
           }
         }, () => {})();
       };
-      if (/reachable|authenticated/.test(data.setup.kited)) {
+      if (!inLiveEnvironment() && /reachable|authenticated/.test(data.setup.kited)) {
         withKitePaths(pathsSetup(data.setup), undefined, () => {
           if (data.setup.routes) {
             withKiteRoutes(data.setup.routes.map(r => {
