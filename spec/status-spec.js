@@ -7,7 +7,7 @@ const {fakeResponse} = require('kite-api/test/helpers/http');
 const {jsonPath} = require('./json/utils');
 
 describe('status', () => {
-  let status;
+  let status, kite;
   beforeEach(() => {
     atom.config.set('kite.pollingInterval', 100);
     jasmine.useMockClock();
@@ -17,10 +17,15 @@ describe('status', () => {
     waitsForPromise(() => atom.packages.activatePackage('autocomplete-plus'));
   });
 
+  afterEach(() => {
+    status.dispose();
+  });
+
   const activateModule = () => {
     beforeEach(() => {
       waitsForPromise(() => atom.packages.activatePackage('kite').then(pkg => {
-        status.init(pkg.mainModule);
+        kite = pkg.mainModule;
+        status.init(kite);
       }));
     });
   };
@@ -84,22 +89,24 @@ describe('status', () => {
 
         advanceClock(200);
 
-        expect(status.pollStatus.callCount).toEqual(2);
+        expect(status.pollStatus.callCount > 1).toBeTruthy();
       });
 
       describe('then closing that file', () => {
+        let lastCount;
         beforeEach(() => {
+          lastCount = status.pollStatus.callCount + 1;
           atom.workspace.getActiveTextEditor().destroy();
         });
 
         it('calls pollStatus to clear the status content', () => {
-          expect(status.pollStatus.callCount).toEqual(2);
+          expect(status.pollStatus.callCount > 1).toBeTruthy();
         });
 
         it('stops the polling routine', () => {
           advanceClock(200);
 
-          expect(status.pollStatus.callCount).toEqual(2);
+          expect(status.pollStatus.callCount).toEqual(lastCount);
         });
       });
 
@@ -149,6 +156,42 @@ describe('status', () => {
         });
       });
     });
+
+    withKite({logged: true}, () => {
+      withKitePaths({whitelist: [__dirname]}, undefined, () => {
+        let editor, lastCount;
+
+        activateModule();
+
+        beforeEach(() => {
+          waitsForPromise(() => atom.workspace.open('sample.py').then(e => {
+            editor = e;
+            advanceClock(10);
+          }));
+          waitsFor(() => kite.getModule('editors').isEditorWhitelisted(editor));
+        });
+
+        describe('when the whitelist state of the file changes', () => {
+          withKiteRoutes([[() => true, () => fakeResponse(403)]]);
+
+          beforeEach(() => {
+            waitsFor('previous poll end', () => !status.isPolling);
+            runs(() => {
+              lastCount = status.pollStatus.callCount;
+            });
+          });
+
+          it('poll the status on the change', () => {
+            const editor = atom.workspace.getActiveTextEditor();
+            const pos = editor.getBuffer().positionForCharacterIndex(4);
+            editor.setCursorBufferPosition(pos);
+            advanceClock(10);
+
+            waitsFor('new status poll', () => status.pollStatus.callCount > lastCount);
+          });
+        });
+      });
+    });
   });
 
   describe('.pollStatus()', () => {
@@ -177,6 +220,7 @@ describe('status', () => {
         waitsForPromise(() => atom.workspace.open('sample.py').then(e => {
           editor = e;
         }));
+        waitsFor(() => !status.isPolling);
       });
 
       it('calls /clientapi/status', () => {
@@ -251,7 +295,7 @@ describe('status', () => {
 
       describe('when the file status is ready', () => {
         withKite({logged: true}, () => {
-          withKitePaths({whitelist: __dirname}, undefined, () => {
+          withKitePaths({whitelist: [__dirname]}, undefined, () => {
             withKiteRoutes([[
               o => /^\/clientapi\/status/.test(o.path),
               () => fakeResponse(200, '{"status": "ready"}'),
@@ -270,7 +314,7 @@ describe('status', () => {
       });
       describe('when the file status is syncing', () => {
         withKite({logged: true}, () => {
-          withKitePaths({whitelist: __dirname}, undefined, () => {
+          withKitePaths({whitelist: [__dirname]}, undefined, () => {
             withKiteRoutes([[
               o => /^\/clientapi\/status/.test(o.path),
               () => fakeResponse(200, '{"status": "syncing"}'),
@@ -291,7 +335,7 @@ describe('status', () => {
 
       describe('when the file status is indexing', () => {
         withKite({logged: true}, () => {
-          withKitePaths({whitelist: __dirname}, undefined, () => {
+          withKitePaths({whitelist: [__dirname]}, undefined, () => {
             withKiteRoutes([[
               o => /^\/clientapi\/status/.test(o.path),
               () => fakeResponse(200, '{"status": "indexing"}'),
