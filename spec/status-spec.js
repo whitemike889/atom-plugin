@@ -36,18 +36,118 @@ describe('status', () => {
   });
 
   describe('on init', () => {
-    activateModule();
-
-    it('registers the element as a tooltip provider', () => {
-      expect(atom.tooltips.tooltips.get(status.getElement())).not.toBeUndefined();
+    beforeEach(() => {
+      spyOn(status, 'pollStatus');
     });
 
-    it('registers a polling routine based on pollingInterval', () => {
-      spyOn(status, 'pollStatus');
+    describe('with an empty window', () => {
+      activateModule();
 
-      advanceClock(200);
+      it('registers the element as a tooltip provider', () => {
+        expect(atom.tooltips.tooltips.get(status.getElement())).not.toBeUndefined();
+      });
 
-      expect(status.pollStatus).toHaveBeenCalled();
+      it('does not start the polling routine', () => {
+        expect(status.pollStatus).not.toHaveBeenCalled();
+
+        advanceClock(200);
+
+        expect(status.pollStatus).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('when there is a supported file already opened', () => {
+      beforeEach(() => {
+        waitsForPromise(() => atom.workspace.open('sample.py'));
+      });
+
+      activateModule();
+
+      it('registers a polling routine based on pollingInterval', () => {
+        expect(status.pollStatus).toHaveBeenCalled();
+
+        advanceClock(200);
+
+        expect(status.pollStatus.callCount).toEqual(2);
+      });
+    });
+
+    describe('when a supported file is open after init', () => {
+      activateModule();
+
+      beforeEach(() => {
+        waitsForPromise(() => atom.workspace.open('sample.py'));
+      });
+
+      it('registers a polling routine based on pollingInterval', () => {
+        expect(status.pollStatus).toHaveBeenCalled();
+
+        advanceClock(200);
+
+        expect(status.pollStatus.callCount).toEqual(2);
+      });
+
+      describe('then closing that file', () => {
+        beforeEach(() => {
+          atom.workspace.getActiveTextEditor().destroy();
+        });
+
+        it('calls pollStatus to clear the status content', () => {
+          expect(status.pollStatus.callCount).toEqual(2);
+        });
+
+        it('stops the polling routine', () => {
+          advanceClock(200);
+
+          expect(status.pollStatus.callCount).toEqual(2);
+        });
+      });
+
+      describe('then opening an unsupported file', () => {
+        beforeEach(() => {
+          waitsForPromise(() => atom.workspace.open('hello.json'));
+        });
+
+        it('calls pollStatus to clear the status content', () => {
+          expect(status.pollStatus.callCount).toEqual(2);
+        });
+
+        it('stops the polling routine', () => {
+          advanceClock(200);
+
+          expect(status.pollStatus.callCount).toEqual(2);
+        });
+      });
+    });
+
+    describe('when there is an unsupported file already opened', () => {
+      beforeEach(() => {
+        waitsForPromise(() => atom.workspace.open('hello.json'));
+      });
+
+      activateModule();
+
+      it('does not start the polling routine', () => {
+        expect(status.pollStatus).not.toHaveBeenCalled();
+
+        advanceClock(200);
+
+        expect(status.pollStatus).not.toHaveBeenCalled();
+      });
+
+      describe('then opening a supported file', () => {
+        beforeEach(() => {
+          waitsForPromise(() => atom.workspace.open('sample.py'));
+        });
+
+        it('starts the polling routine', () => {
+          expect(status.pollStatus).toHaveBeenCalled();
+
+          advanceClock(200);
+
+          expect(status.pollStatus.callCount).toEqual(2);
+        });
+      });
     });
   });
 
