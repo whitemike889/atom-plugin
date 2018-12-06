@@ -4,6 +4,7 @@ const KiteConnect = require('kite-connector');
 const Status = require('../lib/status');
 const {withKite, withKiteRoutes, withKitePaths} = require('kite-api/test/helpers/kite');
 const {fakeResponse} = require('kite-api/test/helpers/http');
+const {jsonPath} = require('./json/utils');
 
 describe('status', () => {
   let status;
@@ -62,6 +63,7 @@ describe('status', () => {
 
         expect(KiteConnect.client.request).not.toHaveBeenCalled();
 
+        expect(status.tooltipText).toEqual('');
         expect(element.getAttribute('status')).toEqual('unsupported');
         expect(element.getAttribute('is-syncing')).toBeNull();
         expect(element.getAttribute('is-indexing')).toBeNull();
@@ -77,7 +79,7 @@ describe('status', () => {
         }));
       });
 
-      it('calls /clientapi/ping', () => {
+      it('calls /clientapi/status', () => {
         spyOn(KiteConnect.client, 'request').andCallThrough();
 
         status.pollStatus();
@@ -91,6 +93,7 @@ describe('status', () => {
         it('changes its status to UNINSTALLED', () => {
           waitsForPromise(() => status.pollStatus().then(() => {
             const element = status.getElement();
+            expect(status.tooltipText).toEqual('Kite is not installed.');
             expect(element.getAttribute('status')).toEqual('uninstalled');
             expect(element.querySelector('.text').textContent).toEqual('Kite: not installed');
           }));
@@ -101,6 +104,7 @@ describe('status', () => {
         it('changes its status to INSTALLED', () => {
           waitsForPromise(() => status.pollStatus().then(() => {
             const element = status.getElement();
+            expect(status.tooltipText).toEqual('Kite is not running.');
             expect(element.getAttribute('status')).toEqual('installed');
             expect(element.querySelector('.text').textContent).toEqual('Kite: not running');
           }));
@@ -111,6 +115,7 @@ describe('status', () => {
         it('changes its status to RUNNING', () => {
           waitsForPromise(() => status.pollStatus().then(() => {
             const element = status.getElement();
+            expect(status.tooltipText).toEqual('Kite is running but not reachable.');
             expect(element.getAttribute('status')).toEqual('running');
           }));
         });
@@ -122,6 +127,7 @@ describe('status', () => {
         it('changes its status to REACHABLE', () => {
           waitsForPromise(() => status.pollStatus().then(() => {
             const element = status.getElement();
+            expect(status.tooltipText).toEqual('Kite is not authenticated.');
             expect(element.getAttribute('status')).toEqual('reachable');
             expect(element.querySelector('.text').textContent).toEqual('Kite: not logged in');
           }));
@@ -135,6 +141,7 @@ describe('status', () => {
           it('changes its status to AUTHENTICATED', () => {
             waitsForPromise(() => status.pollStatus().then(() => {
               const element = status.getElement();
+              expect(status.tooltipText).toEqual('');
               expect(element.getAttribute('status')).toEqual('authenticated');
               expect(element.querySelector('.text').textContent).toEqual('');
             }));
@@ -153,6 +160,7 @@ describe('status', () => {
             it('changes its status to WHITELISTED', () => {
               waitsForPromise(() => status.pollStatus().then(() => {
                 const element = status.getElement();
+                expect(status.tooltipText).toEqual('Kite is ready.');
                 expect(element.getAttribute('status')).toEqual('whitelisted');
                 expect(element.querySelector('.text').textContent).toEqual('');
               }));
@@ -171,6 +179,7 @@ describe('status', () => {
             it('changes its status to syncing WHITELISTED', () => {
               waitsForPromise(() => status.pollStatus().then(() => {
                 const element = status.getElement();
+                expect(status.tooltipText).toEqual('Kite engine is syncing your code');
                 expect(element.getAttribute('status')).toEqual('whitelisted');
                 expect(element.getAttribute('is-syncing')).toEqual('');
                 expect(element.querySelector('.text').textContent).toEqual('');
@@ -191,8 +200,33 @@ describe('status', () => {
             it('changes its status to indexing WHITELISTED', () => {
               waitsForPromise(() => status.pollStatus().then(() => {
                 const element = status.getElement();
+                expect(status.tooltipText).toEqual('Kite engine is indexing your code');
                 expect(element.getAttribute('status')).toEqual('whitelisted');
                 expect(element.getAttribute('is-indexing')).toEqual('');
+                expect(element.querySelector('.text').textContent).toEqual('');
+              }));
+            });
+          });
+        });
+      });
+
+      describe('when the file is too big for kite', () => {
+        beforeEach(() => {
+          waitsForPromise(() => atom.workspace.open(jsonPath('data/whitelisted/too-large.py')));
+        });
+
+        withKite({logged: true}, () => {
+          withKitePaths({whitelist: jsonPath('data/whitelisted')}, undefined, () => {
+            withKiteRoutes([[
+              o => /^\/clientapi\/status/.test(o.path),
+              () => fakeResponse(200, '{"status": "ready"}'),
+            ]]);
+
+            it('changes its status to indexing WHITELISTED', () => {
+              waitsForPromise(() => status.pollStatus().then(() => {
+                const element = status.getElement();
+                expect(status.tooltipText).toEqual('The current file is too large for Kite to handle');
+                expect(element.getAttribute('status')).toEqual('whitelisted');
                 expect(element.querySelector('.text').textContent).toEqual('');
               }));
             });
