@@ -356,11 +356,12 @@ describe('status', () => {
 
       describe('when the file is too big for kite', () => {
         beforeEach(() => {
-          waitsForPromise(() => atom.workspace.open(jsonPath('data/whitelisted/too-large.py')));
+          spyOn(status, 'fileExceedsMaxSize').andCallFake(() => true);
+          waitsForPromise(() => atom.workspace.open('sample.py'));
         });
 
         withKite({logged: true}, () => {
-          withKitePaths({whitelist: jsonPath('data/whitelisted')}, undefined, () => {
+          withKitePaths({whitelist: __dirname}, undefined, () => {
             withKiteRoutes([[
               o => /^\/clientapi\/status/.test(o.path),
               () => fakeResponse(200, '{"status": "ready"}'),
