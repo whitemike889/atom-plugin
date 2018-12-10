@@ -49,11 +49,6 @@
       "title": "Enable hover info",
       "description": "Show hover information when placing the mouse over a programming expression"
     },
-    "maxVisibleSuggestionsAlongSignature": {
-      "type": "integer",
-      "default": 3,
-      "title": "Max visible suggestions along signature"
-    },
     "hideDocumentationWhenSignatureIsAvailable": {
       "type": "boolean",
       "default": true,
