@@ -3,7 +3,6 @@
 const os = require('os');
 const http = require('http');
 const proc = require('child_process');
-const Plan = require('../lib/plan');
 const {merge} = require('../lib/utils');
 const {withKiteRoutes} = require('kite-api/test/helpers/kite');
 const KiteAPI = require('kite-api');
@@ -520,7 +519,6 @@ function withKiteReachable(routes, block) {
 
   routes.push([o => o.path === '/settings', o => fakeResponse(200)]);
   routes.push([o => o.path === '/clientapi/user', o => fakeResponse(200, '{}')]);
-  routes.push([o => o.path.indexOf('/clientapi/plan') !== -1, o => fakeResponse(200, '{}')]);
 
   withKiteRunning(() => {
     describe(', reachable', () => {
@@ -655,40 +653,6 @@ function withRoutes(routes) {
   });
 }
 
-function withPlan(description, plan, block) {
-  describe(description, () => {
-    withKiteRoutes([
-      [
-        o => o.path.indexOf('/clientapi/plan') === 0,
-        o => fakeResponse(200, JSON.stringify(plan)),
-      ], [
-        o => o.path.indexOf('/clientapi/status') === 0,
-        o => fakeResponse(200, JSON.stringify({status: 'ready'})),
-      ], [
-        o => /^\/api\/account\/user/.test(o.path),
-        o => fakeResponse(200, JSON.stringify({email_verified: true})),
-      ],
-    ]);
-
-
-    beforeEach(() => {
-      waitsForPromise(() => Plan.queryPlan());
-    });
-
-    block();
-  });
-}
-
-function withFakePlan(description, plan, block) {
-  describe(description, () => {
-    beforeEach(() => {
-      Plan.plan = plan;
-    });
-
-    block();
-  });
-}
-
 function newCallTo(endpoint) {
   const initialCount = countCalls();
   return () => countCalls() > initialCount;
@@ -718,6 +682,6 @@ module.exports = {
   withKiteReachable, withKiteNotReachable,
   withKiteAuthenticated, withKiteNotAuthenticated,
   withKiteWhitelistedPaths, withKiteBlacklistedPaths, withKiteIgnoredPaths,
-  withFakeServer, withRoutes, withPlan, withFakePlan,
+  withFakeServer, withRoutes,
   sleep, newCallTo,
 };
