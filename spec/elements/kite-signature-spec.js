@@ -1,7 +1,6 @@
 'use strict';
 
 const KiteSignature = require('../../lib/elements/kite-signature');
-const {withFakePlan} = require('../spec-helpers');
 const {click} = require('../helpers/events');
 
 describe('KiteSignature', () => {
@@ -49,11 +48,7 @@ describe('KiteSignature', () => {
       expect(element.querySelectorAll('section.kwargs dt').length).toEqual(29);
     });
 
-    withFakePlan('with pro plan', {
-      features: {
-        common_invocations_editor: true,
-      },
-    }, () => {
+    describe('render', () => {
       beforeEach(() => {
         element.setData(json);
       });
@@ -88,23 +83,6 @@ describe('KiteSignature', () => {
         });
       });
     });
-
-    withFakePlan('with community plan', {
-      features: {
-        common_invocations_editor: false,
-      },
-    }, () => {
-      beforeEach(() => {
-        element.setData(json);
-      });
-
-      it('creates a popular patterns section with pro ctas', () => {
-        expect(element.querySelector('.patterns')).toExist();
-        expect(element.querySelector('.patterns pre')).not.toExist();
-        expect(element.querySelector('.patterns a')).toExist();
-      });
-    });
-
   });
 
   describe('with javascript data', () => {
