@@ -237,7 +237,7 @@ describe('status', () => {
         it('changes its status to UNINSTALLED', () => {
           waitsForPromise(() => status.pollStatus().then(() => {
             const element = status.getElement();
-            expect(status.tooltipText).toEqual('Kite is not installed.');
+            expect(status.tooltipText).toEqual('Kite is not installed');
             expect(element.getAttribute('status')).toEqual('uninstalled');
             expect(element.querySelector('.text').textContent).toEqual('Kite: not installed');
           }));
@@ -248,7 +248,7 @@ describe('status', () => {
         it('changes its status to INSTALLED', () => {
           waitsForPromise(() => status.pollStatus().then(() => {
             const element = status.getElement();
-            expect(status.tooltipText).toEqual('Kite is not running.');
+            expect(status.tooltipText).toEqual('Kite is not running');
             expect(element.getAttribute('status')).toEqual('installed');
             expect(element.querySelector('.text').textContent).toEqual('Kite: not running');
           }));
@@ -259,7 +259,7 @@ describe('status', () => {
         it('changes its status to RUNNING', () => {
           waitsForPromise(() => status.pollStatus().then(() => {
             const element = status.getElement();
-            expect(status.tooltipText).toEqual('Kite is running but not reachable.');
+            expect(status.tooltipText).toEqual('Kite is running but not reachable');
             expect(element.getAttribute('status')).toEqual('running');
           }));
         });
@@ -271,7 +271,7 @@ describe('status', () => {
         it('changes its status to REACHABLE', () => {
           waitsForPromise(() => status.pollStatus().then(() => {
             const element = status.getElement();
-            expect(status.tooltipText).toEqual('Kite is not authenticated.');
+            expect(status.tooltipText).toEqual('Kite is not authenticated');
             expect(element.getAttribute('status')).toEqual('reachable');
             expect(element.querySelector('.text').textContent).toEqual('Kite: not logged in');
           }));
@@ -304,7 +304,7 @@ describe('status', () => {
             it('changes its status to WHITELISTED', () => {
               waitsForPromise(() => status.pollStatus().then(() => {
                 const element = status.getElement();
-                expect(status.tooltipText).toEqual('Kite is ready.');
+                expect(status.tooltipText).toEqual('Kite is ready');
                 expect(element.getAttribute('status')).toEqual('whitelisted');
                 expect(element.querySelector('.text').textContent).toEqual('');
               }));
