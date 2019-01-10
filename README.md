@@ -114,9 +114,8 @@ If you wish, you may also setup keybindings for the commands listed above.
 
 ## Configuration
 
-You can change Kite's settings by clicking on `Preferences`, then `Package Settings`, then `Kite`. Alternatively, you can 
-access the preferences files from the command palette using `Kite: Package Settings`. The default preferences file should
-be self documenting.
+You can view and change the Kite Assistant's settings by finding Kite in your list of installed packages. Alternatively, 
+you can run the command `Kite: Package Settings` from the command palette.
 
 
 ## Contact Us
