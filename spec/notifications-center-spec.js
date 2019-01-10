@@ -1,28 +1,16 @@
 'use strict';
 
 const os = require('os');
-const {withKite, withKitePaths} = require('kite-api/test/helpers/kite');
+const {withKite} = require('kite-api/test/helpers/kite');
 
 const NotificationsCenter = require('../lib/notifications-center');
 const KiteApp = require('../lib/kite-app');
 const KiteEditors = require('../lib/editors');
-const {sleep} = require('./spec-helpers');
-const {click} = require('./helpers/events');
 
 const getNotificationElement = () => {
   const allNotifications = atom.notifications.getNotifications();
   return atom.views.getView(allNotifications[allNotifications.length - 1]);
 };
-
-const queryNotificationSelector = (notificationElement, selector) =>
-  notificationElement.element
-    ? notificationElement.element.querySelector(selector)
-    : notificationElement.querySelector(selector);
-
-const queryNotificationSelectorAll = (notificationElement, selector) =>
-  notificationElement.element
-    ? notificationElement.element.querySelectorAll(selector)
-    : notificationElement.querySelectorAll(selector);
 
 describe('NotificationsCenter', () => {
   let app, notifications, notificationsPkg, workspaceElement, notificationElement, notification, editor;
@@ -163,130 +151,6 @@ describe('NotificationsCenter', () => {
           });
         });
       });
-
-      withKite({logged: false}, () => {
-        describe('when a login form is present', () => {
-          let login;
-
-          beforeEach(() => {
-            login = document.createElement('kite-login');
-            document.body.appendChild(login);
-            waitsForPromise(() => app.connect().then(() => {
-              notificationElement = getNotificationElement();
-            }));
-          });
-
-          afterEach(() => {
-            document.body.removeChild(login);
-          });
-
-          it('does not notify the user', () => {
-            expect(notificationElement).toBeUndefined();
-          });
-        });
-
-        describe('when no login form is present', () => {
-          beforeEach(() => {
-            waitsForPromise(() => app.connect('pollingInterval')
-            .then(() => app.connect('pollingInterval'))
-            .then(() => {
-              notificationElement = getNotificationElement();
-              notification = notificationElement.getModel();
-            }));
-          });
-
-          it('notifies the user', () => {
-            const options = notification.getOptions();
-
-            expect(notificationElement).not.toBeNull();
-
-            expect(notification.getType()).toEqual('warning');
-            expect(notification.getMessage())
-            .toEqual('You need to login to the Kite engine');
-
-            expect(options.buttons.length).toEqual(1);
-            expect(options.buttons[0].text).toEqual('Login');
-            expect(options.dismissable).toBeTruthy();
-            expect(options.description)
-            .toEqual('Kite needs to be authenticated to access the index of your code stored on the cloud.');
-          });
-
-          describe('clicking on the Login button', () => {
-            it('triggers a login', () => {
-              spyOn(app, 'login').andReturn(Promise.resolve());
-              const button = queryNotificationSelector(notificationElement, 'a.btn');
-              click(button);
-
-              expect(app.login).toHaveBeenCalled();
-            });
-          });
-
-          describe('when the same state is found after a new check', () => {
-            it('does not notify the user', () => {
-              atom.notifications.getNotifications()[0].dismiss();
-              waitsForPromise(() => app.connect().then(() => {
-                expect(atom.notifications.getNotifications().length).toEqual(1);
-              }));
-            });
-          });
-        });
-
-        describe('when an attempt to login end with unauthorized', () => {
-          beforeEach(() => {
-            app.emitter.emit('did-get-unauthorized', {message: 'Some error'});
-
-            waitsFor('notification', () => {
-              notificationElement = getNotificationElement();
-              if (notificationElement) {
-                notification = notificationElement.getModel();
-              }
-              return notificationElement;
-            });
-          });
-
-          it('notifies the user', () => {
-            const options = notification.getOptions();
-
-            expect(notificationElement).not.toBeNull();
-
-            expect(notification.getType()).toEqual('error');
-            expect(notification.getMessage())
-            .toEqual('Unable to login');
-
-            expect(options.buttons.length).toEqual(1);
-            expect(options.buttons[0].text).toEqual('Retry');
-            expect(options.dismissable).toBeTruthy();
-            expect(options.description)
-            .toEqual(JSON.stringify({message: 'Some error'}));
-          });
-
-          describe('clicking on the Retry button', () => {
-            it('triggers a new login attempt', () => {
-              spyOn(app, 'login').andReturn(Promise.resolve());
-              const button = queryNotificationSelector(notificationElement, 'a.btn');
-              click(button);
-
-              expect(app.login).toHaveBeenCalled();
-            });
-          });
-        });
-
-        withKitePaths({
-          whitelist: [__dirname],
-        }, undefined, () => {
-          beforeEach(() => {
-            atom.project.setPaths([__dirname]);
-            waitsForPromise(() => app.connect().then(() => {
-              notificationElement = getNotificationElement();
-            }));
-          });
-
-          it('does not notify the user', () => {
-            expect(notificationElement).not.toExist();
-          });
-        });
-      });
-
     });
   });
 
@@ -311,35 +175,11 @@ describe('NotificationsCenter', () => {
       });
     });
 
-    withKite({logged: false}, () => {
+    withKite({reachable: true}, () => {
       it('does not notify the user', () => {
         waitsForPromise(() => app.connect().then(() => {
           expect(workspaceElement.querySelector('atom-notification')).not.toExist();
         }));
-      });
-    });
-
-    withKite({logged: true}, () => {
-      withKitePaths({}, undefined, () => {
-        it('does not notify the user', () => {
-          waitsForPromise(() => app.connect().then(() => {
-            expect(workspaceElement.querySelector('atom-notification')).not.toExist();
-          }));
-        });
-      });
-
-      withKitePaths({
-        whitelist: [__dirname],
-      }, undefined, () => {
-        beforeEach(() => {
-          atom.project.setPaths([__dirname]);
-        });
-
-        it('does not notify the user', () => {
-          waitsForPromise(() => app.connect().then(() => {
-            expect(workspaceElement.querySelector('atom-notification')).not.toExist();
-          }));
-        });
       });
     });
   });

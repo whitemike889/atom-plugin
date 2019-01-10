@@ -1,8 +1,6 @@
 'use strict';
 
-const path = require('path');
-const {withKite, withKiteRoutes, withKitePaths} = require('kite-api/test/helpers/kite');
-const {fakeResponse} = require('kite-api/test/helpers/http');
+const {withKite} = require('kite-api/test/helpers/kite');
 const {click} = require('../helpers/events');
 
 describe('KiteStatusPanel', () => {
@@ -36,7 +34,7 @@ describe('KiteStatusPanel', () => {
     delete status.installing;
   });
 
-  withKite({logged: true}, () => {
+  withKite({reachable: true}, () => {
     it('displays the icon', () => {
       waitsForPromise(() => status.show().then(() => {
         expect(status.querySelector('.split-line .left kite-logo')).toExist();
@@ -205,44 +203,6 @@ describe('KiteStatusPanel', () => {
       const button = state.querySelector('a');
 
       expect(button).toBeNull();
-    });
-  });
-
-  withKite({logged: false}, () => {
-    beforeEach(() => {
-      waitsForPromise(() => status.show());
-    });
-
-    it('displays an action to log into kited', () => {
-      const state = status.querySelector('.status');
-
-      expect(state.querySelector('.text-danger').textContent)
-        .toEqual('Kite engine is not logged in •');
-
-      const button = state.querySelector('a');
-
-      expect(button.href).toEqual('kite-atom-internal://login');
-      expect(button.textContent).toEqual('Login now');
-    });
-
-    describe('clicking on the button', () => {
-      it('displays the kite login', () => {
-        const button = status.querySelector('a.btn');
-
-        spyOn(app, 'login');
-        click(button);
-
-        expect(app.login).toHaveBeenCalled();
-      });
-
-      it('closes the status panel', () => {
-        const button = status.querySelector('a.btn');
-
-        spyOn(app, 'login');
-        click(button);
-
-        expect(status.parentNode).toBeNull();
-      });
     });
   });
 });

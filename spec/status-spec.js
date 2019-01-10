@@ -2,9 +2,8 @@
 
 const KiteConnect = require('kite-connector');
 const Status = require('../lib/status');
-const {withKite, withKiteRoutes, withKitePaths} = require('kite-api/test/helpers/kite');
+const {withKite, withKiteRoutes} = require('kite-api/test/helpers/kite');
 const {fakeResponse} = require('kite-api/test/helpers/http');
-const {jsonPath} = require('./json/utils');
 
 describe('status', () => {
   let status, kite;
@@ -156,42 +155,6 @@ describe('status', () => {
         });
       });
     });
-
-    withKite({logged: true}, () => {
-      withKitePaths({whitelist: [__dirname]}, undefined, () => {
-        let editor, lastCount;
-
-        activateModule();
-
-        beforeEach(() => {
-          waitsForPromise(() => atom.workspace.open('sample.py').then(e => {
-            editor = e;
-            advanceClock(10);
-          }));
-          waitsFor(() => kite.getModule('editors').isEditorWhitelisted(editor));
-        });
-
-        describe('when the whitelist state of the file changes', () => {
-          withKiteRoutes([[() => true, () => fakeResponse(403)]]);
-
-          beforeEach(() => {
-            waitsFor('previous poll end', () => !status.isPolling);
-            runs(() => {
-              lastCount = status.pollStatus.callCount;
-            });
-          });
-
-          it('poll the status on the change', () => {
-            const editor = atom.workspace.getActiveTextEditor();
-            const pos = editor.getBuffer().positionForCharacterIndex(4);
-            editor.setCursorBufferPosition(pos);
-            advanceClock(10);
-
-            waitsFor('new status poll', () => status.pollStatus.callCount > lastCount);
-          });
-        });
-      });
-    });
   });
 
   describe('.pollStatus()', () => {
@@ -265,91 +228,73 @@ describe('status', () => {
         });
       });
 
-      withKite({logged: false}, () => {
-        withKiteRoutes([[() => true, () => fakeResponse(401)]]);
+      withKite({reachable: true}, () => {
+        withKiteRoutes([[
+          o => /^\/clientapi\/status/.test(o.path),
+          () => fakeResponse(200, '{"status": "ready"}'),
+        ]]);
 
-        it('changes its status to REACHABLE', () => {
+        it('changes its status to READY', () => {
           waitsForPromise(() => status.pollStatus().then(() => {
             const element = status.getElement();
-            expect(status.tooltipText).toEqual('Kite is not authenticated');
-            expect(element.getAttribute('status')).toEqual('reachable');
-            expect(element.querySelector('.text').textContent).toEqual('Kite: not logged in');
+            expect(status.tooltipText).toEqual('Kite is ready.');
+            expect(element.getAttribute('status')).toEqual('ready');
+            expect(element.querySelector('.text').textContent).toEqual('');
           }));
         });
       });
 
-      withKite({logged: true}, () => {
-        withKitePaths({}, undefined, () => {
-          withKiteRoutes([[() => true, () => fakeResponse(403)]]);
+      describe('when the file status is ready', () => {
+        withKite({reachable: true}, () => {
+          withKiteRoutes([[
+            o => /^\/clientapi\/status/.test(o.path),
+            () => fakeResponse(200, '{"status": "ready"}'),
+          ]]);
 
-          it('changes its status to AUTHENTICATED', () => {
+          it('changes its status to ready', () => {
             waitsForPromise(() => status.pollStatus().then(() => {
               const element = status.getElement();
-              expect(status.tooltipText).toEqual('');
-              expect(element.getAttribute('status')).toEqual('authenticated');
+              expect(status.tooltipText).toEqual('Kite is ready.');
+              expect(element.getAttribute('status')).toEqual('ready');
+              expect(element.querySelector('.text').textContent).toEqual('');
+            }));
+          });
+        });
+      });
+      describe('when the file status is syncing', () => {
+        withKite({reachable: true}, () => {
+          withKiteRoutes([[
+            o => /^\/clientapi\/status/.test(o.path),
+            () => fakeResponse(200, '{"status": "syncing"}'),
+          ]]);
+
+          it('changes its status to syncing', () => {
+            waitsForPromise(() => status.pollStatus().then(() => {
+              const element = status.getElement();
+              expect(status.tooltipText).toEqual('Kite engine is syncing your code');
+              expect(element.getAttribute('status')).toEqual('ready');
+              expect(element.getAttribute('is-syncing')).toEqual('');
               expect(element.querySelector('.text').textContent).toEqual('');
             }));
           });
         });
       });
 
-      describe('when the file status is ready', () => {
-        withKite({logged: true}, () => {
-          withKitePaths({whitelist: [__dirname]}, undefined, () => {
-            withKiteRoutes([[
-              o => /^\/clientapi\/status/.test(o.path),
-              () => fakeResponse(200, '{"status": "ready"}'),
-            ]]);
-
-            it('changes its status to WHITELISTED', () => {
-              waitsForPromise(() => status.pollStatus().then(() => {
-                const element = status.getElement();
-                expect(status.tooltipText).toEqual('Kite is ready');
-                expect(element.getAttribute('status')).toEqual('whitelisted');
-                expect(element.querySelector('.text').textContent).toEqual('');
-              }));
-            });
-          });
-        });
-      });
-      describe('when the file status is syncing', () => {
-        withKite({logged: true}, () => {
-          withKitePaths({whitelist: [__dirname]}, undefined, () => {
-            withKiteRoutes([[
-              o => /^\/clientapi\/status/.test(o.path),
-              () => fakeResponse(200, '{"status": "syncing"}'),
-            ]]);
-
-            it('changes its status to syncing WHITELISTED', () => {
-              waitsForPromise(() => status.pollStatus().then(() => {
-                const element = status.getElement();
-                expect(status.tooltipText).toEqual('Kite engine is syncing your code');
-                expect(element.getAttribute('status')).toEqual('whitelisted');
-                expect(element.getAttribute('is-syncing')).toEqual('');
-                expect(element.querySelector('.text').textContent).toEqual('');
-              }));
-            });
-          });
-        });
-      });
-
       describe('when the file status is indexing', () => {
-        withKite({logged: true}, () => {
-          withKitePaths({whitelist: [__dirname]}, undefined, () => {
-            withKiteRoutes([[
-              o => /^\/clientapi\/status/.test(o.path),
-              () => fakeResponse(200, '{"status": "indexing"}'),
-            ]]);
+        withKite({reachable: true}, () => {
+          withKiteRoutes([[
+            o => /^\/clientapi\/status/.test(o.path),
+            () => fakeResponse(200, '{"status": "indexing"}'),
+          ]]);
 
-            it('changes its status to indexing WHITELISTED', () => {
-              waitsForPromise(() => status.pollStatus().then(() => {
-                const element = status.getElement();
-                expect(status.tooltipText).toEqual('Kite engine is indexing your code');
-                expect(element.getAttribute('status')).toEqual('whitelisted');
-                expect(element.getAttribute('is-indexing')).toEqual('');
-                expect(element.querySelector('.text').textContent).toEqual('');
-              }));
-            });
+          it('changes its status to indexing', () => {
+            waitsForPromise(() => status.pollStatus().then(() => {
+              const element = status.getElement();
+              expect(status.tooltipText).toEqual('Kite engine is indexing your code');
+              expect(element.getAttribute('status')).toEqual('ready');
+              expect(element.getAttribute('is-indexing')).toEqual('');
+              expect(element.querySelector('.text').textContent).toEqual('');
+            }));
           });
         });
       });
@@ -360,21 +305,19 @@ describe('status', () => {
           waitsForPromise(() => atom.workspace.open('sample.py'));
         });
 
-        withKite({logged: true}, () => {
-          withKitePaths({whitelist: __dirname}, undefined, () => {
-            withKiteRoutes([[
-              o => /^\/clientapi\/status/.test(o.path),
-              () => fakeResponse(200, '{"status": "ready"}'),
-            ]]);
+        withKite({reachable: true}, () => {
+          withKiteRoutes([[
+            o => /^\/clientapi\/status/.test(o.path),
+            () => fakeResponse(200, '{"status": "ready"}'),
+          ]]);
 
-            it('changes its status to indexing WHITELISTED', () => {
-              waitsForPromise(() => status.pollStatus().then(() => {
-                const element = status.getElement();
-                expect(status.tooltipText).toEqual('The current file is too large for Kite to handle');
-                expect(element.getAttribute('status')).toEqual('whitelisted');
-                expect(element.querySelector('.text').textContent).toEqual('');
-              }));
-            });
+          it('changes its status to indexing', () => {
+            waitsForPromise(() => status.pollStatus().then(() => {
+              const element = status.getElement();
+              expect(status.tooltipText).toEqual('The current file is too large for Kite to handle');
+              expect(element.getAttribute('status')).toEqual('ready');
+              expect(element.querySelector('.text').textContent).toEqual('');
+            }));
           });
         });
       });

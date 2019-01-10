@@ -57,24 +57,12 @@ describe('KiteApp', () => {
       });
     });
 
-    withKite({logged: false}, () => {
-      it('returns a promise that is resolved with REACHABLE state', () => {
+    withKite({reachable: true}, () => {
+      it('returns a promise that is resolved with READY state', () => {
         waitsForPromise(() => app.connect().then(state => {
-          expect(state).toEqual(KiteAPI.STATES.REACHABLE);
+          expect(state).toEqual(KiteAPI.STATES.READY);
           expect(changeSpy)
-          .toHaveBeenCalledWith(KiteAPI.STATES.REACHABLE);
-
-          expect(readySpy).not.toHaveBeenCalled();
-        }));
-      });
-    });
-
-    withKite({logged: true}, () => {
-      it('returns a promise that is resolved with AUTHENTICATED state', () => {
-        waitsForPromise(() => app.connect().then(state => {
-          expect(state).toEqual(KiteAPI.STATES.AUTHENTICATED);
-          expect(changeSpy)
-          .toHaveBeenCalledWith(KiteAPI.STATES.AUTHENTICATED);
+          .toHaveBeenCalledWith(KiteAPI.STATES.READY);
 
           expect(readySpy).toHaveBeenCalled();
         }));
