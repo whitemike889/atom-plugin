@@ -47,15 +47,13 @@
     display: none;
   }
 
-  &[status="whitelisted"],
-  &[status="authenticated"] {
+  &[status="ready"] {
     kite-logo svg path,
     kite-logo svg polygon {
       fill: @text-color;
     }
   }
 
-  &[status="reachable"],
   &[status="uninstalled"],
   &[status="running"],
   &[status="installed"] {
