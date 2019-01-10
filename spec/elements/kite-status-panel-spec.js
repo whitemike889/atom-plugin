@@ -1,6 +1,7 @@
 'use strict';
 
-const {withKite} = require('kite-api/test/helpers/kite');
+const {withKite, withKiteRoutes} = require('kite-api/test/helpers/kite');
+const {fakeResponse} = require('kite-connector/test/helpers/http');
 const {click} = require('../helpers/events');
 
 describe('KiteStatusPanel', () => {
@@ -51,6 +52,44 @@ describe('KiteStatusPanel', () => {
     });
   });
 
+  withKite({reachable: true}, () => {
+    withKiteRoutes([
+      [o => o.path === '/clientapi/user', o => fakeResponse(401)],
+    ]);
+
+    beforeEach(() => {
+      waitsForPromise(() => status.show());
+    });
+
+    it('displays an action to log into kited', () => {
+      const state = status.querySelector('.status');
+
+      const button = state.querySelector('a');
+
+      expect(button.href).toEqual('kite-atom-internal://login');
+      expect(button.textContent).toEqual('Login now');
+    });
+
+    describe('clicking on the button', () => {
+      it('displays the kite login', () => {
+        const button = status.querySelector('a.btn');
+
+        spyOn(app, 'login');
+        click(button);
+
+        expect(app.login).toHaveBeenCalled();
+      });
+
+      it('closes the status panel', () => {
+        const button = status.querySelector('a.btn');
+
+        spyOn(app, 'login');
+        click(button);
+
+        expect(status.parentNode).toBeNull();
+      });
+    });
+  });
 
   withKite({running: false}, () => {
     beforeEach(() => {
