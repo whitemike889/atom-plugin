@@ -1,6 +1,6 @@
 # Kite Python Assistant
 
-Kite is an AI-powered programming assistant that helps you write Python code inside Atom. The 
+Kite is an AI-powered programming assistant that helps you write Python code inside Atom. The
 [Kite Engine](https://kite.com/) needs to be installed in order for the package to work properly. The package itself
 provides the frontend that interfaces with the Kite Engine, which performs all the code analysis and machine learning.
 
@@ -10,7 +10,7 @@ provides the frontend that interfaces with the Kite Engine, which performs all t
 Kite's goal is to help you write code faster by showing you the right information at the right time. At a high level,
 Kite provides you with:
 * 🧠 __Smart autocompletions__ powered by machine learning models trained on the entire open source code universe
-* 👀 __Advanced function signatures__ that show you not only the official signature of a function, but also the most 
+* 👀 __Advanced function signatures__ that show you not only the official signature of a function, but also the most
 popular ways other developers call the function
 * 🔍 __Instant documentation__ for the symbol underneath your cursor
 
@@ -114,8 +114,8 @@ If you wish, you may also setup keybindings for the commands listed above.
 
 ## Configuration
 
-You can view and change the Kite Assistant's settings by finding Kite in your list of installed packages. Alternatively, 
-you can run the command `Kite: Package Settings` from the command palette.
+You can view and change the Kite Assistant's settings by finding Kite in your list of installed packages, then clicking
+the `Settings` button. Alternatively, you can run the command `Kite: Package Settings` from the command palette.
 
 
 ## Contact Us
