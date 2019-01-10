@@ -3,8 +3,8 @@ menu: [
   submenu: [
     label: 'Kite'
     submenu: [
-      {label: 'Settings', command: 'kite:general-settings'}
-      {label: 'Permissions', command: 'kite:permissions'}
+      {label: 'Package Settings', command: 'kite:package-settings'},
+      {label: 'Engine Settings', command: 'kite:engine-settings'}
     ]
   ]
 ]
