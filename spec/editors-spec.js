@@ -2,7 +2,7 @@
 
 const path = require('path');
 const KiteAPI = require('kite-api');
-const {withKite, withKiteRoutes, withKitePaths} = require('kite-api/test/helpers/kite');
+const {withKite, withKiteRoutes} = require('kite-api/test/helpers/kite');
 const {fakeResponse} = require('kite-api/test/helpers/http');
 const KiteEditors = require('../lib/editors');
 const {languagesPath} = require('../lib/urls');
@@ -103,10 +103,6 @@ describe('editors module', () => {
           });
         });
 
-        it('sets the file whitelist state to undefined until it gets a response from kited', () => {
-          expect(module.isEditorWhitelisted(editor)).toBeUndefined();
-        });
-
         describe('when the editor is destroyed', () => {
           beforeEach(() => {
             editor.destroy();
@@ -116,62 +112,37 @@ describe('editors module', () => {
             expect(module.kiteEditorForEditor(editor)).toBeUndefined();
           });
         });
-
-        describe('for a whitelisted file', () => {
-          withKitePaths({
-            whitelist: [__dirname],
-          }, undefined, () => {
-            beforeEach(() => {
-              advanceClock(10);
-              sleep(50);
-            });
-
-            it('register the file as whitelisted', () => {
-              expect(module.isEditorWhitelisted(editor)).toBeTruthy();
-            });
-
-            describe('when the editor is destroyed', () => {
-              beforeEach(() => {
-                editor.destroy();
-              });
-
-              it('resets the whitelist state for that editor', () => {
-                expect(module.isEditorWhitelisted(editor)).toBeUndefined();
-              });
-            });
-          });
-        });
-
-        describe('for a non whitelisted file', () => {
-          withKitePaths({whitelist: []}, undefined, () => {
-            beforeEach(() => {
-              advanceClock(10);
-              sleep(50);
-            });
-
-            it('register the file as whitelisted', () => {
-              expect(module.isEditorWhitelisted(editor)).toBe(false);
-            });
-          });
-        });
       });
 
       describe('opening a file without path', () => {
-        withKitePaths({
-          whitelist: [__dirname],
-        }, undefined, () => {
-          beforeEach(() => {
-            waitsForPromise(() => module.init());
-            waitsForPromise(() => atom.workspace.open());
-          });
+        beforeEach(() => {
+          waitsForPromise(() => module.init());
+          waitsForPromise(() => atom.workspace.open());
+        });
 
-          describe('when the file is saved', () => {
-            let editor;
-            describe('as a supported file', () => {
+        describe('when the file is saved', () => {
+          let editor;
+          describe('as a supported file', () => {
+            beforeEach(() => {
+              editor = atom.workspace.getActiveTextEditor();
+              spyOn(editor, 'getPath')
+              .andReturn(path.join(__dirname, 'file.py'));
+              editor.emitter.emit('did-change-path', editor.getPath());
+              advanceClock(200);
+              sleep(100);
+              runs(() => {
+                advanceClock(200);
+              });
+            });
+
+            it('subscribes to the editor events', () => {
+              expect(module.hasEditorSubscription(editor)).toBeTruthy();
+            });
+
+            describe('changing it again to an unsupported file type', () => {
               beforeEach(() => {
                 editor = atom.workspace.getActiveTextEditor();
-                spyOn(editor, 'getPath')
-                .andReturn(path.join(__dirname, 'file.py'));
+                editor.getPath.andReturn(path.join(__dirname, 'file.json'));
                 editor.emitter.emit('did-change-path', editor.getPath());
                 advanceClock(200);
                 sleep(100);
@@ -180,39 +151,22 @@ describe('editors module', () => {
                 });
               });
 
-              it('subscribes to the editor events', () => {
-                expect(module.hasEditorSubscription(editor)).toBeTruthy();
-              });
-
-              describe('changing it again to an unsupported file type', () => {
-                beforeEach(() => {
-                  editor = atom.workspace.getActiveTextEditor();
-                  editor.getPath.andReturn(path.join(__dirname, 'file.json'));
-                  editor.emitter.emit('did-change-path', editor.getPath());
-                  advanceClock(200);
-                  sleep(100);
-                  runs(() => {
-                    advanceClock(200);
-                  });
-                });
-
-                it('unsubscribes from the editor events', () => {
-                  expect(module.hasEditorSubscription(editor)).toBeFalsy();
-                });
-              });
-            });
-
-            describe('as an unsupported file', () => {
-              beforeEach(() => {
-                editor = atom.workspace.getActiveTextEditor();
-                spyOn(editor, 'getPath')
-                .andReturn(path.join(__dirname, 'file.json'));
-                editor.emitter.emit('did-change-path', editor.getPath());
-              });
-
-              it('does not subscribe to the editor events', () => {
+              it('unsubscribes from the editor events', () => {
                 expect(module.hasEditorSubscription(editor)).toBeFalsy();
               });
+            });
+          });
+
+          describe('as an unsupported file', () => {
+            beforeEach(() => {
+              editor = atom.workspace.getActiveTextEditor();
+              spyOn(editor, 'getPath')
+              .andReturn(path.join(__dirname, 'file.json'));
+              editor.emitter.emit('did-change-path', editor.getPath());
+            });
+
+            it('does not subscribe to the editor events', () => {
+              expect(module.hasEditorSubscription(editor)).toBeFalsy();
             });
           });
         });

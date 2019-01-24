@@ -569,84 +569,6 @@ function withKiteNotAuthenticated(block) {
   });
 }
 
-function withKiteWhitelistedPaths(paths, block) {
-  if (typeof paths == 'function') {
-    block = paths;
-    paths = [];
-  }
-
-  const authRe = /^\/clientapi\/permissions\/authorized\?filename=(.+)$/;
-  const projectDirRe = /^\/clientapi\/projectdir\?filename=(.+)$/;
-  const notifyRe = /^\/clientapi\/permissions\/notify\?filename=(.+)$/;
-
-  const whitelisted = match => {
-    const path = match.replace(/:/g, '/');
-    return paths.some(p => path.indexOf(p) !== -1);
-  };
-
-  const routes = [
-    [
-      o => {
-        const match = authRe.exec(o.path);
-        return match && whitelisted(match[1]);
-      },
-      o => fakeResponse(200, JSON.stringify({tokens: []})),
-    ], [
-      o => {
-        const match = authRe.exec(o.path);
-        return match && !whitelisted(match[1]);
-      },
-      o => fakeResponse(403),
-    ], [
-      o => projectDirRe.test(o.path),
-      o => fakeResponse(200, os.homedir()),
-    ], [
-      o => notifyRe.test(o.path),
-      o => fakeResponse(200),
-    ],
-  ];
-
-  withKiteAuthenticated(routes, () => {
-    describe('with whitelisted paths', () => {
-      block();
-    });
-  });
-}
-
-function withKiteIgnoredPaths(paths) {
-  const authRe = /^\/clientapi\/permissions\/authorized\?filename=(.+)$/;
-  const ignored = match => {
-    const path = match.replace(/:/g, '/');
-    return paths.some(p => path.indexOf(p) !== -1);
-  };
-
-  withKiteBlacklistedPaths(paths);
-  withRoutes([
-    [
-      o => {
-        const match = authRe.exec(o.path);
-        return o.method === 'GET' && match && ignored(match[1]);
-      },
-      o => fakeResponse(403),
-    ],
-  ]);
-}
-
-function withKiteBlacklistedPaths(paths) {
-  const notifyRe = /^\/clientapi\/permissions\/notify\?filename=(.+)$/;
-  const blacklisted = path => paths.some(p => path.indexOf(p) !== -1);
-
-  withRoutes([
-    [
-      o => {
-        const match = notifyRe.exec(o.path);
-        return o.method === 'GET' && match && blacklisted(match[1]);
-      },
-      o => fakeResponse(403),
-    ],
-  ]);
-}
-
 function withRoutes(routes) {
   beforeEach(function() {
     routes.reverse().forEach(route => this.routes.unshift(route));
@@ -681,7 +603,6 @@ module.exports = {
 
   withKiteReachable, withKiteNotReachable,
   withKiteAuthenticated, withKiteNotAuthenticated,
-  withKiteWhitelistedPaths, withKiteBlacklistedPaths, withKiteIgnoredPaths,
   withFakeServer, withRoutes,
   sleep, newCallTo,
 };

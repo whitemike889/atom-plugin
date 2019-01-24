@@ -4,7 +4,7 @@ const path = require('path');
 const KiteAPI = require('kite-api');
 const KiteConnect = require('kite-connector');
 
-const {withKite, withKitePaths, withKiteRoutes} = require('kite-api/test/helpers/kite');
+const {withKite, withKiteRoutes} = require('kite-api/test/helpers/kite');
 const {fakeResponse} = require('kite-connector/test/helpers/http');
 const {jsonPath, walk, describeForTest, featureSetPath, substituteFromContext, buildContext, inLiveEnvironment} = require('./json/utils');
 const NodeClient = require('kite-connector/lib/clients/node');
@@ -76,14 +76,6 @@ function kiteSetup(setup) {
   }
 }
 
-function pathsSetup(setup) {
-  return {
-    whitelist: setup.whitelist && setup.whitelist.map(p => jsonPath(p)),
-    blacklist: setup.blacklist && setup.blacklist.map(p => jsonPath(p)),
-    ignored: setup.ignored && setup.ignored.map(p => jsonPath(p)),
-  };
-}
-
 function buildTest(data, file) {
   if (data.live_environment === false) {
     return;
@@ -127,27 +119,25 @@ function buildTest(data, file) {
         }, () => {})();
       };
       if (!inLiveEnvironment() && /reachable|authenticated/.test(data.setup.kited)) {
-        withKitePaths(pathsSetup(data.setup), undefined, () => {
-          if (data.setup.routes) {
-            withKiteRoutes(data.setup.routes.map(r => {
-              const reg = new RegExp(substituteFromContext(r.match, buildContext()));
+        if (data.setup.routes) {
+          withKiteRoutes(data.setup.routes.map(r => {
+            const reg = new RegExp(substituteFromContext(r.match, buildContext()));
 
-              return [
-                o => reg.test(o.path),
-                o => {
-                  if (r.response.body) {
-                    const body = require(jsonPath(r.response.body));
-                    return fakeResponse(r.response.status, JSON.stringify(body));
-                  } else {
-                    return fakeResponse(r.response.status);
-                  }
-                },
-              ];
+            return [
+              o => reg.test(o.path),
+              o => {
+                if (r.response.body) {
+                  const body = require(jsonPath(r.response.body));
+                  return fakeResponse(r.response.status, JSON.stringify(body));
+                } else {
+                  return fakeResponse(r.response.status);
+                }
+              },
+            ];
 
-            }));
-          }
-          block();
-        });
+          }));
+        }
+        block();
       } else {
         block();
       }

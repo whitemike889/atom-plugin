@@ -19,10 +19,6 @@ module.exports = (action, testData) => {
       waitsFor('kite editor', () =>
       !/\.py$/.test(action.properties.file) ||
       Kite.getModule('editors').kiteEditorForEditor(editor), 50);
-
-      waitsFor('kite whitelist state', () =>
-      !/\.py$/.test(action.properties.file) ||
-      Kite.getModule('editors').whitelistedEditorByID[editor.id] != undefined, 50);
     }
   });
 };
