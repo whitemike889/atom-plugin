@@ -133,6 +133,6 @@
     "fbjs": "^0.8.6",
     "javascript-obfuscator": "^0.8.3",
     "sinon": "^2.3.5",
-    "editors-json-tests": "git://github.com/kiteco/editors-json-tests.git#whitelist-removal"
+    "editors-json-tests": "^2.0.0"
   }
 }
