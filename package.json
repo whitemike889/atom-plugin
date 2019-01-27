@@ -14,51 +14,29 @@
     "lint:fix": "eslint --fix ."
   },
   "configSchema": {
-    "editorMetricsEnabled": {
-      "type": "string",
-      "enum": [
-        "not specified",
-        "yes",
-        "no"
-      ],
-      "default": "not specified",
-      "title": "Editor metrics enabled",
-      "description": "Kite can periodically send information to our servers about the status of the Kite application to ensure that is is running correctly"
-    },
     "showWelcomeNotificationOnStartup": {
       "type": "boolean",
       "default": true,
-      "title": "Show welcome features on startup",
-      "description": "Whether to display the Kite welcome features on startup"
-    },
-    "showEditorVacanciesNotificationOnStartup": {
-      "type": "boolean",
-      "default": true,
-      "title": "Notify me when Kite supports other editors",
-      "description": "Kite can notify me on startup if it is available for other editors on my system"
+      "title": "Show welcome notification on startup",
+      "description": "Whether or not to show the Kite welcome notification on startup."
     },
     "enableCompletions": {
       "type": "boolean",
       "default": true,
       "title": "Enable completions",
-      "description": "Show auto-completions from Kite as Atom suggestions"
+      "description": "Automatically show completions from Kite as you type."
     },
     "enableHoverUI": {
       "type": "boolean",
       "default": true,
-      "title": "Enable hover info",
-      "description": "Show hover information when placing the mouse over a programming expression"
+      "title": "Enable hover",
+      "description": "Show a quick summary of a symbol when you hover your mouse over it."
     },
     "maxVisibleSuggestionsAlongSignature": {
       "type": "integer",
-      "default": 3,
-      "title": "Max visible suggestions along signature"
-    },
-    "hideDocumentationWhenSignatureIsAvailable": {
-      "type": "boolean",
-      "default": true,
-      "title": "Hide documentation when signature is available",
-      "description": "Display only signature if both the signature and documentation are available at the same time"
+      "default": 5,
+      "title": "Completions limit with function signature",
+      "description": "Maximum number of completions that can be shown when a function signature is also shown."
     },
     "loggingLevel": {
       "type": "string",
@@ -72,25 +50,27 @@
         "error"
       ],
       "title": "Logging level",
-      "description": "The verbosity level of Kite logs"
+      "description": "The verbosity level of Kite logs."
     },
     "pollingInterval": {
       "type": "integer",
       "default": 15000,
       "min": 1000,
       "max": 60000,
-      "title": "Polling interval"
+      "title": "Polling interval",
+      "description": "Interval in milliseconds at which the Kite package polls Kite Engine to get the status of the current file."
     },
     "developerMode": {
       "type": "boolean",
       "default": false,
       "title": "Developer mode",
-      "description": "Enable Kite developer mode, displaying received data in the various UIs"
+      "description": "Displays JSON data from Kite Engine that's used when rendering a UI element."
     },
     "startKiteAtStartup": {
       "type": "boolean",
       "default": true,
-      "description": "Automatically start Kite process on startup if it's not already running."
+      "title": "Start Kite Engine on startup",
+      "description": "Automatically start Kite Engine on editor startup if it's not already running."
     }
   },
   "providedServices": {
