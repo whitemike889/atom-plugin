@@ -61,29 +61,29 @@ describe('KiteStatusPanel', () => {
       waitsForPromise(() => status.show());
     });
 
-    it('displays an action to log into kited', () => {
+    it('displays an action to open the copilot to log into kited', () => {
       const state = status.querySelector('.status');
 
       const button = state.querySelector('a');
 
-      expect(button.href).toEqual('kite-atom-internal://login');
+      expect(button.href).toEqual('kite-atom-internal://open-copilot-settings');
       expect(button.textContent).toEqual('Login now');
     });
 
     describe('clicking on the button', () => {
-      it('displays the kite login', () => {
+      it('displays the kite copilot settings', () => {
         const button = status.querySelector('a.btn');
 
-        spyOn(app, 'login');
+        spyOn(app, 'copilotSettings');
         click(button);
 
-        expect(app.login).toHaveBeenCalled();
+        expect(app.copilotSettings).toHaveBeenCalled();
       });
 
       it('closes the status panel', () => {
         const button = status.querySelector('a.btn');
 
-        spyOn(app, 'login');
+        spyOn(app, 'copilotSettings');
         click(button);
 
         expect(status.parentNode).toBeNull();
