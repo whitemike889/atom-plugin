@@ -14,13 +14,27 @@ kite-signature {
   h4 {
     font-size: 0.8em;
     margin: 10px 0 2px;
+
+    .popular-patterns-toggle {
+      font-size: 1.0em;
+      font-weight: 700;
+      padding: 0 5px;
+      color: @text-color;
+      vertical-align: top;
+    }
   }
 
   .kite-signature-wrapper {
     margin: 0;
+
+    kite-links {
+      a {
+        flex: none;
+      }
+    }
   }
 
-  pre {
+  pre, code {
     padding: 0;
     background: transparent;
     cursor: default;
@@ -38,6 +52,16 @@ kite-signature {
     .line {
       white-space: pre-wrap;
       word-break: break-word;
+    }
+  }
+
+  .return-types-container {
+    .return-type {
+      color: @syntax-color-value;
+    }
+    .type-separator {
+      color: @text-color-subtle;
+      padding: 0 0.2em;
     }
   }
 
@@ -76,6 +100,19 @@ kite-signature {
       margin: 0; // Overrides -1em; maybe not the right place to use kite-links?
     }
 
+    code {
+      padding: 0;
+
+      a {
+        padding: 0 0.3em;
+      }
+
+      .type-separator {
+        padding: 0 2.3em 0 0em;
+        color: @text-color-subtle;
+      }
+    }
+
     dl {
       overflow-y: auto;
       max-height: 200px;
@@ -92,6 +129,10 @@ kite-signature {
       &.highlight .parameter-name {
         color: @text-color-highlight;
       }
+
+      &.split-line {
+        line-height: 0.8em;
+      }
     }
   }
 
@@ -100,7 +141,18 @@ kite-signature {
   }
 
   section.patterns {
+    display: none;
+
+    &.visible {
+      display: block !important;
+    }
+
     margin-bottom: 12px;
+
+    h4 .title:hover {
+      color: @text-color;
+      cursor: pointer;
+    }
   }
 
   h4 {

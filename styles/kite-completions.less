@@ -1,0 +1,94 @@
+@import './variables';
+
+// Below is the HTML / CSS class structure for atom's autocomplete
+// so that we can hack its UI for our needs
+autocomplete-suggestion-list {
+  
+  .suggestion-list-scroller {
+    
+    ol {
+
+      &.list-group {
+
+        li {
+          font-size: 0.8em;
+
+          &.selected {}
+
+          .icon-container {
+            i.icon {
+
+              &.module {
+
+              }
+
+              &.function {
+
+              }
+
+              &.type {
+                
+              }
+
+              .icon-package {
+
+              }
+              .icon-letter {
+
+              }
+            } 
+          }
+
+          .left-label {
+
+          }
+
+          .right-label {
+            float: right;
+            .kind {
+              .type {
+
+              }
+              .separator {
+                padding: 0 0.2em;
+              }
+            }
+          }
+
+          .word-container {
+            .word {
+              .character-match {}
+            }
+          }
+
+        }
+
+      }
+
+    }
+
+  }
+
+}
+
+autocomplete-suggestion-list.select-list.popover-list .suggestion-description.kite-completions {
+  padding: @half-padding;
+  padding-left: @half-padding;
+  overflow: visible;
+  background: @app-background-color;
+}
+
+atom-text-editor[data-grammar="source python"] .autocomplete-suggestion-list.select-list.popover-list .kite-completions .suggestion-description-content {
+  white-space: normal !important;
+  padding-bottom: @half-padding;
+  padding-right: @half-padding;
+  .kite-completion-description {
+    font-size: 0.8em;
+    max-width: 600px;
+    line-height: var(--editor-line-height);
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+  }
+}
