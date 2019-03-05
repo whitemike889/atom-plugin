@@ -17,6 +17,24 @@ autocomplete-suggestion-list {
 
           .icon-container {
             i.icon {
+              position: relative;
+
+              &::after {
+                content: '';
+                display: block;
+                width: 6px;
+                height: 6px;
+                mask-image: url('atom://kite/assets/logo-completions.svg');
+                -webkit-mask-image: url('atom://kite/assets/logo-completions.svg');
+                mask-size: contain;
+                -webkit-mask-size: contain;
+                mask-repeat: no-repeat;
+                -webkit-mask-repeat: no-repeat;
+                background-color: @text-color-subtle;
+                position: absolute;
+                bottom: 6px;
+                right: 1px;
+              }
 
               &.module {
 
@@ -40,7 +58,7 @@ autocomplete-suggestion-list {
           }
 
           .left-label {
-
+            
           }
 
           .right-label {
