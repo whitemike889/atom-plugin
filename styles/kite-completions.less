@@ -10,8 +10,8 @@ autocomplete-suggestion-list {
 
       &.list-group {
 
-        li {
-          font-size: 0.8em;
+        li.kite-completion {
+          font-size: 1.0em;
 
           &.selected {}
 
@@ -22,18 +22,18 @@ autocomplete-suggestion-list {
               &::after {
                 content: '';
                 display: block;
-                width: 6px;
-                height: 6px;
+                width: 0.78em;
+                height: 0.78em;
                 mask-image: url('atom://kite/assets/logo-completions.svg');
                 -webkit-mask-image: url('atom://kite/assets/logo-completions.svg');
                 mask-size: contain;
                 -webkit-mask-size: contain;
                 mask-repeat: no-repeat;
                 -webkit-mask-repeat: no-repeat;
-                background-color: @text-color-subtle;
+                background-color: @text-color;
                 position: absolute;
-                bottom: 6px;
-                right: 1px;
+                bottom: 5px;
+                right: 0px;
               }
 
               &.module {
@@ -63,7 +63,10 @@ autocomplete-suggestion-list {
 
           .right-label {
             float: right;
+            position: relative;
+
             .kind {
+              padding-right: 0.25em;
               .type {
 
               }
@@ -98,7 +101,6 @@ autocomplete-suggestion-list.select-list.popover-list .suggestion-description.ki
 
 atom-text-editor[data-grammar="source python"] .autocomplete-suggestion-list.select-list.popover-list .kite-completions .suggestion-description-content {
   white-space: normal !important;
-  padding-bottom: @half-padding;
   padding-right: @half-padding;
   .kite-completion-description {
     font-size: 0.8em;

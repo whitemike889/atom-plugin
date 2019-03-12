@@ -26,7 +26,7 @@ kite-hover {
 
   code {
     font-family: var(--editor-font-family);
-    font-size: 0.8em;
+    font-size: 0.9em;
     line-height: var(--editor-line-height);
 
     padding: 0;
@@ -64,11 +64,10 @@ kite-hover {
       word-break: break-word;
     }
     .type { // TODO: Opportunity to unify CSS: This is very similar as elsewhere, with the exception of font size and different margins
-      font-size: 70%;
+      font-size: 90%;
       display: inline-block;
       flex: none;
-      padding: .3em .2em;
-      line-height: 1;
+      padding: 0em .2em;
       margin-right: -.2em;
       margin-left: 0.5em !important;
       pointer-events: none;
@@ -77,6 +76,7 @@ kite-hover {
 
     kite-logo {
       flex: none;
+      align-self: center;
 
       &.badge {
         margin: 0;
@@ -88,6 +88,7 @@ kite-hover {
     kite-links {
       flex: none;
       margin-left: 0.5em !important;
+      align-items: baseline;
 
       a, a:hover, a:active, a:focus {
         pointer-events: all;
@@ -95,6 +96,8 @@ kite-hover {
 
       a {
         color: @text-color-info;
+        padding-top: 0;
+        padding-bottom: 0;
       }
 
       a:last-of-type {

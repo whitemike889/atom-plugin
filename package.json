@@ -71,6 +71,18 @@
       "default": true,
       "title": "Start Kite Engine on startup",
       "description": "Automatically start Kite Engine on editor startup if it's not already running."
+    },
+    "signatureKwargsVisible": {
+      "type": "boolean",
+      "default": false,
+      "title": "Kite Signature panel **KW section",
+      "description": "Toggle visibility for the **KW section in the Kite Signature Panel"
+    },
+    "signaturePopularPatternsVisible": {
+      "type": "boolean",
+      "default": false,
+      "title": "Kite Signature panel Examples section",
+      "description": "Toggle visibility for the Examples section in the Kite Signature Panel" 
     }
   },
   "providedServices": {
