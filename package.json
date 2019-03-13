@@ -11,7 +11,8 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "lint:fix": "eslint --fix ."
+    "lint:fix": "eslint --fix .",
+    "clean-dev-install": "apm unlink && rm -rf node_modules && rm package-lock.json && apm install && apm link"
   },
   "configSchema": {
     "showWelcomeNotificationOnStartup": {
