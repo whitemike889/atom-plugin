@@ -43,8 +43,8 @@ kite-signature {
     padding: 0;
     background: transparent;
     cursor: default;
-    padding-left: 4ch;
-    text-indent: -4ch;
+    padding-left: 2ch;
+    text-indent: -2ch;
     font-size: 0.9em;
 
     -webkit-user-select: text;
@@ -121,6 +121,12 @@ kite-signature {
 
     dt {
       font-size: 1em;
+
+      code {
+        * {
+          font-size: inherit;
+        }
+      }
 
       & + dt {
         margin-top: 0;

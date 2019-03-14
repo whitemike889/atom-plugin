@@ -75,14 +75,14 @@
     "signatureKwargsVisible": {
       "type": "boolean",
       "default": false,
-      "title": "Kite Signature panel **KW section",
-      "description": "Toggle visibility for the **KW section in the Kite Signature Panel"
+      "title": "Show function keyword arguments",
+      "description": "Show inferred keyword arguments for a function when the function signature panel is shown"
     },
     "signaturePopularPatternsVisible": {
       "type": "boolean",
       "default": false,
-      "title": "Kite Signature panel Examples section",
-      "description": "Toggle visibility for the Examples section in the Kite Signature Panel" 
+      "title": "Show function call examples",
+      "description": "Show examples on how to call a function when the function signature panel is shown" 
     }
   },
   "providedServices": {
