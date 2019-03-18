@@ -18,12 +18,21 @@ kite-links {
   }
   a, a:hover, a:focus, a:active {
     color: @text-color-info;
-    font-size: 1rem;
+    font-size: 1.0rem;
     flex: 0;
     text-decoration: none !important;
     display: inline-block;
     padding: 1em 0.3em;
     margin: -1em 0;
+
+    .kite-link-icon {
+      color: @text-color-highlight !important;
+      padding-left: 2px;
+    }
+
+    .kite-link-icon:hover {
+      color: @text-color-highlight !important;
+    }
   }
   a:hover {
     color: @text-color-highlight !important;

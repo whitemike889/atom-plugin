@@ -72,6 +72,18 @@
       "default": true,
       "title": "Start Kite Engine on startup",
       "description": "Automatically start Kite Engine on editor startup if it's not already running."
+    },
+    "signatureKwargsVisible": {
+      "type": "boolean",
+      "default": false,
+      "title": "Show function keyword arguments",
+      "description": "Show inferred keyword arguments for a function when the function signature panel is shown"
+    },
+    "signaturePopularPatternsVisible": {
+      "type": "boolean",
+      "default": false,
+      "title": "Show function call examples",
+      "description": "Show examples on how to call a function when the function signature panel is shown" 
     }
   },
   "providedServices": {

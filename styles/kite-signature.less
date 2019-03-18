@@ -3,7 +3,7 @@
 
 kite-signature {
   display: block;
-  padding: @component-padding;
+  padding: @half-padding;
   background: @app-background-color;
   font-family: @font-family;
   max-width: 30em;
@@ -11,21 +11,41 @@ kite-signature {
 
   .kite-content;
 
+  .type-separator {
+    color: @text-color-subtle;
+    padding: 0 0.1em;
+  }
+
   h4 {
     font-size: 0.9em;
-    margin: 15px 0 2px;
+    margin: 10px 0 2px;
+
+    .popular-patterns-toggle, .kwargs-toggle {
+      font-size: 1.0em;
+      font-weight: 700;
+      padding: 0 5px;
+      color: @text-color;
+      vertical-align: top;
+    }
   }
 
   .kite-signature-wrapper {
     margin: 0;
+
+    kite-links {
+      a {
+        flex: none;
+      }
+    }
   }
 
-  pre {
+  pre, code {
     padding: 0;
     background: transparent;
     cursor: default;
-    padding-left: 4ch;
-    text-indent: -4ch;
+    padding-left: 2ch;
+    text-indent: -2ch;
+    font-size: 0.9em;
 
     -webkit-user-select: text;
     cursor: text;
@@ -38,6 +58,10 @@ kite-signature {
       white-space: pre-wrap;
       word-break: break-word;
     }
+  }
+
+  .return-type {
+    color: @syntax-color-value;
   }
 
   .parameter.ellipsis {
@@ -69,10 +93,24 @@ kite-signature {
 
   section.kwargs {
     display: none;
+    margin-bottom: 0;
 
     kite-links {
       text-align: left;
       margin: 0; // Overrides -1em; maybe not the right place to use kite-links?
+    }
+
+    h4 .title:hover {
+      color: @text-color;
+      cursor: pointer;
+    }
+
+    code {
+      padding: 0;
+
+      a {
+        padding: 0 0.3em;
+      }
     }
 
     dl {
@@ -84,6 +122,12 @@ kite-signature {
     dt {
       font-size: 1em;
 
+      code {
+        * {
+          font-size: inherit;
+        }
+      }
+
       & + dt {
         margin-top: 0;
       }
@@ -91,11 +135,29 @@ kite-signature {
       &.highlight .parameter-name {
         color: @text-color-highlight;
       }
+
+      &.split-line {
+        line-height: 0.8em;
+      }
     }
   }
 
   section.kwargs.visible {
     display: block;
+  }
+
+  section.patterns {
+    display: none;
+    margin-bottom: 0;
+
+    &.visible {
+      display: block !important;
+    }
+
+    h4 .title:hover {
+      color: @text-color;
+      cursor: pointer;
+    }
   }
 
   h4 {
@@ -108,6 +170,10 @@ kite-signature {
     a {
       color: inherit;
     }
+  }
+
+  a.parameter-type {
+    display: contents;
   }
 }
 

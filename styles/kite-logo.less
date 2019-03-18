@@ -2,6 +2,7 @@
 
 kite-logo {
   display: inline-block;
+  
 
   svg {
     display: inline-block;
@@ -9,7 +10,7 @@ kite-logo {
   }
 
   &.badge {
-    background: fadeout(@text-color-subtle, 40%);
+    background: fadeout(@app-background-color, 20%);
 
     // All the units are expressed in pixels, since ems or rems would cause
     // fat logo at times
@@ -24,7 +25,7 @@ kite-logo {
     margin-left: 10px;
 
     svg polygon {
-      fill: @app-background-color;
+      fill: @text-color-subtle;
     }
   }
 }
