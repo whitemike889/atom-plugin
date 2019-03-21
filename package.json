@@ -1,7 +1,7 @@
 {
   "name": "kite",
   "main": "./lib/kite",
-  "version": "0.152.0",
+  "version": "0.153.0",
   "description": "Python coding assistant featuring AI-powered autocompletions, advanced function signatures, and instant documentation",
   "repository": "https://github.com/kiteco/atom-plugin",
   "keywords": [],
@@ -83,7 +83,7 @@
       "type": "boolean",
       "default": false,
       "title": "Show function call examples",
-      "description": "Show examples on how to call a function when the function signature panel is shown" 
+      "description": "Show examples on how to call a function when the function signature panel is shown"
     }
   },
   "providedServices": {
