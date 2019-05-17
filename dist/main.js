@@ -93,7 +93,7 @@ module.exports =
  // Contents of this plugin will be reset by Kite on start.
 // Changes you make are not guaranteed to persist.
 
-let child_process, CompositeDisposable, AccountManager, Logger, completions, metrics, KiteApp, KiteStatusPanel, NotificationsCenter, RollbarReporter, OverlayManager, KiteEditors, DataLoader, DisposableEvent, Disposable, KiteAPI, VirtualCursor, NodeClient, KiteConnect, Status;
+let child_process, CompositeDisposable, AccountManager, Logger, completions, metrics, KiteApp, KiteStatusPanel, NotificationsCenter, RollbarReporter, OverlayManager, KiteEditors, DataLoader, KSG, DisposableEvent, Disposable, KiteAPI, VirtualCursor, NodeClient, KiteConnect, Status;
 const Kite = module.exports = {
   getModule(name) {
     return this.modules && this.modules[name];
@@ -159,14 +159,15 @@ const Kite = module.exports = {
       } = __webpack_require__(7));
       KiteApp = __webpack_require__(120);
       KiteAPI = __webpack_require__(121);
-      KiteConnect = __webpack_require__(170);
-      NodeClient = __webpack_require__(165);
-      NotificationsCenter = __webpack_require__(177);
-      RollbarReporter = __webpack_require__(186);
-      metrics = __webpack_require__(183);
-      DataLoader = __webpack_require__(188);
-      KiteEditors = __webpack_require__(194);
-      Status = __webpack_require__(205);
+      KiteConnect = __webpack_require__(122);
+      NodeClient = __webpack_require__(128);
+      NotificationsCenter = __webpack_require__(143);
+      RollbarReporter = __webpack_require__(152);
+      metrics = __webpack_require__(149);
+      DataLoader = __webpack_require__(154);
+      KiteEditors = __webpack_require__(160);
+      Status = __webpack_require__(171);
+      KSG = __webpack_require__(173);
     }
 
     metrics.featureRequested('starting'); // We store all the subscriptions into a composite disposable to release
@@ -185,7 +186,8 @@ const Kite = module.exports = {
     }
 
     this.registerModule('editors', new KiteEditors());
-    this.registerModule('status', new Status()); // run "apm upgrade kite"
+    this.registerModule('status', new Status());
+    this.registerModule('ksg', new KSG()); // run "apm upgrade kite"
 
     this.selfUpdate();
     this.app = new KiteApp(this);
@@ -278,12 +280,14 @@ const Kite = module.exports = {
 
     this.subscriptions.add(atom.commands.add('atom-text-editor[data-grammar="source python"]', {
       // Allow esc key to close expand view
+      // TODO: hook up to close KSG if open
       'core:cancel': () => {
         if (!OverlayManager) {
-          OverlayManager = __webpack_require__(202);
+          OverlayManager = __webpack_require__(168);
         }
 
         OverlayManager.dismiss();
+        this.closeKSG();
       },
       'kite:docs-at-cursor': () => {
         this.expandAtCursor();
@@ -296,6 +300,7 @@ const Kite = module.exports = {
 
     }));
     this.subscriptions.add(atom.commands.add('atom-workspace', {
+      'kite:ksg': () => this.toggleKSG(),
       'kite:tutorial': () => this.openKiteTutorial(true),
       'kite:engine-settings': () => this.openSettings(),
       'kite:open-copilot': () => this.openCopilot(),
@@ -309,6 +314,7 @@ const Kite = module.exports = {
       }
     })); // START
 
+    console.log('MUSAH');
     this.patchCompletions(); // onboarding handling
     //open kite onboarding if flag indicates so
 
@@ -402,7 +408,7 @@ const Kite = module.exports = {
 
   highlightWordAtPosition(editor, position, cls = '') {
     if (!VirtualCursor) {
-      VirtualCursor = __webpack_require__(199);
+      VirtualCursor = __webpack_require__(165);
     }
 
     const cursor = new VirtualCursor(editor, position);
@@ -431,7 +437,7 @@ const Kite = module.exports = {
     }
 
     if (!KiteStatusPanel) {
-      KiteStatusPanel = __webpack_require__(207);
+      KiteStatusPanel = __webpack_require__(177);
     }
 
     this.statusPanel = new KiteStatusPanel();
@@ -440,10 +446,24 @@ const Kite = module.exports = {
 
   completions() {
     if (!completions) {
-      completions = __webpack_require__(208);
+      completions = __webpack_require__(178);
     }
 
     return completions;
+  },
+
+  toggleKSG() {
+    const KSGModule = this.getModule('ksg');
+
+    if (KSGModule) {
+      const editor = atom.workspace.getActiveTextEditor();
+      KSGModule.visible ? KSGModule.hide() : KSGModule.show(editor);
+    }
+  },
+
+  closeKSG() {
+    const KSGModule = this.getModule('ksg');
+    KSGModule && KSGModule.hide();
   },
 
   openPermissions() {
@@ -6669,7 +6689,7 @@ module.exports = {
 /* 65 */
 /***/ (function(module) {
 
-module.exports = {"_from":"kite-installer@^3.2.0","_id":"kite-installer@3.8.0","_inBundle":false,"_integrity":"sha512-92rNi6BKMmBMRMzdd0ET1gBn7a7g6EYejTAuer+yq2f1Z4jnEAZH1JHeZgn/ukULUol5sCNdbUDVbAk7mbLxVQ==","_location":"/kite-installer","_phantomChildren":{"form-data":"2.3.3","md5":"2.2.1"},"_requested":{"type":"range","registry":true,"raw":"kite-installer@^3.2.0","name":"kite-installer","escapedName":"kite-installer","rawSpec":"^3.2.0","saveSpec":null,"fetchSpec":"^3.2.0"},"_requiredBy":["/"],"_resolved":"https://registry.npmjs.org/kite-installer/-/kite-installer-3.8.0.tgz","_shasum":"6a8c354b04a6a95d4577fdfee8ca4b3f94f754fb","_spec":"kite-installer@^3.2.0","_where":"/Users/edwardzhao/go/src/github.com/kiteco/atom-plugin","author":{"name":"Daniel Hung"},"bundleDependencies":false,"dependencies":{"kite-api":"2.14.0","kite-connector":"2.8.0","mixpanel":"^0.5.0","rollbar":"^2.4.4"},"deprecated":false,"description":"Javascript library to install and manage Kite","devDependencies":{"babel-eslint":"^7.1.1","codecov":"^1.0.0","eslint":"^3.6.0","eslint-config":"^0.3.0","eslint-config-fbjs":"^1.1.1","eslint-plugin-babel":"^4.0.0","eslint-plugin-flowtype":"^2.29.1","eslint-plugin-jasmine":"^2.2.0","eslint-plugin-prefer-object-spread":"^1.1.0","eslint-plugin-react":"^6.8.0","expect.js":"^0.3.1","fbjs":"^0.8.6","jsdom":"^9.8.3","mocha":"^5.2.0","mocha-jsdom":"^1.1.0","nyc":"^13.0.1","sinon":"^2.3.5"},"keywords":[],"license":"SEE LICENSE IN LICENSE","main":"./lib/index.js","name":"kite-installer","scripts":{"coverage":"npm run lcov_report && codecov","lcov_report":"nyc report --reporter=lcov","lint":"eslint .","lint:fix":"eslint --fix .","test":"nyc mocha --timeout 20000 --recursive test/*.test.js test/**/*.test.js","test-nocov":"mocha --timeout 20000 --recursive test/*.test.js test/**/*.test.js"},"version":"3.8.0"};
+module.exports = {"_from":"kite-installer@^3.2.0","_id":"kite-installer@3.8.0","_inBundle":false,"_integrity":"sha512-92rNi6BKMmBMRMzdd0ET1gBn7a7g6EYejTAuer+yq2f1Z4jnEAZH1JHeZgn/ukULUol5sCNdbUDVbAk7mbLxVQ==","_location":"/kite-installer","_phantomChildren":{"form-data":"2.3.3","md5":"2.2.1"},"_requested":{"type":"range","registry":true,"raw":"kite-installer@^3.2.0","name":"kite-installer","escapedName":"kite-installer","rawSpec":"^3.2.0","saveSpec":null,"fetchSpec":"^3.2.0"},"_requiredBy":["/"],"_resolved":"https://registry.npmjs.org/kite-installer/-/kite-installer-3.8.0.tgz","_shasum":"6a8c354b04a6a95d4577fdfee8ca4b3f94f754fb","_spec":"kite-installer@^3.2.0","_where":"/Users/dane/github/kite","author":{"name":"Daniel Hung"},"bundleDependencies":false,"dependencies":{"kite-api":"2.14.0","kite-connector":"2.8.0","mixpanel":"^0.5.0","rollbar":"^2.4.4"},"deprecated":false,"description":"Javascript library to install and manage Kite","devDependencies":{"babel-eslint":"^7.1.1","codecov":"^1.0.0","eslint":"^3.6.0","eslint-config":"^0.3.0","eslint-config-fbjs":"^1.1.1","eslint-plugin-babel":"^4.0.0","eslint-plugin-flowtype":"^2.29.1","eslint-plugin-jasmine":"^2.2.0","eslint-plugin-prefer-object-spread":"^1.1.0","eslint-plugin-react":"^6.8.0","expect.js":"^0.3.1","fbjs":"^0.8.6","jsdom":"^9.8.3","mocha":"^5.2.0","mocha-jsdom":"^1.1.0","nyc":"^13.0.1","sinon":"^2.3.5"},"keywords":[],"license":"SEE LICENSE IN LICENSE","main":"./lib/index.js","name":"kite-installer","scripts":{"coverage":"npm run lcov_report && codecov","lcov_report":"nyc report --reporter=lcov","lint":"eslint .","lint:fix":"eslint --fix .","test":"nyc mocha --timeout 20000 --recursive test/*.test.js test/**/*.test.js","test-nocov":"mocha --timeout 20000 --recursive test/*.test.js test/**/*.test.js"},"version":"3.8.0"};
 
 /***/ }),
 /* 66 */
@@ -7578,7 +7598,7 @@ var _ = __webpack_require__(84);
 var API = __webpack_require__(90);
 var logger = __webpack_require__(93);
 
-var transport = __webpack_require__(94);
+var Transport = __webpack_require__(94);
 var urllib = __webpack_require__(4);
 var jsonBackup = __webpack_require__(95);
 
@@ -7603,17 +7623,12 @@ function Rollbar(options, client) {
   logger.setVerbose(this.options.verbose);
   this.lambdaContext = null;
   this.lambdaTimeoutHandle = null;
+  var transport = new Transport();
   var api = new API(this.options, transport, urllib, jsonBackup);
   this.client = client || new Client(this.options, api, logger, 'server');
   addTransformsToNotifier(this.client.notifier);
   addPredicatesToQueue(this.client.queue);
-
-  if (this.options.captureUncaught || this.options.handleUncaughtExceptions) {
-    this.handleUncaughtExceptions();
-  }
-  if (this.options.captureUnhandledRejections || this.options.handleUnhandledRejections) {
-    this.handleUnhandledRejections();
-  }
+  this.setupUnhandledCapture();
 }
 
 var _instance = null;
@@ -7659,6 +7674,7 @@ Rollbar.prototype.configure = function(options, payloadData) {
   delete this.options.maxItems;
   logger.setVerbose(this.options.verbose);
   this.client.configure(options, payloadData);
+  this.setupUnhandledCapture();
   return this;
 };
 Rollbar.configure = function(options, payloadData) {
@@ -7880,7 +7896,10 @@ Rollbar.prototype.asyncLambdaHandler = function(handler, timeoutHandler) {
         self.lambdaTimeoutHandle = setTimeout(timeoutCb, context.getRemainingTimeInMillis() - 1000);
       }
       handler(event, context)
-        .then(function(resp) { resolve(resp); })
+        .then(function(resp) {
+          clearTimeout(self.lambdaTimeoutHandle);
+          resolve(resp);
+        })
         .catch(function(err) {
           self.error(err);
           self.wait(function() {
@@ -8094,11 +8113,24 @@ function _getFirstFunction(args) {
   return undefined;
 }
 
+Rollbar.prototype.setupUnhandledCapture = function() {
+  if (this.options.captureUncaught || this.options.handleUncaughtExceptions) {
+    this.handleUncaughtExceptions();
+  }
+  if (this.options.captureUnhandledRejections || this.options.handleUnhandledRejections) {
+    this.handleUnhandledRejections();
+  }
+};
+
 Rollbar.prototype.handleUncaughtExceptions = function() {
   var exitOnUncaught = !!this.options.exitOnUncaughtException;
   delete this.options.exitOnUncaughtException;
 
   addOrReplaceRollbarHandler('uncaughtException', function(err) {
+    if (!this.options.captureUncaught && !this.options.handleUncaughtExceptions) {
+      return;
+    }
+
     this._uncaughtError(err, function(err) {
       if (err) {
         logger.error('Encountered error while handling an uncaught exception.');
@@ -8117,6 +8149,10 @@ Rollbar.prototype.handleUncaughtExceptions = function() {
 
 Rollbar.prototype.handleUnhandledRejections = function() {
   addOrReplaceRollbarHandler('unhandledRejection', function(reason) {
+    if (!this.options.captureUnhandledRejections && !this.options.handleUnhandledRejections) {
+      return;
+    }
+
     this._uncaughtError(reason, function(err) {
       if (err) {
         logger.error('Encountered error while handling an uncaught exception.');
@@ -8185,7 +8221,7 @@ module.exports = Rollbar;
 /* 81 */
 /***/ (function(module) {
 
-module.exports = {"_from":"rollbar@^2.3.8","_id":"rollbar@2.6.1","_inBundle":false,"_integrity":"sha512-tFO12aLXqGhIxjSCJmgruZT/TfJCLs1Ewb/QqSlmUDrKAhp0d3STRKSkIZWlcy5ogUXekJ1jciFBbo7PTMSMqA==","_location":"/rollbar","_phantomChildren":{},"_requested":{"type":"range","registry":true,"raw":"rollbar@^2.3.8","name":"rollbar","escapedName":"rollbar","rawSpec":"^2.3.8","saveSpec":null,"fetchSpec":"^2.3.8"},"_requiredBy":["/","/kite-installer"],"_resolved":"https://registry.npmjs.org/rollbar/-/rollbar-2.6.1.tgz","_shasum":"0a41e10bab82af81e852fd35ed8c9dd45ff0b2e1","_spec":"rollbar@^2.3.8","_where":"/Users/edwardzhao/go/src/github.com/kiteco/atom-plugin","browser":"dist/rollbar.umd.min.js","bugs":{"url":"https://github.com/rollbar/rollbar.js/issues"},"bundleDependencies":false,"cdn":{"host":"cdnjs.cloudflare.com"},"defaults":{"endpoint":"api.rollbar.com/api/1/item/","browser":{"scrubFields":["pw","pass","passwd","password","secret","confirm_password","confirmPassword","password_confirmation","passwordConfirmation","access_token","accessToken","secret_key","secretKey","secretToken","cc-number","card number","cardnumber","cardnum","ccnum","ccnumber","cc num","creditcardnumber","credit card number","newcreditcardnumber","new credit card","creditcardno","credit card no","card#","card #","cc-csc","cvc2","cvv2","ccv2","security code","card verification","name on credit card","name on card","nameoncard","cardholder","card holder","name des karteninhabers","card type","cardtype","cc type","cctype","payment type","expiration date","expirationdate","expdate","cc-exp"]},"server":{"scrubHeaders":["authorization","www-authorization","http_authorization","omniauth.auth","cookie","oauth-access-token","x-access-token","x_csrf_token","http_x_csrf_token","x-csrf-token"],"scrubFields":["pw","pass","passwd","password","password_confirmation","passwordConfirmation","confirm_password","confirmPassword","secret","secret_token","secretToken","secret_key","secretKey","api_key","access_token","accessToken","authenticity_token","oauth_token","token","user_session_secret","request.session.csrf","request.session._csrf","request.params._csrf","request.cookie","request.cookies"]},"logLevel":"debug","reportLevel":"debug","uncaughtErrorLevel":"error","maxItems":0,"itemsPerMin":60},"dependencies":{"async":"~1.2.1","console-polyfill":"0.3.0","debug":"2.6.9","decache":"^3.0.5","error-stack-parser":"1.3.3","json-stringify-safe":"~5.0.0","lru-cache":"~2.2.1","request-ip":"~2.0.1","uuid":"3.0.x"},"deprecated":false,"description":"Error tracking and logging from JS to Rollbar","devDependencies":{"babel-core":"^6.26.3","babel-eslint":"^10.0.1","babel-loader":"^8.0.4","bluebird":"^3.3.5","browserstack-api":"0.0.5","chai":"^4.2.0","chalk":"^1.1.1","eslint":"^5.10.0","eslint-loader":"1.6.1","express":"^4.16.4","glob":"^5.0.14","grunt":"^1.0.3","grunt-blanket-mocha":"^1.0.0","grunt-bumpup":"^0.6.3","grunt-cli":"^1.3.2","grunt-contrib-concat":"~0.3.0","grunt-contrib-connect":"^2.0.0","grunt-contrib-copy":"~0.5.0","grunt-contrib-jshint":"^2.0.0","grunt-contrib-uglify":"^4.0.0","grunt-contrib-watch":"^1.1.0","grunt-express":"^1.4.1","grunt-karma":"^3.0.1","grunt-karma-coveralls":"^2.5.4","grunt-mocha":"^1.1.0","grunt-mocha-cov":"^0.4.0","grunt-parallel":"^0.5.1","grunt-saucelabs":"^9.0.0","grunt-tagrelease":"~0.3.0","grunt-text-replace":"^0.4.0","grunt-vows":"^0.4.2","grunt-webpack":"^1.0.11","istanbul-instrumenter-loader":"^2.0.0","jade":"~0.27.7","jasmine-core":"^2.3.4","jquery-mockjax":"^2.0.1","karma":"^4.0.1","karma-browserstack-launcher":"^0.1.5","karma-chai":"^0.1.0","karma-chrome-launcher":"^2.2.0","karma-expect":"^1.1.0","karma-firefox-launcher":"^0.1.6","karma-html2js-preprocessor":"^1.1.0","karma-jquery":"^0.1.0","karma-mocha":"^0.2.0","karma-mocha-reporter":"^1.1.1","karma-phantomjs-launcher":"^1.0.4","karma-requirejs":"^0.2.2","karma-safari-launcher":"^0.1.1","karma-sinon":"^1.0.4","karma-sourcemap-loader":"^0.3.5","karma-webpack":"^3.0.5","mocha":"^5.2.0","mootools":"^1.5.1","nock":"^9.0.7","node-libs-browser":"^0.5.2","phantomjs":"^2.1.0","request":"^2.88.0","requirejs":"^2.1.20","script-loader":"0.6.1","sinon":"^7.3.0","stackframe":"^0.2.2","strict-loader":"^0.1.2","time-grunt":"^1.0.0","vows":"~0.7.0","webpack":"^1.12.1","webpack-dev-server":"^3.1.10"},"homepage":"https://github.com/rollbar/rollbar.js#readme","license":"MIT","main":"src/server/rollbar.js","name":"rollbar","optionalDependencies":{"decache":"^3.0.5"},"plugins":{"jquery":{"version":"0.0.8"}},"repository":{"type":"git","url":"git+ssh://git@github.com/rollbar/rollbar.js.git"},"scripts":{"build":"grunt","lint":"eslint","test":"grunt test","test-browser":"grunt test-browser","test-server":"grunt test-server","test_ci":"grunt test"},"types":"./index.d.ts","version":"2.6.1"};
+module.exports = {"_from":"rollbar@^2.3.8","_id":"rollbar@2.7.0","_inBundle":false,"_integrity":"sha512-xMEZRcebflLiE6PqAm4h980FXH5J20R1tJ1s/cWDB9s0Uaw4rSSRX5oodtb3JkXblG7abTJRmku9Iz2WADOw3w==","_location":"/rollbar","_phantomChildren":{},"_requested":{"type":"range","registry":true,"raw":"rollbar@^2.3.8","name":"rollbar","escapedName":"rollbar","rawSpec":"^2.3.8","saveSpec":null,"fetchSpec":"^2.3.8"},"_requiredBy":["/","/kite-installer"],"_resolved":"https://registry.npmjs.org/rollbar/-/rollbar-2.7.0.tgz","_shasum":"6c2ad649b4f294681c70b5ec23eded77b2a76554","_spec":"rollbar@^2.3.8","_where":"/Users/dane/github/kite","browser":"dist/rollbar.umd.min.js","bugs":{"url":"https://github.com/rollbar/rollbar.js/issues"},"bundleDependencies":false,"cdn":{"host":"cdnjs.cloudflare.com"},"defaults":{"endpoint":"api.rollbar.com/api/1/item/","browser":{"scrubFields":["pw","pass","passwd","password","secret","confirm_password","confirmPassword","password_confirmation","passwordConfirmation","access_token","accessToken","secret_key","secretKey","secretToken","cc-number","card number","cardnumber","cardnum","ccnum","ccnumber","cc num","creditcardnumber","credit card number","newcreditcardnumber","new credit card","creditcardno","credit card no","card#","card #","cc-csc","cvc2","cvv2","ccv2","security code","card verification","name on credit card","name on card","nameoncard","cardholder","card holder","name des karteninhabers","card type","cardtype","cc type","cctype","payment type","expiration date","expirationdate","expdate","cc-exp"]},"server":{"scrubHeaders":["authorization","www-authorization","http_authorization","omniauth.auth","cookie","oauth-access-token","x-access-token","x_csrf_token","http_x_csrf_token","x-csrf-token"],"scrubFields":["pw","pass","passwd","password","password_confirmation","passwordConfirmation","confirm_password","confirmPassword","secret","secret_token","secretToken","secret_key","secretKey","api_key","access_token","accessToken","authenticity_token","oauth_token","token","user_session_secret","request.session.csrf","request.session._csrf","request.params._csrf","request.cookie","request.cookies"]},"logLevel":"debug","reportLevel":"debug","uncaughtErrorLevel":"error","maxItems":0,"itemsPerMin":60},"dependencies":{"async":"~1.2.1","console-polyfill":"0.3.0","debug":"2.6.9","decache":"^3.0.5","error-stack-parser":"1.3.3","json-stringify-safe":"~5.0.0","lru-cache":"~2.2.1","request-ip":"~2.0.1","uuid":"3.0.x"},"deprecated":false,"description":"Error tracking and logging from JS to Rollbar","devDependencies":{"babel-core":"^6.26.3","babel-eslint":"^10.0.1","babel-loader":"^8.0.4","bluebird":"^3.3.5","browserstack-api":"0.0.5","chai":"^4.2.0","chalk":"^1.1.1","eslint":"^5.16.0","eslint-loader":"^2.1.2","express":"^4.16.4","glob":"^5.0.14","grunt":"^1.0.3","grunt-blanket-mocha":"^1.0.0","grunt-bumpup":"^0.6.3","grunt-cli":"^1.3.2","grunt-contrib-concat":"~0.3.0","grunt-contrib-connect":"^2.0.0","grunt-contrib-copy":"~0.5.0","grunt-contrib-jshint":"^2.0.0","grunt-contrib-uglify":"^4.0.0","grunt-contrib-watch":"^1.1.0","grunt-express":"^1.4.1","grunt-karma":"^3.0.1","grunt-karma-coveralls":"^2.5.4","grunt-mocha":"^1.1.0","grunt-mocha-cov":"^0.4.0","grunt-parallel":"^0.5.1","grunt-saucelabs":"^9.0.0","grunt-tagrelease":"~0.3.0","grunt-text-replace":"^0.4.0","grunt-vows":"^0.4.2","grunt-webpack":"^3.1.3","istanbul-instrumenter-loader":"^2.0.0","jade":"~0.27.7","jasmine-core":"^2.3.4","jquery-mockjax":"^2.0.1","karma":"^4.0.1","karma-browserstack-launcher":"^0.1.5","karma-chai":"^0.1.0","karma-chrome-launcher":"^2.2.0","karma-expect":"^1.1.0","karma-firefox-launcher":"^0.1.6","karma-html2js-preprocessor":"^1.1.0","karma-jquery":"^0.1.0","karma-mocha":"^0.2.0","karma-mocha-reporter":"^1.1.1","karma-phantomjs-launcher":"^1.0.4","karma-requirejs":"^0.2.2","karma-safari-launcher":"^0.1.1","karma-sinon":"^1.0.4","karma-sourcemap-loader":"^0.3.5","karma-webpack":"^3.0.5","mocha":"^5.2.0","mootools":"^1.5.1","nock":"^9.0.7","node-libs-browser":"^0.5.2","phantomjs":"^2.1.0","request":"^2.88.0","requirejs":"^2.1.20","script-loader":"0.6.1","sinon":"^7.3.0","stackframe":"^0.2.2","strict-loader":"^0.1.2","time-grunt":"^1.0.0","uglifyjs-webpack-plugin":"^2.1.2","vows":"~0.7.0","webpack":"^4.30.0","webpack-dev-server":"^3.1.10"},"homepage":"https://github.com/rollbar/rollbar.js#readme","license":"MIT","main":"src/server/rollbar.js","name":"rollbar","optionalDependencies":{"decache":"^3.0.5"},"plugins":{"jquery":{"version":"0.0.8"}},"repository":{"type":"git","url":"git+ssh://git@github.com/rollbar/rollbar.js.git"},"scripts":{"build":"grunt","lint":"eslint","test":"grunt test","test-browser":"grunt test-browser","test-server":"grunt test-server","test_ci":"grunt test"},"types":"./index.d.ts","version":"2.7.0"};
 
 /***/ }),
 /* 82 */
@@ -10992,6 +11028,8 @@ var http = __webpack_require__(10);
 var https = __webpack_require__(11);
 var jsonBackup = __webpack_require__(95);
 
+var MAX_RATE_LIMIT_INTERVAL = 60;
+
 /*
  * accessToken may be embedded in payload but that should not be assumed
  *
@@ -11008,8 +11046,11 @@ var jsonBackup = __webpack_require__(95);
  *
  * payload is an unserialized object
  */
+function Transport() {
+  this.rateLimitExpires = 0;
+}
 
-function get(accessToken, options, params, callback, transportFactory) {
+Transport.prototype.get = function(accessToken, options, params, callback, transportFactory) {
   var t;
   if (!callback || !_.isFunction(callback)) {
     callback = function() {};
@@ -11027,18 +11068,21 @@ function get(accessToken, options, params, callback, transportFactory) {
     return callback(new Error('Unknown transport'));
   }
   var req = t.request(options, function(resp) {
-    _handleResponse(resp, callback);
-  });
+    this.handleResponse(resp, callback);
+  }.bind(this));
   req.on('error', function(err) {
     callback(err);
   });
   req.end();
 }
 
-function post(accessToken, options, payload, callback, transportFactory) {
+Transport.prototype.post = function(accessToken, options, payload, callback, transportFactory) {
   var t;
   if (!callback || !_.isFunction(callback)) {
     callback = function() {};
+  }
+  if (_currentTime() < this.rateLimitExpires) {
+    return callback(new Error('Exceeded rate limit'));
   }
   options = options || {};
   if (!payload) {
@@ -11061,8 +11105,8 @@ function post(accessToken, options, payload, callback, transportFactory) {
     return callback(new Error('Unknown transport'));
   }
   var req = t.request(options, function(resp) {
-    _handleResponse(resp, _wrapPostCallback(callback));
-  });
+    this.handleResponse(resp, _wrapPostCallback(callback));
+  }.bind(this));
   req.on('error', function(err) {
     callback(err);
   });
@@ -11070,6 +11114,33 @@ function post(accessToken, options, payload, callback, transportFactory) {
     req.write(writeData);
   }
   req.end();
+}
+
+Transport.prototype.updateRateLimit = function(resp) {
+  var remaining = parseInt(resp.headers['x-rate-limit-remaining'] || 0);
+  var remainingSeconds = Math.min(MAX_RATE_LIMIT_INTERVAL, resp.headers['x-rate-limit-remaining-seconds'] || 0);
+  var currentTime = _currentTime();
+
+  if ((resp.statusCode === 429) && (remaining === 0)) {
+    this.rateLimitExpires = currentTime + remainingSeconds;
+  } else {
+    this.rateLimitExpires = currentTime;
+  }
+}
+
+Transport.prototype.handleResponse = function(resp, callback) {
+  this.updateRateLimit(resp);
+
+  var respData = [];
+  resp.setEncoding('utf8');
+  resp.on('data', function(chunk) {
+    respData.push(chunk);
+  });
+
+  resp.on('end', function() {
+    respData = respData.join('');
+    _parseApiResponse(respData, callback);
+  });
 }
 
 /** Helpers **/
@@ -11090,19 +11161,6 @@ function _headers(accessToken, options, data) {
 
 function _transport(options) {
   return {'http:': http, 'https:': https}[options.protocol];
-}
-
-function _handleResponse(resp, callback) {
-  var respData = [];
-  resp.setEncoding('utf8');
-  resp.on('data', function(chunk) {
-    respData.push(chunk);
-  });
-
-  resp.on('end', function() {
-    respData = respData.join('');
-    _parseApiResponse(respData, callback);
-  });
 }
 
 function _parseApiResponse(data, callback) {
@@ -11138,10 +11196,11 @@ function _wrapPostCallback(callback) {
   }
 }
 
-module.exports = {
-  get: get,
-  post: post
-};
+function _currentTime() {
+  return Math.floor(Date.now() / 1000);
+}
+
+module.exports = Transport;
 
 
 /***/ }),
@@ -15434,8 +15493,8 @@ const ensureKiteDeps = () => {
       Metrics
     } = __webpack_require__(7));
     KiteAPI = __webpack_require__(121);
-    Logger = __webpack_require__(161);
-    NodeClient = __webpack_require__(165);
+    Logger = __webpack_require__(139);
+    NodeClient = __webpack_require__(128);
     errors = Errors();
   }
 };
@@ -15736,7 +15795,7 @@ class KiteApp {
 
       if (data.id !== undefined) {
         if (!localconfig) {
-          localconfig = __webpack_require__(169);
+          localconfig = __webpack_require__(142);
         }
 
         localconfig.set('distinctID', data.id);
@@ -15775,50 +15834,28 @@ module.exports = KiteApp;
 
 
 const os = __webpack_require__(6);
-
 const http = __webpack_require__(10);
-
 const https = __webpack_require__(11);
-
 const querystring = __webpack_require__(12);
-
 const KiteConnector = __webpack_require__(122);
-
 const KiteStateError = __webpack_require__(126);
-
 const KiteRequestError = __webpack_require__(124);
-
 const utils = __webpack_require__(123);
-
 const NodeClient = __webpack_require__(128);
-
-const BrowserClient = __webpack_require__(147);
-
+const BrowserClient = __webpack_require__(129);
 const EventEmitter = __webpack_require__(14);
-
-const EditorConfig = __webpack_require__(152);
-
-const MemoryStore = __webpack_require__(153);
-
-const {
-  STATES
-} = KiteConnector;
-
-const {
-  MAX_FILE_SIZE
-} = __webpack_require__(154);
-
-const {
-  merge,
-  checkArguments,
-  checkArgumentKeys
-} = __webpack_require__(155);
-
-const urls = __webpack_require__(156);
+const EditorConfig = __webpack_require__(134);
+const MemoryStore = __webpack_require__(135);
+const {STATES} = KiteConnector;
+const {MAX_FILE_SIZE} = __webpack_require__(136);
+const {merge, checkArguments, checkArgumentKeys} = __webpack_require__(137);
+const urls = __webpack_require__(138);
 
 const KiteAPI = {
   STATES,
+
   emitter: new EventEmitter(),
+
   editorConfig: new EditorConfig(new MemoryStore()),
 
   toggleRequestDebug() {
@@ -15827,62 +15864,66 @@ const KiteAPI = {
   },
 
   requestJSON(...args) {
-    return this.request(...args).then(resp => utils.handleResponseData(resp)).then(data => JSON.parse(data));
+    return this.request(...args)
+    .then(resp => utils.handleResponseData(resp))
+    .then(data => JSON.parse(data));
   },
 
   isKiteLocal() {
     return this.request({
       path: '/clientapi/iskitelocal',
-      method: 'GET'
-    }).then(() => true).catch(() => false);
+      method: 'GET',
+    })
+    .then(() => true)
+    .catch(() => false);
   },
 
   setKiteSetting(key, value) {
     return this.requestJSON({
       path: `/clientapi/settings/${key}`,
-      method: 'POST'
+      method: 'POST',
     }, JSON.stringify(value));
   },
 
   getKiteSetting(key) {
     return this.requestJSON({
       path: `/clientapi/settings/${key}`,
-      method: 'GET'
+      method: 'GET',
     });
   },
 
   getSupportedLanguages() {
     return this.requestJSON({
-      path: '/clientapi/languages'
+      path: '/clientapi/languages',
     });
   },
 
-  getOnboardingFilePath(editor, language = 'python') {
-    checkArguments(this.getOnboardingFilePath, editor, language);
-    const path = urls.onboardingFilePath(editor, language);
+  getOnboardingFilePath() {
     return this.requestJSON({
-      path
+      path: '/clientapi/plugins/onboarding_file',
     });
   },
 
   canAuthenticateUser() {
-    return KiteConnector.isKiteReachable().then(() => utils.reversePromise(KiteConnector.isUserAuthenticated(), new KiteStateError('Kite is already authenticated', {
-      state: STATES.AUTHENTICATED
-    })));
+    return KiteConnector.isKiteReachable()
+    .then(() => utils.reversePromise(
+      KiteConnector.isUserAuthenticated(),
+      new KiteStateError('Kite is already authenticated', {
+        state: STATES.AUTHENTICATED,
+      })));
   },
 
   authenticateUser(email, password) {
     checkArguments(this.authenticateUser, email, password);
-    return this.canAuthenticateUser().then(() => this.request({
+    return this.canAuthenticateUser()
+    .then(() => this.request({
       path: '/clientapi/login',
       method: 'POST',
       headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    }, {
-      email,
-      password
-    })).then(() => this.saveUserID());
+        'Content-Type': 'multipart/form-data',
+      },
+    }, {email, password}))
+    .then(() => this.saveUserID());
   },
 
   authenticateSessionID(key) {
@@ -15891,58 +15932,64 @@ const KiteAPI = {
     // method is only used in specialized flows, so we're special-casing it
     // here.
     checkArguments(this.authenticateSessionID, key);
-    return KiteConnector.isKiteReachable().then(() => this.request({
+    return KiteConnector.isKiteReachable()
+    .then(() => this.request({
       path: '/clientapi/authenticate',
       method: 'POST',
       headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    }, {
-      key
-    })).then(resp => this.saveUserID());
+        'Content-Type': 'multipart/form-data',
+      },
+    }, {key}))
+    .then(resp => this.saveUserID());
   },
 
   saveUserID() {
     return this.requestJSON({
       path: '/clientapi/user',
-      method: 'GET'
-    }).then(data => data.id && this.editorConfig.set('distinctID', data.id)).catch(() => {});
+      method: 'GET',
+    })
+    .then(data => data.id && this.editorConfig.set('distinctID', data.id))
+    .catch(() => {});
   },
 
-  getHoverDataAtPosition(filename, source, position, editor, encoding = 'utf-16') {
-    checkArguments(this.getHoverDataAtPosition, filename, source, position, encoding);
-    const path = urls.hoverPath(filename, source, position, editor, encoding);
-    return this.requestJSON({
-      path
-    });
+  getHoverDataAtPosition(filename, source, position, editor) {
+    checkArguments(this.getHoverDataAtPosition, filename, source, position);
+    const path = urls.hoverPath(filename, source, position, editor);
+
+    return this.requestJSON({path});
   },
 
-  getReportDataAtPosition(filename, source, position, editor, encoding = 'utf-16') {
-    checkArguments(this.getReportDataAtPosition, filename, source, position, editor, encoding);
-    return this.getHoverDataAtPosition(filename, source, position, editor, encoding).then(data => this.getReportDataFromHover(data));
+  getReportDataAtPosition(filename, source, position, editor) {
+    checkArguments(this.getReportDataAtPosition, filename, source, position, editor);
+    return this.getHoverDataAtPosition(filename, source, position, editor)
+    .then(data => this.getReportDataFromHover(data));
   },
 
   getReportDataFromHover(data) {
     const id = data.symbol[0].id;
-    return !idIsEmpty(id) ? this.getSymbolReportDataForId(id).then(report => [data, report]).catch(err => [data]) : [data];
+    return !idIsEmpty(id)
+      ? this.getSymbolReportDataForId(id)
+        .then(report => [data, report])
+        .catch(err => [data])
+      : [data];
   },
 
   getSymbolReportDataForId(id) {
     checkArguments(this.getSymbolReportDataForId, id);
     return this.requestJSON({
-      path: `/api/editor/symbol/${id}`
+      path: `/api/editor/symbol/${id}`,
     });
   },
 
   getValueReportDataForId(id) {
     checkArguments(this.getValueReportDataForId, id);
     return this.requestJSON({
-      path: `/api/editor/value/${id}`
-    }).then(report => {
+      path: `/api/editor/value/${id}`,
+    })
+    .then(report => {
       if (report.value && idIsEmpty(report.value.id)) {
         report.value.id = id;
       }
-
       return report;
     });
   },
@@ -15950,28 +15997,26 @@ const KiteAPI = {
   getMembersDataForId(id, page = 0, limit = 999) {
     checkArguments(this.getMembersDataForId, id);
     const path = urls.membersPath(id, page, limit);
-    return this.requestJSON({
-      path
-    });
+
+    return this.requestJSON({path});
   },
 
   getUsagesDataForValueId(id, page = 0, limit = 999) {
     checkArguments(this.getUsagesDataForValueId, id);
     const path = urls.usagesPath(id, page, limit);
-    return this.requestJSON({
-      path
-    });
+
+    return this.requestJSON({path});
   },
 
   getUsageDataForId(id) {
     checkArguments(this.getUsageDataForId, id);
     return this.requestJSON({
-      path: `/api/editor/usages/${id}`
-    }).then(report => {
+      path: `/api/editor/usages/${id}`,
+    })
+    .then(report => {
       if (report.value && idIsEmpty(report.value.id)) {
         report.value.id = id;
       }
-
       return report;
     });
   },
@@ -15979,119 +16024,123 @@ const KiteAPI = {
   getExampleDataForId(id) {
     checkArguments(this.getExampleDataForId, id);
     return this.requestJSON({
-      path: `/api/python/curation/${id}`
+      path: `/api/python/curation/${id}`,
     });
   },
 
   getUserAccountInfo() {
-    return this.requestJSON({
-      path: '/api/account/user'
-    });
+    return this.requestJSON({path: '/api/account/user'});
   },
 
   getStatus(filename) {
-    return filename ? this.requestJSON({
-      path: urls.statusPath(filename)
-    }).catch(err => ({
-      status: 'ready'
-    })) : Promise.resolve({
-      status: 'ready'
-    });
+    return filename
+      ? this.requestJSON({path: urls.statusPath(filename)})
+        .catch((err) => ({status: 'ready'}))
+      : Promise.resolve({status: 'ready'});
   },
 
-  getCompletionsAtPosition(filename, source, position, editor, encoding = 'utf-16') {
-    checkArguments(this.getCompletionsAtPosition, filename, source, position, editor, encoding);
-
-    if (source.length > MAX_FILE_SIZE) {
-      return Promise.resolve([]);
-    }
+  getCompletionsAtPosition(filename, source, position, editor) {
+    checkArguments(this.getCompletionsAtPosition, filename, source, position, editor);
+    if (source.length > MAX_FILE_SIZE) { return Promise.resolve([]); }
 
     const payload = {
       text: source,
       editor,
       filename,
       cursor_runes: position,
-      offset_encoding: encoding
     };
+
     return this.requestJSON({
       path: '/clientapi/editor/completions',
-      method: 'POST'
-    }, JSON.stringify(payload)).then(data => data.completions || []).catch(err => []);
+      method: 'POST',
+    }, JSON.stringify(payload))
+    .then(data => data.completions || [])
+    .catch(err => []);
   },
 
-  getSnippetCompletionsAtPosition(filename, source, editor, start_position, end_position = start_position, encoding = 'utf-16') {
-    checkArguments(this.getSnippetCompletionsAtPosition, filename, source, editor, start_position, end_position, encoding);
-
-    if (source.length > MAX_FILE_SIZE) {
-      return Promise.resolve([]);
-    }
-
+  getSnippetCompletionsAtPosition(filename, source, editor, start_position, end_position = start_position) {
+    checkArguments(this.getSnippetCompletionsAtPosition, filename, source, editor, start_position, end_position);
+    if (source.length > MAX_FILE_SIZE) { return Promise.resolve([]); }
     const payload = {
       text: source,
       editor,
       filename,
       position: {
         begin: start_position,
-        end: end_position
+        end: end_position,
       },
-      offset_encoding: encoding
     };
     return this.requestJSON({
       path: '/clientapi/editor/complete',
-      method: 'POST'
-    }, JSON.stringify(payload)).then(data => data.completions || []).catch(_ => []);
+      method: 'POST',
+    }, JSON.stringify(payload))
+    .then(data => data.completions || [])
+    .catch(_ => []);
   },
 
-  getSignaturesAtPosition(filename, source, position, editor, encoding = 'utf-16') {
-    checkArguments(this.getSignaturesAtPosition, filename, source, position, editor, encoding);
-
-    if (source.length > MAX_FILE_SIZE) {
-      return Promise.resolve();
-    }
+  getSignaturesAtPosition(filename, source, position, editor) {
+    checkArguments(this.getSignaturesAtPosition, filename, source, position, editor);
+    if (source.length > MAX_FILE_SIZE) { return Promise.resolve(); }
 
     const payload = {
       text: source,
       editor,
       filename,
       cursor_runes: position,
-      offset_encoding: encoding
     };
+
     return this.requestJSON({
       path: '/clientapi/editor/signatures',
-      method: 'POST'
-    }, JSON.stringify(payload)).catch(() => {});
+      method: 'POST',
+    }, JSON.stringify(payload))
+    .catch(() => {});
+  },
+
+  getKSGCompletions(query) {
+    checkArguments(this.getKSGCompletions, query);
+    return this.requestJSON({ path: `/clientapi/ksg/completions?query=${encodeURIComponent(query)}` })
+      .catch(() => {});
+  },
+
+  getKSGCodeBlocks(query) {
+    checkArguments(this.getKSGCodeBlocks, query);
+    return this.requestJSON({ path: `/clientapi/ksg/codeblocks?query=${encodeURIComponent(query)}` })
+      .catch(() => {});
   },
 
   getAutocorrectData(filename, source, editorMeta) {
     checkArguments(this.getAutocorrectData, filename, source, editorMeta);
 
-    if (source.length > MAX_FILE_SIZE) {
-      return Promise.resolve();
-    }
+    if (source.length > MAX_FILE_SIZE) { return Promise.resolve(); }
 
     const payload = {
       metadata: this.getAutocorrectMetadata('autocorrect_request', editorMeta),
       buffer: source,
       filename,
-      language: 'python'
+      language: 'python',
     };
+
     return this.requestJSON({
       path: '/clientapi/editor/autocorrect',
-      method: 'POST'
-    }, JSON.stringify(payload)).catch(() => {});
+      method: 'POST',
+    }, JSON.stringify(payload))
+    .catch(() => {});
   },
 
   getAutocorrectModelInfo(version, editorMeta) {
     checkArguments(this.getAutocorrectModelInfo, version, editorMeta);
+
     const payload = {
       metadata: this.getAutocorrectMetadata('model_info_request', editorMeta),
       language: 'python',
-      version
+      version,
     };
+
     return this.requestJSON({
       path: '/api/editor/autocorrect/model-info',
-      method: 'POST'
-    }, JSON.stringify(payload)).catch(() => {});
+      method: 'POST',
+    }, JSON.stringify(payload))
+    .catch(() => {});
   },
 
   getAutocorrectMetadata(event, editorMeta) {
@@ -16099,7 +16148,7 @@ const KiteAPI = {
     checkArgumentKeys(this.getAutocorrectMetadata, editorMeta, 'editorMeta', 'source', 'plugin_version');
     return merge({
       event,
-      os_name: this.getOsName()
+      os_name: this.getOsName(),
     }, editorMeta);
   },
 
@@ -16107,63 +16156,70 @@ const KiteAPI = {
     return {
       darwin: 'macos',
       win32: 'windows',
-      linux: 'linux'
+      linux: 'linux',
     }[os.platform()];
   },
 
   postSaveValidationData(filename, source, editorMeta) {
     checkArguments(this.postSaveValidationData, filename, source, editorMeta);
 
-    if (source.length > MAX_FILE_SIZE) {
-      return Promise.resolve();
-    }
+    if (source.length > MAX_FILE_SIZE) { return Promise.resolve(); }
 
     const payload = {
       metadata: this.getAutocorrectMetadata('validation_onsave', editorMeta),
       buffer: source,
       filename,
-      language: 'python'
+      language: 'python',
     };
+
     return this.request({
       path: '/clientapi/editor/autocorrect/validation/on-save',
-      method: 'POST'
-    }, JSON.stringify(payload)).catch(() => {});
+      method: 'POST',
+    }, JSON.stringify(payload))
+    .catch(() => {});
   },
 
   postAutocorrectFeedbackData(response, feedback, editorMeta) {
     checkArguments(this.postAutocorrectFeedbackData, response, feedback, editorMeta);
+
     const payload = {
       metadata: this.getAutocorrectMetadata('feedback_diffset', editorMeta),
       response,
-      feedback
+      feedback,
     };
+
     return this.request({
       path: '/clientapi/editor/autocorrect/feedback',
-      method: 'POST'
-    }, JSON.stringify(payload)).catch(() => {});
+      method: 'POST',
+    }, JSON.stringify(payload))
+    .catch(() => {});
   },
 
   postAutocorrectHashMismatchData(response, requestStartTime, editorMeta) {
     checkArguments(this.postAutocorrectHashMismatchData, response, requestStartTime, editorMeta);
+
     const payload = {
       metadata: this.getAutocorrectMetadata('metrics_hash_mismatch', editorMeta),
       response,
-      response_time: new Date() - requestStartTime
+      response_time: new Date() - requestStartTime,
     };
+
     return this.request({
       path: '/clientapi/editor/autocorrect/metrics',
-      method: 'POST'
-    }, JSON.stringify(payload)).catch(() => {});
+      method: 'POST',
+    }, JSON.stringify(payload))
+    .catch(() => {});
   },
 
   sendFeatureMetric(name) {
     checkArguments(this.sendFeatureMetric, name);
+
     return this.request({
       path: '/clientapi/metrics/counters',
-      method: 'POST'
+      method: 'POST',
     }, JSON.stringify({
       name,
-      value: 1
+      value: 1,
     }));
   },
 
@@ -16206,11 +16262,11 @@ const KiteAPI = {
       if (!data || !data.email) {
         return Promise.reject(new Error('No email provided'));
       }
-
       return this.client.request({
         path: '/api/account/check-email',
-        method: 'POST'
-      }, JSON.stringify(data)).then(checkStatusAndInvokeCallback('Unable to check email'));
+        method: 'POST',
+      }, JSON.stringify(data))
+      .then(checkStatusAndInvokeCallback('Unable to check email'));
     },
 
     createAccount(data, callback) {
@@ -16220,22 +16276,21 @@ const KiteAPI = {
 
       const content = querystring.stringify(data);
       let promise;
-
       if (data.password) {
         promise = this.client.request({
           path: '/api/account/create',
           method: 'POST',
           headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-          }
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
         }, content);
       } else {
         promise = this.client.request({
           path: '/api/account/createPasswordless',
           method: 'POST',
           headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-          }
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
         }, content);
       }
 
@@ -16246,44 +16301,43 @@ const KiteAPI = {
       if (!data) {
         return Promise.reject(new Error('No login data provided'));
       }
-
       if (!data.email) {
         return Promise.reject(new Error('No email provided'));
       }
-
       if (!data.password) {
         return Promise.reject(new Error('No password provided'));
       }
-
       const content = querystring.stringify(data);
       return this.client.request({
         path: '/api/account/login',
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        }
-      }, content).then(checkStatusAndInvokeCallback('Unable to login into Kite', callback));
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      }, content)
+      .then(checkStatusAndInvokeCallback('Unable to login into Kite', callback));
     },
 
     resetPassword(data, callback) {
       if (!data || !data.email) {
         return Promise.reject(new Error('No email provided'));
       }
-
       const content = querystring.stringify(data);
       return this.client.request({
         path: '/api/account/reset-password/request',
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        }
-      }, content).then(checkStatusAndInvokeCallback('Unable to reset passwords', callback));
-    }
-
-  }
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      }, content)
+      .then(checkStatusAndInvokeCallback('Unable to reset passwords', callback));
+    },
+  },
 };
 
-const idIsEmpty = id => !id || id === '' || id.indexOf(';') !== -1 && id.split(';')[1] === '';
+const idIsEmpty = (id) =>
+  !id || id === '' ||
+  (id.indexOf(';') !== -1 && id.split(';')[1] === '');
 
 const delegate = (methods, source, target) => {
   methods.forEach(method => target[method] = (...args) => source[method](...args));
@@ -16298,7 +16352,7 @@ const checkStatusAndInvokeCallback = (message, callback) => resp => {
         reject(new KiteRequestError(message, {
           responseStatus: resp.statusCode,
           response: resp,
-          responseData: respData
+          responseData: respData,
         }));
       }, reject);
     } else {
@@ -16307,8 +16361,40 @@ const checkStatusAndInvokeCallback = (message, callback) => resp => {
   });
 };
 
-delegate(['arch', 'canInstallKite', 'canRunKite', 'canRunKiteEnterprise', 'checkHealth', 'downloadKite', 'downloadKiteRelease', 'hasBothKiteInstalled', 'hasManyKiteEnterpriseInstallation', 'hasManyKiteInstallation', 'installKite', 'isAdmin', 'isKiteEnterpriseInstalled', 'isKiteEnterpriseRunning', 'isKiteInstalled', 'isKiteReachable', 'isKiteRunning', 'isKiteSupported', 'isOSSupported', 'isOSVersionSupported', 'isUserAuthenticated', 'onDidFailRequest', 'request', 'runKite', 'runKiteAndWait', 'runKiteEnterprise', 'runKiteEnterpriseAndWait', 'toggleRequestDebug', 'waitForKite'], KiteConnector, KiteAPI);
+delegate([
+  'arch',
+  'canInstallKite',
+  'canRunKite',
+  'canRunKiteEnterprise',
+  'checkHealth',
+  'downloadKite',
+  'downloadKiteRelease',
+  'hasBothKiteInstalled',
+  'hasManyKiteEnterpriseInstallation',
+  'hasManyKiteInstallation',
+  'installKite',
+  'isAdmin',
+  'isKiteEnterpriseInstalled',
+  'isKiteEnterpriseRunning',
+  'isKiteInstalled',
+  'isKiteReachable',
+  'isKiteRunning',
+  'isKiteSupported',
+  'isOSSupported',
+  'isOSVersionSupported',
+  'isUserAuthenticated',
+  'onDidFailRequest',
+  'request',
+  'runKite',
+  'runKiteAndWait',
+  'runKiteEnterprise',
+  'runKiteEnterpriseAndWait',
+  'toggleRequestDebug',
+  'waitForKite',
+], KiteConnector, KiteAPI);
+
 module.exports = KiteAPI;
+
 
 /***/ }),
 /* 122 */
@@ -16325,17 +16411,17 @@ const KiteStateError = __webpack_require__(126);
 const KiteRequestError = __webpack_require__(124);
 const {STATES} = __webpack_require__(127);
 const NodeClient = __webpack_require__(128);
-const BrowserClient = __webpack_require__(147);
+const BrowserClient = __webpack_require__(129);
 
 module.exports = {
   STATES,
 
   adapter: (() => {
     switch (os.platform()) {
-      case 'darwin': return __webpack_require__(148);
-      case 'win32': return __webpack_require__(149);
-      case 'linux': return __webpack_require__(150);
-      default: return __webpack_require__(151);
+      case 'darwin': return __webpack_require__(130);
+      case 'win32': return __webpack_require__(131);
+      case 'linux': return __webpack_require__(132);
+      default: return __webpack_require__(133);
     }
   })(),
 
@@ -16998,7 +17084,7 @@ module.exports = {
 
 const http = __webpack_require__(10);
 const https = __webpack_require__(11);
-const FormData = __webpack_require__(129);
+const FormData = __webpack_require__(22);
 
 const utils = __webpack_require__(123);
 
@@ -17076,462 +17162,111 @@ module.exports = class NodeClient {
 /* 129 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var CombinedStream = __webpack_require__(130);
-var util = __webpack_require__(24);
-var path = __webpack_require__(27);
-var http = __webpack_require__(10);
-var https = __webpack_require__(11);
-var parseUrl = __webpack_require__(4).parse;
-var fs = __webpack_require__(28);
-var mime = __webpack_require__(133);
-var asynckit = __webpack_require__(136);
-var populate = __webpack_require__(146);
+"use strict";
 
-// Public API
-module.exports = FormData;
 
-// make it a Stream
-util.inherits(FormData, CombinedStream);
+const utils = __webpack_require__(123);
 
-/**
- * Create readable "multipart/form-data" streams.
- * Can be used to submit forms
- * and file uploads to other web applications.
- *
- * @constructor
- * @param {Object} options - Properties to be added/overriden for FormData and CombinedStream
- */
-function FormData(options) {
-  if (!(this instanceof FormData)) {
-    return new FormData();
-  }
+const createResponse = (status, raw, req, headers = {}) => {
+  const resp = {
+    statusCode: status,
+    req,
+    on(event, callback) {
+      switch (event) {
+        case 'data':
+          callback(raw);
+          break;
+        case 'end':
+          callback();
+          break;
+      }
+    },
+  };
+  for (let k in headers) { resp[k] = headers[k]; }
+  resp.headers = resp.headers || {};
 
-  this._overheadLength = 0;
-  this._valueLength = 0;
-  this._valuesToMeasure = [];
-
-  CombinedStream.call(this);
-
-  options = options || {};
-  for (var option in options) {
-    this[option] = options[option];
-  }
-}
-
-FormData.LINE_BREAK = '\r\n';
-FormData.DEFAULT_CONTENT_TYPE = 'application/octet-stream';
-
-FormData.prototype.append = function(field, value, options) {
-
-  options = options || {};
-
-  // allow filename as single option
-  if (typeof options == 'string') {
-    options = {filename: options};
-  }
-
-  var append = CombinedStream.prototype.append.bind(this);
-
-  // all that streamy business can't handle numbers
-  if (typeof value == 'number') {
-    value = '' + value;
-  }
-
-  // https://github.com/felixge/node-form-data/issues/38
-  if (util.isArray(value)) {
-    // Please convert your array into string
-    // the way web server expects it
-    this._error(new Error('Arrays are not supported.'));
-    return;
-  }
-
-  var header = this._multiPartHeader(field, value, options);
-  var footer = this._multiPartFooter();
-
-  append(header);
-  append(value);
-  append(footer);
-
-  // pass along options.knownLength
-  this._trackLength(header, value, options);
+  return resp;
 };
 
-FormData.prototype._trackLength = function(header, value, options) {
-  var valueLength = 0;
-
-  // used w/ getLengthSync(), when length is known.
-  // e.g. for streaming directly from a remote server,
-  // w/ a known file a size, and not wanting to wait for
-  // incoming file to finish to get its size.
-  if (options.knownLength != null) {
-    valueLength += +options.knownLength;
-  } else if (Buffer.isBuffer(value)) {
-    valueLength = value.length;
-  } else if (typeof value === 'string') {
-    valueLength = Buffer.byteLength(value);
+module.exports = class BrowserClient {
+  constructor(hostname, port, base, ssl) {
+    base = base || '';
+    ssl = ssl || false;
+    this.hostname = hostname;
+    this.port = port;
+    this.base = base;
+    this.protocol = ssl ? 'https' : 'http';
+    this.cookies = {};
   }
 
-  this._valueLength += valueLength;
+  request(opts, data, timeout) {
+    const domain = this.port && this.port !== -1
+      ? `${this.hostname}:${this.port}`
+      : this.hostname;
+    const url = `${this.protocol}://${domain}${this.base}${opts.path}`;
+    const method = opts.method || 'GET';
 
-  // @check why add CRLF? does this account for custom/multiple CRLFs?
-  this._overheadLength +=
-    Buffer.byteLength(header) +
-    FormData.LINE_BREAK.length;
+    return new Promise((resolve, reject) => {
+      const query = new XMLHttpRequest();
+      query.addEventListener('error', reject);
+      query.addEventListener('abort', reject);
+      query.addEventListener('load', () => {
+        const raw = query.responseText;
 
-  // empty or either doesn't have path or not an http response
-  if (!value || ( !value.path && !(value.readable && value.hasOwnProperty('httpVersion')) )) {
-    return;
-  }
+        resolve(createResponse(query.status, raw, {
+          method,
+          path: opts.path,
+          url,
+        }));
+      });
 
-  // no need to bother with the length
-  if (!options.knownLength) {
-    this._valuesToMeasure.push(value);
-  }
-};
+      query.open(method, url);
+      if (timeout) {
+        query.timeout = timeout; // Set timeout to 4 seconds (4000 milliseconds)
+        query.ontimeout = () => { reject(new Error('Request Timeout')); };
+      }
 
-FormData.prototype._lengthRetriever = function(value, callback) {
+      if (opts.headers) {
+        if (opts.headers['Content-Type'] === 'multipart/form-data' ||
+            opts.headers['content-type'] === 'multipart/form-data') {
+          delete opts.headers['Content-Type'];
+          delete opts.headers['content-type'];
 
-  if (value.hasOwnProperty('fd')) {
+          const form = new FormData();
 
-    // take read range into a account
-    // `end` = Infinity –> read file till the end
-    //
-    // TODO: Looks like there is bug in Node fs.createReadStream
-    // it doesn't respect `end` options without `start` options
-    // Fix it when node fixes it.
-    // https://github.com/joyent/node/issues/7819
-    if (value.end != undefined && value.end != Infinity && value.start != undefined) {
-
-      // when end specified
-      // no need to calculate range
-      // inclusive, starts with 0
-      callback(null, value.end + 1 - (value.start ? value.start : 0));
-
-    // not that fast snoopy
-    } else {
-      // still need to fetch file size from fs
-      fs.stat(value.path, function(err, stat) {
-
-        var fileSize;
-
-        if (err) {
-          callback(err);
-          return;
+          for (const key in data) {
+            form.append(key, data[key]);
+          }
+          data = form;
         }
 
-        // update final size based on the range options
-        fileSize = stat.size - (value.start ? value.start : 0);
-        callback(null, fileSize);
-      });
-    }
+        for (const header in opts.headers) {
+          query.setRequestHeader(header, opts.headers[header]);
+        }
+      }
+      if (!opts.headers || !opts.headers['Cache-Control']) {
+        query.setRequestHeader('Cache-Control', 'no-cache, must-revalidate');
+      }
 
-  // or http response
-  } else if (value.hasOwnProperty('httpVersion')) {
-    callback(null, +value.headers['content-length']);
-
-  // or request stream http://github.com/mikeal/request
-  } else if (value.hasOwnProperty('httpModule')) {
-    // wait till response come back
-    value.on('response', function(response) {
-      value.pause();
-      callback(null, +response.headers['content-length']);
+      query.send(data);
     });
-    value.resume();
-
-  // something else
-  } else {
-    callback('Unknown stream');
-  }
-};
-
-FormData.prototype._multiPartHeader = function(field, value, options) {
-  // custom header specified (as string)?
-  // it becomes responsible for boundary
-  // (e.g. to handle extra CRLFs on .NET servers)
-  if (typeof options.header == 'string') {
-    return options.header;
   }
 
-  var contentDisposition = this._getContentDisposition(value, options);
-  var contentType = this._getContentType(value, options);
-
-  var contents = '';
-  var headers  = {
-    // add custom disposition as third element or keep it two elements if not
-    'Content-Disposition': ['form-data', 'name="' + field + '"'].concat(contentDisposition || []),
-    // if no content type. allow it to be empty array
-    'Content-Type': [].concat(contentType || [])
-  };
-
-  // allow custom headers.
-  if (typeof options.header == 'object') {
-    populate(headers, options.header);
-  }
-
-  var header;
-  for (var prop in headers) {
-    if (!headers.hasOwnProperty(prop)) continue;
-    header = headers[prop];
-
-    // skip nullish headers.
-    if (header == null) {
-      continue;
-    }
-
-    // convert all headers to arrays.
-    if (!Array.isArray(header)) {
-      header = [header];
-    }
-
-    // add non-empty headers.
-    if (header.length) {
-      contents += prop + ': ' + header.join('; ') + FormData.LINE_BREAK;
-    }
-  }
-
-  return '--' + this.getBoundary() + FormData.LINE_BREAK + contents + FormData.LINE_BREAK;
-};
-
-FormData.prototype._getContentDisposition = function(value, options) {
-
-  var filename
-    , contentDisposition
-    ;
-
-  if (typeof options.filepath === 'string') {
-    // custom filepath for relative paths
-    filename = path.normalize(options.filepath).replace(/\\/g, '/');
-  } else if (options.filename || value.name || value.path) {
-    // custom filename take precedence
-    // formidable and the browser add a name property
-    // fs- and request- streams have path property
-    filename = path.basename(options.filename || value.name || value.path);
-  } else if (value.readable && value.hasOwnProperty('httpVersion')) {
-    // or try http response
-    filename = path.basename(value.client._httpMessage.path);
-  }
-
-  if (filename) {
-    contentDisposition = 'filename="' + filename + '"';
-  }
-
-  return contentDisposition;
-};
-
-FormData.prototype._getContentType = function(value, options) {
-
-  // use custom content-type above all
-  var contentType = options.contentType;
-
-  // or try `name` from formidable, browser
-  if (!contentType && value.name) {
-    contentType = mime.lookup(value.name);
-  }
-
-  // or try `path` from fs-, request- streams
-  if (!contentType && value.path) {
-    contentType = mime.lookup(value.path);
-  }
-
-  // or if it's http-reponse
-  if (!contentType && value.readable && value.hasOwnProperty('httpVersion')) {
-    contentType = value.headers['content-type'];
-  }
-
-  // or guess it from the filepath or filename
-  if (!contentType && (options.filepath || options.filename)) {
-    contentType = mime.lookup(options.filepath || options.filename);
-  }
-
-  // fallback to the default content type if `value` is not simple value
-  if (!contentType && typeof value == 'object') {
-    contentType = FormData.DEFAULT_CONTENT_TYPE;
-  }
-
-  return contentType;
-};
-
-FormData.prototype._multiPartFooter = function() {
-  return function(next) {
-    var footer = FormData.LINE_BREAK;
-
-    var lastPart = (this._streams.length === 0);
-    if (lastPart) {
-      footer += this._lastBoundary();
-    }
-
-    next(footer);
-  }.bind(this);
-};
-
-FormData.prototype._lastBoundary = function() {
-  return '--' + this.getBoundary() + '--' + FormData.LINE_BREAK;
-};
-
-FormData.prototype.getHeaders = function(userHeaders) {
-  var header;
-  var formHeaders = {
-    'content-type': 'multipart/form-data; boundary=' + this.getBoundary()
-  };
-
-  for (header in userHeaders) {
-    if (userHeaders.hasOwnProperty(header)) {
-      formHeaders[header.toLowerCase()] = userHeaders[header];
-    }
-  }
-
-  return formHeaders;
-};
-
-FormData.prototype.getBoundary = function() {
-  if (!this._boundary) {
-    this._generateBoundary();
-  }
-
-  return this._boundary;
-};
-
-FormData.prototype._generateBoundary = function() {
-  // This generates a 50 character boundary similar to those used by Firefox.
-  // They are optimized for boyer-moore parsing.
-  var boundary = '--------------------------';
-  for (var i = 0; i < 24; i++) {
-    boundary += Math.floor(Math.random() * 10).toString(16);
-  }
-
-  this._boundary = boundary;
-};
-
-// Note: getLengthSync DOESN'T calculate streams length
-// As workaround one can calculate file size manually
-// and add it as knownLength option
-FormData.prototype.getLengthSync = function() {
-  var knownLength = this._overheadLength + this._valueLength;
-
-  // Don't get confused, there are 3 "internal" streams for each keyval pair
-  // so it basically checks if there is any value added to the form
-  if (this._streams.length) {
-    knownLength += this._lastBoundary().length;
-  }
-
-  // https://github.com/form-data/form-data/issues/40
-  if (!this.hasKnownLength()) {
-    // Some async length retrievers are present
-    // therefore synchronous length calculation is false.
-    // Please use getLength(callback) to get proper length
-    this._error(new Error('Cannot calculate proper length in synchronous way.'));
-  }
-
-  return knownLength;
-};
-
-// Public API to check if length of added values is known
-// https://github.com/form-data/form-data/issues/196
-// https://github.com/form-data/form-data/issues/262
-FormData.prototype.hasKnownLength = function() {
-  var hasKnownLength = true;
-
-  if (this._valuesToMeasure.length) {
-    hasKnownLength = false;
-  }
-
-  return hasKnownLength;
-};
-
-FormData.prototype.getLength = function(cb) {
-  var knownLength = this._overheadLength + this._valueLength;
-
-  if (this._streams.length) {
-    knownLength += this._lastBoundary().length;
-  }
-
-  if (!this._valuesToMeasure.length) {
-    process.nextTick(cb.bind(this, null, knownLength));
-    return;
-  }
-
-  asynckit.parallel(this._valuesToMeasure, this._lengthRetriever, function(err, values) {
-    if (err) {
-      cb(err);
-      return;
-    }
-
-    values.forEach(function(length) {
-      knownLength += length;
+  readCookies(resp) {
+    utils.parseSetCookies(resp.headers['set-cookie']).forEach(c => {
+      this.cookies[c.Name] = c;
     });
-
-    cb(null, knownLength);
-  });
-};
-
-FormData.prototype.submit = function(params, cb) {
-  var request
-    , options
-    , defaults = {method: 'post'}
-    ;
-
-  // parse provided url if it's string
-  // or treat it as options object
-  if (typeof params == 'string') {
-
-    params = parseUrl(params);
-    options = populate({
-      port: params.port,
-      path: params.pathname,
-      host: params.hostname,
-      protocol: params.protocol
-    }, defaults);
-
-  // use custom params
-  } else {
-
-    options = populate(params, defaults);
-    // if no port provided use default one
-    if (!options.port) {
-      options.port = options.protocol == 'https:' ? 443 : 80;
-    }
   }
 
-  // put that good code in getHeaders to some use
-  options.headers = this.getHeaders(params.headers);
-
-  // https if specified, fallback to http in any other case
-  if (options.protocol == 'https:') {
-    request = https.request(options);
-  } else {
-    request = http.request(options);
-  }
-
-  // get content length and fire away
-  this.getLength(function(err, length) {
-    if (err) {
-      this._error(err);
-      return;
+  writeCookies(hdrs) {
+    var cookies = [];
+    for (var k in this.cookies) {
+      cookies.push(this.cookies[k]);
     }
-
-    // add content length
-    request.setHeader('Content-Length', length);
-
-    this.pipe(request);
-    if (cb) {
-      request.on('error', cb);
-      request.on('response', cb.bind(this, null));
+    if (cookies.length) {
+      hdrs.Cookies = utils.dumpCookies(cookies);
     }
-  }.bind(this));
-
-  return request;
-};
-
-FormData.prototype._error = function(err) {
-  if (!this.error) {
-    this.error = err;
-    this.pause();
-    this.emit('error', err);
   }
-};
-
-FormData.prototype.toString = function () {
-  return '[object FormData]';
 };
 
 
@@ -17539,1671 +17274,554 @@ FormData.prototype.toString = function () {
 /* 130 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var util = __webpack_require__(24);
-var Stream = __webpack_require__(25).Stream;
-var DelayedStream = __webpack_require__(131);
-var defer = __webpack_require__(132);
+"use strict";
 
-module.exports = CombinedStream;
-function CombinedStream() {
-  this.writable = false;
-  this.readable = true;
-  this.dataSize = 0;
-  this.maxDataSize = 2 * 1024 * 1024;
-  this.pauseStreams = true;
 
-  this._released = false;
-  this._streams = [];
-  this._currentStream = null;
-}
-util.inherits(CombinedStream, Stream);
+const os = __webpack_require__(6);
+const fs = __webpack_require__(28);
+const path = __webpack_require__(27);
+const https = __webpack_require__(11);
+const child_process = __webpack_require__(16);
+const utils = __webpack_require__(123);
+const KiteStateError = __webpack_require__(126);
+const {STATES} = __webpack_require__(127);
 
-CombinedStream.create = function(options) {
-  var combinedStream = new this();
+const OSXSupport = {
+  RELEASE_URL: 'https://alpha.kite.com/release/dls/mac/current',
+  APPS_PATH: '/Applications/',
+  KITE_DMG_PATH: '/tmp/Kite.dmg',
+  KITE_VOLUME_PATH: '/Volumes/Kite/',
+  KITE_APP_PATH: {mounted: '/Volumes/Kite/Kite.app', defaultInstalled: '/Applications/Kite.app'},
+  KITE_SIDEBAR_PATH: '/Applications/Kite.app/Contents/MacOS/KiteSidebar.app',
+  KITE_BUNDLE_ID: 'com.kite.Kite',
+  SESSION_FILE_PATH: path.join(os.homedir(), '.kite', 'session.json'),
 
-  options = options || {};
-  for (var option in options) {
-    combinedStream[option] = options[option];
-  }
+  get releaseURL() {
+    return this.RELEASE_URL;
+  },
 
-  return combinedStream;
-};
+  get downloadPath() {
+    return this.KITE_DMG_PATH;
+  },
 
-CombinedStream.isStreamLike = function(stream) {
-  return (typeof stream !== 'function')
-    && (typeof stream !== 'string')
-    && (typeof stream !== 'boolean')
-    && (typeof stream !== 'number')
-    && (!Buffer.isBuffer(stream));
-};
+  get installPath() {
+    return this.allInstallPaths[0];
+  },
 
-CombinedStream.prototype.append = function(stream) {
-  var isStreamLike = CombinedStream.isStreamLike(stream);
-
-  if (isStreamLike) {
-    if (!(stream instanceof DelayedStream)) {
-      var newStream = DelayedStream.create(stream, {
-        maxDataSize: Infinity,
-        pauseStream: this.pauseStreams,
-      });
-      stream.on('data', this._checkDataSize.bind(this));
-      stream = newStream;
+  get allInstallPaths() {
+    let paths = String(child_process.spawnSync('mdfind', [
+      'kMDItemCFBundleIdentifier = "com.kite.Kite"',
+    ]).stdout).trim().split('\n');
+    if (paths.indexOf(this.KITE_APP_PATH.defaultInstalled) === -1 && this.checkDefaultAppPath()) {
+      paths.push(this.KITE_APP_PATH.defaultInstalled);
     }
+    return paths.filter(p => p !== '');
+  },
 
-    this._handleErrors(stream);
+  get enterpriseInstallPath() {
+    return this.allEnterpriseInstallPaths[0];
+  },
 
-    if (this.pauseStreams) {
-      stream.pause();
+  get allEnterpriseInstallPaths() {
+    return String(child_process.spawnSync('mdfind', [
+      'kMDItemCFBundleIdentifier = "enterprise.kite.Kite"',
+    ]).stdout).trim().split('\n');
+  },
+
+  get sessionFilePath() {
+    return this.SESSION_FILE_PATH;
+  },
+
+  isAdmin() {
+    try {
+      const user = utils.whoami();
+      const adminUsers = String(child_process.execSync('dscacheutil -q group -a name admin'))
+      .split('\n')
+      .filter(l => /^users:/.test(l))[0]
+      .trim()
+      .replace(/users:\s+/, '')
+      .split(/\s/g);
+      return adminUsers.includes(user);
+    } catch (e) {
+      return false;
     }
-  }
+  },
 
-  this._streams.push(stream);
-  return this;
+  arch() {
+    return os.arch();
+  },
+
+  isOSSupported() {
+    return true;
+  },
+
+  isOSVersionSupported() {
+    return parseFloat(os.release()) >= 14;
+  },
+
+  isKiteSupported() {
+    return this.isOSVersionSupported();
+  },
+
+  checkDefaultAppPath() {
+    return fs.existsSync(this.KITE_APP_PATH.defaultInstalled);
+  },
+
+  isKiteInstalled() {
+    return utils.spawnPromise(
+      'mdfind',
+      ['kMDItemCFBundleIdentifier = "com.kite.Kite"'],
+      'mdfind_error',
+      'Unable to run mdfind and verify that Kite is installed')
+    .then(res => {
+      if ((!res || res.trim() === '') && !this.checkDefaultAppPath()) {
+        throw new KiteStateError('Unable to find Kite application install using mdfind', {
+          state: STATES.UNINSTALLED,
+        });
+      }
+    });
+  },
+
+  hasManyKiteInstallation() {
+    return this.allInstallPaths.length > 1;
+  },
+
+  hasManyKiteEnterpriseInstallation() {
+    return this.allEnterpriseInstallPaths.length > 1;
+  },
+
+  hasBothKiteInstalled() {
+    return Promise.all([
+      this.isKiteInstalled(),
+      this.isKiteEnterpriseInstalled(),
+    ]);
+  },
+
+  isKiteEnterpriseInstalled() {
+    return utils.spawnPromise(
+      'mdfind',
+      ['kMDItemCFBundleIdentifier = "enterprise.kite.Kite"'],
+      'mdfind_error',
+      'Unable to run mdfind and verify that kite enterprise is installed')
+    .then(res => {
+      if (!res || res.trim() === '') {
+        throw new KiteStateError('Unable to find Kite Enterprise application install using mdfind', {
+          state: STATES.UNINSTALLED,
+        });
+      }
+    });
+  },
+
+  downloadKiteRelease(opts) {
+    return this.downloadKite(this.releaseURL, opts || {});
+  },
+
+  downloadKite(url, opts) {
+    opts = opts || {};
+    return this.streamKiteDownload(url, opts.onDownloadProgress)
+    .then(() => utils.guardCall(opts.onDownload))
+    .then(() => opts.install && this.installKite(opts));
+  },
+
+  streamKiteDownload(url, progress) {
+    const req = https.request(url);
+    req.end();
+
+    return utils.followRedirections(req)
+    .then(resp => {
+      if (progress) {
+        const total = parseInt(resp.headers['content-length'], 10);
+        let length = 0;
+
+        resp.on('data', chunk => {
+          length += chunk.length;
+          progress(length, total, length / total);
+        });
+      }
+
+      return utils.promisifyStream(
+        resp.pipe(fs.createWriteStream(this.downloadPath))
+      )
+      .then(() => new Promise((resolve, reject) => {
+        setTimeout(resolve, 100);
+      }));
+    });
+  },
+
+  installKite(opts) {
+    opts = opts || {};
+
+    utils.guardCall(opts.onInstallStart);
+    return utils.spawnPromise(
+      'hdiutil',
+      ['attach', '-nobrowse', this.KITE_DMG_PATH],
+      'mount_error',
+      'Unable to mount Kite.dmg')
+    .then(() => utils.guardCall(opts.onMount))
+    .then(() => utils.spawnPromise(
+      'cp',
+      ['-r', this.KITE_APP_PATH.mounted, this.APPS_PATH],
+      'cp_error',
+      'Unable to copy Kite.app in the applications directory'))
+    .then(() => utils.guardCall(opts.onCopy))
+    .then(() => utils.spawnPromise(
+      'hdiutil',
+      ['detach', this.KITE_VOLUME_PATH],
+      'unmount_error',
+      'Unable to unmount Kite.dmg'))
+    .then(() => utils.guardCall(opts.onUnmount))
+    .then(() => utils.spawnPromise(
+      'rm', [this.KITE_DMG_PATH],
+      'rm_error',
+      'Unable to remove Kite.dmg'))
+    .then(() => utils.guardCall(opts.onRemove))
+    // mdfind takes some time to index the app location, so we need to
+    // wait for the install to fully complete. Runs 10 times at 1.5s
+    // intervals.
+    .then(() => utils.retryPromise(() => this.isKiteInstalled(), 10, 1500));
+  },
+
+  isKiteRunning() {
+    return utils.spawnPromise(
+      '/bin/ps',
+      ['-axco', 'command'],
+      {encoding: 'utf8'},
+      'ps_error',
+      'Unable to run the ps command and verify that Kite is running')
+    .then(stdout => {
+      const procs = stdout.split('\n');
+      if (!procs.some(s => /^Kite$/.test(s))) {
+        throw new KiteStateError('Kite process could not be found in the processes list', {
+          state: STATES.NOT_RUNNING,
+        });
+      }
+    });
+  },
+
+  runKite() {
+    const env = Object.assign({}, process.env);
+    delete env['ELECTRON_RUN_AS_NODE'];
+
+    return this.isKiteRunning()
+    .catch(() => utils.spawnPromise(
+      'defaults',
+      ['write', 'com.kite.Kite', 'shouldReopenSidebar', '0'],
+      'defaults_error',
+      'Unable to run defaults command')
+    .then(() =>
+    utils.spawnPromise(
+      'open',
+      ['-a', this.installPath, '--args', '--plugin-launch', '--channel=autocomplete-python'],
+      { env: env },
+      'open_error',
+      'Unable to run the open command to start Kite'
+    )));
+  },
+
+  isKiteEnterpriseRunning() {
+    return utils.spawnPromise(
+      '/bin/ps',
+      ['-axco', 'command'],
+      {encoding: 'utf8'},
+      'ps_error',
+      'Unable to run the ps command and verify that Kite enterprise is running')
+    .then(stdout => {
+      const procs = stdout.split('\n');
+      if (!procs.some(s => /^KiteEnterprise$/.test(s))) {
+        throw new KiteStateError('Kite Enterprise process could not be found in the processes list', {
+          state: STATES.NOT_RUNNING,
+        });
+      }
+    });
+  },
+
+  runKiteEnterprise() {
+    const env = Object.assign({}, process.env);
+    delete env['ELECTRON_RUN_AS_NODE'];
+
+    return utils.spawnPromise(
+      'defaults',
+      ['write', 'enterprise.kite.Kite', 'shouldReopenSidebar', '0'],
+      'defaults_error',
+      'Unable to run defaults command')
+    .then(() =>
+      utils.spawnPromise(
+        'open',
+        ['-a', this.enterpriseInstallPath],
+        { env: env },
+        'open_error',
+        'Unable to run the open command and start Kite enterprise'));
+  },
 };
 
-CombinedStream.prototype.pipe = function(dest, options) {
-  Stream.prototype.pipe.call(this, dest, options);
-  this.resume();
-  return dest;
-};
-
-CombinedStream.prototype._getNext = function() {
-  this._currentStream = null;
-  var stream = this._streams.shift();
-
-
-  if (typeof stream == 'undefined') {
-    this.end();
-    return;
-  }
-
-  if (typeof stream !== 'function') {
-    this._pipeNext(stream);
-    return;
-  }
-
-  var getStream = stream;
-  getStream(function(stream) {
-    var isStreamLike = CombinedStream.isStreamLike(stream);
-    if (isStreamLike) {
-      stream.on('data', this._checkDataSize.bind(this));
-      this._handleErrors(stream);
-    }
-
-    defer(this._pipeNext.bind(this, stream));
-  }.bind(this));
-};
-
-CombinedStream.prototype._pipeNext = function(stream) {
-  this._currentStream = stream;
-
-  var isStreamLike = CombinedStream.isStreamLike(stream);
-  if (isStreamLike) {
-    stream.on('end', this._getNext.bind(this));
-    stream.pipe(this, {end: false});
-    return;
-  }
-
-  var value = stream;
-  this.write(value);
-  this._getNext();
-};
-
-CombinedStream.prototype._handleErrors = function(stream) {
-  var self = this;
-  stream.on('error', function(err) {
-    self._emitError(err);
-  });
-};
-
-CombinedStream.prototype.write = function(data) {
-  this.emit('data', data);
-};
-
-CombinedStream.prototype.pause = function() {
-  if (!this.pauseStreams) {
-    return;
-  }
-
-  if(this.pauseStreams && this._currentStream && typeof(this._currentStream.pause) == 'function') this._currentStream.pause();
-  this.emit('pause');
-};
-
-CombinedStream.prototype.resume = function() {
-  if (!this._released) {
-    this._released = true;
-    this.writable = true;
-    this._getNext();
-  }
-
-  if(this.pauseStreams && this._currentStream && typeof(this._currentStream.resume) == 'function') this._currentStream.resume();
-  this.emit('resume');
-};
-
-CombinedStream.prototype.end = function() {
-  this._reset();
-  this.emit('end');
-};
-
-CombinedStream.prototype.destroy = function() {
-  this._reset();
-  this.emit('close');
-};
-
-CombinedStream.prototype._reset = function() {
-  this.writable = false;
-  this._streams = [];
-  this._currentStream = null;
-};
-
-CombinedStream.prototype._checkDataSize = function() {
-  this._updateDataSize();
-  if (this.dataSize <= this.maxDataSize) {
-    return;
-  }
-
-  var message =
-    'DelayedStream#maxDataSize of ' + this.maxDataSize + ' bytes exceeded.';
-  this._emitError(new Error(message));
-};
-
-CombinedStream.prototype._updateDataSize = function() {
-  this.dataSize = 0;
-
-  var self = this;
-  this._streams.forEach(function(stream) {
-    if (!stream.dataSize) {
-      return;
-    }
-
-    self.dataSize += stream.dataSize;
-  });
-
-  if (this._currentStream && this._currentStream.dataSize) {
-    this.dataSize += this._currentStream.dataSize;
-  }
-};
-
-CombinedStream.prototype._emitError = function(err) {
-  this._reset();
-  this.emit('error', err);
-};
+module.exports = OSXSupport;
 
 
 /***/ }),
 /* 131 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Stream = __webpack_require__(25).Stream;
-var util = __webpack_require__(24);
+"use strict";
 
-module.exports = DelayedStream;
-function DelayedStream() {
-  this.source = null;
-  this.dataSize = 0;
-  this.maxDataSize = 1024 * 1024;
-  this.pauseStream = true;
 
-  this._maxDataSizeExceeded = false;
-  this._released = false;
-  this._bufferedEvents = [];
-}
-util.inherits(DelayedStream, Stream);
+const os = __webpack_require__(6);
+const fs = __webpack_require__(28);
+const path = __webpack_require__(27);
+const https = __webpack_require__(11);
+const child_process = __webpack_require__(16);
+const utils = __webpack_require__(123);
+const KiteStateError = __webpack_require__(126);
+const KiteProcessError = __webpack_require__(125);
 
-DelayedStream.create = function(source, options) {
-  var delayedStream = new this();
+const {STATES} = __webpack_require__(127);
 
-  options = options || {};
-  for (var option in options) {
-    delayedStream[option] = options[option];
-  }
+const KEY_BAT = `"${path.join(__dirname, 'read-key.bat')}"`;
+const ARCH_BAT = `"${path.join(__dirname, 'read-arch.bat')}"`;
+let COMPUTED_INSTALL_PATH;
 
-  delayedStream.source = source;
+const WindowsSupport = {
+  RELEASE_URL: 'https://alpha.kite.com/release/dls/windows/current',
+  KITE_INSTALLER_PATH: path.join(os.tmpdir(), 'KiteSetup.exe'),
+  SESSION_FILE_PATH: path.join(process.env.LOCALAPPDATA, 'Kite', 'session.json'),
 
-  var realEmit = source.emit;
-  source.emit = function() {
-    delayedStream._handleEmit(arguments);
-    return realEmit.apply(source, arguments);
-  };
+  // We're only setting the install path in tests
+  set KITE_EXE_PATH(path) {
+    COMPUTED_INSTALL_PATH = path;
+  },
+  get KITE_EXE_PATH() {
+    if (!COMPUTED_INSTALL_PATH) {
+      let installDir, fallbackInstallDir;
 
-  source.on('error', function() {});
-  if (delayedStream.pauseStream) {
-    source.pause();
-  }
+      if (process.env.ProgramW6432) {
+        fallbackInstallDir = path.join(process.env.ProgramW6432, 'Kite');
+      } else {
+        // TODO: report that even the fallback needed a fallback
+        fallbackInstallDir = 'C:\\Program Files\\Kite';
+      }
 
-  return delayedStream;
+      try {
+        const registryDir = String(child_process.execSync(KEY_BAT)).trim();
+
+        installDir = registryDir !== 'not found'
+          ? registryDir
+          : fallbackInstallDir;
+      } catch (err) {
+        installDir = fallbackInstallDir;
+      }
+      COMPUTED_INSTALL_PATH = path.join(installDir, 'kited.exe');
+    }
+
+    return COMPUTED_INSTALL_PATH;
+  },
+
+  get releaseURL() {
+    return this.RELEASE_URL;
+  },
+
+  get downloadPath() {
+    return this.KITE_INSTALLER_PATH;
+  },
+
+  get installPath() {
+    return this.KITE_EXE_PATH;
+  },
+
+  get enterpriseInstallPath() {
+    return null;
+  },
+
+  get allInstallPaths() {
+    return [this.installPath];
+  },
+
+  get allEnterpriseInstallPaths() {
+    return [];
+  },
+
+  get sessionFilePath() {
+    return this.SESSION_FILE_PATH;
+  },
+
+  isAdmin() {
+    try {
+      // Note that this method can still fail if the server has not been started
+      // but it has the merit of being simple and reliable
+      // see https://stackoverflow.com/questions/4051883/batch-script-how-to-check-for-admin-rights
+      // for details
+      child_process.execSync('net session');
+      return true;
+    } catch (e) {
+      return false;
+    }
+  },
+
+  arch() {
+    if (!this.cachedArch) { this.cachedArch = os.arch(); }
+    
+    // for backwards compatibility, we don't just return the direct result of the os call
+    if (this.cachedArch === 'x32') { return '32bit'; }
+    if (this.cachedArch === 'x64') { return '64bit'; }
+    
+    return this.cachedArch;
+  },
+
+  isOSSupported() {
+    return true;
+  },
+
+  isOSVersionSupported() {
+    return parseFloat(os.release()) >= 6.1 &&
+           this.arch() === '64bit';
+  },
+
+  isKiteSupported() {
+    return this.isOSVersionSupported();
+  },
+
+  isKiteInstalled() {
+    return new Promise((resolve, reject) => {
+      fs.exists(this.KITE_EXE_PATH, (exists) => {
+        if (exists) {
+          resolve();
+        } else {
+          reject(new KiteStateError('', {
+            state: STATES.UNINSTALLED,
+          }));
+        }
+      });
+    });
+  },
+
+  isKiteEnterpriseInstalled() {
+    return Promise.reject(new KiteStateError('Kite Enterprise is currently not supported on windows', {
+      state: STATES.UNSUPPORTED,
+    }));
+  },
+
+  hasManyKiteInstallation() {
+    return this.allInstallPaths.length > 1;
+  },
+
+  hasManyKiteEnterpriseInstallation() {
+    return this.allEnterpriseInstallPaths.length > 1;
+  },
+
+  hasBothKiteInstalled() {
+    return Promise.all([
+      this.isKiteInstalled(),
+      this.isKiteEnterpriseInstalled(),
+    ]);
+  },
+
+  downloadKiteRelease(opts) {
+    return this.downloadKite(this.releaseURL, opts || {});
+  },
+
+  downloadKite(url, opts) {
+    opts = opts || {};
+    return this.streamKiteDownload(url, opts.onDownloadProgress)
+    .then(() => utils.guardCall(opts.onDownload))
+    .then(() => opts.install && this.installKite(opts));
+  },
+
+  streamKiteDownload(url, progress) {
+    const req = https.request(url);
+    req.end();
+
+    return utils.followRedirections(req)
+    .then(resp => {
+      if (progress) {
+        const total = parseInt(resp.headers['content-length'], 10);
+        let length = 0;
+
+        resp.on('data', chunk => {
+          length += chunk.length;
+          progress(length, total, length / total);
+        });
+      }
+
+      return utils.promisifyStream(
+        resp.pipe(fs.createWriteStream(this.downloadPath))
+      )
+      .then(() => new Promise((resolve, reject) => {
+        setTimeout(resolve, 100);
+      }));
+    });
+  },
+
+  installKite(opts) {
+    opts = opts || {};
+    var env = Object.create(process.env);
+    env.KITE_SKIP_ONBOARDING = '1';
+
+    utils.guardCall(opts.onInstallStart);
+    return utils.execPromise(
+      `"${this.KITE_INSTALLER_PATH}"` + ' --skip-onboarding --plugin-launch --channel=autocomplete-python',
+      {env: env},
+      'kite_install_error',
+      'Unable to run Kite installer')
+    .then(() => utils.guardCall(opts.onCopy))
+    .then(() => fs.unlinkSync(this.KITE_INSTALLER_PATH))
+    .then(() => utils.guardCall(opts.onRemove));
+  },
+
+  isKiteRunning() {
+    return utils.spawnPromise(
+      'tasklist',
+      'tasklist_error',
+      'Unable to run the tasklist command and verify whether kite is running or not')
+    .then(stdout => {
+      const procs = stdout.split('\n');
+      if (procs.every(l => l.indexOf('kited.exe') === -1)) {
+        throw new KiteStateError('Unable to find kited.exe process in the tasks list', {
+          state: STATES.NOT_RUNNING,
+        });
+      }
+    });
+  },
+
+  runKite() {
+    return this.isKiteRunning()
+    .catch(() => {
+      var env = Object.create(process.env);
+      env.KITE_SKIP_ONBOARDING = '1';
+      delete env["ELECTRON_RUN_AS_NODE"];
+
+      try {
+        child_process.spawn(
+          this.KITE_EXE_PATH,
+          ['--plugin-launch', '--channel=autocomplete-python'],
+          {detached: true, env: env});
+      } catch (err) {
+        throw new KiteProcessError('kite_exe_error',
+          {
+            message: 'Unable to run kite executable',
+            callStack: err.stack,
+            cmd: this.KITE_EXE_PATH,
+            options: {detached: true, env: env},
+          });
+      }
+    });
+  },
+
+  isKiteEnterpriseRunning() {
+    return Promise.reject(new KiteStateError('Kite Enterprise is currently not supported on windows', {
+      state: STATES.UNSUPPORTED,
+    }));
+  },
+
+  runKiteEnterprise() {
+    return Promise.reject(new KiteStateError('Kite Enterprise is currently not supported on windows', {
+      state: STATES.UNSUPPORTED,
+    }));
+  },
 };
 
-Object.defineProperty(DelayedStream.prototype, 'readable', {
-  configurable: true,
-  enumerable: true,
-  get: function() {
-    return this.source.readable;
-  }
-});
-
-DelayedStream.prototype.setEncoding = function() {
-  return this.source.setEncoding.apply(this.source, arguments);
-};
-
-DelayedStream.prototype.resume = function() {
-  if (!this._released) {
-    this.release();
-  }
-
-  this.source.resume();
-};
-
-DelayedStream.prototype.pause = function() {
-  this.source.pause();
-};
-
-DelayedStream.prototype.release = function() {
-  this._released = true;
-
-  this._bufferedEvents.forEach(function(args) {
-    this.emit.apply(this, args);
-  }.bind(this));
-  this._bufferedEvents = [];
-};
-
-DelayedStream.prototype.pipe = function() {
-  var r = Stream.prototype.pipe.apply(this, arguments);
-  this.resume();
-  return r;
-};
-
-DelayedStream.prototype._handleEmit = function(args) {
-  if (this._released) {
-    this.emit.apply(this, args);
-    return;
-  }
-
-  if (args[0] === 'data') {
-    this.dataSize += args[1].length;
-    this._checkIfMaxDataSizeExceeded();
-  }
-
-  this._bufferedEvents.push(args);
-};
-
-DelayedStream.prototype._checkIfMaxDataSizeExceeded = function() {
-  if (this._maxDataSizeExceeded) {
-    return;
-  }
-
-  if (this.dataSize <= this.maxDataSize) {
-    return;
-  }
-
-  this._maxDataSizeExceeded = true;
-  var message =
-    'DelayedStream#maxDataSize of ' + this.maxDataSize + ' bytes exceeded.'
-  this.emit('error', new Error(message));
-};
+module.exports = WindowsSupport;
 
 
 /***/ }),
 /* 132 */
-/***/ (function(module, exports) {
-
-module.exports = defer;
-
-/**
- * Runs provided function on next iteration of the event loop
- *
- * @param {function} fn - function to run
- */
-function defer(fn)
-{
-  var nextTick = typeof setImmediate == 'function'
-    ? setImmediate
-    : (
-      typeof process == 'object' && typeof process.nextTick == 'function'
-      ? process.nextTick
-      : null
-    );
-
-  if (nextTick)
-  {
-    nextTick(fn);
-  }
-  else
-  {
-    setTimeout(fn, 0);
-  }
-}
-
-
-/***/ }),
-/* 133 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/*!
- * mime-types
- * Copyright(c) 2014 Jonathan Ong
- * Copyright(c) 2015 Douglas Christopher Wilson
- * MIT Licensed
- */
-
-
-
-/**
- * Module dependencies.
- * @private
- */
-
-var db = __webpack_require__(134)
-var extname = __webpack_require__(27).extname
-
-/**
- * Module variables.
- * @private
- */
-
-var EXTRACT_TYPE_REGEXP = /^\s*([^;\s]*)(?:;|\s|$)/
-var TEXT_TYPE_REGEXP = /^text\//i
-
-/**
- * Module exports.
- * @public
- */
-
-exports.charset = charset
-exports.charsets = { lookup: charset }
-exports.contentType = contentType
-exports.extension = extension
-exports.extensions = Object.create(null)
-exports.lookup = lookup
-exports.types = Object.create(null)
-
-// Populate the extensions/types maps
-populateMaps(exports.extensions, exports.types)
-
-/**
- * Get the default charset for a MIME type.
- *
- * @param {string} type
- * @return {boolean|string}
- */
-
-function charset (type) {
-  if (!type || typeof type !== 'string') {
-    return false
-  }
-
-  // TODO: use media-typer
-  var match = EXTRACT_TYPE_REGEXP.exec(type)
-  var mime = match && db[match[1].toLowerCase()]
-
-  if (mime && mime.charset) {
-    return mime.charset
-  }
-
-  // default text/* to utf-8
-  if (match && TEXT_TYPE_REGEXP.test(match[1])) {
-    return 'UTF-8'
-  }
-
-  return false
-}
-
-/**
- * Create a full Content-Type header given a MIME type or extension.
- *
- * @param {string} str
- * @return {boolean|string}
- */
-
-function contentType (str) {
-  // TODO: should this even be in this module?
-  if (!str || typeof str !== 'string') {
-    return false
-  }
-
-  var mime = str.indexOf('/') === -1
-    ? exports.lookup(str)
-    : str
-
-  if (!mime) {
-    return false
-  }
-
-  // TODO: use content-type or other module
-  if (mime.indexOf('charset') === -1) {
-    var charset = exports.charset(mime)
-    if (charset) mime += '; charset=' + charset.toLowerCase()
-  }
-
-  return mime
-}
-
-/**
- * Get the default extension for a MIME type.
- *
- * @param {string} type
- * @return {boolean|string}
- */
-
-function extension (type) {
-  if (!type || typeof type !== 'string') {
-    return false
-  }
-
-  // TODO: use media-typer
-  var match = EXTRACT_TYPE_REGEXP.exec(type)
-
-  // get extensions
-  var exts = match && exports.extensions[match[1].toLowerCase()]
-
-  if (!exts || !exts.length) {
-    return false
-  }
-
-  return exts[0]
-}
-
-/**
- * Lookup the MIME type for a file path/extension.
- *
- * @param {string} path
- * @return {boolean|string}
- */
-
-function lookup (path) {
-  if (!path || typeof path !== 'string') {
-    return false
-  }
-
-  // get the extension ("ext" or ".ext" or full path)
-  var extension = extname('x.' + path)
-    .toLowerCase()
-    .substr(1)
-
-  if (!extension) {
-    return false
-  }
-
-  return exports.types[extension] || false
-}
-
-/**
- * Populate the extensions and types maps.
- * @private
- */
-
-function populateMaps (extensions, types) {
-  // source preference (least -> most)
-  var preference = ['nginx', 'apache', undefined, 'iana']
-
-  Object.keys(db).forEach(function forEachMimeType (type) {
-    var mime = db[type]
-    var exts = mime.extensions
-
-    if (!exts || !exts.length) {
-      return
-    }
-
-    // mime -> extensions
-    extensions[type] = exts
-
-    // extension -> mime
-    for (var i = 0; i < exts.length; i++) {
-      var extension = exts[i]
-
-      if (types[extension]) {
-        var from = preference.indexOf(db[types[extension]].source)
-        var to = preference.indexOf(mime.source)
-
-        if (types[extension] !== 'application/octet-stream' &&
-          (from > to || (from === to && types[extension].substr(0, 12) === 'application/'))) {
-          // skip the remapping
-          continue
-        }
-      }
-
-      // set the extension -> mime
-      types[extension] = type
-    }
-  })
-}
-
-
-/***/ }),
-/* 134 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/*!
- * mime-db
- * Copyright(c) 2014 Jonathan Ong
- * MIT Licensed
- */
-
-/**
- * Module exports.
- */
-
-module.exports = __webpack_require__(135)
-
-
-/***/ }),
-/* 135 */
-/***/ (function(module) {
-
-module.exports = {"application/1d-interleaved-parityfec":{"source":"iana"},"application/3gpdash-qoe-report+xml":{"source":"iana","compressible":true},"application/3gpp-ims+xml":{"source":"iana","compressible":true},"application/a2l":{"source":"iana"},"application/activemessage":{"source":"iana"},"application/activity+json":{"source":"iana","compressible":true},"application/alto-costmap+json":{"source":"iana","compressible":true},"application/alto-costmapfilter+json":{"source":"iana","compressible":true},"application/alto-directory+json":{"source":"iana","compressible":true},"application/alto-endpointcost+json":{"source":"iana","compressible":true},"application/alto-endpointcostparams+json":{"source":"iana","compressible":true},"application/alto-endpointprop+json":{"source":"iana","compressible":true},"application/alto-endpointpropparams+json":{"source":"iana","compressible":true},"application/alto-error+json":{"source":"iana","compressible":true},"application/alto-networkmap+json":{"source":"iana","compressible":true},"application/alto-networkmapfilter+json":{"source":"iana","compressible":true},"application/aml":{"source":"iana"},"application/andrew-inset":{"source":"iana","extensions":["ez"]},"application/applefile":{"source":"iana"},"application/applixware":{"source":"apache","extensions":["aw"]},"application/atf":{"source":"iana"},"application/atfx":{"source":"iana"},"application/atom+xml":{"source":"iana","compressible":true,"extensions":["atom"]},"application/atomcat+xml":{"source":"iana","compressible":true,"extensions":["atomcat"]},"application/atomdeleted+xml":{"source":"iana","compressible":true},"application/atomicmail":{"source":"iana"},"application/atomsvc+xml":{"source":"iana","compressible":true,"extensions":["atomsvc"]},"application/atxml":{"source":"iana"},"application/auth-policy+xml":{"source":"iana","compressible":true},"application/bacnet-xdd+zip":{"source":"iana","compressible":false},"application/batch-smtp":{"source":"iana"},"application/bdoc":{"compressible":false,"extensions":["bdoc"]},"application/beep+xml":{"source":"iana","compressible":true},"application/calendar+json":{"source":"iana","compressible":true},"application/calendar+xml":{"source":"iana","compressible":true},"application/call-completion":{"source":"iana"},"application/cals-1840":{"source":"iana"},"application/cbor":{"source":"iana"},"application/cccex":{"source":"iana"},"application/ccmp+xml":{"source":"iana","compressible":true},"application/ccxml+xml":{"source":"iana","compressible":true,"extensions":["ccxml"]},"application/cdfx+xml":{"source":"iana","compressible":true},"application/cdmi-capability":{"source":"iana","extensions":["cdmia"]},"application/cdmi-container":{"source":"iana","extensions":["cdmic"]},"application/cdmi-domain":{"source":"iana","extensions":["cdmid"]},"application/cdmi-object":{"source":"iana","extensions":["cdmio"]},"application/cdmi-queue":{"source":"iana","extensions":["cdmiq"]},"application/cdni":{"source":"iana"},"application/cea":{"source":"iana"},"application/cea-2018+xml":{"source":"iana","compressible":true},"application/cellml+xml":{"source":"iana","compressible":true},"application/cfw":{"source":"iana"},"application/clue_info+xml":{"source":"iana","compressible":true},"application/cms":{"source":"iana"},"application/cnrp+xml":{"source":"iana","compressible":true},"application/coap-group+json":{"source":"iana","compressible":true},"application/coap-payload":{"source":"iana"},"application/commonground":{"source":"iana"},"application/conference-info+xml":{"source":"iana","compressible":true},"application/cose":{"source":"iana"},"application/cose-key":{"source":"iana"},"application/cose-key-set":{"source":"iana"},"application/cpl+xml":{"source":"iana","compressible":true},"application/csrattrs":{"source":"iana"},"application/csta+xml":{"source":"iana","compressible":true},"application/cstadata+xml":{"source":"iana","compressible":true},"application/csvm+json":{"source":"iana","compressible":true},"application/cu-seeme":{"source":"apache","extensions":["cu"]},"application/cwt":{"source":"iana"},"application/cybercash":{"source":"iana"},"application/dart":{"compressible":true},"application/dash+xml":{"source":"iana","compressible":true,"extensions":["mpd"]},"application/dashdelta":{"source":"iana"},"application/davmount+xml":{"source":"iana","compressible":true,"extensions":["davmount"]},"application/dca-rft":{"source":"iana"},"application/dcd":{"source":"iana"},"application/dec-dx":{"source":"iana"},"application/dialog-info+xml":{"source":"iana","compressible":true},"application/dicom":{"source":"iana"},"application/dicom+json":{"source":"iana","compressible":true},"application/dicom+xml":{"source":"iana","compressible":true},"application/dii":{"source":"iana"},"application/dit":{"source":"iana"},"application/dns":{"source":"iana"},"application/dns+json":{"source":"iana","compressible":true},"application/dns-message":{"source":"iana"},"application/docbook+xml":{"source":"apache","compressible":true,"extensions":["dbk"]},"application/dskpp+xml":{"source":"iana","compressible":true},"application/dssc+der":{"source":"iana","extensions":["dssc"]},"application/dssc+xml":{"source":"iana","compressible":true,"extensions":["xdssc"]},"application/dvcs":{"source":"iana"},"application/ecmascript":{"source":"iana","compressible":true,"extensions":["ecma","es"]},"application/edi-consent":{"source":"iana"},"application/edi-x12":{"source":"iana","compressible":false},"application/edifact":{"source":"iana","compressible":false},"application/efi":{"source":"iana"},"application/emergencycalldata.comment+xml":{"source":"iana","compressible":true},"application/emergencycalldata.control+xml":{"source":"iana","compressible":true},"application/emergencycalldata.deviceinfo+xml":{"source":"iana","compressible":true},"application/emergencycalldata.ecall.msd":{"source":"iana"},"application/emergencycalldata.providerinfo+xml":{"source":"iana","compressible":true},"application/emergencycalldata.serviceinfo+xml":{"source":"iana","compressible":true},"application/emergencycalldata.subscriberinfo+xml":{"source":"iana","compressible":true},"application/emergencycalldata.veds+xml":{"source":"iana","compressible":true},"application/emma+xml":{"source":"iana","compressible":true,"extensions":["emma"]},"application/emotionml+xml":{"source":"iana","compressible":true},"application/encaprtp":{"source":"iana"},"application/epp+xml":{"source":"iana","compressible":true},"application/epub+zip":{"source":"iana","compressible":false,"extensions":["epub"]},"application/eshop":{"source":"iana"},"application/exi":{"source":"iana","extensions":["exi"]},"application/expect-ct-report+json":{"source":"iana","compressible":true},"application/fastinfoset":{"source":"iana"},"application/fastsoap":{"source":"iana"},"application/fdt+xml":{"source":"iana","compressible":true},"application/fhir+json":{"source":"iana","compressible":true},"application/fhir+xml":{"source":"iana","compressible":true},"application/fido.trusted-apps+json":{"compressible":true},"application/fits":{"source":"iana"},"application/font-sfnt":{"source":"iana"},"application/font-tdpfr":{"source":"iana","extensions":["pfr"]},"application/font-woff":{"source":"iana","compressible":false},"application/framework-attributes+xml":{"source":"iana","compressible":true},"application/geo+json":{"source":"iana","compressible":true,"extensions":["geojson"]},"application/geo+json-seq":{"source":"iana"},"application/geopackage+sqlite3":{"source":"iana"},"application/geoxacml+xml":{"source":"iana","compressible":true},"application/gltf-buffer":{"source":"iana"},"application/gml+xml":{"source":"iana","compressible":true,"extensions":["gml"]},"application/gpx+xml":{"source":"apache","compressible":true,"extensions":["gpx"]},"application/gxf":{"source":"apache","extensions":["gxf"]},"application/gzip":{"source":"iana","compressible":false,"extensions":["gz"]},"application/h224":{"source":"iana"},"application/held+xml":{"source":"iana","compressible":true},"application/hjson":{"extensions":["hjson"]},"application/http":{"source":"iana"},"application/hyperstudio":{"source":"iana","extensions":["stk"]},"application/ibe-key-request+xml":{"source":"iana","compressible":true},"application/ibe-pkg-reply+xml":{"source":"iana","compressible":true},"application/ibe-pp-data":{"source":"iana"},"application/iges":{"source":"iana"},"application/im-iscomposing+xml":{"source":"iana","compressible":true},"application/index":{"source":"iana"},"application/index.cmd":{"source":"iana"},"application/index.obj":{"source":"iana"},"application/index.response":{"source":"iana"},"application/index.vnd":{"source":"iana"},"application/inkml+xml":{"source":"iana","compressible":true,"extensions":["ink","inkml"]},"application/iotp":{"source":"iana"},"application/ipfix":{"source":"iana","extensions":["ipfix"]},"application/ipp":{"source":"iana"},"application/isup":{"source":"iana"},"application/its+xml":{"source":"iana","compressible":true},"application/java-archive":{"source":"apache","compressible":false,"extensions":["jar","war","ear"]},"application/java-serialized-object":{"source":"apache","compressible":false,"extensions":["ser"]},"application/java-vm":{"source":"apache","compressible":false,"extensions":["class"]},"application/javascript":{"source":"iana","charset":"UTF-8","compressible":true,"extensions":["js","mjs"]},"application/jf2feed+json":{"source":"iana","compressible":true},"application/jose":{"source":"iana"},"application/jose+json":{"source":"iana","compressible":true},"application/jrd+json":{"source":"iana","compressible":true},"application/json":{"source":"iana","charset":"UTF-8","compressible":true,"extensions":["json","map"]},"application/json-patch+json":{"source":"iana","compressible":true},"application/json-seq":{"source":"iana"},"application/json5":{"extensions":["json5"]},"application/jsonml+json":{"source":"apache","compressible":true,"extensions":["jsonml"]},"application/jwk+json":{"source":"iana","compressible":true},"application/jwk-set+json":{"source":"iana","compressible":true},"application/jwt":{"source":"iana"},"application/kpml-request+xml":{"source":"iana","compressible":true},"application/kpml-response+xml":{"source":"iana","compressible":true},"application/ld+json":{"source":"iana","compressible":true,"extensions":["jsonld"]},"application/lgr+xml":{"source":"iana","compressible":true},"application/link-format":{"source":"iana"},"application/load-control+xml":{"source":"iana","compressible":true},"application/lost+xml":{"source":"iana","compressible":true,"extensions":["lostxml"]},"application/lostsync+xml":{"source":"iana","compressible":true},"application/lxf":{"source":"iana"},"application/mac-binhex40":{"source":"iana","extensions":["hqx"]},"application/mac-compactpro":{"source":"apache","extensions":["cpt"]},"application/macwriteii":{"source":"iana"},"application/mads+xml":{"source":"iana","compressible":true,"extensions":["mads"]},"application/manifest+json":{"charset":"UTF-8","compressible":true,"extensions":["webmanifest"]},"application/marc":{"source":"iana","extensions":["mrc"]},"application/marcxml+xml":{"source":"iana","compressible":true,"extensions":["mrcx"]},"application/mathematica":{"source":"iana","extensions":["ma","nb","mb"]},"application/mathml+xml":{"source":"iana","compressible":true,"extensions":["mathml"]},"application/mathml-content+xml":{"source":"iana","compressible":true},"application/mathml-presentation+xml":{"source":"iana","compressible":true},"application/mbms-associated-procedure-description+xml":{"source":"iana","compressible":true},"application/mbms-deregister+xml":{"source":"iana","compressible":true},"application/mbms-envelope+xml":{"source":"iana","compressible":true},"application/mbms-msk+xml":{"source":"iana","compressible":true},"application/mbms-msk-response+xml":{"source":"iana","compressible":true},"application/mbms-protection-description+xml":{"source":"iana","compressible":true},"application/mbms-reception-report+xml":{"source":"iana","compressible":true},"application/mbms-register+xml":{"source":"iana","compressible":true},"application/mbms-register-response+xml":{"source":"iana","compressible":true},"application/mbms-schedule+xml":{"source":"iana","compressible":true},"application/mbms-user-service-description+xml":{"source":"iana","compressible":true},"application/mbox":{"source":"iana","extensions":["mbox"]},"application/media-policy-dataset+xml":{"source":"iana","compressible":true},"application/media_control+xml":{"source":"iana","compressible":true},"application/mediaservercontrol+xml":{"source":"iana","compressible":true,"extensions":["mscml"]},"application/merge-patch+json":{"source":"iana","compressible":true},"application/metalink+xml":{"source":"apache","compressible":true,"extensions":["metalink"]},"application/metalink4+xml":{"source":"iana","compressible":true,"extensions":["meta4"]},"application/mets+xml":{"source":"iana","compressible":true,"extensions":["mets"]},"application/mf4":{"source":"iana"},"application/mikey":{"source":"iana"},"application/mmt-usd+xml":{"source":"iana","compressible":true},"application/mods+xml":{"source":"iana","compressible":true,"extensions":["mods"]},"application/moss-keys":{"source":"iana"},"application/moss-signature":{"source":"iana"},"application/mosskey-data":{"source":"iana"},"application/mosskey-request":{"source":"iana"},"application/mp21":{"source":"iana","extensions":["m21","mp21"]},"application/mp4":{"source":"iana","extensions":["mp4s","m4p"]},"application/mpeg4-generic":{"source":"iana"},"application/mpeg4-iod":{"source":"iana"},"application/mpeg4-iod-xmt":{"source":"iana"},"application/mrb-consumer+xml":{"source":"iana","compressible":true},"application/mrb-publish+xml":{"source":"iana","compressible":true},"application/msc-ivr+xml":{"source":"iana","compressible":true},"application/msc-mixer+xml":{"source":"iana","compressible":true},"application/msword":{"source":"iana","compressible":false,"extensions":["doc","dot"]},"application/mud+json":{"source":"iana","compressible":true},"application/mxf":{"source":"iana","extensions":["mxf"]},"application/n-quads":{"source":"iana","extensions":["nq"]},"application/n-triples":{"source":"iana","extensions":["nt"]},"application/nasdata":{"source":"iana"},"application/news-checkgroups":{"source":"iana"},"application/news-groupinfo":{"source":"iana"},"application/news-transmission":{"source":"iana"},"application/nlsml+xml":{"source":"iana","compressible":true},"application/node":{"source":"iana"},"application/nss":{"source":"iana"},"application/ocsp-request":{"source":"iana"},"application/ocsp-response":{"source":"iana"},"application/octet-stream":{"source":"iana","compressible":false,"extensions":["bin","dms","lrf","mar","so","dist","distz","pkg","bpk","dump","elc","deploy","exe","dll","deb","dmg","iso","img","msi","msp","msm","buffer"]},"application/oda":{"source":"iana","extensions":["oda"]},"application/odm+xml":{"source":"iana","compressible":true},"application/odx":{"source":"iana"},"application/oebps-package+xml":{"source":"iana","compressible":true,"extensions":["opf"]},"application/ogg":{"source":"iana","compressible":false,"extensions":["ogx"]},"application/omdoc+xml":{"source":"apache","compressible":true,"extensions":["omdoc"]},"application/onenote":{"source":"apache","extensions":["onetoc","onetoc2","onetmp","onepkg"]},"application/oxps":{"source":"iana","extensions":["oxps"]},"application/p2p-overlay+xml":{"source":"iana","compressible":true},"application/parityfec":{"source":"iana"},"application/passport":{"source":"iana"},"application/patch-ops-error+xml":{"source":"iana","compressible":true,"extensions":["xer"]},"application/pdf":{"source":"iana","compressible":false,"extensions":["pdf"]},"application/pdx":{"source":"iana"},"application/pem-certificate-chain":{"source":"iana"},"application/pgp-encrypted":{"source":"iana","compressible":false,"extensions":["pgp"]},"application/pgp-keys":{"source":"iana"},"application/pgp-signature":{"source":"iana","extensions":["asc","sig"]},"application/pics-rules":{"source":"apache","extensions":["prf"]},"application/pidf+xml":{"source":"iana","compressible":true},"application/pidf-diff+xml":{"source":"iana","compressible":true},"application/pkcs10":{"source":"iana","extensions":["p10"]},"application/pkcs12":{"source":"iana"},"application/pkcs7-mime":{"source":"iana","extensions":["p7m","p7c"]},"application/pkcs7-signature":{"source":"iana","extensions":["p7s"]},"application/pkcs8":{"source":"iana","extensions":["p8"]},"application/pkcs8-encrypted":{"source":"iana"},"application/pkix-attr-cert":{"source":"iana","extensions":["ac"]},"application/pkix-cert":{"source":"iana","extensions":["cer"]},"application/pkix-crl":{"source":"iana","extensions":["crl"]},"application/pkix-pkipath":{"source":"iana","extensions":["pkipath"]},"application/pkixcmp":{"source":"iana","extensions":["pki"]},"application/pls+xml":{"source":"iana","compressible":true,"extensions":["pls"]},"application/poc-settings+xml":{"source":"iana","compressible":true},"application/postscript":{"source":"iana","compressible":true,"extensions":["ai","eps","ps"]},"application/ppsp-tracker+json":{"source":"iana","compressible":true},"application/problem+json":{"source":"iana","compressible":true},"application/problem+xml":{"source":"iana","compressible":true},"application/provenance+xml":{"source":"iana","compressible":true},"application/prs.alvestrand.titrax-sheet":{"source":"iana"},"application/prs.cww":{"source":"iana","extensions":["cww"]},"application/prs.hpub+zip":{"source":"iana","compressible":false},"application/prs.nprend":{"source":"iana"},"application/prs.plucker":{"source":"iana"},"application/prs.rdf-xml-crypt":{"source":"iana"},"application/prs.xsf+xml":{"source":"iana","compressible":true},"application/pskc+xml":{"source":"iana","compressible":true,"extensions":["pskcxml"]},"application/qsig":{"source":"iana"},"application/raml+yaml":{"compressible":true,"extensions":["raml"]},"application/raptorfec":{"source":"iana"},"application/rdap+json":{"source":"iana","compressible":true},"application/rdf+xml":{"source":"iana","compressible":true,"extensions":["rdf","owl"]},"application/reginfo+xml":{"source":"iana","compressible":true,"extensions":["rif"]},"application/relax-ng-compact-syntax":{"source":"iana","extensions":["rnc"]},"application/remote-printing":{"source":"iana"},"application/reputon+json":{"source":"iana","compressible":true},"application/resource-lists+xml":{"source":"iana","compressible":true,"extensions":["rl"]},"application/resource-lists-diff+xml":{"source":"iana","compressible":true,"extensions":["rld"]},"application/rfc+xml":{"source":"iana","compressible":true},"application/riscos":{"source":"iana"},"application/rlmi+xml":{"source":"iana","compressible":true},"application/rls-services+xml":{"source":"iana","compressible":true,"extensions":["rs"]},"application/route-apd+xml":{"source":"iana","compressible":true},"application/route-s-tsid+xml":{"source":"iana","compressible":true},"application/route-usd+xml":{"source":"iana","compressible":true},"application/rpki-ghostbusters":{"source":"iana","extensions":["gbr"]},"application/rpki-manifest":{"source":"iana","extensions":["mft"]},"application/rpki-publication":{"source":"iana"},"application/rpki-roa":{"source":"iana","extensions":["roa"]},"application/rpki-updown":{"source":"iana"},"application/rsd+xml":{"source":"apache","compressible":true,"extensions":["rsd"]},"application/rss+xml":{"source":"apache","compressible":true,"extensions":["rss"]},"application/rtf":{"source":"iana","compressible":true,"extensions":["rtf"]},"application/rtploopback":{"source":"iana"},"application/rtx":{"source":"iana"},"application/samlassertion+xml":{"source":"iana","compressible":true},"application/samlmetadata+xml":{"source":"iana","compressible":true},"application/sbml+xml":{"source":"iana","compressible":true,"extensions":["sbml"]},"application/scaip+xml":{"source":"iana","compressible":true},"application/scim+json":{"source":"iana","compressible":true},"application/scvp-cv-request":{"source":"iana","extensions":["scq"]},"application/scvp-cv-response":{"source":"iana","extensions":["scs"]},"application/scvp-vp-request":{"source":"iana","extensions":["spq"]},"application/scvp-vp-response":{"source":"iana","extensions":["spp"]},"application/sdp":{"source":"iana","extensions":["sdp"]},"application/secevent+jwt":{"source":"iana"},"application/senml+cbor":{"source":"iana"},"application/senml+json":{"source":"iana","compressible":true},"application/senml+xml":{"source":"iana","compressible":true},"application/senml-exi":{"source":"iana"},"application/sensml+cbor":{"source":"iana"},"application/sensml+json":{"source":"iana","compressible":true},"application/sensml+xml":{"source":"iana","compressible":true},"application/sensml-exi":{"source":"iana"},"application/sep+xml":{"source":"iana","compressible":true},"application/sep-exi":{"source":"iana"},"application/session-info":{"source":"iana"},"application/set-payment":{"source":"iana"},"application/set-payment-initiation":{"source":"iana","extensions":["setpay"]},"application/set-registration":{"source":"iana"},"application/set-registration-initiation":{"source":"iana","extensions":["setreg"]},"application/sgml":{"source":"iana"},"application/sgml-open-catalog":{"source":"iana"},"application/shf+xml":{"source":"iana","compressible":true,"extensions":["shf"]},"application/sieve":{"source":"iana"},"application/simple-filter+xml":{"source":"iana","compressible":true},"application/simple-message-summary":{"source":"iana"},"application/simplesymbolcontainer":{"source":"iana"},"application/slate":{"source":"iana"},"application/smil":{"source":"iana"},"application/smil+xml":{"source":"iana","compressible":true,"extensions":["smi","smil"]},"application/smpte336m":{"source":"iana"},"application/soap+fastinfoset":{"source":"iana"},"application/soap+xml":{"source":"iana","compressible":true},"application/sparql-query":{"source":"iana","extensions":["rq"]},"application/sparql-results+xml":{"source":"iana","compressible":true,"extensions":["srx"]},"application/spirits-event+xml":{"source":"iana","compressible":true},"application/sql":{"source":"iana"},"application/srgs":{"source":"iana","extensions":["gram"]},"application/srgs+xml":{"source":"iana","compressible":true,"extensions":["grxml"]},"application/sru+xml":{"source":"iana","compressible":true,"extensions":["sru"]},"application/ssdl+xml":{"source":"apache","compressible":true,"extensions":["ssdl"]},"application/ssml+xml":{"source":"iana","compressible":true,"extensions":["ssml"]},"application/stix+json":{"source":"iana","compressible":true},"application/tamp-apex-update":{"source":"iana"},"application/tamp-apex-update-confirm":{"source":"iana"},"application/tamp-community-update":{"source":"iana"},"application/tamp-community-update-confirm":{"source":"iana"},"application/tamp-error":{"source":"iana"},"application/tamp-sequence-adjust":{"source":"iana"},"application/tamp-sequence-adjust-confirm":{"source":"iana"},"application/tamp-status-query":{"source":"iana"},"application/tamp-status-response":{"source":"iana"},"application/tamp-update":{"source":"iana"},"application/tamp-update-confirm":{"source":"iana"},"application/tar":{"compressible":true},"application/taxii+json":{"source":"iana","compressible":true},"application/tei+xml":{"source":"iana","compressible":true,"extensions":["tei","teicorpus"]},"application/tetra_isi":{"source":"iana"},"application/thraud+xml":{"source":"iana","compressible":true,"extensions":["tfi"]},"application/timestamp-query":{"source":"iana"},"application/timestamp-reply":{"source":"iana"},"application/timestamped-data":{"source":"iana","extensions":["tsd"]},"application/tlsrpt+gzip":{"source":"iana"},"application/tlsrpt+json":{"source":"iana","compressible":true},"application/tnauthlist":{"source":"iana"},"application/trickle-ice-sdpfrag":{"source":"iana"},"application/trig":{"source":"iana"},"application/ttml+xml":{"source":"iana","compressible":true},"application/tve-trigger":{"source":"iana"},"application/tzif":{"source":"iana"},"application/tzif-leap":{"source":"iana"},"application/ulpfec":{"source":"iana"},"application/urc-grpsheet+xml":{"source":"iana","compressible":true},"application/urc-ressheet+xml":{"source":"iana","compressible":true},"application/urc-targetdesc+xml":{"source":"iana","compressible":true},"application/urc-uisocketdesc+xml":{"source":"iana","compressible":true},"application/vcard+json":{"source":"iana","compressible":true},"application/vcard+xml":{"source":"iana","compressible":true},"application/vemmi":{"source":"iana"},"application/vividence.scriptfile":{"source":"apache"},"application/vnd.1000minds.decision-model+xml":{"source":"iana","compressible":true},"application/vnd.3gpp-prose+xml":{"source":"iana","compressible":true},"application/vnd.3gpp-prose-pc3ch+xml":{"source":"iana","compressible":true},"application/vnd.3gpp-v2x-local-service-information":{"source":"iana"},"application/vnd.3gpp.access-transfer-events+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.bsf+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.gmop+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mc-signalling-ear":{"source":"iana"},"application/vnd.3gpp.mcdata-affiliation-command+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcdata-info+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcdata-payload":{"source":"iana"},"application/vnd.3gpp.mcdata-service-config+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcdata-signalling":{"source":"iana"},"application/vnd.3gpp.mcdata-ue-config+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcdata-user-profile+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcptt-affiliation-command+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcptt-floor-request+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcptt-info+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcptt-location-info+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcptt-mbms-usage-info+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcptt-service-config+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcptt-signed+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcptt-ue-config+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcptt-ue-init-config+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcptt-user-profile+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcvideo-affiliation-command+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcvideo-affiliation-info+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcvideo-location-info+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcvideo-mbms-usage-info+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcvideo-service-config+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcvideo-transmission-request+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcvideo-ue-config+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcvideo-user-profile+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mid-call+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.pic-bw-large":{"source":"iana","extensions":["plb"]},"application/vnd.3gpp.pic-bw-small":{"source":"iana","extensions":["psb"]},"application/vnd.3gpp.pic-bw-var":{"source":"iana","extensions":["pvb"]},"application/vnd.3gpp.sms":{"source":"iana"},"application/vnd.3gpp.sms+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.srvcc-ext+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.srvcc-info+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.state-and-event-info+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.ussd+xml":{"source":"iana","compressible":true},"application/vnd.3gpp2.bcmcsinfo+xml":{"source":"iana","compressible":true},"application/vnd.3gpp2.sms":{"source":"iana"},"application/vnd.3gpp2.tcap":{"source":"iana","extensions":["tcap"]},"application/vnd.3lightssoftware.imagescal":{"source":"iana"},"application/vnd.3m.post-it-notes":{"source":"iana","extensions":["pwn"]},"application/vnd.accpac.simply.aso":{"source":"iana","extensions":["aso"]},"application/vnd.accpac.simply.imp":{"source":"iana","extensions":["imp"]},"application/vnd.acucobol":{"source":"iana","extensions":["acu"]},"application/vnd.acucorp":{"source":"iana","extensions":["atc","acutc"]},"application/vnd.adobe.air-application-installer-package+zip":{"source":"apache","compressible":false,"extensions":["air"]},"application/vnd.adobe.flash.movie":{"source":"iana"},"application/vnd.adobe.formscentral.fcdt":{"source":"iana","extensions":["fcdt"]},"application/vnd.adobe.fxp":{"source":"iana","extensions":["fxp","fxpl"]},"application/vnd.adobe.partial-upload":{"source":"iana"},"application/vnd.adobe.xdp+xml":{"source":"iana","compressible":true,"extensions":["xdp"]},"application/vnd.adobe.xfdf":{"source":"iana","extensions":["xfdf"]},"application/vnd.aether.imp":{"source":"iana"},"application/vnd.afpc.afplinedata":{"source":"iana"},"application/vnd.afpc.modca":{"source":"iana"},"application/vnd.ah-barcode":{"source":"iana"},"application/vnd.ahead.space":{"source":"iana","extensions":["ahead"]},"application/vnd.airzip.filesecure.azf":{"source":"iana","extensions":["azf"]},"application/vnd.airzip.filesecure.azs":{"source":"iana","extensions":["azs"]},"application/vnd.amadeus+json":{"source":"iana","compressible":true},"application/vnd.amazon.ebook":{"source":"apache","extensions":["azw"]},"application/vnd.amazon.mobi8-ebook":{"source":"iana"},"application/vnd.americandynamics.acc":{"source":"iana","extensions":["acc"]},"application/vnd.amiga.ami":{"source":"iana","extensions":["ami"]},"application/vnd.amundsen.maze+xml":{"source":"iana","compressible":true},"application/vnd.android.package-archive":{"source":"apache","compressible":false,"extensions":["apk"]},"application/vnd.anki":{"source":"iana"},"application/vnd.anser-web-certificate-issue-initiation":{"source":"iana","extensions":["cii"]},"application/vnd.anser-web-funds-transfer-initiation":{"source":"apache","extensions":["fti"]},"application/vnd.antix.game-component":{"source":"iana","extensions":["atx"]},"application/vnd.apache.thrift.binary":{"source":"iana"},"application/vnd.apache.thrift.compact":{"source":"iana"},"application/vnd.apache.thrift.json":{"source":"iana"},"application/vnd.api+json":{"source":"iana","compressible":true},"application/vnd.apothekende.reservation+json":{"source":"iana","compressible":true},"application/vnd.apple.installer+xml":{"source":"iana","compressible":true,"extensions":["mpkg"]},"application/vnd.apple.keynote":{"source":"iana","extensions":["keynote"]},"application/vnd.apple.mpegurl":{"source":"iana","extensions":["m3u8"]},"application/vnd.apple.numbers":{"source":"iana","extensions":["numbers"]},"application/vnd.apple.pages":{"source":"iana","extensions":["pages"]},"application/vnd.apple.pkpass":{"compressible":false,"extensions":["pkpass"]},"application/vnd.arastra.swi":{"source":"iana"},"application/vnd.aristanetworks.swi":{"source":"iana","extensions":["swi"]},"application/vnd.artisan+json":{"source":"iana","compressible":true},"application/vnd.artsquare":{"source":"iana"},"application/vnd.astraea-software.iota":{"source":"iana","extensions":["iota"]},"application/vnd.audiograph":{"source":"iana","extensions":["aep"]},"application/vnd.autopackage":{"source":"iana"},"application/vnd.avalon+json":{"source":"iana","compressible":true},"application/vnd.avistar+xml":{"source":"iana","compressible":true},"application/vnd.balsamiq.bmml+xml":{"source":"iana","compressible":true},"application/vnd.balsamiq.bmpr":{"source":"iana"},"application/vnd.banana-accounting":{"source":"iana"},"application/vnd.bbf.usp.msg":{"source":"iana"},"application/vnd.bbf.usp.msg+json":{"source":"iana","compressible":true},"application/vnd.bekitzur-stech+json":{"source":"iana","compressible":true},"application/vnd.bint.med-content":{"source":"iana"},"application/vnd.biopax.rdf+xml":{"source":"iana","compressible":true},"application/vnd.blink-idb-value-wrapper":{"source":"iana"},"application/vnd.blueice.multipass":{"source":"iana","extensions":["mpm"]},"application/vnd.bluetooth.ep.oob":{"source":"iana"},"application/vnd.bluetooth.le.oob":{"source":"iana"},"application/vnd.bmi":{"source":"iana","extensions":["bmi"]},"application/vnd.businessobjects":{"source":"iana","extensions":["rep"]},"application/vnd.byu.uapi+json":{"source":"iana","compressible":true},"application/vnd.cab-jscript":{"source":"iana"},"application/vnd.canon-cpdl":{"source":"iana"},"application/vnd.canon-lips":{"source":"iana"},"application/vnd.capasystems-pg+json":{"source":"iana","compressible":true},"application/vnd.cendio.thinlinc.clientconf":{"source":"iana"},"application/vnd.century-systems.tcp_stream":{"source":"iana"},"application/vnd.chemdraw+xml":{"source":"iana","compressible":true,"extensions":["cdxml"]},"application/vnd.chess-pgn":{"source":"iana"},"application/vnd.chipnuts.karaoke-mmd":{"source":"iana","extensions":["mmd"]},"application/vnd.cinderella":{"source":"iana","extensions":["cdy"]},"application/vnd.cirpack.isdn-ext":{"source":"iana"},"application/vnd.citationstyles.style+xml":{"source":"iana","compressible":true,"extensions":["csl"]},"application/vnd.claymore":{"source":"iana","extensions":["cla"]},"application/vnd.cloanto.rp9":{"source":"iana","extensions":["rp9"]},"application/vnd.clonk.c4group":{"source":"iana","extensions":["c4g","c4d","c4f","c4p","c4u"]},"application/vnd.cluetrust.cartomobile-config":{"source":"iana","extensions":["c11amc"]},"application/vnd.cluetrust.cartomobile-config-pkg":{"source":"iana","extensions":["c11amz"]},"application/vnd.coffeescript":{"source":"iana"},"application/vnd.collabio.xodocuments.document":{"source":"iana"},"application/vnd.collabio.xodocuments.document-template":{"source":"iana"},"application/vnd.collabio.xodocuments.presentation":{"source":"iana"},"application/vnd.collabio.xodocuments.presentation-template":{"source":"iana"},"application/vnd.collabio.xodocuments.spreadsheet":{"source":"iana"},"application/vnd.collabio.xodocuments.spreadsheet-template":{"source":"iana"},"application/vnd.collection+json":{"source":"iana","compressible":true},"application/vnd.collection.doc+json":{"source":"iana","compressible":true},"application/vnd.collection.next+json":{"source":"iana","compressible":true},"application/vnd.comicbook+zip":{"source":"iana","compressible":false},"application/vnd.comicbook-rar":{"source":"iana"},"application/vnd.commerce-battelle":{"source":"iana"},"application/vnd.commonspace":{"source":"iana","extensions":["csp"]},"application/vnd.contact.cmsg":{"source":"iana","extensions":["cdbcmsg"]},"application/vnd.coreos.ignition+json":{"source":"iana","compressible":true},"application/vnd.cosmocaller":{"source":"iana","extensions":["cmc"]},"application/vnd.crick.clicker":{"source":"iana","extensions":["clkx"]},"application/vnd.crick.clicker.keyboard":{"source":"iana","extensions":["clkk"]},"application/vnd.crick.clicker.palette":{"source":"iana","extensions":["clkp"]},"application/vnd.crick.clicker.template":{"source":"iana","extensions":["clkt"]},"application/vnd.crick.clicker.wordbank":{"source":"iana","extensions":["clkw"]},"application/vnd.criticaltools.wbs+xml":{"source":"iana","compressible":true,"extensions":["wbs"]},"application/vnd.ctc-posml":{"source":"iana","extensions":["pml"]},"application/vnd.ctct.ws+xml":{"source":"iana","compressible":true},"application/vnd.cups-pdf":{"source":"iana"},"application/vnd.cups-postscript":{"source":"iana"},"application/vnd.cups-ppd":{"source":"iana","extensions":["ppd"]},"application/vnd.cups-raster":{"source":"iana"},"application/vnd.cups-raw":{"source":"iana"},"application/vnd.curl":{"source":"iana"},"application/vnd.curl.car":{"source":"apache","extensions":["car"]},"application/vnd.curl.pcurl":{"source":"apache","extensions":["pcurl"]},"application/vnd.cyan.dean.root+xml":{"source":"iana","compressible":true},"application/vnd.cybank":{"source":"iana"},"application/vnd.d2l.coursepackage1p0+zip":{"source":"iana","compressible":false},"application/vnd.dart":{"source":"iana","compressible":true,"extensions":["dart"]},"application/vnd.data-vision.rdz":{"source":"iana","extensions":["rdz"]},"application/vnd.datapackage+json":{"source":"iana","compressible":true},"application/vnd.dataresource+json":{"source":"iana","compressible":true},"application/vnd.debian.binary-package":{"source":"iana"},"application/vnd.dece.data":{"source":"iana","extensions":["uvf","uvvf","uvd","uvvd"]},"application/vnd.dece.ttml+xml":{"source":"iana","compressible":true,"extensions":["uvt","uvvt"]},"application/vnd.dece.unspecified":{"source":"iana","extensions":["uvx","uvvx"]},"application/vnd.dece.zip":{"source":"iana","extensions":["uvz","uvvz"]},"application/vnd.denovo.fcselayout-link":{"source":"iana","extensions":["fe_launch"]},"application/vnd.desmume.movie":{"source":"iana"},"application/vnd.dir-bi.plate-dl-nosuffix":{"source":"iana"},"application/vnd.dm.delegation+xml":{"source":"iana","compressible":true},"application/vnd.dna":{"source":"iana","extensions":["dna"]},"application/vnd.document+json":{"source":"iana","compressible":true},"application/vnd.dolby.mlp":{"source":"apache","extensions":["mlp"]},"application/vnd.dolby.mobile.1":{"source":"iana"},"application/vnd.dolby.mobile.2":{"source":"iana"},"application/vnd.doremir.scorecloud-binary-document":{"source":"iana"},"application/vnd.dpgraph":{"source":"iana","extensions":["dpg"]},"application/vnd.dreamfactory":{"source":"iana","extensions":["dfac"]},"application/vnd.drive+json":{"source":"iana","compressible":true},"application/vnd.ds-keypoint":{"source":"apache","extensions":["kpxx"]},"application/vnd.dtg.local":{"source":"iana"},"application/vnd.dtg.local.flash":{"source":"iana"},"application/vnd.dtg.local.html":{"source":"iana"},"application/vnd.dvb.ait":{"source":"iana","extensions":["ait"]},"application/vnd.dvb.dvbj":{"source":"iana"},"application/vnd.dvb.esgcontainer":{"source":"iana"},"application/vnd.dvb.ipdcdftnotifaccess":{"source":"iana"},"application/vnd.dvb.ipdcesgaccess":{"source":"iana"},"application/vnd.dvb.ipdcesgaccess2":{"source":"iana"},"application/vnd.dvb.ipdcesgpdd":{"source":"iana"},"application/vnd.dvb.ipdcroaming":{"source":"iana"},"application/vnd.dvb.iptv.alfec-base":{"source":"iana"},"application/vnd.dvb.iptv.alfec-enhancement":{"source":"iana"},"application/vnd.dvb.notif-aggregate-root+xml":{"source":"iana","compressible":true},"application/vnd.dvb.notif-container+xml":{"source":"iana","compressible":true},"application/vnd.dvb.notif-generic+xml":{"source":"iana","compressible":true},"application/vnd.dvb.notif-ia-msglist+xml":{"source":"iana","compressible":true},"application/vnd.dvb.notif-ia-registration-request+xml":{"source":"iana","compressible":true},"application/vnd.dvb.notif-ia-registration-response+xml":{"source":"iana","compressible":true},"application/vnd.dvb.notif-init+xml":{"source":"iana","compressible":true},"application/vnd.dvb.pfr":{"source":"iana"},"application/vnd.dvb.service":{"source":"iana","extensions":["svc"]},"application/vnd.dxr":{"source":"iana"},"application/vnd.dynageo":{"source":"iana","extensions":["geo"]},"application/vnd.dzr":{"source":"iana"},"application/vnd.easykaraoke.cdgdownload":{"source":"iana"},"application/vnd.ecdis-update":{"source":"iana"},"application/vnd.ecip.rlp":{"source":"iana"},"application/vnd.ecowin.chart":{"source":"iana","extensions":["mag"]},"application/vnd.ecowin.filerequest":{"source":"iana"},"application/vnd.ecowin.fileupdate":{"source":"iana"},"application/vnd.ecowin.series":{"source":"iana"},"application/vnd.ecowin.seriesrequest":{"source":"iana"},"application/vnd.ecowin.seriesupdate":{"source":"iana"},"application/vnd.efi.img":{"source":"iana"},"application/vnd.efi.iso":{"source":"iana"},"application/vnd.emclient.accessrequest+xml":{"source":"iana","compressible":true},"application/vnd.enliven":{"source":"iana","extensions":["nml"]},"application/vnd.enphase.envoy":{"source":"iana"},"application/vnd.eprints.data+xml":{"source":"iana","compressible":true},"application/vnd.epson.esf":{"source":"iana","extensions":["esf"]},"application/vnd.epson.msf":{"source":"iana","extensions":["msf"]},"application/vnd.epson.quickanime":{"source":"iana","extensions":["qam"]},"application/vnd.epson.salt":{"source":"iana","extensions":["slt"]},"application/vnd.epson.ssf":{"source":"iana","extensions":["ssf"]},"application/vnd.ericsson.quickcall":{"source":"iana"},"application/vnd.espass-espass+zip":{"source":"iana","compressible":false},"application/vnd.eszigno3+xml":{"source":"iana","compressible":true,"extensions":["es3","et3"]},"application/vnd.etsi.aoc+xml":{"source":"iana","compressible":true},"application/vnd.etsi.asic-e+zip":{"source":"iana","compressible":false},"application/vnd.etsi.asic-s+zip":{"source":"iana","compressible":false},"application/vnd.etsi.cug+xml":{"source":"iana","compressible":true},"application/vnd.etsi.iptvcommand+xml":{"source":"iana","compressible":true},"application/vnd.etsi.iptvdiscovery+xml":{"source":"iana","compressible":true},"application/vnd.etsi.iptvprofile+xml":{"source":"iana","compressible":true},"application/vnd.etsi.iptvsad-bc+xml":{"source":"iana","compressible":true},"application/vnd.etsi.iptvsad-cod+xml":{"source":"iana","compressible":true},"application/vnd.etsi.iptvsad-npvr+xml":{"source":"iana","compressible":true},"application/vnd.etsi.iptvservice+xml":{"source":"iana","compressible":true},"application/vnd.etsi.iptvsync+xml":{"source":"iana","compressible":true},"application/vnd.etsi.iptvueprofile+xml":{"source":"iana","compressible":true},"application/vnd.etsi.mcid+xml":{"source":"iana","compressible":true},"application/vnd.etsi.mheg5":{"source":"iana"},"application/vnd.etsi.overload-control-policy-dataset+xml":{"source":"iana","compressible":true},"application/vnd.etsi.pstn+xml":{"source":"iana","compressible":true},"application/vnd.etsi.sci+xml":{"source":"iana","compressible":true},"application/vnd.etsi.simservs+xml":{"source":"iana","compressible":true},"application/vnd.etsi.timestamp-token":{"source":"iana"},"application/vnd.etsi.tsl+xml":{"source":"iana","compressible":true},"application/vnd.etsi.tsl.der":{"source":"iana"},"application/vnd.eudora.data":{"source":"iana"},"application/vnd.evolv.ecig.profile":{"source":"iana"},"application/vnd.evolv.ecig.settings":{"source":"iana"},"application/vnd.evolv.ecig.theme":{"source":"iana"},"application/vnd.exstream-empower+zip":{"source":"iana","compressible":false},"application/vnd.exstream-package":{"source":"iana"},"application/vnd.ezpix-album":{"source":"iana","extensions":["ez2"]},"application/vnd.ezpix-package":{"source":"iana","extensions":["ez3"]},"application/vnd.f-secure.mobile":{"source":"iana"},"application/vnd.fastcopy-disk-image":{"source":"iana"},"application/vnd.fdf":{"source":"iana","extensions":["fdf"]},"application/vnd.fdsn.mseed":{"source":"iana","extensions":["mseed"]},"application/vnd.fdsn.seed":{"source":"iana","extensions":["seed","dataless"]},"application/vnd.ffsns":{"source":"iana"},"application/vnd.filmit.zfc":{"source":"iana"},"application/vnd.fints":{"source":"iana"},"application/vnd.firemonkeys.cloudcell":{"source":"iana"},"application/vnd.flographit":{"source":"iana","extensions":["gph"]},"application/vnd.fluxtime.clip":{"source":"iana","extensions":["ftc"]},"application/vnd.font-fontforge-sfd":{"source":"iana"},"application/vnd.framemaker":{"source":"iana","extensions":["fm","frame","maker","book"]},"application/vnd.frogans.fnc":{"source":"iana","extensions":["fnc"]},"application/vnd.frogans.ltf":{"source":"iana","extensions":["ltf"]},"application/vnd.fsc.weblaunch":{"source":"iana","extensions":["fsc"]},"application/vnd.fujitsu.oasys":{"source":"iana","extensions":["oas"]},"application/vnd.fujitsu.oasys2":{"source":"iana","extensions":["oa2"]},"application/vnd.fujitsu.oasys3":{"source":"iana","extensions":["oa3"]},"application/vnd.fujitsu.oasysgp":{"source":"iana","extensions":["fg5"]},"application/vnd.fujitsu.oasysprs":{"source":"iana","extensions":["bh2"]},"application/vnd.fujixerox.art-ex":{"source":"iana"},"application/vnd.fujixerox.art4":{"source":"iana"},"application/vnd.fujixerox.ddd":{"source":"iana","extensions":["ddd"]},"application/vnd.fujixerox.docuworks":{"source":"iana","extensions":["xdw"]},"application/vnd.fujixerox.docuworks.binder":{"source":"iana","extensions":["xbd"]},"application/vnd.fujixerox.docuworks.container":{"source":"iana"},"application/vnd.fujixerox.hbpl":{"source":"iana"},"application/vnd.fut-misnet":{"source":"iana"},"application/vnd.futoin+cbor":{"source":"iana"},"application/vnd.futoin+json":{"source":"iana","compressible":true},"application/vnd.fuzzysheet":{"source":"iana","extensions":["fzs"]},"application/vnd.genomatix.tuxedo":{"source":"iana","extensions":["txd"]},"application/vnd.geo+json":{"source":"iana","compressible":true},"application/vnd.geocube+xml":{"source":"iana","compressible":true},"application/vnd.geogebra.file":{"source":"iana","extensions":["ggb"]},"application/vnd.geogebra.tool":{"source":"iana","extensions":["ggt"]},"application/vnd.geometry-explorer":{"source":"iana","extensions":["gex","gre"]},"application/vnd.geonext":{"source":"iana","extensions":["gxt"]},"application/vnd.geoplan":{"source":"iana","extensions":["g2w"]},"application/vnd.geospace":{"source":"iana","extensions":["g3w"]},"application/vnd.gerber":{"source":"iana"},"application/vnd.globalplatform.card-content-mgt":{"source":"iana"},"application/vnd.globalplatform.card-content-mgt-response":{"source":"iana"},"application/vnd.gmx":{"source":"iana","extensions":["gmx"]},"application/vnd.google-apps.document":{"compressible":false,"extensions":["gdoc"]},"application/vnd.google-apps.presentation":{"compressible":false,"extensions":["gslides"]},"application/vnd.google-apps.spreadsheet":{"compressible":false,"extensions":["gsheet"]},"application/vnd.google-earth.kml+xml":{"source":"iana","compressible":true,"extensions":["kml"]},"application/vnd.google-earth.kmz":{"source":"iana","compressible":false,"extensions":["kmz"]},"application/vnd.gov.sk.e-form+xml":{"source":"iana","compressible":true},"application/vnd.gov.sk.e-form+zip":{"source":"iana","compressible":false},"application/vnd.gov.sk.xmldatacontainer+xml":{"source":"iana","compressible":true},"application/vnd.grafeq":{"source":"iana","extensions":["gqf","gqs"]},"application/vnd.gridmp":{"source":"iana"},"application/vnd.groove-account":{"source":"iana","extensions":["gac"]},"application/vnd.groove-help":{"source":"iana","extensions":["ghf"]},"application/vnd.groove-identity-message":{"source":"iana","extensions":["gim"]},"application/vnd.groove-injector":{"source":"iana","extensions":["grv"]},"application/vnd.groove-tool-message":{"source":"iana","extensions":["gtm"]},"application/vnd.groove-tool-template":{"source":"iana","extensions":["tpl"]},"application/vnd.groove-vcard":{"source":"iana","extensions":["vcg"]},"application/vnd.hal+json":{"source":"iana","compressible":true},"application/vnd.hal+xml":{"source":"iana","compressible":true,"extensions":["hal"]},"application/vnd.handheld-entertainment+xml":{"source":"iana","compressible":true,"extensions":["zmm"]},"application/vnd.hbci":{"source":"iana","extensions":["hbci"]},"application/vnd.hc+json":{"source":"iana","compressible":true},"application/vnd.hcl-bireports":{"source":"iana"},"application/vnd.hdt":{"source":"iana"},"application/vnd.heroku+json":{"source":"iana","compressible":true},"application/vnd.hhe.lesson-player":{"source":"iana","extensions":["les"]},"application/vnd.hp-hpgl":{"source":"iana","extensions":["hpgl"]},"application/vnd.hp-hpid":{"source":"iana","extensions":["hpid"]},"application/vnd.hp-hps":{"source":"iana","extensions":["hps"]},"application/vnd.hp-jlyt":{"source":"iana","extensions":["jlt"]},"application/vnd.hp-pcl":{"source":"iana","extensions":["pcl"]},"application/vnd.hp-pclxl":{"source":"iana","extensions":["pclxl"]},"application/vnd.httphone":{"source":"iana"},"application/vnd.hydrostatix.sof-data":{"source":"iana","extensions":["sfd-hdstx"]},"application/vnd.hyper+json":{"source":"iana","compressible":true},"application/vnd.hyper-item+json":{"source":"iana","compressible":true},"application/vnd.hyperdrive+json":{"source":"iana","compressible":true},"application/vnd.hzn-3d-crossword":{"source":"iana"},"application/vnd.ibm.afplinedata":{"source":"iana"},"application/vnd.ibm.electronic-media":{"source":"iana"},"application/vnd.ibm.minipay":{"source":"iana","extensions":["mpy"]},"application/vnd.ibm.modcap":{"source":"iana","extensions":["afp","listafp","list3820"]},"application/vnd.ibm.rights-management":{"source":"iana","extensions":["irm"]},"application/vnd.ibm.secure-container":{"source":"iana","extensions":["sc"]},"application/vnd.iccprofile":{"source":"iana","extensions":["icc","icm"]},"application/vnd.ieee.1905":{"source":"iana"},"application/vnd.igloader":{"source":"iana","extensions":["igl"]},"application/vnd.imagemeter.folder+zip":{"source":"iana","compressible":false},"application/vnd.imagemeter.image+zip":{"source":"iana","compressible":false},"application/vnd.immervision-ivp":{"source":"iana","extensions":["ivp"]},"application/vnd.immervision-ivu":{"source":"iana","extensions":["ivu"]},"application/vnd.ims.imsccv1p1":{"source":"iana"},"application/vnd.ims.imsccv1p2":{"source":"iana"},"application/vnd.ims.imsccv1p3":{"source":"iana"},"application/vnd.ims.lis.v2.result+json":{"source":"iana","compressible":true},"application/vnd.ims.lti.v2.toolconsumerprofile+json":{"source":"iana","compressible":true},"application/vnd.ims.lti.v2.toolproxy+json":{"source":"iana","compressible":true},"application/vnd.ims.lti.v2.toolproxy.id+json":{"source":"iana","compressible":true},"application/vnd.ims.lti.v2.toolsettings+json":{"source":"iana","compressible":true},"application/vnd.ims.lti.v2.toolsettings.simple+json":{"source":"iana","compressible":true},"application/vnd.informedcontrol.rms+xml":{"source":"iana","compressible":true},"application/vnd.informix-visionary":{"source":"iana"},"application/vnd.infotech.project":{"source":"iana"},"application/vnd.infotech.project+xml":{"source":"iana","compressible":true},"application/vnd.innopath.wamp.notification":{"source":"iana"},"application/vnd.insors.igm":{"source":"iana","extensions":["igm"]},"application/vnd.intercon.formnet":{"source":"iana","extensions":["xpw","xpx"]},"application/vnd.intergeo":{"source":"iana","extensions":["i2g"]},"application/vnd.intertrust.digibox":{"source":"iana"},"application/vnd.intertrust.nncp":{"source":"iana"},"application/vnd.intu.qbo":{"source":"iana","extensions":["qbo"]},"application/vnd.intu.qfx":{"source":"iana","extensions":["qfx"]},"application/vnd.iptc.g2.catalogitem+xml":{"source":"iana","compressible":true},"application/vnd.iptc.g2.conceptitem+xml":{"source":"iana","compressible":true},"application/vnd.iptc.g2.knowledgeitem+xml":{"source":"iana","compressible":true},"application/vnd.iptc.g2.newsitem+xml":{"source":"iana","compressible":true},"application/vnd.iptc.g2.newsmessage+xml":{"source":"iana","compressible":true},"application/vnd.iptc.g2.packageitem+xml":{"source":"iana","compressible":true},"application/vnd.iptc.g2.planningitem+xml":{"source":"iana","compressible":true},"application/vnd.ipunplugged.rcprofile":{"source":"iana","extensions":["rcprofile"]},"application/vnd.irepository.package+xml":{"source":"iana","compressible":true,"extensions":["irp"]},"application/vnd.is-xpr":{"source":"iana","extensions":["xpr"]},"application/vnd.isac.fcs":{"source":"iana","extensions":["fcs"]},"application/vnd.jam":{"source":"iana","extensions":["jam"]},"application/vnd.japannet-directory-service":{"source":"iana"},"application/vnd.japannet-jpnstore-wakeup":{"source":"iana"},"application/vnd.japannet-payment-wakeup":{"source":"iana"},"application/vnd.japannet-registration":{"source":"iana"},"application/vnd.japannet-registration-wakeup":{"source":"iana"},"application/vnd.japannet-setstore-wakeup":{"source":"iana"},"application/vnd.japannet-verification":{"source":"iana"},"application/vnd.japannet-verification-wakeup":{"source":"iana"},"application/vnd.jcp.javame.midlet-rms":{"source":"iana","extensions":["rms"]},"application/vnd.jisp":{"source":"iana","extensions":["jisp"]},"application/vnd.joost.joda-archive":{"source":"iana","extensions":["joda"]},"application/vnd.jsk.isdn-ngn":{"source":"iana"},"application/vnd.kahootz":{"source":"iana","extensions":["ktz","ktr"]},"application/vnd.kde.karbon":{"source":"iana","extensions":["karbon"]},"application/vnd.kde.kchart":{"source":"iana","extensions":["chrt"]},"application/vnd.kde.kformula":{"source":"iana","extensions":["kfo"]},"application/vnd.kde.kivio":{"source":"iana","extensions":["flw"]},"application/vnd.kde.kontour":{"source":"iana","extensions":["kon"]},"application/vnd.kde.kpresenter":{"source":"iana","extensions":["kpr","kpt"]},"application/vnd.kde.kspread":{"source":"iana","extensions":["ksp"]},"application/vnd.kde.kword":{"source":"iana","extensions":["kwd","kwt"]},"application/vnd.kenameaapp":{"source":"iana","extensions":["htke"]},"application/vnd.kidspiration":{"source":"iana","extensions":["kia"]},"application/vnd.kinar":{"source":"iana","extensions":["kne","knp"]},"application/vnd.koan":{"source":"iana","extensions":["skp","skd","skt","skm"]},"application/vnd.kodak-descriptor":{"source":"iana","extensions":["sse"]},"application/vnd.las.las+json":{"source":"iana","compressible":true},"application/vnd.las.las+xml":{"source":"iana","compressible":true,"extensions":["lasxml"]},"application/vnd.leap+json":{"source":"iana","compressible":true},"application/vnd.liberty-request+xml":{"source":"iana","compressible":true},"application/vnd.llamagraphics.life-balance.desktop":{"source":"iana","extensions":["lbd"]},"application/vnd.llamagraphics.life-balance.exchange+xml":{"source":"iana","compressible":true,"extensions":["lbe"]},"application/vnd.lotus-1-2-3":{"source":"iana","extensions":["123"]},"application/vnd.lotus-approach":{"source":"iana","extensions":["apr"]},"application/vnd.lotus-freelance":{"source":"iana","extensions":["pre"]},"application/vnd.lotus-notes":{"source":"iana","extensions":["nsf"]},"application/vnd.lotus-organizer":{"source":"iana","extensions":["org"]},"application/vnd.lotus-screencam":{"source":"iana","extensions":["scm"]},"application/vnd.lotus-wordpro":{"source":"iana","extensions":["lwp"]},"application/vnd.macports.portpkg":{"source":"iana","extensions":["portpkg"]},"application/vnd.mapbox-vector-tile":{"source":"iana"},"application/vnd.marlin.drm.actiontoken+xml":{"source":"iana","compressible":true},"application/vnd.marlin.drm.conftoken+xml":{"source":"iana","compressible":true},"application/vnd.marlin.drm.license+xml":{"source":"iana","compressible":true},"application/vnd.marlin.drm.mdcf":{"source":"iana"},"application/vnd.mason+json":{"source":"iana","compressible":true},"application/vnd.maxmind.maxmind-db":{"source":"iana"},"application/vnd.mcd":{"source":"iana","extensions":["mcd"]},"application/vnd.medcalcdata":{"source":"iana","extensions":["mc1"]},"application/vnd.mediastation.cdkey":{"source":"iana","extensions":["cdkey"]},"application/vnd.meridian-slingshot":{"source":"iana"},"application/vnd.mfer":{"source":"iana","extensions":["mwf"]},"application/vnd.mfmp":{"source":"iana","extensions":["mfm"]},"application/vnd.micro+json":{"source":"iana","compressible":true},"application/vnd.micrografx.flo":{"source":"iana","extensions":["flo"]},"application/vnd.micrografx.igx":{"source":"iana","extensions":["igx"]},"application/vnd.microsoft.portable-executable":{"source":"iana"},"application/vnd.microsoft.windows.thumbnail-cache":{"source":"iana"},"application/vnd.miele+json":{"source":"iana","compressible":true},"application/vnd.mif":{"source":"iana","extensions":["mif"]},"application/vnd.minisoft-hp3000-save":{"source":"iana"},"application/vnd.mitsubishi.misty-guard.trustweb":{"source":"iana"},"application/vnd.mobius.daf":{"source":"iana","extensions":["daf"]},"application/vnd.mobius.dis":{"source":"iana","extensions":["dis"]},"application/vnd.mobius.mbk":{"source":"iana","extensions":["mbk"]},"application/vnd.mobius.mqy":{"source":"iana","extensions":["mqy"]},"application/vnd.mobius.msl":{"source":"iana","extensions":["msl"]},"application/vnd.mobius.plc":{"source":"iana","extensions":["plc"]},"application/vnd.mobius.txf":{"source":"iana","extensions":["txf"]},"application/vnd.mophun.application":{"source":"iana","extensions":["mpn"]},"application/vnd.mophun.certificate":{"source":"iana","extensions":["mpc"]},"application/vnd.motorola.flexsuite":{"source":"iana"},"application/vnd.motorola.flexsuite.adsi":{"source":"iana"},"application/vnd.motorola.flexsuite.fis":{"source":"iana"},"application/vnd.motorola.flexsuite.gotap":{"source":"iana"},"application/vnd.motorola.flexsuite.kmr":{"source":"iana"},"application/vnd.motorola.flexsuite.ttc":{"source":"iana"},"application/vnd.motorola.flexsuite.wem":{"source":"iana"},"application/vnd.motorola.iprm":{"source":"iana"},"application/vnd.mozilla.xul+xml":{"source":"iana","compressible":true,"extensions":["xul"]},"application/vnd.ms-3mfdocument":{"source":"iana"},"application/vnd.ms-artgalry":{"source":"iana","extensions":["cil"]},"application/vnd.ms-asf":{"source":"iana"},"application/vnd.ms-cab-compressed":{"source":"iana","extensions":["cab"]},"application/vnd.ms-color.iccprofile":{"source":"apache"},"application/vnd.ms-excel":{"source":"iana","compressible":false,"extensions":["xls","xlm","xla","xlc","xlt","xlw"]},"application/vnd.ms-excel.addin.macroenabled.12":{"source":"iana","extensions":["xlam"]},"application/vnd.ms-excel.sheet.binary.macroenabled.12":{"source":"iana","extensions":["xlsb"]},"application/vnd.ms-excel.sheet.macroenabled.12":{"source":"iana","extensions":["xlsm"]},"application/vnd.ms-excel.template.macroenabled.12":{"source":"iana","extensions":["xltm"]},"application/vnd.ms-fontobject":{"source":"iana","compressible":true,"extensions":["eot"]},"application/vnd.ms-htmlhelp":{"source":"iana","extensions":["chm"]},"application/vnd.ms-ims":{"source":"iana","extensions":["ims"]},"application/vnd.ms-lrm":{"source":"iana","extensions":["lrm"]},"application/vnd.ms-office.activex+xml":{"source":"iana","compressible":true},"application/vnd.ms-officetheme":{"source":"iana","extensions":["thmx"]},"application/vnd.ms-opentype":{"source":"apache","compressible":true},"application/vnd.ms-outlook":{"compressible":false,"extensions":["msg"]},"application/vnd.ms-package.obfuscated-opentype":{"source":"apache"},"application/vnd.ms-pki.seccat":{"source":"apache","extensions":["cat"]},"application/vnd.ms-pki.stl":{"source":"apache","extensions":["stl"]},"application/vnd.ms-playready.initiator+xml":{"source":"iana","compressible":true},"application/vnd.ms-powerpoint":{"source":"iana","compressible":false,"extensions":["ppt","pps","pot"]},"application/vnd.ms-powerpoint.addin.macroenabled.12":{"source":"iana","extensions":["ppam"]},"application/vnd.ms-powerpoint.presentation.macroenabled.12":{"source":"iana","extensions":["pptm"]},"application/vnd.ms-powerpoint.slide.macroenabled.12":{"source":"iana","extensions":["sldm"]},"application/vnd.ms-powerpoint.slideshow.macroenabled.12":{"source":"iana","extensions":["ppsm"]},"application/vnd.ms-powerpoint.template.macroenabled.12":{"source":"iana","extensions":["potm"]},"application/vnd.ms-printdevicecapabilities+xml":{"source":"iana","compressible":true},"application/vnd.ms-printing.printticket+xml":{"source":"apache","compressible":true},"application/vnd.ms-printschematicket+xml":{"source":"iana","compressible":true},"application/vnd.ms-project":{"source":"iana","extensions":["mpp","mpt"]},"application/vnd.ms-tnef":{"source":"iana"},"application/vnd.ms-windows.devicepairing":{"source":"iana"},"application/vnd.ms-windows.nwprinting.oob":{"source":"iana"},"application/vnd.ms-windows.printerpairing":{"source":"iana"},"application/vnd.ms-windows.wsd.oob":{"source":"iana"},"application/vnd.ms-wmdrm.lic-chlg-req":{"source":"iana"},"application/vnd.ms-wmdrm.lic-resp":{"source":"iana"},"application/vnd.ms-wmdrm.meter-chlg-req":{"source":"iana"},"application/vnd.ms-wmdrm.meter-resp":{"source":"iana"},"application/vnd.ms-word.document.macroenabled.12":{"source":"iana","extensions":["docm"]},"application/vnd.ms-word.template.macroenabled.12":{"source":"iana","extensions":["dotm"]},"application/vnd.ms-works":{"source":"iana","extensions":["wps","wks","wcm","wdb"]},"application/vnd.ms-wpl":{"source":"iana","extensions":["wpl"]},"application/vnd.ms-xpsdocument":{"source":"iana","compressible":false,"extensions":["xps"]},"application/vnd.msa-disk-image":{"source":"iana"},"application/vnd.mseq":{"source":"iana","extensions":["mseq"]},"application/vnd.msign":{"source":"iana"},"application/vnd.multiad.creator":{"source":"iana"},"application/vnd.multiad.creator.cif":{"source":"iana"},"application/vnd.music-niff":{"source":"iana"},"application/vnd.musician":{"source":"iana","extensions":["mus"]},"application/vnd.muvee.style":{"source":"iana","extensions":["msty"]},"application/vnd.mynfc":{"source":"iana","extensions":["taglet"]},"application/vnd.ncd.control":{"source":"iana"},"application/vnd.ncd.reference":{"source":"iana"},"application/vnd.nearst.inv+json":{"source":"iana","compressible":true},"application/vnd.nervana":{"source":"iana"},"application/vnd.netfpx":{"source":"iana"},"application/vnd.neurolanguage.nlu":{"source":"iana","extensions":["nlu"]},"application/vnd.nimn":{"source":"iana"},"application/vnd.nintendo.nitro.rom":{"source":"iana"},"application/vnd.nintendo.snes.rom":{"source":"iana"},"application/vnd.nitf":{"source":"iana","extensions":["ntf","nitf"]},"application/vnd.noblenet-directory":{"source":"iana","extensions":["nnd"]},"application/vnd.noblenet-sealer":{"source":"iana","extensions":["nns"]},"application/vnd.noblenet-web":{"source":"iana","extensions":["nnw"]},"application/vnd.nokia.catalogs":{"source":"iana"},"application/vnd.nokia.conml+wbxml":{"source":"iana"},"application/vnd.nokia.conml+xml":{"source":"iana","compressible":true},"application/vnd.nokia.iptv.config+xml":{"source":"iana","compressible":true},"application/vnd.nokia.isds-radio-presets":{"source":"iana"},"application/vnd.nokia.landmark+wbxml":{"source":"iana"},"application/vnd.nokia.landmark+xml":{"source":"iana","compressible":true},"application/vnd.nokia.landmarkcollection+xml":{"source":"iana","compressible":true},"application/vnd.nokia.n-gage.ac+xml":{"source":"iana","compressible":true},"application/vnd.nokia.n-gage.data":{"source":"iana","extensions":["ngdat"]},"application/vnd.nokia.n-gage.symbian.install":{"source":"iana","extensions":["n-gage"]},"application/vnd.nokia.ncd":{"source":"iana"},"application/vnd.nokia.pcd+wbxml":{"source":"iana"},"application/vnd.nokia.pcd+xml":{"source":"iana","compressible":true},"application/vnd.nokia.radio-preset":{"source":"iana","extensions":["rpst"]},"application/vnd.nokia.radio-presets":{"source":"iana","extensions":["rpss"]},"application/vnd.novadigm.edm":{"source":"iana","extensions":["edm"]},"application/vnd.novadigm.edx":{"source":"iana","extensions":["edx"]},"application/vnd.novadigm.ext":{"source":"iana","extensions":["ext"]},"application/vnd.ntt-local.content-share":{"source":"iana"},"application/vnd.ntt-local.file-transfer":{"source":"iana"},"application/vnd.ntt-local.ogw_remote-access":{"source":"iana"},"application/vnd.ntt-local.sip-ta_remote":{"source":"iana"},"application/vnd.ntt-local.sip-ta_tcp_stream":{"source":"iana"},"application/vnd.oasis.opendocument.chart":{"source":"iana","extensions":["odc"]},"application/vnd.oasis.opendocument.chart-template":{"source":"iana","extensions":["otc"]},"application/vnd.oasis.opendocument.database":{"source":"iana","extensions":["odb"]},"application/vnd.oasis.opendocument.formula":{"source":"iana","extensions":["odf"]},"application/vnd.oasis.opendocument.formula-template":{"source":"iana","extensions":["odft"]},"application/vnd.oasis.opendocument.graphics":{"source":"iana","compressible":false,"extensions":["odg"]},"application/vnd.oasis.opendocument.graphics-template":{"source":"iana","extensions":["otg"]},"application/vnd.oasis.opendocument.image":{"source":"iana","extensions":["odi"]},"application/vnd.oasis.opendocument.image-template":{"source":"iana","extensions":["oti"]},"application/vnd.oasis.opendocument.presentation":{"source":"iana","compressible":false,"extensions":["odp"]},"application/vnd.oasis.opendocument.presentation-template":{"source":"iana","extensions":["otp"]},"application/vnd.oasis.opendocument.spreadsheet":{"source":"iana","compressible":false,"extensions":["ods"]},"application/vnd.oasis.opendocument.spreadsheet-template":{"source":"iana","extensions":["ots"]},"application/vnd.oasis.opendocument.text":{"source":"iana","compressible":false,"extensions":["odt"]},"application/vnd.oasis.opendocument.text-master":{"source":"iana","extensions":["odm"]},"application/vnd.oasis.opendocument.text-template":{"source":"iana","extensions":["ott"]},"application/vnd.oasis.opendocument.text-web":{"source":"iana","extensions":["oth"]},"application/vnd.obn":{"source":"iana"},"application/vnd.ocf+cbor":{"source":"iana"},"application/vnd.oftn.l10n+json":{"source":"iana","compressible":true},"application/vnd.oipf.contentaccessdownload+xml":{"source":"iana","compressible":true},"application/vnd.oipf.contentaccessstreaming+xml":{"source":"iana","compressible":true},"application/vnd.oipf.cspg-hexbinary":{"source":"iana"},"application/vnd.oipf.dae.svg+xml":{"source":"iana","compressible":true},"application/vnd.oipf.dae.xhtml+xml":{"source":"iana","compressible":true},"application/vnd.oipf.mippvcontrolmessage+xml":{"source":"iana","compressible":true},"application/vnd.oipf.pae.gem":{"source":"iana"},"application/vnd.oipf.spdiscovery+xml":{"source":"iana","compressible":true},"application/vnd.oipf.spdlist+xml":{"source":"iana","compressible":true},"application/vnd.oipf.ueprofile+xml":{"source":"iana","compressible":true},"application/vnd.oipf.userprofile+xml":{"source":"iana","compressible":true},"application/vnd.olpc-sugar":{"source":"iana","extensions":["xo"]},"application/vnd.oma-scws-config":{"source":"iana"},"application/vnd.oma-scws-http-request":{"source":"iana"},"application/vnd.oma-scws-http-response":{"source":"iana"},"application/vnd.oma.bcast.associated-procedure-parameter+xml":{"source":"iana","compressible":true},"application/vnd.oma.bcast.drm-trigger+xml":{"source":"iana","compressible":true},"application/vnd.oma.bcast.imd+xml":{"source":"iana","compressible":true},"application/vnd.oma.bcast.ltkm":{"source":"iana"},"application/vnd.oma.bcast.notification+xml":{"source":"iana","compressible":true},"application/vnd.oma.bcast.provisioningtrigger":{"source":"iana"},"application/vnd.oma.bcast.sgboot":{"source":"iana"},"application/vnd.oma.bcast.sgdd+xml":{"source":"iana","compressible":true},"application/vnd.oma.bcast.sgdu":{"source":"iana"},"application/vnd.oma.bcast.simple-symbol-container":{"source":"iana"},"application/vnd.oma.bcast.smartcard-trigger+xml":{"source":"iana","compressible":true},"application/vnd.oma.bcast.sprov+xml":{"source":"iana","compressible":true},"application/vnd.oma.bcast.stkm":{"source":"iana"},"application/vnd.oma.cab-address-book+xml":{"source":"iana","compressible":true},"application/vnd.oma.cab-feature-handler+xml":{"source":"iana","compressible":true},"application/vnd.oma.cab-pcc+xml":{"source":"iana","compressible":true},"application/vnd.oma.cab-subs-invite+xml":{"source":"iana","compressible":true},"application/vnd.oma.cab-user-prefs+xml":{"source":"iana","compressible":true},"application/vnd.oma.dcd":{"source":"iana"},"application/vnd.oma.dcdc":{"source":"iana"},"application/vnd.oma.dd2+xml":{"source":"iana","compressible":true,"extensions":["dd2"]},"application/vnd.oma.drm.risd+xml":{"source":"iana","compressible":true},"application/vnd.oma.group-usage-list+xml":{"source":"iana","compressible":true},"application/vnd.oma.lwm2m+json":{"source":"iana","compressible":true},"application/vnd.oma.lwm2m+tlv":{"source":"iana"},"application/vnd.oma.pal+xml":{"source":"iana","compressible":true},"application/vnd.oma.poc.detailed-progress-report+xml":{"source":"iana","compressible":true},"application/vnd.oma.poc.final-report+xml":{"source":"iana","compressible":true},"application/vnd.oma.poc.groups+xml":{"source":"iana","compressible":true},"application/vnd.oma.poc.invocation-descriptor+xml":{"source":"iana","compressible":true},"application/vnd.oma.poc.optimized-progress-report+xml":{"source":"iana","compressible":true},"application/vnd.oma.push":{"source":"iana"},"application/vnd.oma.scidm.messages+xml":{"source":"iana","compressible":true},"application/vnd.oma.xcap-directory+xml":{"source":"iana","compressible":true},"application/vnd.omads-email+xml":{"source":"iana","compressible":true},"application/vnd.omads-file+xml":{"source":"iana","compressible":true},"application/vnd.omads-folder+xml":{"source":"iana","compressible":true},"application/vnd.omaloc-supl-init":{"source":"iana"},"application/vnd.onepager":{"source":"iana"},"application/vnd.onepagertamp":{"source":"iana"},"application/vnd.onepagertamx":{"source":"iana"},"application/vnd.onepagertat":{"source":"iana"},"application/vnd.onepagertatp":{"source":"iana"},"application/vnd.onepagertatx":{"source":"iana"},"application/vnd.openblox.game+xml":{"source":"iana","compressible":true},"application/vnd.openblox.game-binary":{"source":"iana"},"application/vnd.openeye.oeb":{"source":"iana"},"application/vnd.openofficeorg.extension":{"source":"apache","extensions":["oxt"]},"application/vnd.openstreetmap.data+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.custom-properties+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.customxmlproperties+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.drawing+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.drawingml.chart+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.drawingml.chartshapes+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.drawingml.diagramcolors+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.drawingml.diagramdata+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.drawingml.diagramlayout+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.drawingml.diagramstyle+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.extended-properties+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.commentauthors+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.comments+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.handoutmaster+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.notesmaster+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.notesslide+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.presentation":{"source":"iana","compressible":false,"extensions":["pptx"]},"application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.presprops+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.slide":{"source":"iana","extensions":["sldx"]},"application/vnd.openxmlformats-officedocument.presentationml.slide+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.slidelayout+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.slidemaster+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.slideshow":{"source":"iana","extensions":["ppsx"]},"application/vnd.openxmlformats-officedocument.presentationml.slideshow.main+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.slideupdateinfo+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.tablestyles+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.tags+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.template":{"source":"iana","extensions":["potx"]},"application/vnd.openxmlformats-officedocument.presentationml.template.main+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.viewprops+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.calcchain+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.chartsheet+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.comments+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.connections+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.dialogsheet+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.externallink+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.pivotcachedefinition+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.pivotcacherecords+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.pivottable+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.querytable+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.revisionheaders+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.revisionlog+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.sharedstrings+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":{"source":"iana","compressible":false,"extensions":["xlsx"]},"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.sheetmetadata+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.tablesinglecells+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.template":{"source":"iana","extensions":["xltx"]},"application/vnd.openxmlformats-officedocument.spreadsheetml.template.main+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.usernames+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.volatiledependencies+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.theme+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.themeoverride+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.vmldrawing":{"source":"iana"},"application/vnd.openxmlformats-officedocument.wordprocessingml.comments+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.wordprocessingml.document":{"source":"iana","compressible":false,"extensions":["docx"]},"application/vnd.openxmlformats-officedocument.wordprocessingml.document.glossary+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.wordprocessingml.endnotes+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.wordprocessingml.fonttable+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.wordprocessingml.footnotes+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.wordprocessingml.template":{"source":"iana","extensions":["dotx"]},"application/vnd.openxmlformats-officedocument.wordprocessingml.template.main+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.wordprocessingml.websettings+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-package.core-properties+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-package.digital-signature-xmlsignature+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-package.relationships+xml":{"source":"iana","compressible":true},"application/vnd.oracle.resource+json":{"source":"iana","compressible":true},"application/vnd.orange.indata":{"source":"iana"},"application/vnd.osa.netdeploy":{"source":"iana"},"application/vnd.osgeo.mapguide.package":{"source":"iana","extensions":["mgp"]},"application/vnd.osgi.bundle":{"source":"iana"},"application/vnd.osgi.dp":{"source":"iana","extensions":["dp"]},"application/vnd.osgi.subsystem":{"source":"iana","extensions":["esa"]},"application/vnd.otps.ct-kip+xml":{"source":"iana","compressible":true},"application/vnd.oxli.countgraph":{"source":"iana"},"application/vnd.pagerduty+json":{"source":"iana","compressible":true},"application/vnd.palm":{"source":"iana","extensions":["pdb","pqa","oprc"]},"application/vnd.panoply":{"source":"iana"},"application/vnd.paos.xml":{"source":"iana"},"application/vnd.patentdive":{"source":"iana"},"application/vnd.patientecommsdoc":{"source":"iana"},"application/vnd.pawaafile":{"source":"iana","extensions":["paw"]},"application/vnd.pcos":{"source":"iana"},"application/vnd.pg.format":{"source":"iana","extensions":["str"]},"application/vnd.pg.osasli":{"source":"iana","extensions":["ei6"]},"application/vnd.piaccess.application-licence":{"source":"iana"},"application/vnd.picsel":{"source":"iana","extensions":["efif"]},"application/vnd.pmi.widget":{"source":"iana","extensions":["wg"]},"application/vnd.poc.group-advertisement+xml":{"source":"iana","compressible":true},"application/vnd.pocketlearn":{"source":"iana","extensions":["plf"]},"application/vnd.powerbuilder6":{"source":"iana","extensions":["pbd"]},"application/vnd.powerbuilder6-s":{"source":"iana"},"application/vnd.powerbuilder7":{"source":"iana"},"application/vnd.powerbuilder7-s":{"source":"iana"},"application/vnd.powerbuilder75":{"source":"iana"},"application/vnd.powerbuilder75-s":{"source":"iana"},"application/vnd.preminet":{"source":"iana"},"application/vnd.previewsystems.box":{"source":"iana","extensions":["box"]},"application/vnd.proteus.magazine":{"source":"iana","extensions":["mgz"]},"application/vnd.psfs":{"source":"iana"},"application/vnd.publishare-delta-tree":{"source":"iana","extensions":["qps"]},"application/vnd.pvi.ptid1":{"source":"iana","extensions":["ptid"]},"application/vnd.pwg-multiplexed":{"source":"iana"},"application/vnd.pwg-xhtml-print+xml":{"source":"iana","compressible":true},"application/vnd.qualcomm.brew-app-res":{"source":"iana"},"application/vnd.quarantainenet":{"source":"iana"},"application/vnd.quark.quarkxpress":{"source":"iana","extensions":["qxd","qxt","qwd","qwt","qxl","qxb"]},"application/vnd.quobject-quoxdocument":{"source":"iana"},"application/vnd.radisys.moml+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-audit+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-audit-conf+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-audit-conn+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-audit-dialog+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-audit-stream+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-conf+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-dialog+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-dialog-base+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-dialog-fax-detect+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-dialog-fax-sendrecv+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-dialog-group+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-dialog-speech+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-dialog-transform+xml":{"source":"iana","compressible":true},"application/vnd.rainstor.data":{"source":"iana"},"application/vnd.rapid":{"source":"iana"},"application/vnd.rar":{"source":"iana"},"application/vnd.realvnc.bed":{"source":"iana","extensions":["bed"]},"application/vnd.recordare.musicxml":{"source":"iana","extensions":["mxl"]},"application/vnd.recordare.musicxml+xml":{"source":"iana","compressible":true,"extensions":["musicxml"]},"application/vnd.renlearn.rlprint":{"source":"iana"},"application/vnd.restful+json":{"source":"iana","compressible":true},"application/vnd.rig.cryptonote":{"source":"iana","extensions":["cryptonote"]},"application/vnd.rim.cod":{"source":"apache","extensions":["cod"]},"application/vnd.rn-realmedia":{"source":"apache","extensions":["rm"]},"application/vnd.rn-realmedia-vbr":{"source":"apache","extensions":["rmvb"]},"application/vnd.route66.link66+xml":{"source":"iana","compressible":true,"extensions":["link66"]},"application/vnd.rs-274x":{"source":"iana"},"application/vnd.ruckus.download":{"source":"iana"},"application/vnd.s3sms":{"source":"iana"},"application/vnd.sailingtracker.track":{"source":"iana","extensions":["st"]},"application/vnd.sbm.cid":{"source":"iana"},"application/vnd.sbm.mid2":{"source":"iana"},"application/vnd.scribus":{"source":"iana"},"application/vnd.sealed.3df":{"source":"iana"},"application/vnd.sealed.csf":{"source":"iana"},"application/vnd.sealed.doc":{"source":"iana"},"application/vnd.sealed.eml":{"source":"iana"},"application/vnd.sealed.mht":{"source":"iana"},"application/vnd.sealed.net":{"source":"iana"},"application/vnd.sealed.ppt":{"source":"iana"},"application/vnd.sealed.tiff":{"source":"iana"},"application/vnd.sealed.xls":{"source":"iana"},"application/vnd.sealedmedia.softseal.html":{"source":"iana"},"application/vnd.sealedmedia.softseal.pdf":{"source":"iana"},"application/vnd.seemail":{"source":"iana","extensions":["see"]},"application/vnd.sema":{"source":"iana","extensions":["sema"]},"application/vnd.semd":{"source":"iana","extensions":["semd"]},"application/vnd.semf":{"source":"iana","extensions":["semf"]},"application/vnd.shana.informed.formdata":{"source":"iana","extensions":["ifm"]},"application/vnd.shana.informed.formtemplate":{"source":"iana","extensions":["itp"]},"application/vnd.shana.informed.interchange":{"source":"iana","extensions":["iif"]},"application/vnd.shana.informed.package":{"source":"iana","extensions":["ipk"]},"application/vnd.shootproof+json":{"source":"iana","compressible":true},"application/vnd.sigrok.session":{"source":"iana"},"application/vnd.simtech-mindmapper":{"source":"iana","extensions":["twd","twds"]},"application/vnd.siren+json":{"source":"iana","compressible":true},"application/vnd.smaf":{"source":"iana","extensions":["mmf"]},"application/vnd.smart.notebook":{"source":"iana"},"application/vnd.smart.teacher":{"source":"iana","extensions":["teacher"]},"application/vnd.software602.filler.form+xml":{"source":"iana","compressible":true},"application/vnd.software602.filler.form-xml-zip":{"source":"iana"},"application/vnd.solent.sdkm+xml":{"source":"iana","compressible":true,"extensions":["sdkm","sdkd"]},"application/vnd.spotfire.dxp":{"source":"iana","extensions":["dxp"]},"application/vnd.spotfire.sfs":{"source":"iana","extensions":["sfs"]},"application/vnd.sqlite3":{"source":"iana"},"application/vnd.sss-cod":{"source":"iana"},"application/vnd.sss-dtf":{"source":"iana"},"application/vnd.sss-ntf":{"source":"iana"},"application/vnd.stardivision.calc":{"source":"apache","extensions":["sdc"]},"application/vnd.stardivision.draw":{"source":"apache","extensions":["sda"]},"application/vnd.stardivision.impress":{"source":"apache","extensions":["sdd"]},"application/vnd.stardivision.math":{"source":"apache","extensions":["smf"]},"application/vnd.stardivision.writer":{"source":"apache","extensions":["sdw","vor"]},"application/vnd.stardivision.writer-global":{"source":"apache","extensions":["sgl"]},"application/vnd.stepmania.package":{"source":"iana","extensions":["smzip"]},"application/vnd.stepmania.stepchart":{"source":"iana","extensions":["sm"]},"application/vnd.street-stream":{"source":"iana"},"application/vnd.sun.wadl+xml":{"source":"iana","compressible":true,"extensions":["wadl"]},"application/vnd.sun.xml.calc":{"source":"apache","extensions":["sxc"]},"application/vnd.sun.xml.calc.template":{"source":"apache","extensions":["stc"]},"application/vnd.sun.xml.draw":{"source":"apache","extensions":["sxd"]},"application/vnd.sun.xml.draw.template":{"source":"apache","extensions":["std"]},"application/vnd.sun.xml.impress":{"source":"apache","extensions":["sxi"]},"application/vnd.sun.xml.impress.template":{"source":"apache","extensions":["sti"]},"application/vnd.sun.xml.math":{"source":"apache","extensions":["sxm"]},"application/vnd.sun.xml.writer":{"source":"apache","extensions":["sxw"]},"application/vnd.sun.xml.writer.global":{"source":"apache","extensions":["sxg"]},"application/vnd.sun.xml.writer.template":{"source":"apache","extensions":["stw"]},"application/vnd.sus-calendar":{"source":"iana","extensions":["sus","susp"]},"application/vnd.svd":{"source":"iana","extensions":["svd"]},"application/vnd.swiftview-ics":{"source":"iana"},"application/vnd.symbian.install":{"source":"apache","extensions":["sis","sisx"]},"application/vnd.syncml+xml":{"source":"iana","compressible":true,"extensions":["xsm"]},"application/vnd.syncml.dm+wbxml":{"source":"iana","extensions":["bdm"]},"application/vnd.syncml.dm+xml":{"source":"iana","compressible":true,"extensions":["xdm"]},"application/vnd.syncml.dm.notification":{"source":"iana"},"application/vnd.syncml.dmddf+wbxml":{"source":"iana"},"application/vnd.syncml.dmddf+xml":{"source":"iana","compressible":true},"application/vnd.syncml.dmtnds+wbxml":{"source":"iana"},"application/vnd.syncml.dmtnds+xml":{"source":"iana","compressible":true},"application/vnd.syncml.ds.notification":{"source":"iana"},"application/vnd.tableschema+json":{"source":"iana","compressible":true},"application/vnd.tao.intent-module-archive":{"source":"iana","extensions":["tao"]},"application/vnd.tcpdump.pcap":{"source":"iana","extensions":["pcap","cap","dmp"]},"application/vnd.think-cell.ppttc+json":{"source":"iana","compressible":true},"application/vnd.tmd.mediaflex.api+xml":{"source":"iana","compressible":true},"application/vnd.tml":{"source":"iana"},"application/vnd.tmobile-livetv":{"source":"iana","extensions":["tmo"]},"application/vnd.tri.onesource":{"source":"iana"},"application/vnd.trid.tpt":{"source":"iana","extensions":["tpt"]},"application/vnd.triscape.mxs":{"source":"iana","extensions":["mxs"]},"application/vnd.trueapp":{"source":"iana","extensions":["tra"]},"application/vnd.truedoc":{"source":"iana"},"application/vnd.ubisoft.webplayer":{"source":"iana"},"application/vnd.ufdl":{"source":"iana","extensions":["ufd","ufdl"]},"application/vnd.uiq.theme":{"source":"iana","extensions":["utz"]},"application/vnd.umajin":{"source":"iana","extensions":["umj"]},"application/vnd.unity":{"source":"iana","extensions":["unityweb"]},"application/vnd.uoml+xml":{"source":"iana","compressible":true,"extensions":["uoml"]},"application/vnd.uplanet.alert":{"source":"iana"},"application/vnd.uplanet.alert-wbxml":{"source":"iana"},"application/vnd.uplanet.bearer-choice":{"source":"iana"},"application/vnd.uplanet.bearer-choice-wbxml":{"source":"iana"},"application/vnd.uplanet.cacheop":{"source":"iana"},"application/vnd.uplanet.cacheop-wbxml":{"source":"iana"},"application/vnd.uplanet.channel":{"source":"iana"},"application/vnd.uplanet.channel-wbxml":{"source":"iana"},"application/vnd.uplanet.list":{"source":"iana"},"application/vnd.uplanet.list-wbxml":{"source":"iana"},"application/vnd.uplanet.listcmd":{"source":"iana"},"application/vnd.uplanet.listcmd-wbxml":{"source":"iana"},"application/vnd.uplanet.signal":{"source":"iana"},"application/vnd.uri-map":{"source":"iana"},"application/vnd.valve.source.material":{"source":"iana"},"application/vnd.vcx":{"source":"iana","extensions":["vcx"]},"application/vnd.vd-study":{"source":"iana"},"application/vnd.vectorworks":{"source":"iana"},"application/vnd.vel+json":{"source":"iana","compressible":true},"application/vnd.verimatrix.vcas":{"source":"iana"},"application/vnd.veryant.thin":{"source":"iana"},"application/vnd.vidsoft.vidconference":{"source":"iana"},"application/vnd.visio":{"source":"iana","extensions":["vsd","vst","vss","vsw"]},"application/vnd.visionary":{"source":"iana","extensions":["vis"]},"application/vnd.vividence.scriptfile":{"source":"iana"},"application/vnd.vsf":{"source":"iana","extensions":["vsf"]},"application/vnd.wap.sic":{"source":"iana"},"application/vnd.wap.slc":{"source":"iana"},"application/vnd.wap.wbxml":{"source":"iana","extensions":["wbxml"]},"application/vnd.wap.wmlc":{"source":"iana","extensions":["wmlc"]},"application/vnd.wap.wmlscriptc":{"source":"iana","extensions":["wmlsc"]},"application/vnd.webturbo":{"source":"iana","extensions":["wtb"]},"application/vnd.wfa.p2p":{"source":"iana"},"application/vnd.wfa.wsc":{"source":"iana"},"application/vnd.windows.devicepairing":{"source":"iana"},"application/vnd.wmc":{"source":"iana"},"application/vnd.wmf.bootstrap":{"source":"iana"},"application/vnd.wolfram.mathematica":{"source":"iana"},"application/vnd.wolfram.mathematica.package":{"source":"iana"},"application/vnd.wolfram.player":{"source":"iana","extensions":["nbp"]},"application/vnd.wordperfect":{"source":"iana","extensions":["wpd"]},"application/vnd.wqd":{"source":"iana","extensions":["wqd"]},"application/vnd.wrq-hp3000-labelled":{"source":"iana"},"application/vnd.wt.stf":{"source":"iana","extensions":["stf"]},"application/vnd.wv.csp+wbxml":{"source":"iana"},"application/vnd.wv.csp+xml":{"source":"iana","compressible":true},"application/vnd.wv.ssp+xml":{"source":"iana","compressible":true},"application/vnd.xacml+json":{"source":"iana","compressible":true},"application/vnd.xara":{"source":"iana","extensions":["xar"]},"application/vnd.xfdl":{"source":"iana","extensions":["xfdl"]},"application/vnd.xfdl.webform":{"source":"iana"},"application/vnd.xmi+xml":{"source":"iana","compressible":true},"application/vnd.xmpie.cpkg":{"source":"iana"},"application/vnd.xmpie.dpkg":{"source":"iana"},"application/vnd.xmpie.plan":{"source":"iana"},"application/vnd.xmpie.ppkg":{"source":"iana"},"application/vnd.xmpie.xlim":{"source":"iana"},"application/vnd.yamaha.hv-dic":{"source":"iana","extensions":["hvd"]},"application/vnd.yamaha.hv-script":{"source":"iana","extensions":["hvs"]},"application/vnd.yamaha.hv-voice":{"source":"iana","extensions":["hvp"]},"application/vnd.yamaha.openscoreformat":{"source":"iana","extensions":["osf"]},"application/vnd.yamaha.openscoreformat.osfpvg+xml":{"source":"iana","compressible":true,"extensions":["osfpvg"]},"application/vnd.yamaha.remote-setup":{"source":"iana"},"application/vnd.yamaha.smaf-audio":{"source":"iana","extensions":["saf"]},"application/vnd.yamaha.smaf-phrase":{"source":"iana","extensions":["spf"]},"application/vnd.yamaha.through-ngn":{"source":"iana"},"application/vnd.yamaha.tunnel-udpencap":{"source":"iana"},"application/vnd.yaoweme":{"source":"iana"},"application/vnd.yellowriver-custom-menu":{"source":"iana","extensions":["cmp"]},"application/vnd.youtube.yt":{"source":"iana"},"application/vnd.zul":{"source":"iana","extensions":["zir","zirz"]},"application/vnd.zzazz.deck+xml":{"source":"iana","compressible":true,"extensions":["zaz"]},"application/voicexml+xml":{"source":"iana","compressible":true,"extensions":["vxml"]},"application/voucher-cms+json":{"source":"iana","compressible":true},"application/vq-rtcpxr":{"source":"iana"},"application/wasm":{"compressible":true,"extensions":["wasm"]},"application/watcherinfo+xml":{"source":"iana","compressible":true},"application/webpush-options+json":{"source":"iana","compressible":true},"application/whoispp-query":{"source":"iana"},"application/whoispp-response":{"source":"iana"},"application/widget":{"source":"iana","extensions":["wgt"]},"application/winhlp":{"source":"apache","extensions":["hlp"]},"application/wita":{"source":"iana"},"application/wordperfect5.1":{"source":"iana"},"application/wsdl+xml":{"source":"iana","compressible":true,"extensions":["wsdl"]},"application/wspolicy+xml":{"source":"iana","compressible":true,"extensions":["wspolicy"]},"application/x-7z-compressed":{"source":"apache","compressible":false,"extensions":["7z"]},"application/x-abiword":{"source":"apache","extensions":["abw"]},"application/x-ace-compressed":{"source":"apache","extensions":["ace"]},"application/x-amf":{"source":"apache"},"application/x-apple-diskimage":{"source":"apache","extensions":["dmg"]},"application/x-arj":{"compressible":false,"extensions":["arj"]},"application/x-authorware-bin":{"source":"apache","extensions":["aab","x32","u32","vox"]},"application/x-authorware-map":{"source":"apache","extensions":["aam"]},"application/x-authorware-seg":{"source":"apache","extensions":["aas"]},"application/x-bcpio":{"source":"apache","extensions":["bcpio"]},"application/x-bdoc":{"compressible":false,"extensions":["bdoc"]},"application/x-bittorrent":{"source":"apache","extensions":["torrent"]},"application/x-blorb":{"source":"apache","extensions":["blb","blorb"]},"application/x-bzip":{"source":"apache","compressible":false,"extensions":["bz"]},"application/x-bzip2":{"source":"apache","compressible":false,"extensions":["bz2","boz"]},"application/x-cbr":{"source":"apache","extensions":["cbr","cba","cbt","cbz","cb7"]},"application/x-cdlink":{"source":"apache","extensions":["vcd"]},"application/x-cfs-compressed":{"source":"apache","extensions":["cfs"]},"application/x-chat":{"source":"apache","extensions":["chat"]},"application/x-chess-pgn":{"source":"apache","extensions":["pgn"]},"application/x-chrome-extension":{"extensions":["crx"]},"application/x-cocoa":{"source":"nginx","extensions":["cco"]},"application/x-compress":{"source":"apache"},"application/x-conference":{"source":"apache","extensions":["nsc"]},"application/x-cpio":{"source":"apache","extensions":["cpio"]},"application/x-csh":{"source":"apache","extensions":["csh"]},"application/x-deb":{"compressible":false},"application/x-debian-package":{"source":"apache","extensions":["deb","udeb"]},"application/x-dgc-compressed":{"source":"apache","extensions":["dgc"]},"application/x-director":{"source":"apache","extensions":["dir","dcr","dxr","cst","cct","cxt","w3d","fgd","swa"]},"application/x-doom":{"source":"apache","extensions":["wad"]},"application/x-dtbncx+xml":{"source":"apache","compressible":true,"extensions":["ncx"]},"application/x-dtbook+xml":{"source":"apache","compressible":true,"extensions":["dtb"]},"application/x-dtbresource+xml":{"source":"apache","compressible":true,"extensions":["res"]},"application/x-dvi":{"source":"apache","compressible":false,"extensions":["dvi"]},"application/x-envoy":{"source":"apache","extensions":["evy"]},"application/x-eva":{"source":"apache","extensions":["eva"]},"application/x-font-bdf":{"source":"apache","extensions":["bdf"]},"application/x-font-dos":{"source":"apache"},"application/x-font-framemaker":{"source":"apache"},"application/x-font-ghostscript":{"source":"apache","extensions":["gsf"]},"application/x-font-libgrx":{"source":"apache"},"application/x-font-linux-psf":{"source":"apache","extensions":["psf"]},"application/x-font-pcf":{"source":"apache","extensions":["pcf"]},"application/x-font-snf":{"source":"apache","extensions":["snf"]},"application/x-font-speedo":{"source":"apache"},"application/x-font-sunos-news":{"source":"apache"},"application/x-font-type1":{"source":"apache","extensions":["pfa","pfb","pfm","afm"]},"application/x-font-vfont":{"source":"apache"},"application/x-freearc":{"source":"apache","extensions":["arc"]},"application/x-futuresplash":{"source":"apache","extensions":["spl"]},"application/x-gca-compressed":{"source":"apache","extensions":["gca"]},"application/x-glulx":{"source":"apache","extensions":["ulx"]},"application/x-gnumeric":{"source":"apache","extensions":["gnumeric"]},"application/x-gramps-xml":{"source":"apache","extensions":["gramps"]},"application/x-gtar":{"source":"apache","extensions":["gtar"]},"application/x-gzip":{"source":"apache"},"application/x-hdf":{"source":"apache","extensions":["hdf"]},"application/x-httpd-php":{"compressible":true,"extensions":["php"]},"application/x-install-instructions":{"source":"apache","extensions":["install"]},"application/x-iso9660-image":{"source":"apache","extensions":["iso"]},"application/x-java-archive-diff":{"source":"nginx","extensions":["jardiff"]},"application/x-java-jnlp-file":{"source":"apache","compressible":false,"extensions":["jnlp"]},"application/x-javascript":{"compressible":true},"application/x-latex":{"source":"apache","compressible":false,"extensions":["latex"]},"application/x-lua-bytecode":{"extensions":["luac"]},"application/x-lzh-compressed":{"source":"apache","extensions":["lzh","lha"]},"application/x-makeself":{"source":"nginx","extensions":["run"]},"application/x-mie":{"source":"apache","extensions":["mie"]},"application/x-mobipocket-ebook":{"source":"apache","extensions":["prc","mobi"]},"application/x-mpegurl":{"compressible":false},"application/x-ms-application":{"source":"apache","extensions":["application"]},"application/x-ms-shortcut":{"source":"apache","extensions":["lnk"]},"application/x-ms-wmd":{"source":"apache","extensions":["wmd"]},"application/x-ms-wmz":{"source":"apache","extensions":["wmz"]},"application/x-ms-xbap":{"source":"apache","extensions":["xbap"]},"application/x-msaccess":{"source":"apache","extensions":["mdb"]},"application/x-msbinder":{"source":"apache","extensions":["obd"]},"application/x-mscardfile":{"source":"apache","extensions":["crd"]},"application/x-msclip":{"source":"apache","extensions":["clp"]},"application/x-msdos-program":{"extensions":["exe"]},"application/x-msdownload":{"source":"apache","extensions":["exe","dll","com","bat","msi"]},"application/x-msmediaview":{"source":"apache","extensions":["mvb","m13","m14"]},"application/x-msmetafile":{"source":"apache","extensions":["wmf","wmz","emf","emz"]},"application/x-msmoney":{"source":"apache","extensions":["mny"]},"application/x-mspublisher":{"source":"apache","extensions":["pub"]},"application/x-msschedule":{"source":"apache","extensions":["scd"]},"application/x-msterminal":{"source":"apache","extensions":["trm"]},"application/x-mswrite":{"source":"apache","extensions":["wri"]},"application/x-netcdf":{"source":"apache","extensions":["nc","cdf"]},"application/x-ns-proxy-autoconfig":{"compressible":true,"extensions":["pac"]},"application/x-nzb":{"source":"apache","extensions":["nzb"]},"application/x-perl":{"source":"nginx","extensions":["pl","pm"]},"application/x-pilot":{"source":"nginx","extensions":["prc","pdb"]},"application/x-pkcs12":{"source":"apache","compressible":false,"extensions":["p12","pfx"]},"application/x-pkcs7-certificates":{"source":"apache","extensions":["p7b","spc"]},"application/x-pkcs7-certreqresp":{"source":"apache","extensions":["p7r"]},"application/x-rar-compressed":{"source":"apache","compressible":false,"extensions":["rar"]},"application/x-redhat-package-manager":{"source":"nginx","extensions":["rpm"]},"application/x-research-info-systems":{"source":"apache","extensions":["ris"]},"application/x-sea":{"source":"nginx","extensions":["sea"]},"application/x-sh":{"source":"apache","compressible":true,"extensions":["sh"]},"application/x-shar":{"source":"apache","extensions":["shar"]},"application/x-shockwave-flash":{"source":"apache","compressible":false,"extensions":["swf"]},"application/x-silverlight-app":{"source":"apache","extensions":["xap"]},"application/x-sql":{"source":"apache","extensions":["sql"]},"application/x-stuffit":{"source":"apache","compressible":false,"extensions":["sit"]},"application/x-stuffitx":{"source":"apache","extensions":["sitx"]},"application/x-subrip":{"source":"apache","extensions":["srt"]},"application/x-sv4cpio":{"source":"apache","extensions":["sv4cpio"]},"application/x-sv4crc":{"source":"apache","extensions":["sv4crc"]},"application/x-t3vm-image":{"source":"apache","extensions":["t3"]},"application/x-tads":{"source":"apache","extensions":["gam"]},"application/x-tar":{"source":"apache","compressible":true,"extensions":["tar"]},"application/x-tcl":{"source":"apache","extensions":["tcl","tk"]},"application/x-tex":{"source":"apache","extensions":["tex"]},"application/x-tex-tfm":{"source":"apache","extensions":["tfm"]},"application/x-texinfo":{"source":"apache","extensions":["texinfo","texi"]},"application/x-tgif":{"source":"apache","extensions":["obj"]},"application/x-ustar":{"source":"apache","extensions":["ustar"]},"application/x-virtualbox-hdd":{"compressible":true,"extensions":["hdd"]},"application/x-virtualbox-ova":{"compressible":true,"extensions":["ova"]},"application/x-virtualbox-ovf":{"compressible":true,"extensions":["ovf"]},"application/x-virtualbox-vbox":{"compressible":true,"extensions":["vbox"]},"application/x-virtualbox-vbox-extpack":{"compressible":false,"extensions":["vbox-extpack"]},"application/x-virtualbox-vdi":{"compressible":true,"extensions":["vdi"]},"application/x-virtualbox-vhd":{"compressible":true,"extensions":["vhd"]},"application/x-virtualbox-vmdk":{"compressible":true,"extensions":["vmdk"]},"application/x-wais-source":{"source":"apache","extensions":["src"]},"application/x-web-app-manifest+json":{"compressible":true,"extensions":["webapp"]},"application/x-www-form-urlencoded":{"source":"iana","compressible":true},"application/x-x509-ca-cert":{"source":"apache","extensions":["der","crt","pem"]},"application/x-xfig":{"source":"apache","extensions":["fig"]},"application/x-xliff+xml":{"source":"apache","compressible":true,"extensions":["xlf"]},"application/x-xpinstall":{"source":"apache","compressible":false,"extensions":["xpi"]},"application/x-xz":{"source":"apache","extensions":["xz"]},"application/x-zmachine":{"source":"apache","extensions":["z1","z2","z3","z4","z5","z6","z7","z8"]},"application/x400-bp":{"source":"iana"},"application/xacml+xml":{"source":"iana","compressible":true},"application/xaml+xml":{"source":"apache","compressible":true,"extensions":["xaml"]},"application/xcap-att+xml":{"source":"iana","compressible":true},"application/xcap-caps+xml":{"source":"iana","compressible":true},"application/xcap-diff+xml":{"source":"iana","compressible":true,"extensions":["xdf"]},"application/xcap-el+xml":{"source":"iana","compressible":true},"application/xcap-error+xml":{"source":"iana","compressible":true},"application/xcap-ns+xml":{"source":"iana","compressible":true},"application/xcon-conference-info+xml":{"source":"iana","compressible":true},"application/xcon-conference-info-diff+xml":{"source":"iana","compressible":true},"application/xenc+xml":{"source":"iana","compressible":true,"extensions":["xenc"]},"application/xhtml+xml":{"source":"iana","compressible":true,"extensions":["xhtml","xht"]},"application/xhtml-voice+xml":{"source":"apache","compressible":true},"application/xliff+xml":{"source":"iana","compressible":true},"application/xml":{"source":"iana","compressible":true,"extensions":["xml","xsl","xsd","rng"]},"application/xml-dtd":{"source":"iana","compressible":true,"extensions":["dtd"]},"application/xml-external-parsed-entity":{"source":"iana"},"application/xml-patch+xml":{"source":"iana","compressible":true},"application/xmpp+xml":{"source":"iana","compressible":true},"application/xop+xml":{"source":"iana","compressible":true,"extensions":["xop"]},"application/xproc+xml":{"source":"apache","compressible":true,"extensions":["xpl"]},"application/xslt+xml":{"source":"iana","compressible":true,"extensions":["xslt"]},"application/xspf+xml":{"source":"apache","compressible":true,"extensions":["xspf"]},"application/xv+xml":{"source":"iana","compressible":true,"extensions":["mxml","xhvml","xvml","xvm"]},"application/yang":{"source":"iana","extensions":["yang"]},"application/yang-data+json":{"source":"iana","compressible":true},"application/yang-data+xml":{"source":"iana","compressible":true},"application/yang-patch+json":{"source":"iana","compressible":true},"application/yang-patch+xml":{"source":"iana","compressible":true},"application/yin+xml":{"source":"iana","compressible":true,"extensions":["yin"]},"application/zip":{"source":"iana","compressible":false,"extensions":["zip"]},"application/zlib":{"source":"iana"},"application/zstd":{"source":"iana"},"audio/1d-interleaved-parityfec":{"source":"iana"},"audio/32kadpcm":{"source":"iana"},"audio/3gpp":{"source":"iana","compressible":false,"extensions":["3gpp"]},"audio/3gpp2":{"source":"iana"},"audio/aac":{"source":"iana"},"audio/ac3":{"source":"iana"},"audio/adpcm":{"source":"apache","extensions":["adp"]},"audio/amr":{"source":"iana"},"audio/amr-wb":{"source":"iana"},"audio/amr-wb+":{"source":"iana"},"audio/aptx":{"source":"iana"},"audio/asc":{"source":"iana"},"audio/atrac-advanced-lossless":{"source":"iana"},"audio/atrac-x":{"source":"iana"},"audio/atrac3":{"source":"iana"},"audio/basic":{"source":"iana","compressible":false,"extensions":["au","snd"]},"audio/bv16":{"source":"iana"},"audio/bv32":{"source":"iana"},"audio/clearmode":{"source":"iana"},"audio/cn":{"source":"iana"},"audio/dat12":{"source":"iana"},"audio/dls":{"source":"iana"},"audio/dsr-es201108":{"source":"iana"},"audio/dsr-es202050":{"source":"iana"},"audio/dsr-es202211":{"source":"iana"},"audio/dsr-es202212":{"source":"iana"},"audio/dv":{"source":"iana"},"audio/dvi4":{"source":"iana"},"audio/eac3":{"source":"iana"},"audio/encaprtp":{"source":"iana"},"audio/evrc":{"source":"iana"},"audio/evrc-qcp":{"source":"iana"},"audio/evrc0":{"source":"iana"},"audio/evrc1":{"source":"iana"},"audio/evrcb":{"source":"iana"},"audio/evrcb0":{"source":"iana"},"audio/evrcb1":{"source":"iana"},"audio/evrcnw":{"source":"iana"},"audio/evrcnw0":{"source":"iana"},"audio/evrcnw1":{"source":"iana"},"audio/evrcwb":{"source":"iana"},"audio/evrcwb0":{"source":"iana"},"audio/evrcwb1":{"source":"iana"},"audio/evs":{"source":"iana"},"audio/fwdred":{"source":"iana"},"audio/g711-0":{"source":"iana"},"audio/g719":{"source":"iana"},"audio/g722":{"source":"iana"},"audio/g7221":{"source":"iana"},"audio/g723":{"source":"iana"},"audio/g726-16":{"source":"iana"},"audio/g726-24":{"source":"iana"},"audio/g726-32":{"source":"iana"},"audio/g726-40":{"source":"iana"},"audio/g728":{"source":"iana"},"audio/g729":{"source":"iana"},"audio/g7291":{"source":"iana"},"audio/g729d":{"source":"iana"},"audio/g729e":{"source":"iana"},"audio/gsm":{"source":"iana"},"audio/gsm-efr":{"source":"iana"},"audio/gsm-hr-08":{"source":"iana"},"audio/ilbc":{"source":"iana"},"audio/ip-mr_v2.5":{"source":"iana"},"audio/isac":{"source":"apache"},"audio/l16":{"source":"iana"},"audio/l20":{"source":"iana"},"audio/l24":{"source":"iana","compressible":false},"audio/l8":{"source":"iana"},"audio/lpc":{"source":"iana"},"audio/melp":{"source":"iana"},"audio/melp1200":{"source":"iana"},"audio/melp2400":{"source":"iana"},"audio/melp600":{"source":"iana"},"audio/midi":{"source":"apache","extensions":["mid","midi","kar","rmi"]},"audio/mobile-xmf":{"source":"iana"},"audio/mp3":{"compressible":false,"extensions":["mp3"]},"audio/mp4":{"source":"iana","compressible":false,"extensions":["m4a","mp4a"]},"audio/mp4a-latm":{"source":"iana"},"audio/mpa":{"source":"iana"},"audio/mpa-robust":{"source":"iana"},"audio/mpeg":{"source":"iana","compressible":false,"extensions":["mpga","mp2","mp2a","mp3","m2a","m3a"]},"audio/mpeg4-generic":{"source":"iana"},"audio/musepack":{"source":"apache"},"audio/ogg":{"source":"iana","compressible":false,"extensions":["oga","ogg","spx"]},"audio/opus":{"source":"iana"},"audio/parityfec":{"source":"iana"},"audio/pcma":{"source":"iana"},"audio/pcma-wb":{"source":"iana"},"audio/pcmu":{"source":"iana"},"audio/pcmu-wb":{"source":"iana"},"audio/prs.sid":{"source":"iana"},"audio/qcelp":{"source":"iana"},"audio/raptorfec":{"source":"iana"},"audio/red":{"source":"iana"},"audio/rtp-enc-aescm128":{"source":"iana"},"audio/rtp-midi":{"source":"iana"},"audio/rtploopback":{"source":"iana"},"audio/rtx":{"source":"iana"},"audio/s3m":{"source":"apache","extensions":["s3m"]},"audio/silk":{"source":"apache","extensions":["sil"]},"audio/smv":{"source":"iana"},"audio/smv-qcp":{"source":"iana"},"audio/smv0":{"source":"iana"},"audio/sp-midi":{"source":"iana"},"audio/speex":{"source":"iana"},"audio/t140c":{"source":"iana"},"audio/t38":{"source":"iana"},"audio/telephone-event":{"source":"iana"},"audio/tetra_acelp":{"source":"iana"},"audio/tone":{"source":"iana"},"audio/uemclip":{"source":"iana"},"audio/ulpfec":{"source":"iana"},"audio/usac":{"source":"iana"},"audio/vdvi":{"source":"iana"},"audio/vmr-wb":{"source":"iana"},"audio/vnd.3gpp.iufp":{"source":"iana"},"audio/vnd.4sb":{"source":"iana"},"audio/vnd.audiokoz":{"source":"iana"},"audio/vnd.celp":{"source":"iana"},"audio/vnd.cisco.nse":{"source":"iana"},"audio/vnd.cmles.radio-events":{"source":"iana"},"audio/vnd.cns.anp1":{"source":"iana"},"audio/vnd.cns.inf1":{"source":"iana"},"audio/vnd.dece.audio":{"source":"iana","extensions":["uva","uvva"]},"audio/vnd.digital-winds":{"source":"iana","extensions":["eol"]},"audio/vnd.dlna.adts":{"source":"iana"},"audio/vnd.dolby.heaac.1":{"source":"iana"},"audio/vnd.dolby.heaac.2":{"source":"iana"},"audio/vnd.dolby.mlp":{"source":"iana"},"audio/vnd.dolby.mps":{"source":"iana"},"audio/vnd.dolby.pl2":{"source":"iana"},"audio/vnd.dolby.pl2x":{"source":"iana"},"audio/vnd.dolby.pl2z":{"source":"iana"},"audio/vnd.dolby.pulse.1":{"source":"iana"},"audio/vnd.dra":{"source":"iana","extensions":["dra"]},"audio/vnd.dts":{"source":"iana","extensions":["dts"]},"audio/vnd.dts.hd":{"source":"iana","extensions":["dtshd"]},"audio/vnd.dts.uhd":{"source":"iana"},"audio/vnd.dvb.file":{"source":"iana"},"audio/vnd.everad.plj":{"source":"iana"},"audio/vnd.hns.audio":{"source":"iana"},"audio/vnd.lucent.voice":{"source":"iana","extensions":["lvp"]},"audio/vnd.ms-playready.media.pya":{"source":"iana","extensions":["pya"]},"audio/vnd.nokia.mobile-xmf":{"source":"iana"},"audio/vnd.nortel.vbk":{"source":"iana"},"audio/vnd.nuera.ecelp4800":{"source":"iana","extensions":["ecelp4800"]},"audio/vnd.nuera.ecelp7470":{"source":"iana","extensions":["ecelp7470"]},"audio/vnd.nuera.ecelp9600":{"source":"iana","extensions":["ecelp9600"]},"audio/vnd.octel.sbc":{"source":"iana"},"audio/vnd.presonus.multitrack":{"source":"iana"},"audio/vnd.qcelp":{"source":"iana"},"audio/vnd.rhetorex.32kadpcm":{"source":"iana"},"audio/vnd.rip":{"source":"iana","extensions":["rip"]},"audio/vnd.rn-realaudio":{"compressible":false},"audio/vnd.sealedmedia.softseal.mpeg":{"source":"iana"},"audio/vnd.vmx.cvsd":{"source":"iana"},"audio/vnd.wave":{"compressible":false},"audio/vorbis":{"source":"iana","compressible":false},"audio/vorbis-config":{"source":"iana"},"audio/wav":{"compressible":false,"extensions":["wav"]},"audio/wave":{"compressible":false,"extensions":["wav"]},"audio/webm":{"source":"apache","compressible":false,"extensions":["weba"]},"audio/x-aac":{"source":"apache","compressible":false,"extensions":["aac"]},"audio/x-aiff":{"source":"apache","extensions":["aif","aiff","aifc"]},"audio/x-caf":{"source":"apache","compressible":false,"extensions":["caf"]},"audio/x-flac":{"source":"apache","extensions":["flac"]},"audio/x-m4a":{"source":"nginx","extensions":["m4a"]},"audio/x-matroska":{"source":"apache","extensions":["mka"]},"audio/x-mpegurl":{"source":"apache","extensions":["m3u"]},"audio/x-ms-wax":{"source":"apache","extensions":["wax"]},"audio/x-ms-wma":{"source":"apache","extensions":["wma"]},"audio/x-pn-realaudio":{"source":"apache","extensions":["ram","ra"]},"audio/x-pn-realaudio-plugin":{"source":"apache","extensions":["rmp"]},"audio/x-realaudio":{"source":"nginx","extensions":["ra"]},"audio/x-tta":{"source":"apache"},"audio/x-wav":{"source":"apache","extensions":["wav"]},"audio/xm":{"source":"apache","extensions":["xm"]},"chemical/x-cdx":{"source":"apache","extensions":["cdx"]},"chemical/x-cif":{"source":"apache","extensions":["cif"]},"chemical/x-cmdf":{"source":"apache","extensions":["cmdf"]},"chemical/x-cml":{"source":"apache","extensions":["cml"]},"chemical/x-csml":{"source":"apache","extensions":["csml"]},"chemical/x-pdb":{"source":"apache"},"chemical/x-xyz":{"source":"apache","extensions":["xyz"]},"font/collection":{"source":"iana","extensions":["ttc"]},"font/otf":{"source":"iana","compressible":true,"extensions":["otf"]},"font/sfnt":{"source":"iana"},"font/ttf":{"source":"iana","extensions":["ttf"]},"font/woff":{"source":"iana","extensions":["woff"]},"font/woff2":{"source":"iana","extensions":["woff2"]},"image/aces":{"source":"iana","extensions":["exr"]},"image/apng":{"compressible":false,"extensions":["apng"]},"image/avci":{"source":"iana"},"image/avcs":{"source":"iana"},"image/bmp":{"source":"iana","compressible":true,"extensions":["bmp"]},"image/cgm":{"source":"iana","extensions":["cgm"]},"image/dicom-rle":{"source":"iana","extensions":["drle"]},"image/emf":{"source":"iana","extensions":["emf"]},"image/fits":{"source":"iana","extensions":["fits"]},"image/g3fax":{"source":"iana","extensions":["g3"]},"image/gif":{"source":"iana","compressible":false,"extensions":["gif"]},"image/heic":{"source":"iana","extensions":["heic"]},"image/heic-sequence":{"source":"iana","extensions":["heics"]},"image/heif":{"source":"iana","extensions":["heif"]},"image/heif-sequence":{"source":"iana","extensions":["heifs"]},"image/ief":{"source":"iana","extensions":["ief"]},"image/jls":{"source":"iana","extensions":["jls"]},"image/jp2":{"source":"iana","compressible":false,"extensions":["jp2","jpg2"]},"image/jpeg":{"source":"iana","compressible":false,"extensions":["jpeg","jpg","jpe"]},"image/jpm":{"source":"iana","compressible":false,"extensions":["jpm"]},"image/jpx":{"source":"iana","compressible":false,"extensions":["jpx","jpf"]},"image/ktx":{"source":"iana","extensions":["ktx"]},"image/naplps":{"source":"iana"},"image/pjpeg":{"compressible":false},"image/png":{"source":"iana","compressible":false,"extensions":["png"]},"image/prs.btif":{"source":"iana","extensions":["btif"]},"image/prs.pti":{"source":"iana","extensions":["pti"]},"image/pwg-raster":{"source":"iana"},"image/sgi":{"source":"apache","extensions":["sgi"]},"image/svg+xml":{"source":"iana","compressible":true,"extensions":["svg","svgz"]},"image/t38":{"source":"iana","extensions":["t38"]},"image/tiff":{"source":"iana","compressible":false,"extensions":["tif","tiff"]},"image/tiff-fx":{"source":"iana","extensions":["tfx"]},"image/vnd.adobe.photoshop":{"source":"iana","compressible":true,"extensions":["psd"]},"image/vnd.airzip.accelerator.azv":{"source":"iana","extensions":["azv"]},"image/vnd.cns.inf2":{"source":"iana"},"image/vnd.dece.graphic":{"source":"iana","extensions":["uvi","uvvi","uvg","uvvg"]},"image/vnd.djvu":{"source":"iana","extensions":["djvu","djv"]},"image/vnd.dvb.subtitle":{"source":"iana","extensions":["sub"]},"image/vnd.dwg":{"source":"iana","extensions":["dwg"]},"image/vnd.dxf":{"source":"iana","extensions":["dxf"]},"image/vnd.fastbidsheet":{"source":"iana","extensions":["fbs"]},"image/vnd.fpx":{"source":"iana","extensions":["fpx"]},"image/vnd.fst":{"source":"iana","extensions":["fst"]},"image/vnd.fujixerox.edmics-mmr":{"source":"iana","extensions":["mmr"]},"image/vnd.fujixerox.edmics-rlc":{"source":"iana","extensions":["rlc"]},"image/vnd.globalgraphics.pgb":{"source":"iana"},"image/vnd.microsoft.icon":{"source":"iana","extensions":["ico"]},"image/vnd.mix":{"source":"iana"},"image/vnd.mozilla.apng":{"source":"iana"},"image/vnd.ms-modi":{"source":"iana","extensions":["mdi"]},"image/vnd.ms-photo":{"source":"apache","extensions":["wdp"]},"image/vnd.net-fpx":{"source":"iana","extensions":["npx"]},"image/vnd.radiance":{"source":"iana"},"image/vnd.sealed.png":{"source":"iana"},"image/vnd.sealedmedia.softseal.gif":{"source":"iana"},"image/vnd.sealedmedia.softseal.jpg":{"source":"iana"},"image/vnd.svf":{"source":"iana"},"image/vnd.tencent.tap":{"source":"iana","extensions":["tap"]},"image/vnd.valve.source.texture":{"source":"iana","extensions":["vtf"]},"image/vnd.wap.wbmp":{"source":"iana","extensions":["wbmp"]},"image/vnd.xiff":{"source":"iana","extensions":["xif"]},"image/vnd.zbrush.pcx":{"source":"iana","extensions":["pcx"]},"image/webp":{"source":"apache","extensions":["webp"]},"image/wmf":{"source":"iana","extensions":["wmf"]},"image/x-3ds":{"source":"apache","extensions":["3ds"]},"image/x-cmu-raster":{"source":"apache","extensions":["ras"]},"image/x-cmx":{"source":"apache","extensions":["cmx"]},"image/x-freehand":{"source":"apache","extensions":["fh","fhc","fh4","fh5","fh7"]},"image/x-icon":{"source":"apache","compressible":true,"extensions":["ico"]},"image/x-jng":{"source":"nginx","extensions":["jng"]},"image/x-mrsid-image":{"source":"apache","extensions":["sid"]},"image/x-ms-bmp":{"source":"nginx","compressible":true,"extensions":["bmp"]},"image/x-pcx":{"source":"apache","extensions":["pcx"]},"image/x-pict":{"source":"apache","extensions":["pic","pct"]},"image/x-portable-anymap":{"source":"apache","extensions":["pnm"]},"image/x-portable-bitmap":{"source":"apache","extensions":["pbm"]},"image/x-portable-graymap":{"source":"apache","extensions":["pgm"]},"image/x-portable-pixmap":{"source":"apache","extensions":["ppm"]},"image/x-rgb":{"source":"apache","extensions":["rgb"]},"image/x-tga":{"source":"apache","extensions":["tga"]},"image/x-xbitmap":{"source":"apache","extensions":["xbm"]},"image/x-xcf":{"compressible":false},"image/x-xpixmap":{"source":"apache","extensions":["xpm"]},"image/x-xwindowdump":{"source":"apache","extensions":["xwd"]},"message/cpim":{"source":"iana"},"message/delivery-status":{"source":"iana"},"message/disposition-notification":{"source":"iana","extensions":["disposition-notification"]},"message/external-body":{"source":"iana"},"message/feedback-report":{"source":"iana"},"message/global":{"source":"iana","extensions":["u8msg"]},"message/global-delivery-status":{"source":"iana","extensions":["u8dsn"]},"message/global-disposition-notification":{"source":"iana","extensions":["u8mdn"]},"message/global-headers":{"source":"iana","extensions":["u8hdr"]},"message/http":{"source":"iana","compressible":false},"message/imdn+xml":{"source":"iana","compressible":true},"message/news":{"source":"iana"},"message/partial":{"source":"iana","compressible":false},"message/rfc822":{"source":"iana","compressible":true,"extensions":["eml","mime"]},"message/s-http":{"source":"iana"},"message/sip":{"source":"iana"},"message/sipfrag":{"source":"iana"},"message/tracking-status":{"source":"iana"},"message/vnd.si.simp":{"source":"iana"},"message/vnd.wfa.wsc":{"source":"iana","extensions":["wsc"]},"model/3mf":{"source":"iana"},"model/gltf+json":{"source":"iana","compressible":true,"extensions":["gltf"]},"model/gltf-binary":{"source":"iana","compressible":true,"extensions":["glb"]},"model/iges":{"source":"iana","compressible":false,"extensions":["igs","iges"]},"model/mesh":{"source":"iana","compressible":false,"extensions":["msh","mesh","silo"]},"model/stl":{"source":"iana"},"model/vnd.collada+xml":{"source":"iana","compressible":true,"extensions":["dae"]},"model/vnd.dwf":{"source":"iana","extensions":["dwf"]},"model/vnd.flatland.3dml":{"source":"iana"},"model/vnd.gdl":{"source":"iana","extensions":["gdl"]},"model/vnd.gs-gdl":{"source":"apache"},"model/vnd.gs.gdl":{"source":"iana"},"model/vnd.gtw":{"source":"iana","extensions":["gtw"]},"model/vnd.moml+xml":{"source":"iana","compressible":true},"model/vnd.mts":{"source":"iana","extensions":["mts"]},"model/vnd.opengex":{"source":"iana"},"model/vnd.parasolid.transmit.binary":{"source":"iana"},"model/vnd.parasolid.transmit.text":{"source":"iana"},"model/vnd.rosette.annotated-data-model":{"source":"iana"},"model/vnd.usdz+zip":{"source":"iana","compressible":false},"model/vnd.valve.source.compiled-map":{"source":"iana"},"model/vnd.vtu":{"source":"iana","extensions":["vtu"]},"model/vrml":{"source":"iana","compressible":false,"extensions":["wrl","vrml"]},"model/x3d+binary":{"source":"apache","compressible":false,"extensions":["x3db","x3dbz"]},"model/x3d+fastinfoset":{"source":"iana"},"model/x3d+vrml":{"source":"apache","compressible":false,"extensions":["x3dv","x3dvz"]},"model/x3d+xml":{"source":"iana","compressible":true,"extensions":["x3d","x3dz"]},"model/x3d-vrml":{"source":"iana"},"multipart/alternative":{"source":"iana","compressible":false},"multipart/appledouble":{"source":"iana"},"multipart/byteranges":{"source":"iana"},"multipart/digest":{"source":"iana"},"multipart/encrypted":{"source":"iana","compressible":false},"multipart/form-data":{"source":"iana","compressible":false},"multipart/header-set":{"source":"iana"},"multipart/mixed":{"source":"iana","compressible":false},"multipart/multilingual":{"source":"iana"},"multipart/parallel":{"source":"iana"},"multipart/related":{"source":"iana","compressible":false},"multipart/report":{"source":"iana"},"multipart/signed":{"source":"iana","compressible":false},"multipart/vnd.bint.med-plus":{"source":"iana"},"multipart/voice-message":{"source":"iana"},"multipart/x-mixed-replace":{"source":"iana"},"text/1d-interleaved-parityfec":{"source":"iana"},"text/cache-manifest":{"source":"iana","compressible":true,"extensions":["appcache","manifest"]},"text/calendar":{"source":"iana","extensions":["ics","ifb"]},"text/calender":{"compressible":true},"text/cmd":{"compressible":true},"text/coffeescript":{"extensions":["coffee","litcoffee"]},"text/css":{"source":"iana","charset":"UTF-8","compressible":true,"extensions":["css"]},"text/csv":{"source":"iana","compressible":true,"extensions":["csv"]},"text/csv-schema":{"source":"iana"},"text/directory":{"source":"iana"},"text/dns":{"source":"iana"},"text/ecmascript":{"source":"iana"},"text/encaprtp":{"source":"iana"},"text/enriched":{"source":"iana"},"text/fwdred":{"source":"iana"},"text/grammar-ref-list":{"source":"iana"},"text/html":{"source":"iana","compressible":true,"extensions":["html","htm","shtml"]},"text/jade":{"extensions":["jade"]},"text/javascript":{"source":"iana","compressible":true},"text/jcr-cnd":{"source":"iana"},"text/jsx":{"compressible":true,"extensions":["jsx"]},"text/less":{"compressible":true,"extensions":["less"]},"text/markdown":{"source":"iana","compressible":true,"extensions":["markdown","md"]},"text/mathml":{"source":"nginx","extensions":["mml"]},"text/mizar":{"source":"iana"},"text/n3":{"source":"iana","compressible":true,"extensions":["n3"]},"text/parameters":{"source":"iana"},"text/parityfec":{"source":"iana"},"text/plain":{"source":"iana","compressible":true,"extensions":["txt","text","conf","def","list","log","in","ini"]},"text/provenance-notation":{"source":"iana"},"text/prs.fallenstein.rst":{"source":"iana"},"text/prs.lines.tag":{"source":"iana","extensions":["dsc"]},"text/prs.prop.logic":{"source":"iana"},"text/raptorfec":{"source":"iana"},"text/red":{"source":"iana"},"text/rfc822-headers":{"source":"iana"},"text/richtext":{"source":"iana","compressible":true,"extensions":["rtx"]},"text/rtf":{"source":"iana","compressible":true,"extensions":["rtf"]},"text/rtp-enc-aescm128":{"source":"iana"},"text/rtploopback":{"source":"iana"},"text/rtx":{"source":"iana"},"text/sgml":{"source":"iana","extensions":["sgml","sgm"]},"text/shex":{"extensions":["shex"]},"text/slim":{"extensions":["slim","slm"]},"text/strings":{"source":"iana"},"text/stylus":{"extensions":["stylus","styl"]},"text/t140":{"source":"iana"},"text/tab-separated-values":{"source":"iana","compressible":true,"extensions":["tsv"]},"text/troff":{"source":"iana","extensions":["t","tr","roff","man","me","ms"]},"text/turtle":{"source":"iana","charset":"UTF-8","extensions":["ttl"]},"text/ulpfec":{"source":"iana"},"text/uri-list":{"source":"iana","compressible":true,"extensions":["uri","uris","urls"]},"text/vcard":{"source":"iana","compressible":true,"extensions":["vcard"]},"text/vnd.a":{"source":"iana"},"text/vnd.abc":{"source":"iana"},"text/vnd.ascii-art":{"source":"iana"},"text/vnd.curl":{"source":"iana","extensions":["curl"]},"text/vnd.curl.dcurl":{"source":"apache","extensions":["dcurl"]},"text/vnd.curl.mcurl":{"source":"apache","extensions":["mcurl"]},"text/vnd.curl.scurl":{"source":"apache","extensions":["scurl"]},"text/vnd.debian.copyright":{"source":"iana"},"text/vnd.dmclientscript":{"source":"iana"},"text/vnd.dvb.subtitle":{"source":"iana","extensions":["sub"]},"text/vnd.esmertec.theme-descriptor":{"source":"iana"},"text/vnd.fly":{"source":"iana","extensions":["fly"]},"text/vnd.fmi.flexstor":{"source":"iana","extensions":["flx"]},"text/vnd.gml":{"source":"iana"},"text/vnd.graphviz":{"source":"iana","extensions":["gv"]},"text/vnd.hgl":{"source":"iana"},"text/vnd.in3d.3dml":{"source":"iana","extensions":["3dml"]},"text/vnd.in3d.spot":{"source":"iana","extensions":["spot"]},"text/vnd.iptc.newsml":{"source":"iana"},"text/vnd.iptc.nitf":{"source":"iana"},"text/vnd.latex-z":{"source":"iana"},"text/vnd.motorola.reflex":{"source":"iana"},"text/vnd.ms-mediapackage":{"source":"iana"},"text/vnd.net2phone.commcenter.command":{"source":"iana"},"text/vnd.radisys.msml-basic-layout":{"source":"iana"},"text/vnd.senx.warpscript":{"source":"iana"},"text/vnd.si.uricatalogue":{"source":"iana"},"text/vnd.sun.j2me.app-descriptor":{"source":"iana","extensions":["jad"]},"text/vnd.trolltech.linguist":{"source":"iana"},"text/vnd.wap.si":{"source":"iana"},"text/vnd.wap.sl":{"source":"iana"},"text/vnd.wap.wml":{"source":"iana","extensions":["wml"]},"text/vnd.wap.wmlscript":{"source":"iana","extensions":["wmls"]},"text/vtt":{"charset":"UTF-8","compressible":true,"extensions":["vtt"]},"text/x-asm":{"source":"apache","extensions":["s","asm"]},"text/x-c":{"source":"apache","extensions":["c","cc","cxx","cpp","h","hh","dic"]},"text/x-component":{"source":"nginx","extensions":["htc"]},"text/x-fortran":{"source":"apache","extensions":["f","for","f77","f90"]},"text/x-gwt-rpc":{"compressible":true},"text/x-handlebars-template":{"extensions":["hbs"]},"text/x-java-source":{"source":"apache","extensions":["java"]},"text/x-jquery-tmpl":{"compressible":true},"text/x-lua":{"extensions":["lua"]},"text/x-markdown":{"compressible":true,"extensions":["mkd"]},"text/x-nfo":{"source":"apache","extensions":["nfo"]},"text/x-opml":{"source":"apache","extensions":["opml"]},"text/x-org":{"compressible":true,"extensions":["org"]},"text/x-pascal":{"source":"apache","extensions":["p","pas"]},"text/x-processing":{"compressible":true,"extensions":["pde"]},"text/x-sass":{"extensions":["sass"]},"text/x-scss":{"extensions":["scss"]},"text/x-setext":{"source":"apache","extensions":["etx"]},"text/x-sfv":{"source":"apache","extensions":["sfv"]},"text/x-suse-ymp":{"compressible":true,"extensions":["ymp"]},"text/x-uuencode":{"source":"apache","extensions":["uu"]},"text/x-vcalendar":{"source":"apache","extensions":["vcs"]},"text/x-vcard":{"source":"apache","extensions":["vcf"]},"text/xml":{"source":"iana","compressible":true,"extensions":["xml"]},"text/xml-external-parsed-entity":{"source":"iana"},"text/yaml":{"extensions":["yaml","yml"]},"video/1d-interleaved-parityfec":{"source":"iana"},"video/3gpp":{"source":"iana","extensions":["3gp","3gpp"]},"video/3gpp-tt":{"source":"iana"},"video/3gpp2":{"source":"iana","extensions":["3g2"]},"video/bmpeg":{"source":"iana"},"video/bt656":{"source":"iana"},"video/celb":{"source":"iana"},"video/dv":{"source":"iana"},"video/encaprtp":{"source":"iana"},"video/h261":{"source":"iana","extensions":["h261"]},"video/h263":{"source":"iana","extensions":["h263"]},"video/h263-1998":{"source":"iana"},"video/h263-2000":{"source":"iana"},"video/h264":{"source":"iana","extensions":["h264"]},"video/h264-rcdo":{"source":"iana"},"video/h264-svc":{"source":"iana"},"video/h265":{"source":"iana"},"video/iso.segment":{"source":"iana"},"video/jpeg":{"source":"iana","extensions":["jpgv"]},"video/jpeg2000":{"source":"iana"},"video/jpm":{"source":"apache","extensions":["jpm","jpgm"]},"video/mj2":{"source":"iana","extensions":["mj2","mjp2"]},"video/mp1s":{"source":"iana"},"video/mp2p":{"source":"iana"},"video/mp2t":{"source":"iana","extensions":["ts"]},"video/mp4":{"source":"iana","compressible":false,"extensions":["mp4","mp4v","mpg4"]},"video/mp4v-es":{"source":"iana"},"video/mpeg":{"source":"iana","compressible":false,"extensions":["mpeg","mpg","mpe","m1v","m2v"]},"video/mpeg4-generic":{"source":"iana"},"video/mpv":{"source":"iana"},"video/nv":{"source":"iana"},"video/ogg":{"source":"iana","compressible":false,"extensions":["ogv"]},"video/parityfec":{"source":"iana"},"video/pointer":{"source":"iana"},"video/quicktime":{"source":"iana","compressible":false,"extensions":["qt","mov"]},"video/raptorfec":{"source":"iana"},"video/raw":{"source":"iana"},"video/rtp-enc-aescm128":{"source":"iana"},"video/rtploopback":{"source":"iana"},"video/rtx":{"source":"iana"},"video/smpte291":{"source":"iana"},"video/smpte292m":{"source":"iana"},"video/ulpfec":{"source":"iana"},"video/vc1":{"source":"iana"},"video/vc2":{"source":"iana"},"video/vnd.cctv":{"source":"iana"},"video/vnd.dece.hd":{"source":"iana","extensions":["uvh","uvvh"]},"video/vnd.dece.mobile":{"source":"iana","extensions":["uvm","uvvm"]},"video/vnd.dece.mp4":{"source":"iana"},"video/vnd.dece.pd":{"source":"iana","extensions":["uvp","uvvp"]},"video/vnd.dece.sd":{"source":"iana","extensions":["uvs","uvvs"]},"video/vnd.dece.video":{"source":"iana","extensions":["uvv","uvvv"]},"video/vnd.directv.mpeg":{"source":"iana"},"video/vnd.directv.mpeg-tts":{"source":"iana"},"video/vnd.dlna.mpeg-tts":{"source":"iana"},"video/vnd.dvb.file":{"source":"iana","extensions":["dvb"]},"video/vnd.fvt":{"source":"iana","extensions":["fvt"]},"video/vnd.hns.video":{"source":"iana"},"video/vnd.iptvforum.1dparityfec-1010":{"source":"iana"},"video/vnd.iptvforum.1dparityfec-2005":{"source":"iana"},"video/vnd.iptvforum.2dparityfec-1010":{"source":"iana"},"video/vnd.iptvforum.2dparityfec-2005":{"source":"iana"},"video/vnd.iptvforum.ttsavc":{"source":"iana"},"video/vnd.iptvforum.ttsmpeg2":{"source":"iana"},"video/vnd.motorola.video":{"source":"iana"},"video/vnd.motorola.videop":{"source":"iana"},"video/vnd.mpegurl":{"source":"iana","extensions":["mxu","m4u"]},"video/vnd.ms-playready.media.pyv":{"source":"iana","extensions":["pyv"]},"video/vnd.nokia.interleaved-multimedia":{"source":"iana"},"video/vnd.nokia.mp4vr":{"source":"iana"},"video/vnd.nokia.videovoip":{"source":"iana"},"video/vnd.objectvideo":{"source":"iana"},"video/vnd.radgamettools.bink":{"source":"iana"},"video/vnd.radgamettools.smacker":{"source":"iana"},"video/vnd.sealed.mpeg1":{"source":"iana"},"video/vnd.sealed.mpeg4":{"source":"iana"},"video/vnd.sealed.swf":{"source":"iana"},"video/vnd.sealedmedia.softseal.mov":{"source":"iana"},"video/vnd.uvvu.mp4":{"source":"iana","extensions":["uvu","uvvu"]},"video/vnd.vivo":{"source":"iana","extensions":["viv"]},"video/vp8":{"source":"iana"},"video/webm":{"source":"apache","compressible":false,"extensions":["webm"]},"video/x-f4v":{"source":"apache","extensions":["f4v"]},"video/x-fli":{"source":"apache","extensions":["fli"]},"video/x-flv":{"source":"apache","compressible":false,"extensions":["flv"]},"video/x-m4v":{"source":"apache","extensions":["m4v"]},"video/x-matroska":{"source":"apache","compressible":false,"extensions":["mkv","mk3d","mks"]},"video/x-mng":{"source":"apache","extensions":["mng"]},"video/x-ms-asf":{"source":"apache","extensions":["asf","asx"]},"video/x-ms-vob":{"source":"apache","extensions":["vob"]},"video/x-ms-wm":{"source":"apache","extensions":["wm"]},"video/x-ms-wmv":{"source":"apache","compressible":false,"extensions":["wmv"]},"video/x-ms-wmx":{"source":"apache","extensions":["wmx"]},"video/x-ms-wvx":{"source":"apache","extensions":["wvx"]},"video/x-msvideo":{"source":"apache","extensions":["avi"]},"video/x-sgi-movie":{"source":"apache","extensions":["movie"]},"video/x-smv":{"source":"apache","extensions":["smv"]},"x-conference/x-cooltalk":{"source":"apache","extensions":["ice"]},"x-shader/x-fragment":{"compressible":true},"x-shader/x-vertex":{"compressible":true}};
-
-/***/ }),
-/* 136 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports =
-{
-  parallel      : __webpack_require__(137),
-  serial        : __webpack_require__(144),
-  serialOrdered : __webpack_require__(145)
-};
-
-
-/***/ }),
-/* 137 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var iterate    = __webpack_require__(138)
-  , initState  = __webpack_require__(142)
-  , terminator = __webpack_require__(143)
-  ;
-
-// Public API
-module.exports = parallel;
-
-/**
- * Runs iterator over provided array elements in parallel
- *
- * @param   {array|object} list - array or object (named list) to iterate over
- * @param   {function} iterator - iterator to run
- * @param   {function} callback - invoked when all elements processed
- * @returns {function} - jobs terminator
- */
-function parallel(list, iterator, callback)
-{
-  var state = initState(list);
-
-  while (state.index < (state['keyedList'] || list).length)
-  {
-    iterate(list, iterator, state, function(error, result)
-    {
-      if (error)
-      {
-        callback(error, result);
-        return;
-      }
-
-      // looks like it's the last one
-      if (Object.keys(state.jobs).length === 0)
-      {
-        callback(null, state.results);
-        return;
-      }
-    });
-
-    state.index++;
-  }
-
-  return terminator.bind(state, callback);
-}
-
-
-/***/ }),
-/* 138 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var async = __webpack_require__(139)
-  , abort = __webpack_require__(141)
-  ;
-
-// API
-module.exports = iterate;
-
-/**
- * Iterates over each job object
- *
- * @param {array|object} list - array or object (named list) to iterate over
- * @param {function} iterator - iterator to run
- * @param {object} state - current job status
- * @param {function} callback - invoked when all elements processed
- */
-function iterate(list, iterator, state, callback)
-{
-  // store current index
-  var key = state['keyedList'] ? state['keyedList'][state.index] : state.index;
-
-  state.jobs[key] = runJob(iterator, key, list[key], function(error, output)
-  {
-    // don't repeat yourself
-    // skip secondary callbacks
-    if (!(key in state.jobs))
-    {
-      return;
-    }
-
-    // clean up jobs
-    delete state.jobs[key];
-
-    if (error)
-    {
-      // don't process rest of the results
-      // stop still active jobs
-      // and reset the list
-      abort(state);
-    }
-    else
-    {
-      state.results[key] = output;
-    }
-
-    // return salvaged results
-    callback(error, state.results);
-  });
-}
-
-/**
- * Runs iterator over provided job element
- *
- * @param   {function} iterator - iterator to invoke
- * @param   {string|number} key - key/index of the element in the list of jobs
- * @param   {mixed} item - job description
- * @param   {function} callback - invoked after iterator is done with the job
- * @returns {function|mixed} - job abort function or something else
- */
-function runJob(iterator, key, item, callback)
-{
-  var aborter;
-
-  // allow shortcut if iterator expects only two arguments
-  if (iterator.length == 2)
-  {
-    aborter = iterator(item, async(callback));
-  }
-  // otherwise go with full three arguments
-  else
-  {
-    aborter = iterator(item, key, async(callback));
-  }
-
-  return aborter;
-}
-
-
-/***/ }),
-/* 139 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var defer = __webpack_require__(140);
-
-// API
-module.exports = async;
-
-/**
- * Runs provided callback asynchronously
- * even if callback itself is not
- *
- * @param   {function} callback - callback to invoke
- * @returns {function} - augmented callback
- */
-function async(callback)
-{
-  var isAsync = false;
-
-  // check if async happened
-  defer(function() { isAsync = true; });
-
-  return function async_callback(err, result)
-  {
-    if (isAsync)
-    {
-      callback(err, result);
-    }
-    else
-    {
-      defer(function nextTick_callback()
-      {
-        callback(err, result);
-      });
-    }
-  };
-}
-
-
-/***/ }),
-/* 140 */
-/***/ (function(module, exports) {
-
-module.exports = defer;
-
-/**
- * Runs provided function on next iteration of the event loop
- *
- * @param {function} fn - function to run
- */
-function defer(fn)
-{
-  var nextTick = typeof setImmediate == 'function'
-    ? setImmediate
-    : (
-      typeof process == 'object' && typeof process.nextTick == 'function'
-      ? process.nextTick
-      : null
-    );
-
-  if (nextTick)
-  {
-    nextTick(fn);
-  }
-  else
-  {
-    setTimeout(fn, 0);
-  }
-}
-
-
-/***/ }),
-/* 141 */
-/***/ (function(module, exports) {
-
-// API
-module.exports = abort;
-
-/**
- * Aborts leftover active jobs
- *
- * @param {object} state - current state object
- */
-function abort(state)
-{
-  Object.keys(state.jobs).forEach(clean.bind(state));
-
-  // reset leftover jobs
-  state.jobs = {};
-}
-
-/**
- * Cleans up leftover job by invoking abort function for the provided job id
- *
- * @this  state
- * @param {string|number} key - job id to abort
- */
-function clean(key)
-{
-  if (typeof this.jobs[key] == 'function')
-  {
-    this.jobs[key]();
-  }
-}
-
-
-/***/ }),
-/* 142 */
-/***/ (function(module, exports) {
-
-// API
-module.exports = state;
-
-/**
- * Creates initial state object
- * for iteration over list
- *
- * @param   {array|object} list - list to iterate over
- * @param   {function|null} sortMethod - function to use for keys sort,
- *                                     or `null` to keep them as is
- * @returns {object} - initial state object
- */
-function state(list, sortMethod)
-{
-  var isNamedList = !Array.isArray(list)
-    , initState =
-    {
-      index    : 0,
-      keyedList: isNamedList || sortMethod ? Object.keys(list) : null,
-      jobs     : {},
-      results  : isNamedList ? {} : [],
-      size     : isNamedList ? Object.keys(list).length : list.length
-    }
-    ;
-
-  if (sortMethod)
-  {
-    // sort array keys based on it's values
-    // sort object's keys just on own merit
-    initState.keyedList.sort(isNamedList ? sortMethod : function(a, b)
-    {
-      return sortMethod(list[a], list[b]);
-    });
-  }
-
-  return initState;
-}
-
-
-/***/ }),
-/* 143 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var abort = __webpack_require__(141)
-  , async = __webpack_require__(139)
-  ;
-
-// API
-module.exports = terminator;
-
-/**
- * Terminates jobs in the attached state context
- *
- * @this  AsyncKitState#
- * @param {function} callback - final callback to invoke after termination
- */
-function terminator(callback)
-{
-  if (!Object.keys(this.jobs).length)
-  {
-    return;
-  }
-
-  // fast forward iteration index
-  this.index = this.size;
-
-  // abort jobs
-  abort(this);
-
-  // send back results we have so far
-  async(callback)(null, this.results);
-}
-
-
-/***/ }),
-/* 144 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var serialOrdered = __webpack_require__(145);
-
-// Public API
-module.exports = serial;
-
-/**
- * Runs iterator over provided array elements in series
- *
- * @param   {array|object} list - array or object (named list) to iterate over
- * @param   {function} iterator - iterator to run
- * @param   {function} callback - invoked when all elements processed
- * @returns {function} - jobs terminator
- */
-function serial(list, iterator, callback)
-{
-  return serialOrdered(list, iterator, null, callback);
-}
-
-
-/***/ }),
-/* 145 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var iterate    = __webpack_require__(138)
-  , initState  = __webpack_require__(142)
-  , terminator = __webpack_require__(143)
-  ;
-
-// Public API
-module.exports = serialOrdered;
-// sorting helpers
-module.exports.ascending  = ascending;
-module.exports.descending = descending;
-
-/**
- * Runs iterator over provided sorted array elements in series
- *
- * @param   {array|object} list - array or object (named list) to iterate over
- * @param   {function} iterator - iterator to run
- * @param   {function} sortMethod - custom sort function
- * @param   {function} callback - invoked when all elements processed
- * @returns {function} - jobs terminator
- */
-function serialOrdered(list, iterator, sortMethod, callback)
-{
-  var state = initState(list, sortMethod);
-
-  iterate(list, iterator, state, function iteratorHandler(error, result)
-  {
-    if (error)
-    {
-      callback(error, result);
-      return;
-    }
-
-    state.index++;
-
-    // are we there yet?
-    if (state.index < (state['keyedList'] || list).length)
-    {
-      iterate(list, iterator, state, iteratorHandler);
-      return;
-    }
-
-    // done here
-    callback(null, state.results);
-  });
-
-  return terminator.bind(state, callback);
-}
-
-/*
- * -- Sort methods
- */
-
-/**
- * sort helper to sort array elements in ascending order
- *
- * @param   {mixed} a - an item to compare
- * @param   {mixed} b - an item to compare
- * @returns {number} - comparison result
- */
-function ascending(a, b)
-{
-  return a < b ? -1 : a > b ? 1 : 0;
-}
-
-/**
- * sort helper to sort array elements in descending order
- *
- * @param   {mixed} a - an item to compare
- * @param   {mixed} b - an item to compare
- * @returns {number} - comparison result
- */
-function descending(a, b)
-{
-  return -1 * ascending(a, b);
-}
-
-
-/***/ }),
-/* 146 */
-/***/ (function(module, exports) {
-
-// populates missing values
-module.exports = function(dst, src) {
-
-  Object.keys(src).forEach(function(prop)
-  {
-    dst[prop] = dst[prop] || src[prop];
-  });
-
-  return dst;
-};
-
-
-/***/ }),
-/* 147 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-const utils = __webpack_require__(123);
-
-const createResponse = (status, raw, req, headers = {}) => {
-  const resp = {
-    statusCode: status,
-    req,
-    on(event, callback) {
-      switch (event) {
-        case 'data':
-          callback(raw);
-          break;
-        case 'end':
-          callback();
-          break;
-      }
-    },
-  };
-  for (let k in headers) { resp[k] = headers[k]; }
-  resp.headers = resp.headers || {};
-
-  return resp;
-};
-
-module.exports = class BrowserClient {
-  constructor(hostname, port, base, ssl) {
-    base = base || '';
-    ssl = ssl || false;
-    this.hostname = hostname;
-    this.port = port;
-    this.base = base;
-    this.protocol = ssl ? 'https' : 'http';
-    this.cookies = {};
-  }
-
-  request(opts, data, timeout) {
-    const domain = this.port && this.port !== -1
-      ? `${this.hostname}:${this.port}`
-      : this.hostname;
-    const url = `${this.protocol}://${domain}${this.base}${opts.path}`;
-    const method = opts.method || 'GET';
-
-    return new Promise((resolve, reject) => {
-      const query = new XMLHttpRequest();
-      query.addEventListener('error', reject);
-      query.addEventListener('abort', reject);
-      query.addEventListener('load', () => {
-        const raw = query.responseText;
-
-        resolve(createResponse(query.status, raw, {
-          method,
-          path: opts.path,
-          url,
-        }));
-      });
-
-      query.open(method, url);
-      if (timeout) {
-        query.timeout = timeout; // Set timeout to 4 seconds (4000 milliseconds)
-        query.ontimeout = () => { reject(new Error('Request Timeout')); };
-      }
-
-      if (opts.headers) {
-        if (opts.headers['Content-Type'] === 'multipart/form-data' ||
-            opts.headers['content-type'] === 'multipart/form-data') {
-          delete opts.headers['Content-Type'];
-          delete opts.headers['content-type'];
-
-          const form = new FormData();
-
-          for (const key in data) {
-            form.append(key, data[key]);
-          }
-          data = form;
-        }
-
-        for (const header in opts.headers) {
-          query.setRequestHeader(header, opts.headers[header]);
-        }
-      }
-      if (!opts.headers || !opts.headers['Cache-Control']) {
-        query.setRequestHeader('Cache-Control', 'no-cache, must-revalidate');
-      }
-
-      query.send(data);
-    });
-  }
-
-  readCookies(resp) {
-    utils.parseSetCookies(resp.headers['set-cookie']).forEach(c => {
-      this.cookies[c.Name] = c;
-    });
-  }
-
-  writeCookies(hdrs) {
-    var cookies = [];
-    for (var k in this.cookies) {
-      cookies.push(this.cookies[k]);
-    }
-    if (cookies.length) {
-      hdrs.Cookies = utils.dumpCookies(cookies);
-    }
-  }
-};
-
-
-/***/ }),
-/* 148 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-const os = __webpack_require__(6);
-const fs = __webpack_require__(28);
-const path = __webpack_require__(27);
-const https = __webpack_require__(11);
-const child_process = __webpack_require__(16);
-const utils = __webpack_require__(123);
-const KiteStateError = __webpack_require__(126);
-const {STATES} = __webpack_require__(127);
-
-const OSXSupport = {
-  RELEASE_URL: 'https://alpha.kite.com/release/dls/mac/current',
-  APPS_PATH: '/Applications/',
-  KITE_DMG_PATH: '/tmp/Kite.dmg',
-  KITE_VOLUME_PATH: '/Volumes/Kite/',
-  KITE_APP_PATH: {mounted: '/Volumes/Kite/Kite.app', defaultInstalled: '/Applications/Kite.app'},
-  KITE_SIDEBAR_PATH: '/Applications/Kite.app/Contents/MacOS/KiteSidebar.app',
-  KITE_BUNDLE_ID: 'com.kite.Kite',
-  SESSION_FILE_PATH: path.join(os.homedir(), '.kite', 'session.json'),
-
-  get releaseURL() {
-    return this.RELEASE_URL;
-  },
-
-  get downloadPath() {
-    return this.KITE_DMG_PATH;
-  },
-
-  get installPath() {
-    return this.allInstallPaths[0];
-  },
-
-  get allInstallPaths() {
-    let paths = String(child_process.spawnSync('mdfind', [
-      'kMDItemCFBundleIdentifier = "com.kite.Kite"',
-    ]).stdout).trim().split('\n');
-    if (paths.indexOf(this.KITE_APP_PATH.defaultInstalled) === -1 && this.checkDefaultAppPath()) {
-      paths.push(this.KITE_APP_PATH.defaultInstalled);
-    }
-    return paths.filter(p => p !== '');
-  },
-
-  get enterpriseInstallPath() {
-    return this.allEnterpriseInstallPaths[0];
-  },
-
-  get allEnterpriseInstallPaths() {
-    return String(child_process.spawnSync('mdfind', [
-      'kMDItemCFBundleIdentifier = "enterprise.kite.Kite"',
-    ]).stdout).trim().split('\n');
-  },
-
-  get sessionFilePath() {
-    return this.SESSION_FILE_PATH;
-  },
-
-  isAdmin() {
-    try {
-      const user = utils.whoami();
-      const adminUsers = String(child_process.execSync('dscacheutil -q group -a name admin'))
-      .split('\n')
-      .filter(l => /^users:/.test(l))[0]
-      .trim()
-      .replace(/users:\s+/, '')
-      .split(/\s/g);
-      return adminUsers.includes(user);
-    } catch (e) {
-      return false;
-    }
-  },
-
-  arch() {
-    return os.arch();
-  },
-
-  isOSSupported() {
-    return true;
-  },
-
-  isOSVersionSupported() {
-    return parseFloat(os.release()) >= 14;
-  },
-
-  isKiteSupported() {
-    return this.isOSVersionSupported();
-  },
-
-  checkDefaultAppPath() {
-    return fs.existsSync(this.KITE_APP_PATH.defaultInstalled);
-  },
-
-  isKiteInstalled() {
-    return utils.spawnPromise(
-      'mdfind',
-      ['kMDItemCFBundleIdentifier = "com.kite.Kite"'],
-      'mdfind_error',
-      'Unable to run mdfind and verify that Kite is installed')
-    .then(res => {
-      if ((!res || res.trim() === '') && !this.checkDefaultAppPath()) {
-        throw new KiteStateError('Unable to find Kite application install using mdfind', {
-          state: STATES.UNINSTALLED,
-        });
-      }
-    });
-  },
-
-  hasManyKiteInstallation() {
-    return this.allInstallPaths.length > 1;
-  },
-
-  hasManyKiteEnterpriseInstallation() {
-    return this.allEnterpriseInstallPaths.length > 1;
-  },
-
-  hasBothKiteInstalled() {
-    return Promise.all([
-      this.isKiteInstalled(),
-      this.isKiteEnterpriseInstalled(),
-    ]);
-  },
-
-  isKiteEnterpriseInstalled() {
-    return utils.spawnPromise(
-      'mdfind',
-      ['kMDItemCFBundleIdentifier = "enterprise.kite.Kite"'],
-      'mdfind_error',
-      'Unable to run mdfind and verify that kite enterprise is installed')
-    .then(res => {
-      if (!res || res.trim() === '') {
-        throw new KiteStateError('Unable to find Kite Enterprise application install using mdfind', {
-          state: STATES.UNINSTALLED,
-        });
-      }
-    });
-  },
-
-  downloadKiteRelease(opts) {
-    return this.downloadKite(this.releaseURL, opts || {});
-  },
-
-  downloadKite(url, opts) {
-    opts = opts || {};
-    return this.streamKiteDownload(url, opts.onDownloadProgress)
-    .then(() => utils.guardCall(opts.onDownload))
-    .then(() => opts.install && this.installKite(opts));
-  },
-
-  streamKiteDownload(url, progress) {
-    const req = https.request(url);
-    req.end();
-
-    return utils.followRedirections(req)
-    .then(resp => {
-      if (progress) {
-        const total = parseInt(resp.headers['content-length'], 10);
-        let length = 0;
-
-        resp.on('data', chunk => {
-          length += chunk.length;
-          progress(length, total, length / total);
-        });
-      }
-
-      return utils.promisifyStream(
-        resp.pipe(fs.createWriteStream(this.downloadPath))
-      )
-      .then(() => new Promise((resolve, reject) => {
-        setTimeout(resolve, 100);
-      }));
-    });
-  },
-
-  installKite(opts) {
-    opts = opts || {};
-
-    utils.guardCall(opts.onInstallStart);
-    return utils.spawnPromise(
-      'hdiutil',
-      ['attach', '-nobrowse', this.KITE_DMG_PATH],
-      'mount_error',
-      'Unable to mount Kite.dmg')
-    .then(() => utils.guardCall(opts.onMount))
-    .then(() => utils.spawnPromise(
-      'cp',
-      ['-r', this.KITE_APP_PATH.mounted, this.APPS_PATH],
-      'cp_error',
-      'Unable to copy Kite.app in the applications directory'))
-    .then(() => utils.guardCall(opts.onCopy))
-    .then(() => utils.spawnPromise(
-      'hdiutil',
-      ['detach', this.KITE_VOLUME_PATH],
-      'unmount_error',
-      'Unable to unmount Kite.dmg'))
-    .then(() => utils.guardCall(opts.onUnmount))
-    .then(() => utils.spawnPromise(
-      'rm', [this.KITE_DMG_PATH],
-      'rm_error',
-      'Unable to remove Kite.dmg'))
-    .then(() => utils.guardCall(opts.onRemove))
-    // mdfind takes some time to index the app location, so we need to
-    // wait for the install to fully complete. Runs 10 times at 1.5s
-    // intervals.
-    .then(() => utils.retryPromise(() => this.isKiteInstalled(), 10, 1500));
-  },
-
-  isKiteRunning() {
-    return utils.spawnPromise(
-      '/bin/ps',
-      ['-axco', 'command'],
-      {encoding: 'utf8'},
-      'ps_error',
-      'Unable to run the ps command and verify that Kite is running')
-    .then(stdout => {
-      const procs = stdout.split('\n');
-      if (!procs.some(s => /^Kite$/.test(s))) {
-        throw new KiteStateError('Kite process could not be found in the processes list', {
-          state: STATES.NOT_RUNNING,
-        });
-      }
-    });
-  },
-
-  runKite() {
-    const env = Object.assign({}, process.env);
-    delete env['ELECTRON_RUN_AS_NODE'];
-
-    return this.isKiteRunning()
-    .catch(() => utils.spawnPromise(
-      'defaults',
-      ['write', 'com.kite.Kite', 'shouldReopenSidebar', '0'],
-      'defaults_error',
-      'Unable to run defaults command')
-    .then(() =>
-    utils.spawnPromise(
-      'open',
-      ['-a', this.installPath, '--args', '--plugin-launch', '--channel=autocomplete-python'],
-      { env: env },
-      'open_error',
-      'Unable to run the open command to start Kite'
-    )));
-  },
-
-  isKiteEnterpriseRunning() {
-    return utils.spawnPromise(
-      '/bin/ps',
-      ['-axco', 'command'],
-      {encoding: 'utf8'},
-      'ps_error',
-      'Unable to run the ps command and verify that Kite enterprise is running')
-    .then(stdout => {
-      const procs = stdout.split('\n');
-      if (!procs.some(s => /^KiteEnterprise$/.test(s))) {
-        throw new KiteStateError('Kite Enterprise process could not be found in the processes list', {
-          state: STATES.NOT_RUNNING,
-        });
-      }
-    });
-  },
-
-  runKiteEnterprise() {
-    const env = Object.assign({}, process.env);
-    delete env['ELECTRON_RUN_AS_NODE'];
-
-    return utils.spawnPromise(
-      'defaults',
-      ['write', 'enterprise.kite.Kite', 'shouldReopenSidebar', '0'],
-      'defaults_error',
-      'Unable to run defaults command')
-    .then(() =>
-      utils.spawnPromise(
-        'open',
-        ['-a', this.enterpriseInstallPath],
-        { env: env },
-        'open_error',
-        'Unable to run the open command and start Kite enterprise'));
-  },
-};
-
-module.exports = OSXSupport;
-
-
-/***/ }),
-/* 149 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-const os = __webpack_require__(6);
-const fs = __webpack_require__(28);
-const path = __webpack_require__(27);
-const https = __webpack_require__(11);
-const child_process = __webpack_require__(16);
-const utils = __webpack_require__(123);
-const KiteStateError = __webpack_require__(126);
-const KiteProcessError = __webpack_require__(125);
-
-const {STATES} = __webpack_require__(127);
-
-const KEY_BAT = `"${path.join(__dirname, 'read-key.bat')}"`;
-const ARCH_BAT = `"${path.join(__dirname, 'read-arch.bat')}"`;
-let COMPUTED_INSTALL_PATH;
-
-const WindowsSupport = {
-  RELEASE_URL: 'https://alpha.kite.com/release/dls/windows/current',
-  KITE_INSTALLER_PATH: path.join(os.tmpdir(), 'KiteSetup.exe'),
-  SESSION_FILE_PATH: path.join(process.env.LOCALAPPDATA, 'Kite', 'session.json'),
-
-  // We're only setting the install path in tests
-  set KITE_EXE_PATH(path) {
-    COMPUTED_INSTALL_PATH = path;
-  },
-  get KITE_EXE_PATH() {
-    if (!COMPUTED_INSTALL_PATH) {
-      let installDir, fallbackInstallDir;
-
-      if (process.env.ProgramW6432) {
-        fallbackInstallDir = path.join(process.env.ProgramW6432, 'Kite');
-      } else {
-        // TODO: report that even the fallback needed a fallback
-        fallbackInstallDir = 'C:\\Program Files\\Kite';
-      }
-
-      try {
-        const registryDir = String(child_process.execSync(KEY_BAT)).trim();
-
-        installDir = registryDir !== 'not found'
-          ? registryDir
-          : fallbackInstallDir;
-      } catch (err) {
-        installDir = fallbackInstallDir;
-      }
-      COMPUTED_INSTALL_PATH = path.join(installDir, 'kited.exe');
-    }
-
-    return COMPUTED_INSTALL_PATH;
-  },
-
-  get releaseURL() {
-    return this.RELEASE_URL;
-  },
-
-  get downloadPath() {
-    return this.KITE_INSTALLER_PATH;
-  },
-
-  get installPath() {
-    return this.KITE_EXE_PATH;
-  },
-
-  get enterpriseInstallPath() {
-    return null;
-  },
-
-  get allInstallPaths() {
-    return [this.installPath];
-  },
-
-  get allEnterpriseInstallPaths() {
-    return [];
-  },
-
-  get sessionFilePath() {
-    return this.SESSION_FILE_PATH;
-  },
-
-  isAdmin() {
-    try {
-      // Note that this method can still fail if the server has not been started
-      // but it has the merit of being simple and reliable
-      // see https://stackoverflow.com/questions/4051883/batch-script-how-to-check-for-admin-rights
-      // for details
-      child_process.execSync('net session');
-      return true;
-    } catch (e) {
-      return false;
-    }
-  },
-
-  arch() {
-    if (this.cachedArch) { return this.cachedArch; }
-    try {
-      this.cachedArch = String(child_process.execSync(ARCH_BAT)).trim();
-      return this.cachedArch;
-    } catch (err) {
-      return '';
-    }
-  },
-
-  isOSSupported() {
-    return true;
-  },
-
-  isOSVersionSupported() {
-    return parseFloat(os.release()) >= 6.1 &&
-           this.arch() === '64bit';
-  },
-
-  isKiteSupported() {
-    return this.isOSVersionSupported();
-  },
-
-  isKiteInstalled() {
-    return new Promise((resolve, reject) => {
-      fs.exists(this.KITE_EXE_PATH, (exists) => {
-        if (exists) {
-          resolve();
-        } else {
-          reject(new KiteStateError('', {
-            state: STATES.UNINSTALLED,
-          }));
-        }
-      });
-    });
-  },
-
-  isKiteEnterpriseInstalled() {
-    return Promise.reject(new KiteStateError('Kite Enterprise is currently not supported on windows', {
-      state: STATES.UNSUPPORTED,
-    }));
-  },
-
-  hasManyKiteInstallation() {
-    return this.allInstallPaths.length > 1;
-  },
-
-  hasManyKiteEnterpriseInstallation() {
-    return this.allEnterpriseInstallPaths.length > 1;
-  },
-
-  hasBothKiteInstalled() {
-    return Promise.all([
-      this.isKiteInstalled(),
-      this.isKiteEnterpriseInstalled(),
-    ]);
-  },
-
-  downloadKiteRelease(opts) {
-    return this.downloadKite(this.releaseURL, opts || {});
-  },
-
-  downloadKite(url, opts) {
-    opts = opts || {};
-    return this.streamKiteDownload(url, opts.onDownloadProgress)
-    .then(() => utils.guardCall(opts.onDownload))
-    .then(() => opts.install && this.installKite(opts));
-  },
-
-  streamKiteDownload(url, progress) {
-    const req = https.request(url);
-    req.end();
-
-    return utils.followRedirections(req)
-    .then(resp => {
-      if (progress) {
-        const total = parseInt(resp.headers['content-length'], 10);
-        let length = 0;
-
-        resp.on('data', chunk => {
-          length += chunk.length;
-          progress(length, total, length / total);
-        });
-      }
-
-      return utils.promisifyStream(
-        resp.pipe(fs.createWriteStream(this.downloadPath))
-      )
-      .then(() => new Promise((resolve, reject) => {
-        setTimeout(resolve, 100);
-      }));
-    });
-  },
-
-  installKite(opts) {
-    opts = opts || {};
-    var env = Object.create(process.env);
-    env.KITE_SKIP_ONBOARDING = '1';
-
-    utils.guardCall(opts.onInstallStart);
-    return utils.execPromise(
-      `"${this.KITE_INSTALLER_PATH}"` + ' --skip-onboarding --plugin-launch --channel=autocomplete-python',
-      {env: env},
-      'kite_install_error',
-      'Unable to run Kite installer')
-    .then(() => utils.guardCall(opts.onCopy))
-    .then(() => fs.unlinkSync(this.KITE_INSTALLER_PATH))
-    .then(() => utils.guardCall(opts.onRemove));
-  },
-
-  isKiteRunning() {
-    return utils.spawnPromise(
-      'tasklist',
-      'tasklist_error',
-      'Unable to run the tasklist command and verify whether kite is running or not')
-    .then(stdout => {
-      const procs = stdout.split('\n');
-      if (procs.every(l => l.indexOf('kited.exe') === -1)) {
-        throw new KiteStateError('Unable to find kited.exe process in the tasks list', {
-          state: STATES.NOT_RUNNING,
-        });
-      }
-    });
-  },
-
-  runKite() {
-    return this.isKiteRunning()
-    .catch(() => {
-      var env = Object.create(process.env);
-      env.KITE_SKIP_ONBOARDING = '1';
-      delete env["ELECTRON_RUN_AS_NODE"];
-
-      try {
-        child_process.spawn(
-          this.KITE_EXE_PATH,
-          ['--plugin-launch', '--channel=autocomplete-python'],
-          {detached: true, env: env});
-      } catch (err) {
-        throw new KiteProcessError('kite_exe_error',
-          {
-            message: 'Unable to run kite executable',
-            callStack: err.stack,
-            cmd: this.KITE_EXE_PATH,
-            options: {detached: true, env: env},
-          });
-      }
-    });
-  },
-
-  isKiteEnterpriseRunning() {
-    return Promise.reject(new KiteStateError('Kite Enterprise is currently not supported on windows', {
-      state: STATES.UNSUPPORTED,
-    }));
-  },
-
-  runKiteEnterprise() {
-    return Promise.reject(new KiteStateError('Kite Enterprise is currently not supported on windows', {
-      state: STATES.UNSUPPORTED,
-    }));
-  },
-};
-
-module.exports = WindowsSupport;
-
-
-/***/ }),
-/* 150 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -19220,2487 +17838,6 @@ const KiteStateError = __webpack_require__(126);
 const KiteProcessError = __webpack_require__(125);
 
 const {STATES} = __webpack_require__(127);
-
-const LinuxSupport = {
-  RELEASE_URL: 'https://linux.kite.com/dls/linux/current',
-  SESSION_FILE_PATH: path.join(os.homedir(), '.kite', 'session.json'),
-  KITE_DEB_PATH: '/tmp/kite-installer.deb',
-  KITED_PATH: '/opt/kite/kited',
-  KITED_PROCESS: /kited/,
-  KITE_CURRENT_LINK: '/opt/kite/current',
-
-  get releaseURL() {
-    return this.RELEASE_URL;
-  },
-
-  get downloadPath() {
-    return this.KITE_DEB_PATH;
-  },
-
-  get installPath() {
-    return this.KITED_PATH;
-  },
-
-  get allInstallPaths() {
-    return [this.installPath];
-  },
-
-  get enterpriseInstallPath() {
-    return null;
-  },
-
-  get allEnterpriseInstallPaths() {
-    return null;
-  },
-
-  get sessionFilePath() {
-    return this.SESSION_FILE_PATH;
-  },
-
-  hasManyKiteInstallation() {
-    return this.allInstallPaths.length > 1;
-  },
-
-  hasManyKiteEnterpriseInstallation() {
-    return false;
-  },
-
-  isAdmin() {
-    try {
-      const user = utils.whoami();
-      const adminUsers = String(child_process.execSync('getent group root adm admin sudo'))
-      .split('\n')
-      .map(line => line.substring(line.lastIndexOf(':') + 1))
-      .reduce((acc, val) => {
-        val.split(',').forEach(token => acc.push(token.trim()));
-        return acc;
-      }, []);
-      return adminUsers.includes(user);
-    } catch (e) {
-      return false;
-    }
-  },
-
-  arch() {
-    return os.arch();
-  },
-
-  isOSSupported() {
-    return true;
-  },
-
-  isOSVersionSupported() {
-    return true;
-  },
-
-  isKiteSupported() {
-    return this.isOSSupported() && this.isOSVersionSupported();
-  },
-
-  isKiteInstalled() {
-    return new Promise((resolve, reject) => {
-      fs.exists(this.KITED_PATH, exists => {
-        if (exists) {
-          resolve();
-        } else {
-          reject(new KiteStateError('', {
-            state: STATES.UNINSTALLED,
-          }));
-        }
-      });
-    });
-  },
-
-  // TODO(dane): move outside of specific adapter with same methods in osx and windows
-  downloadKiteRelease(opts) {
-    return this.downloadKite(this.releaseURL, opts || {});
-  },
-
-  downloadKite(url, opts) {
-    // TODO(dane): move outside of specific adapter with same methods in osx and windows
-    opts = opts || {};
-    return this.streamKiteDownload(url, opts.onDownloadProgress)
-    .then(() => utils.guardCall(opts.onDownload))
-    .then(() => opts.install && this.installKite(opts));
-  },
-
-  // TODO(dane): move outside of specific adapter with smae methods in osx and windows
-  streamKiteDownload(url, progress) {
-    const req = https.request(url);
-    req.end();
-
-    return utils.followRedirections(req)
-    .then(resp => {
-      if (progress) {
-        const total = parseInt(resp.headers['content-length'], 10);
-        let length = 0;
-
-        resp.on('data', chunk => {
-          length += chunk.length;
-          progress(length, total, length / total);
-        });
-      }
-      return utils.promisifyStream(
-        resp.pipe(fs.createWriteStream(this.downloadPath))
-      )
-      .then(() => new Promise((resolve, reject) => {
-        setTimeout(resolve, 100);
-      }));
-    });
-  },
-
-  installKite(opts) {
-    opts = opts || {};
-
-    utils.guardCall(opts.onInstallStart);
-    return utils.spawnPromise(
-      'apt',
-      ['install', '-f', this.KITE_DEB_PATH],
-      { gid: 27 }, //sudo group
-      'apt install error',
-      'unable to install kite from kite-installer.deb')
-    .catch((err) => {
-      // if permissions error, send message directing how complete with
-      // given deb path
-      if (err.code === 'EPERM' || err.errno === 'EPERM') {
-        throw new KiteProcessError('kite-installer.deb EPERM', {
-          message: `Installing ${this.KITE_DEB_PATH} failed due to lacking root permissions.
-          In your command line, try running \`sudo apt install -f ${this.KITE_DEB_PATH}\` to finish installing Kite`,
-          cmd: `apt install -f ${this.KITE_DEB_PATH}`,
-        });
-      } else {
-        throw err;
-      }
-    })
-    .then(() => utils.guardCall(opts.onMount))
-    .then(() => fs.unlinkSync(this.KITE_DEB_PATH))
-    .then(() => utils.guardCall(opts.onRemove));
-  },
-
-  isKiteRunning() {
-    return utils.spawnPromise(
-      '/bin/ps',
-      ['-axo', 'pid,command'],
-      {encoding: 'utf-8'},
-      'ps_error',
-      'unable to run the ps command and verify that Kite is running')
-    .then(stdout => {
-      const procs = stdout.split('\n');
-
-      if (!procs.some(p => this.KITED_PROCESS.test(p))) {
-        throw new KiteStateError('Kite process could not be found in the processes list', {
-          state: STATES.NOT_RUNNING,
-        });
-      }
-    });
-  },
-
-  runKite() {
-    return this.isKiteRunning()
-    .catch(() => {
-      const env = Object.assign({}, process.env);
-      env.SKIP_KITE_ONBOARDING = '1';
-      delete env['ELECTRON_RUN_AS_NODE'];
-
-      try {
-        if (!fs.existsSync(this.KITED_PATH)) {
-          throw new Error('kited is not installed');
-        }
-        child_process.spawn(
-          this.KITED_PATH,
-          ['--plugin-launch', '--channel=autocomplete-python'],
-          { detached: true, env });
-      } catch (e) {
-        throw new KiteProcessError('kited_error',
-          {
-            message: (e.message && e.message === 'kited is not installed') || 'unable to run kited binary',
-            callStack: e.stack,
-            cmd: this.KITED_PATH,
-            options: { detached: true, env },
-          });
-      }
-    });
-  },
-
-  hasBothKiteInstalled() {
-    return Promise.all([
-      this.isKiteInstalled(),
-      this.isKiteEnterpriseInstalled(),
-    ]);
-  },
-
-  isKiteEnterpriseInstalled() {
-    return this.notSupported();
-  },
-
-  isKiteEnterpriseRunning() {
-    return this.notSupported();
-  },
-
-  runKiteEnterprise() {
-    return this.notSupported();
-  },
-
-  notSupported() {
-    return Promise.reject(
-      new KiteStateError('Your platform is currently not supported', {
-        state: STATES.UNSUPPORTED,
-      }));
-  },
-};
-
-module.exports = LinuxSupport;
-
-
-/***/ }),
-/* 151 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-const KiteStateError = __webpack_require__(126);
-
-const {STATES} = __webpack_require__(127);
-
-module.exports = {
-  get releaseURL() {
-    return null;
-  },
-
-  get downloadPath() {
-    return null;
-  },
-
-  get installPath() {
-    return null;
-  },
-
-  get allInstallPaths() {
-    return null;
-  },
-
-  get enterpriseInstallPath() {
-    return null;
-  },
-
-  get allEnterpriseInstallPaths() {
-    return null;
-  },
-
-  get sessionFilePath() {
-    return null;
-  },
-
-  hasManyKiteInstallation() {
-    return false;
-  },
-
-  hasManyKiteEnterpriseInstallation() {
-    return false;
-  },
-
-  isAdmin() {
-    return false;
-  },
-
-  arch() {
-    return null;
-  },
-
-  isOSSupported() {
-    return false;
-  },
-
-  isOSVersionSupported() {
-    return false;
-  },
-
-  isKiteSupported() {
-    return false;
-  },
-
-  isKiteInstalled() {
-    return this.notSupported();
-  },
-
-  downloadKite(opts) {
-    return this.notSupported();
-  },
-
-  installKite(opts) {
-    return this.notSupported();
-  },
-
-  isKiteRunning() {
-    return this.notSupported();
-  },
-
-  runKite() {
-    return this.notSupported();
-  },
-
-  hasBothKiteInstalled() {
-    return Promise.all([
-      this.isKiteInstalled(),
-      this.isKiteEnterpriseInstalled(),
-    ]);
-  },
-
-  isKiteEnterpriseInstalled() {
-    return this.notSupported();
-  },
-
-  isKiteEnterpriseRunning() {
-    return this.notSupported();
-  },
-
-  runKiteEnterprise() {
-    return this.notSupported();
-  },
-
-  notSupported() {
-    return Promise.reject(
-      new KiteStateError('Your platform is currently not supported', {
-        state: STATES.UNSUPPORTED,
-      }));
-  },
-};
-
-
-/***/ }),
-/* 152 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = class EditorConfig {
-  constructor(store) {
-    this.store = store;
-  }
-
-  get(path) {
-    return (this.content ? Promise.resolve(this.content) : this.store.get().then(data => parse(data)).then(data => {
-      this.content = data;
-      return data;
-    })).then(data => readValueAtPath(path, data));
-  }
-
-  set(path, value) {
-    return this.get().then(data => this.store.set(stringify(writeValueAtPath(path, value, data))));
-  }
-
-};
-
-function parse(data) {
-  return data ? JSON.parse(data) : data;
-}
-
-function stringify(data) {
-  return JSON.stringify(data);
-}
-
-function readValueAtPath(path, object) {
-  if (!path) {
-    return object;
-  }
-
-  return path.split(/\./g).reduce((memo, key) => {
-    if (memo == undefined) {
-      return memo;
-    }
-
-    return memo[key];
-  }, object);
-}
-
-function writeValueAtPath(path, value, object) {
-  if (!object) {
-    object = {};
-  }
-
-  return path.split(/\./g).reduce((memo, key, i, a) => {
-    if (i === a.length - 1) {
-      memo[key] = value;
-      return object;
-    } else if (memo[key] == undefined) {
-      memo[key] = {};
-      return memo[key];
-    }
-
-    return memo[key];
-  }, object);
-}
-
-/***/ }),
-/* 153 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = class MemoryStore {
-  constructor() {}
-
-  set(content) {
-    this.content = content;
-    return Promise.resolve();
-  }
-
-  get() {
-    return Promise.resolve(this.content);
-  }
-
-};
-
-/***/ }),
-/* 154 */
-/***/ (function(module, exports) {
-
-// MAX_FILE_SIZE is the maximum file size to send to Kite
-const MAX_FILE_SIZE = Math.pow(2, 20); // 1048576
-// MAX_PAYLOAD_SIZE is the maximum length for a POST reqest body
-
-const MAX_PAYLOAD_SIZE = Math.pow(2, 21); // 2097152
-
-module.exports = {
-  MAX_FILE_SIZE,
-  MAX_PAYLOAD_SIZE
-};
-
-/***/ }),
-/* 155 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-function merge(a, b) {
-  const c = {};
-
-  for (const k in a) {
-    c[k] = a[k];
-  }
-
-  for (const k in b) {
-    c[k] = b[k];
-  }
-
-  return c;
-}
-
-function reject(key, a) {
-  const b = {};
-
-  for (const k in a) {
-    if (k !== key) {
-      b[k] = a[k];
-    }
-  }
-
-  return b;
-}
-
-function parseSignature(fn) {
-  const [, name, signature] = /(\w+)\(([^\)]+)\)/.exec(fn.toString());
-  const parameters = signature.split(/,\s*/);
-  return [name, parameters];
-}
-
-function checkArguments(fn, ...args) {
-  const [name, parameters] = parseSignature(fn);
-  const missingArguments = [];
-  args.forEach((arg, i) => {
-    if (arg == null) {
-      missingArguments.push(parameters[i]);
-    }
-  });
-
-  if (missingArguments.length) {
-    throw new Error(`Missing argument${missingArguments.length > 1 ? 's' : ''} ${missingArguments.join(', ')} in ${name}`);
-  }
-}
-
-function checkArgumentKeys(fn, arg, argName, ...keys) {
-  const missingKeys = [];
-  keys.forEach((key, i) => {
-    if (arg[key] == null) {
-      missingKeys.push(key);
-    }
-  });
-
-  if (missingKeys.length) {
-    throw new Error(`Missing mandatory key${missingKeys.length > 1 ? 's' : ''} ${missingKeys.join(', ')} in argument ${argName} of ${fn.name}`);
-  }
-}
-
-module.exports = {
-  checkArgumentKeys,
-  checkArguments,
-  merge,
-  reject
-};
-
-/***/ }),
-/* 156 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-const md5 = __webpack_require__(157);
-
-function onboardingFilePath(editor, language) {
-  return ['/clientapi/plugins/onboarding_file', [`editor=${editor}`, `language=${language}`].join('&')].join('?');
-}
-
-function hoverPath(filename, source, position, editor, encoding) {
-  const state = md5(source);
-  const buffer = cleanPath(filename);
-  return [`/api/buffer/${editor}/${buffer}/${state}/hover`, [`cursor_runes=${position}`, `offset_encoding=${encoding}`].join('&')].join('?');
-}
-
-function membersPath(id, page, limit) {
-  return [`/api/editor/value/${id}/members`, [`offset=${page}`, `limit=${limit}`].join('&')].join('?');
-}
-
-function usagesPath(id, page, limit) {
-  return [`/api/editor/value/${id}/usages`, [`offset=${page}`, `limit=${limit}`].join('&')].join('?');
-}
-
-function shouldNotifyPath(path) {
-  return `/clientapi/permissions/notify?filename=${encodeURI(path)}`;
-}
-
-function statusPath(path) {
-  return `/clientapi/status?filename=${encodeURI(path)}`;
-}
-
-function projectDirPath(path) {
-  return `/clientapi/projectdir?filename=${encodeURI(path)}`;
-}
-
-function cleanPath(p) {
-  return encodeURI(p).replace(/^([A-Z]):/, '/windows/$1').replace(/\/|\\|%5C/g, ':');
-}
-
-module.exports = {
-  cleanPath,
-  onboardingFilePath,
-  hoverPath,
-  membersPath,
-  projectDirPath,
-  shouldNotifyPath,
-  statusPath,
-  usagesPath
-};
-
-/***/ }),
-/* 157 */
-/***/ (function(module, exports, __webpack_require__) {
-
-(function(){
-  var crypt = __webpack_require__(158),
-      utf8 = __webpack_require__(159).utf8,
-      isBuffer = __webpack_require__(160),
-      bin = __webpack_require__(159).bin,
-
-  // The core
-  md5 = function (message, options) {
-    // Convert to byte array
-    if (message.constructor == String)
-      if (options && options.encoding === 'binary')
-        message = bin.stringToBytes(message);
-      else
-        message = utf8.stringToBytes(message);
-    else if (isBuffer(message))
-      message = Array.prototype.slice.call(message, 0);
-    else if (!Array.isArray(message))
-      message = message.toString();
-    // else, assume byte array already
-
-    var m = crypt.bytesToWords(message),
-        l = message.length * 8,
-        a =  1732584193,
-        b = -271733879,
-        c = -1732584194,
-        d =  271733878;
-
-    // Swap endian
-    for (var i = 0; i < m.length; i++) {
-      m[i] = ((m[i] <<  8) | (m[i] >>> 24)) & 0x00FF00FF |
-             ((m[i] << 24) | (m[i] >>>  8)) & 0xFF00FF00;
-    }
-
-    // Padding
-    m[l >>> 5] |= 0x80 << (l % 32);
-    m[(((l + 64) >>> 9) << 4) + 14] = l;
-
-    // Method shortcuts
-    var FF = md5._ff,
-        GG = md5._gg,
-        HH = md5._hh,
-        II = md5._ii;
-
-    for (var i = 0; i < m.length; i += 16) {
-
-      var aa = a,
-          bb = b,
-          cc = c,
-          dd = d;
-
-      a = FF(a, b, c, d, m[i+ 0],  7, -680876936);
-      d = FF(d, a, b, c, m[i+ 1], 12, -389564586);
-      c = FF(c, d, a, b, m[i+ 2], 17,  606105819);
-      b = FF(b, c, d, a, m[i+ 3], 22, -1044525330);
-      a = FF(a, b, c, d, m[i+ 4],  7, -176418897);
-      d = FF(d, a, b, c, m[i+ 5], 12,  1200080426);
-      c = FF(c, d, a, b, m[i+ 6], 17, -1473231341);
-      b = FF(b, c, d, a, m[i+ 7], 22, -45705983);
-      a = FF(a, b, c, d, m[i+ 8],  7,  1770035416);
-      d = FF(d, a, b, c, m[i+ 9], 12, -1958414417);
-      c = FF(c, d, a, b, m[i+10], 17, -42063);
-      b = FF(b, c, d, a, m[i+11], 22, -1990404162);
-      a = FF(a, b, c, d, m[i+12],  7,  1804603682);
-      d = FF(d, a, b, c, m[i+13], 12, -40341101);
-      c = FF(c, d, a, b, m[i+14], 17, -1502002290);
-      b = FF(b, c, d, a, m[i+15], 22,  1236535329);
-
-      a = GG(a, b, c, d, m[i+ 1],  5, -165796510);
-      d = GG(d, a, b, c, m[i+ 6],  9, -1069501632);
-      c = GG(c, d, a, b, m[i+11], 14,  643717713);
-      b = GG(b, c, d, a, m[i+ 0], 20, -373897302);
-      a = GG(a, b, c, d, m[i+ 5],  5, -701558691);
-      d = GG(d, a, b, c, m[i+10],  9,  38016083);
-      c = GG(c, d, a, b, m[i+15], 14, -660478335);
-      b = GG(b, c, d, a, m[i+ 4], 20, -405537848);
-      a = GG(a, b, c, d, m[i+ 9],  5,  568446438);
-      d = GG(d, a, b, c, m[i+14],  9, -1019803690);
-      c = GG(c, d, a, b, m[i+ 3], 14, -187363961);
-      b = GG(b, c, d, a, m[i+ 8], 20,  1163531501);
-      a = GG(a, b, c, d, m[i+13],  5, -1444681467);
-      d = GG(d, a, b, c, m[i+ 2],  9, -51403784);
-      c = GG(c, d, a, b, m[i+ 7], 14,  1735328473);
-      b = GG(b, c, d, a, m[i+12], 20, -1926607734);
-
-      a = HH(a, b, c, d, m[i+ 5],  4, -378558);
-      d = HH(d, a, b, c, m[i+ 8], 11, -2022574463);
-      c = HH(c, d, a, b, m[i+11], 16,  1839030562);
-      b = HH(b, c, d, a, m[i+14], 23, -35309556);
-      a = HH(a, b, c, d, m[i+ 1],  4, -1530992060);
-      d = HH(d, a, b, c, m[i+ 4], 11,  1272893353);
-      c = HH(c, d, a, b, m[i+ 7], 16, -155497632);
-      b = HH(b, c, d, a, m[i+10], 23, -1094730640);
-      a = HH(a, b, c, d, m[i+13],  4,  681279174);
-      d = HH(d, a, b, c, m[i+ 0], 11, -358537222);
-      c = HH(c, d, a, b, m[i+ 3], 16, -722521979);
-      b = HH(b, c, d, a, m[i+ 6], 23,  76029189);
-      a = HH(a, b, c, d, m[i+ 9],  4, -640364487);
-      d = HH(d, a, b, c, m[i+12], 11, -421815835);
-      c = HH(c, d, a, b, m[i+15], 16,  530742520);
-      b = HH(b, c, d, a, m[i+ 2], 23, -995338651);
-
-      a = II(a, b, c, d, m[i+ 0],  6, -198630844);
-      d = II(d, a, b, c, m[i+ 7], 10,  1126891415);
-      c = II(c, d, a, b, m[i+14], 15, -1416354905);
-      b = II(b, c, d, a, m[i+ 5], 21, -57434055);
-      a = II(a, b, c, d, m[i+12],  6,  1700485571);
-      d = II(d, a, b, c, m[i+ 3], 10, -1894986606);
-      c = II(c, d, a, b, m[i+10], 15, -1051523);
-      b = II(b, c, d, a, m[i+ 1], 21, -2054922799);
-      a = II(a, b, c, d, m[i+ 8],  6,  1873313359);
-      d = II(d, a, b, c, m[i+15], 10, -30611744);
-      c = II(c, d, a, b, m[i+ 6], 15, -1560198380);
-      b = II(b, c, d, a, m[i+13], 21,  1309151649);
-      a = II(a, b, c, d, m[i+ 4],  6, -145523070);
-      d = II(d, a, b, c, m[i+11], 10, -1120210379);
-      c = II(c, d, a, b, m[i+ 2], 15,  718787259);
-      b = II(b, c, d, a, m[i+ 9], 21, -343485551);
-
-      a = (a + aa) >>> 0;
-      b = (b + bb) >>> 0;
-      c = (c + cc) >>> 0;
-      d = (d + dd) >>> 0;
-    }
-
-    return crypt.endian([a, b, c, d]);
-  };
-
-  // Auxiliary functions
-  md5._ff  = function (a, b, c, d, x, s, t) {
-    var n = a + (b & c | ~b & d) + (x >>> 0) + t;
-    return ((n << s) | (n >>> (32 - s))) + b;
-  };
-  md5._gg  = function (a, b, c, d, x, s, t) {
-    var n = a + (b & d | c & ~d) + (x >>> 0) + t;
-    return ((n << s) | (n >>> (32 - s))) + b;
-  };
-  md5._hh  = function (a, b, c, d, x, s, t) {
-    var n = a + (b ^ c ^ d) + (x >>> 0) + t;
-    return ((n << s) | (n >>> (32 - s))) + b;
-  };
-  md5._ii  = function (a, b, c, d, x, s, t) {
-    var n = a + (c ^ (b | ~d)) + (x >>> 0) + t;
-    return ((n << s) | (n >>> (32 - s))) + b;
-  };
-
-  // Package private blocksize
-  md5._blocksize = 16;
-  md5._digestsize = 16;
-
-  module.exports = function (message, options) {
-    if (message === undefined || message === null)
-      throw new Error('Illegal argument ' + message);
-
-    var digestbytes = crypt.wordsToBytes(md5(message, options));
-    return options && options.asBytes ? digestbytes :
-        options && options.asString ? bin.bytesToString(digestbytes) :
-        crypt.bytesToHex(digestbytes);
-  };
-
-})();
-
-
-/***/ }),
-/* 158 */
-/***/ (function(module, exports) {
-
-(function() {
-  var base64map
-      = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/',
-
-  crypt = {
-    // Bit-wise rotation left
-    rotl: function(n, b) {
-      return (n << b) | (n >>> (32 - b));
-    },
-
-    // Bit-wise rotation right
-    rotr: function(n, b) {
-      return (n << (32 - b)) | (n >>> b);
-    },
-
-    // Swap big-endian to little-endian and vice versa
-    endian: function(n) {
-      // If number given, swap endian
-      if (n.constructor == Number) {
-        return crypt.rotl(n, 8) & 0x00FF00FF | crypt.rotl(n, 24) & 0xFF00FF00;
-      }
-
-      // Else, assume array and swap all items
-      for (var i = 0; i < n.length; i++)
-        n[i] = crypt.endian(n[i]);
-      return n;
-    },
-
-    // Generate an array of any length of random bytes
-    randomBytes: function(n) {
-      for (var bytes = []; n > 0; n--)
-        bytes.push(Math.floor(Math.random() * 256));
-      return bytes;
-    },
-
-    // Convert a byte array to big-endian 32-bit words
-    bytesToWords: function(bytes) {
-      for (var words = [], i = 0, b = 0; i < bytes.length; i++, b += 8)
-        words[b >>> 5] |= bytes[i] << (24 - b % 32);
-      return words;
-    },
-
-    // Convert big-endian 32-bit words to a byte array
-    wordsToBytes: function(words) {
-      for (var bytes = [], b = 0; b < words.length * 32; b += 8)
-        bytes.push((words[b >>> 5] >>> (24 - b % 32)) & 0xFF);
-      return bytes;
-    },
-
-    // Convert a byte array to a hex string
-    bytesToHex: function(bytes) {
-      for (var hex = [], i = 0; i < bytes.length; i++) {
-        hex.push((bytes[i] >>> 4).toString(16));
-        hex.push((bytes[i] & 0xF).toString(16));
-      }
-      return hex.join('');
-    },
-
-    // Convert a hex string to a byte array
-    hexToBytes: function(hex) {
-      for (var bytes = [], c = 0; c < hex.length; c += 2)
-        bytes.push(parseInt(hex.substr(c, 2), 16));
-      return bytes;
-    },
-
-    // Convert a byte array to a base-64 string
-    bytesToBase64: function(bytes) {
-      for (var base64 = [], i = 0; i < bytes.length; i += 3) {
-        var triplet = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2];
-        for (var j = 0; j < 4; j++)
-          if (i * 8 + j * 6 <= bytes.length * 8)
-            base64.push(base64map.charAt((triplet >>> 6 * (3 - j)) & 0x3F));
-          else
-            base64.push('=');
-      }
-      return base64.join('');
-    },
-
-    // Convert a base-64 string to a byte array
-    base64ToBytes: function(base64) {
-      // Remove non-base-64 characters
-      base64 = base64.replace(/[^A-Z0-9+\/]/ig, '');
-
-      for (var bytes = [], i = 0, imod4 = 0; i < base64.length;
-          imod4 = ++i % 4) {
-        if (imod4 == 0) continue;
-        bytes.push(((base64map.indexOf(base64.charAt(i - 1))
-            & (Math.pow(2, -2 * imod4 + 8) - 1)) << (imod4 * 2))
-            | (base64map.indexOf(base64.charAt(i)) >>> (6 - imod4 * 2)));
-      }
-      return bytes;
-    }
-  };
-
-  module.exports = crypt;
-})();
-
-
-/***/ }),
-/* 159 */
-/***/ (function(module, exports) {
-
-var charenc = {
-  // UTF-8 encoding
-  utf8: {
-    // Convert a string to a byte array
-    stringToBytes: function(str) {
-      return charenc.bin.stringToBytes(unescape(encodeURIComponent(str)));
-    },
-
-    // Convert a byte array to a string
-    bytesToString: function(bytes) {
-      return decodeURIComponent(escape(charenc.bin.bytesToString(bytes)));
-    }
-  },
-
-  // Binary encoding
-  bin: {
-    // Convert a string to a byte array
-    stringToBytes: function(str) {
-      for (var bytes = [], i = 0; i < str.length; i++)
-        bytes.push(str.charCodeAt(i) & 0xFF);
-      return bytes;
-    },
-
-    // Convert a byte array to a string
-    bytesToString: function(bytes) {
-      for (var str = [], i = 0; i < bytes.length; i++)
-        str.push(String.fromCharCode(bytes[i]));
-      return str.join('');
-    }
-  }
-};
-
-module.exports = charenc;
-
-
-/***/ }),
-/* 160 */
-/***/ (function(module, exports) {
-
-/*!
- * Determine if an object is a Buffer
- *
- * @author   Feross Aboukhadijeh <https://feross.org>
- * @license  MIT
- */
-
-// The _isBuffer check is for Safari 5-7 support, because it's missing
-// Object.prototype.constructor. Remove this eventually
-module.exports = function (obj) {
-  return obj != null && (isBuffer(obj) || isSlowBuffer(obj) || !!obj._isBuffer)
-}
-
-function isBuffer (obj) {
-  return !!obj.constructor && typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)
-}
-
-// For Node v0.10 support. Remove this eventually.
-function isSlowBuffer (obj) {
-  return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0))
-}
-
-
-/***/ }),
-/* 161 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-const {LEVELS} = __webpack_require__(162);
-const NullReporter = __webpack_require__(163);
-const ConsoleReporter = __webpack_require__(164);
-
-module.exports =  {
-  LEVELS,
-  LEVEL: LEVELS.INFO,
-
-  output: typeof console != 'undefined' ? ConsoleReporter : NullReporter,
-
-  silly(...msgs) { this.log(LEVELS.SILLY, ...msgs); },
-  verbose(...msgs) { this.log(LEVELS.VERBOSE, ...msgs); },
-  debug(...msgs) { this.log(LEVELS.DEBUG, ...msgs); },
-  info(...msgs) { this.log(LEVELS.INFO, ...msgs); },
-  warn(...msgs) { this.log(LEVELS.WARNING, ...msgs); },
-  error(...msgs) { this.log(LEVELS.ERROR, ...msgs); },
-  log(level, ...msgs) {
-    if (level >= this.LEVEL && !this.SILENT) {
-      this.output.log(level, ...msgs);
-    }
-  },
-  logRequest() {},
-  logResponse() {},
-};
-
-
-/***/ }),
-/* 162 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = {
-  STATES: {
-    UNSUPPORTED: 0,
-    UNINSTALLED: 1,
-    NOT_RUNNING: 2,
-    UNREACHABLE: 3,
-    UNLOGGED: 4,
-    READY: 4,
-
-    // legacy states, prefer the ones above for health checks
-    INSTALLED: 2,
-    RUNNING: 3,
-    REACHABLE: 4,
-    AUTHENTICATED: 4,
-  },
-
-  LEVELS: {
-    SILLY: 0,
-    VERBOSE: 1,
-    DEBUG: 2,
-    INFO: 3,
-    WARNING: 4,
-    ERROR: 5,
-  },
-};
-
-
-/***/ }),
-/* 163 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = {
-  log() {},
-};
-
-
-/***/ }),
-/* 164 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-const {LEVELS} = __webpack_require__(162);
-
-module.exports = {
-  TRACE_ALL: false,
-  METHODS: {
-    [LEVELS.SILLY]: 'debug' in console ? 'debug' : 'log',
-    [LEVELS.VERBOSE]: 'debug' in console ? 'debug' : 'log',
-    [LEVELS.DEBUG]: 'log',
-    [LEVELS.INFO]: 'info' in console ? 'info' : 'log',
-    [LEVELS.WARNING]: 'warn' in console ? 'warn' : 'error',
-    [LEVELS.ERROR]: 'error',
-  },
-
-  log(level, ...msgs) {
-    console[this.METHODS[level]](...msgs);
-  },
-};
-
-
-/***/ }),
-/* 165 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-const http = __webpack_require__(10);
-const https = __webpack_require__(11);
-const FormData = __webpack_require__(22);
-
-const utils = __webpack_require__(166);
-
-module.exports = class NodeClient {
-  constructor(hostname, port, base = '', ssl = false) {
-    this.hostname = hostname;
-    this.port = port;
-    this.base = base;
-    this.protocol = ssl ? https : http;
-    this.cookies = {};
-  }
-
-  request(opts, data, timeout) {
-    return new Promise((resolve, reject) => {
-      let form;
-
-      opts.hostname = this.hostname;
-      if (this.port > 0) { opts.port = this.port; }
-      opts.path = this.base + opts.path;
-      opts.headers = opts.headers || {};
-      this.writeCookies(opts.headers);
-
-      if (opts.headers['Content-Type'] === 'multipart/form-data' ||
-          opts.headers['content-type'] === 'multipart/form-data') {
-        delete opts.headers['Content-Type'];
-        delete opts.headers['content-type'];
-
-        form = new FormData();
-        for (const key in data) {
-          form.append(key, data[key]);
-        }
-
-        const headers = form.getHeaders();
-        for (const key in headers) {
-          opts.headers[key] = headers[key];
-        }
-      }
-
-      const req = this.protocol.request(opts, resp => {
-        this.readCookies(resp);
-        resolve(resp);
-      });
-      req.on('error', err => reject(err));
-      if (timeout != null) {
-        req.setTimeout(timeout, () => reject(new Error('timeout')));
-      }
-      if (form) {
-        form.pipe(req);
-      } else {
-        if (data) { req.write(data); }
-        req.end();
-      }
-    });
-  }
-
-  readCookies(resp) {
-    utils.parseSetCookies(resp.headers['set-cookie']).forEach(c => {
-      this.cookies[c.Name] = c;
-    });
-  }
-
-  writeCookies(hdrs) {
-    const cookies = [];
-    for (var k in this.cookies) {
-      cookies.push(this.cookies[k]);
-    }
-    if (cookies.length) {
-      hdrs.Cookies = utils.dumpCookies(cookies);
-    }
-  }
-};
-
-
-/***/ }),
-/* 166 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-const http = __webpack_require__(10);
-const https = __webpack_require__(11);
-const child_process = __webpack_require__(16);
-const KiteRequestError = __webpack_require__(167);
-const KiteProcessError = __webpack_require__(168);
-
-function deepMerge(a, b) {
-  a = JSON.parse(JSON.stringify(a || {}));
-  b = JSON.parse(JSON.stringify(b || {}));
-  const c = Object.assign({}, a);
-
-  Object.keys(b).forEach(k => {
-    if (c[k] && typeof c[k] == 'object') {
-      c[k] = deepMerge(c[k], b[k]);
-    } else {
-      c[k] = b[k];
-    }
-  });
-
-  return c;
-}
-
-function promisifyRequest(request) {
-  return new Promise((resolve, reject) => {
-    request.on('response', resp => resolve(resp));
-    request.on('error', err => reject(err));
-  });
-}
-
-function promisifyStream(stream) {
-  return new Promise((resolve, reject) => {
-    stream.on('finish', () => resolve());
-    stream.on('error', err => reject(err));
-  });
-}
-
-function request(url) {
-  return url.indexOf('https://') === 0
-    ? https.request(url)
-    : http.request(url);
-}
-
-function hasHeader(header, headers) {
-  return header in headers ? header : false;
-}
-
-function isRedirection(resp) {
-  return resp.statusCode >= 300 &&
-         resp.statusCode < 400 &&
-         hasHeader('location', resp.headers);
-}
-
-// Given a request this function will follow the redirection until a
-// code different that 303 is returned
-function followRedirections(req) {
-  return promisifyRequest(req)
-  .then(resp => {
-    if (resp.statusCode >= 200 && resp.statusCode < 300) {
-      return resp;
-    } else if (isRedirection(resp)) {
-      const location = resp.headers.location;
-      const req = request(location);
-      req.end();
-      return followRedirections(req);
-    } else {
-      throw new KiteRequestError('Invalid response status when following redirection', {
-        request: req,
-        response: resp,
-        responseStatus: resp.statusCode,
-      });
-    }
-  });
-}
-
-function parseSetCookies(cookies) {
-  if (!Array.isArray(cookies) || !cookies.length) {
-    return [];
-  }
-  var parse = (cookie) => {
-    var parsed = {
-      Path: '',
-      Domain: '',
-      Expires: new Date('0001-01-01T00:00:00Z'),
-      RawExpires: '',
-      MaxAge: 0,
-      Secure: false,
-      HttpOnly: false,
-      Raw: '',
-      Unparsed: null,
-    };
-    cookie.split('; ').forEach((raw) => {
-      if (raw === 'HttpOnly') {
-        parsed.HttpOnly = true;
-        return;
-      }
-      if (raw === 'Secure') {
-        parsed.Secure = true;
-        return;
-      }
-      var idx = raw.indexOf('=');
-      var key = raw.substring(0, idx);
-      var val = raw.substring(idx + 1);
-      if (key === 'Expires') {
-        val = new Date(val);
-      }
-      if (key in parsed) {
-        parsed[key] = val;
-      } else {
-        parsed.Name = key;
-        parsed.Value = val;
-      }
-    });
-    return parsed;
-  };
-  return cookies.map(parse);
-}
-
-function findCookie(cookies, name) {
-  return cookies.filter(c => c.Name === name)[0];
-}
-
-function dumpCookies(cookies) {
-  return cookies.map((c) => c.Name + '=' + c.Value).join('; ');
-}
-
-function handleResponseData(resp, callback) {
-  if (callback) {
-    let data = '';
-    resp.on('data', (chunk) => data += chunk);
-    resp.on('end', () => callback(data));
-    return null;
-  } else {
-    return new Promise((resolve, reject) => {
-      let data = '';
-      resp.on('data', (chunk) => data += chunk);
-      resp.on('error', err => reject(err));
-      resp.on('end', () => resolve(data));
-    });
-  }
-}
-
-// Returns a new Promise that resolve if the passed-in promise is rejected and
-// will be rejected with the provided error if the passed-in promise resolve.
-function reversePromise(promise, rejectionMessage, resolutionMessage) {
-  return new Promise((resolve, reject) => {
-    promise
-    .then(() => reject(rejectionMessage))
-    .catch(() => resolve(resolutionMessage));
-  });
-}
-
-// Given a function returning a promise, it returns a new Promise that will be
-// resolved if one of the promises returned by the function resolves. If no
-// promises have been resolved after the specified amount of attempts the
-// returned promise will be rejected
-function retryPromise(doAttempt, attempts, interval) {
-  return new Promise((resolve, reject) => {
-    makeAttempt(0, resolve, reject);
-  });
-
-  function makeAttempt(n, resolve, reject) {
-    var retryOrReject = (err) => {
-      n + 1 >= attempts
-        ? reject(err)
-        : makeAttempt(n + 1, resolve, reject);
-    };
-    setTimeout(() =>
-      doAttempt().then(resolve, retryOrReject),
-      n ? interval : 0);
-  }
-}
-
-// Spawns a child process and returns a promise that will be resolved if
-// the process ends with a code of 0, otherwise the promise will be rejected
-// with an error object of the provided rejectionType.
-function spawnPromise(cmd, cmdArgs, cmdOptions, rejectionType, rejectionMessage) {
-  const args = [cmd];
-
-  if (cmdArgs) {
-    if (typeof cmdArgs === 'string') {
-      rejectionType = cmdArgs;
-      rejectionMessage = cmdOptions;
-    } else {
-      args.push(cmdArgs);
-    }
-  }
-
-  if (cmdOptions) {
-    if (typeof cmdOptions === 'string') {
-      rejectionMessage = rejectionType;
-      rejectionType = cmdOptions;
-    } else {
-      args.push(cmdOptions);
-    }
-  }
-
-  return new Promise((resolve, reject) => {
-    const proc = child_process.spawn(...args);
-    let stdout = '';
-    let stderr = '';
-
-    proc.stdout.on('data', data => stdout +=  data);
-    proc.stderr.on('data', data => stdout +=  data);
-
-    const error = new Error();
-
-    proc.on('close', code => {
-      code
-        ? reject(new KiteProcessError(rejectionType,
-          {
-            message: rejectionMessage,
-            stderr,
-            stdout,
-            callStack: error.stack,
-            cmd: `${cmd} ${(typeof cmdOptions != 'string' ? cmdArgs || [] : []).join(' ')}`,
-            options: typeof cmdOptions != 'string' ? cmdOptions : undefined,
-          }))
-        : resolve(stdout);
-    });
-  });
-}
-
-function anyPromise(arrayOfPromises) {
-  // For each promise that resolves or rejects,
-  // make them all resolve.
-  // Record which ones did resolve or reject
-  const resolvingPromises = arrayOfPromises.map(promise => {
-    return promise
-    .then(result => ({resolve: true, result: result}))
-    .catch(error => ({resolve: false, result: error}));
-  });
-
-  return Promise.all(resolvingPromises).then(results => {
-    const resolved = results.reduce((m, r) => {
-      if (m) { return m; }
-      if (r.resolve) { return r; }
-      return null;
-    }, null);
-
-
-    if (resolved) {
-      return resolved.result;
-    } else {
-      throw results.map(r => r.result);
-    }
-  });
-}
-
-// Exec a child process and returns a promise that will be resolved if
-// the process ends with success, otherwise the promise will be rejected
-// with an error object of the provided rejectionType.
-function execPromise(cmd, cmdOptions, rejectionType, rejectionMessage) {
-  const args = [cmd];
-
-  if (cmdOptions) {
-    if (cmdOptions === 'string') {
-      rejectionMessage = rejectionType;
-      rejectionType = cmdOptions;
-      cmdOptions = {};
-    }
-  } else {
-    cmdOptions = {};
-  }
-
-  args.push(cmdOptions);
-
-  const error = new Error();
-
-  return new Promise((resolve, reject) => {
-    child_process.exec(...args, (err, stdout, stderr) => {
-      if (err) {
-        reject(new KiteProcessError(rejectionType,
-          {
-            message: rejectionMessage,
-            stdout,
-            stderr,
-            callStack: error.stack,
-            cmd,
-            options: typeof cmdOptions != 'string' ? cmdOptions : undefined,
-          }));
-      }
-      resolve(stdout);
-    });
-  });
-}
-
-// Calls the passed-in function if its actually a function.
-function guardCall(fn) { typeof fn === 'function' && fn(); }
-
-// Attempts to parse a json string and returns the fallback if it can't.
-function parseJSON(json, fallback) {
-  try { return JSON.parse(json) || fallback; } catch (e) { return fallback; }
-}
-
-// evaluates whether a particular path should have extra processing
-// done on it in the case of a Promise rejection
-// NB: this should be taken out with a more robust refactor
-function shouldAddCatchProcessing(path) {
-  return !path.startsWith('/clientapi/editor');
-}
-
-// should be wrapped in try/catch
-function whoami() {
-  return String(child_process.execSync('whoami')).trim();
-}
-
-module.exports = {
-  anyPromise,
-  deepMerge,
-  dumpCookies,
-  execPromise,
-  findCookie,
-  followRedirections,
-  guardCall,
-  handleResponseData,
-  parseJSON,
-  parseSetCookies,
-  promisifyRequest,
-  promisifyStream,
-  retryPromise,
-  reversePromise,
-  shouldAddCatchProcessing,
-  spawnPromise,
-  whoami,
-};
-
-
-/***/ }),
-/* 167 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = class KiteRequestError extends Error {
-  get type() { return 'bad_status'; }
-
-  constructor(message, data) {
-    super(message);
-    this.data = data;
-    Error.captureStackTrace(this, this.constructor);
-  }
-};
-
-
-/***/ }),
-/* 168 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = class KiteProcessError extends Error {
-  constructor(type, data) {
-    super(type);
-    this.data = data;
-    this.message = `${type}: ${data.message}\ncmd: ${data.cmd}\nstdout: ${data.stdout}\nstderr: ${data.stderr}`;
-    Error.captureStackTrace(this, this.constructor);
-  }
-};
-
-
-/***/ }),
-/* 169 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-const fs = __webpack_require__(28);
-
-const os = __webpack_require__(6);
-
-const path = __webpack_require__(27);
-
-const {
-  Logger
-} = __webpack_require__(7);
-
-const configPath = path.join(path.dirname(atom.config.getUserConfigPath() || os.homedir()), 'kite-config.json');
-var config = null;
-
-(function () {
-  try {
-    Logger.verbose(`initializing localconfig from ${configPath}...`);
-    var str = fs.readFileSync(configPath, {
-      encoding: 'utf8'
-    });
-    config = JSON.parse(str);
-  } catch (err) {
-    config = {};
-  }
-})();
-
-function persist() {
-  var str = JSON.stringify(config, null, 2); // serialize with whitespace for human readability
-
-  !atom.inSpecMode() && fs.writeFile(configPath, str, 'utf8', err => {
-    if (err) {
-      Logger.error(`failed to persist localconfig to ${configPath}`, err);
-    }
-  });
-} // get gets a value from storage
-
-
-function get(key, fallback) {
-  return key in config ? config[key] : fallback;
-} // set assigns a value to storage and asynchronously persists it to disk
-
-
-function set(key, value) {
-  config[key] = value;
-  persist(); // will write to disk asynchronously
-}
-
-module.exports = {
-  get: get,
-  set: set
-};
-
-/***/ }),
-/* 170 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-const os = __webpack_require__(6);
-const EventEmitter = __webpack_require__(14);
-
-const utils = __webpack_require__(166);
-const KiteStateError = __webpack_require__(171);
-const KiteRequestError = __webpack_require__(167);
-const {STATES} = __webpack_require__(162);
-const NodeClient = __webpack_require__(165);
-const BrowserClient = __webpack_require__(172);
-
-module.exports = {
-  STATES,
-
-  adapter: (() => {
-    switch (os.platform()) {
-      case 'darwin': return __webpack_require__(173);
-      case 'win32': return __webpack_require__(174);
-      case 'linux': return __webpack_require__(175);
-      default: return __webpack_require__(176);
-    }
-  })(),
-
-  emitter: new EventEmitter(),
-
-  client: new NodeClient('localhost', '46624'),
-
-  toggleRequestDebug() {
-    if (this.client instanceof NodeClient) {
-      this.client = new BrowserClient(this.client.hostname, this.client.port);
-    } else {
-      this.client = new NodeClient(this.client.hostname, this.client.port);
-    }
-  },
-
-  onDidFailRequest(listener) {
-    this.emitter.on('did-fail-request', listener);
-    return {
-      dispose: () => {
-        this.emitter.removeListener('did-fail-request', listener);
-      },
-    };
-  },
-
-  request(options, data, timeout) {
-    return this.client.request(options, data, timeout)
-    .catch(() => {
-      let promise = Promise.resolve();
-      if (utils.shouldAddCatchProcessing(options.path)) {
-        promise = promise.then(() => this.isKiteSupported())
-              .then(() => this.isKiteInstalled())
-              .then(() => this.isKiteRunning());
-      }
-      return promise.then(() => {
-        throw new KiteStateError('Kite could not be reached when attempting a request', {
-          state: STATES.UNREACHABLE,
-          request: options,
-          requestData: data,
-        });
-      });
-    })
-    .then(resp => {
-      return resp.statusCode >= 400
-        ? utils.handleResponseData(resp).then(respData => {
-          throw new KiteRequestError('bad_status', {
-            responseStatus: resp.statusCode,
-            request: options,
-            requestData: data,
-            response: resp,
-            responseData: respData,
-          });
-        })
-        : resp;
-    })
-    .catch(err => {
-      this.emitter.emit('did-fail-request', err);
-      throw err;
-    });
-  },
-
-  checkHealth() {
-    const extractErr = ([err]) => {
-      throw err;
-    };
-
-    return this.isKiteSupported()
-    .then(() =>
-      utils.anyPromise([this.isKiteInstalled(), this.isKiteEnterpriseInstalled()]).catch(extractErr))
-    .then(() =>
-      utils.anyPromise([this.isKiteRunning(), this.isKiteEnterpriseRunning()]).catch(extractErr))
-    .then(() => this.isKiteReachable())
-    .then(() => STATES.READY)
-    .catch(err => {
-      if (!err.data || err.data.state == null) { throw err; }
-      return err.data.state;
-    });
-  },
-
-  // FIXME: This method is now deprecated, use checkHealth instead.
-  handleState() {
-    return this.checkHealth();
-  },
-
-  isKiteSupported() {
-    return this.adapter.isKiteSupported()
-      ? Promise.resolve()
-      : Promise.reject(new KiteStateError('Kite is currently not support on your platform', {
-        state: STATES.UNSUPPORTED,
-      }));
-  },
-
-  isKiteInstalled() {
-    return this.adapter.isKiteInstalled();
-  },
-
-  isKiteRunning() {
-    return this.adapter.isKiteRunning();
-  },
-
-  canInstallKite() {
-    return this.isKiteSupported()
-    .then(() =>
-      utils.reversePromise(this.adapter.isKiteInstalled(),
-        new KiteStateError('Kite is already installed', {
-          state: STATES.INSTALLED,
-        })));
-  },
-
-  installKite(options) {
-    return this.adapter.installKite(options);
-  },
-
-  downloadKiteRelease(options) {
-    return this.adapter.downloadKiteRelease(options);
-  },
-
-  downloadKite(url, options) {
-    return this.adapter.downloadKite(url, options);
-  },
-
-  canRunKite() {
-    return this.isKiteInstalled()
-    .then(() =>
-      utils.reversePromise(this.isKiteRunning(),
-        new KiteStateError('Kite is already runnning', {
-          state: STATES.RUNNING,
-        })));
-  },
-
-  runKite() {
-    return this.adapter.runKite();
-  },
-
-  runKiteAndWait(attempts, interval) {
-    return this.runKite().then(() => this.waitForKite(attempts, interval));
-  },
-
-  isKiteReachable() {
-    return this.client.request({
-      path: '/clientapi/ping',
-      method: 'GET',
-    }, null, 200); // in tests, this took no longer than 15ms to respond
-  },
-
-  waitForKite(attempts, interval) {
-    return utils.retryPromise(() => this.isKiteReachable(), attempts, interval);
-  },
-
-  isKiteEnterpriseInstalled() {
-    return this.adapter.isKiteEnterpriseInstalled();
-  },
-
-  isKiteEnterpriseRunning() {
-    return this.adapter.isKiteEnterpriseRunning();
-  },
-
-  canRunKiteEnterprise() {
-    return this.isKiteEnterpriseInstalled()
-    .then(() =>
-      utils.reversePromise(this.isKiteEnterpriseRunning(),
-        new KiteStateError('Kite Enterprise is already runnning', {
-          state: STATES.RUNNING,
-        })));
-  },
-
-  runKiteEnterprise() {
-    return this.adapter.runKiteEnterprise();
-  },
-
-  runKiteEnterpriseAndWait(attempts, interval) {
-    return this.runKiteEnterprise().then(() => this.waitForKite(attempts, interval));
-  },
-
-  hasBothKiteInstalled() {
-    return this.adapter.hasBothKiteInstalled();
-  },
-
-  hasManyKiteInstallation() {
-    return this.adapter.hasManyKiteInstallation();
-  },
-
-  hasManyKiteEnterpriseInstallation() {
-    return this.adapter.hasManyKiteEnterpriseInstallation();
-  },
-
-  isAdmin() {
-    return this.adapter.isAdmin();
-  },
-
-  arch() {
-    return this.adapter.arch();
-  },
-
-  isOSSupported() {
-    return this.adapter.isOSSupported();
-  },
-
-  isOSVersionSupported() {
-    return this.adapter.isOSVersionSupported();
-  },
-
-  isUserAuthenticated() {
-    return this.client.request({
-      path: '/clientapi/user',
-      method: 'GET',
-    })
-    .then((resp) => {
-      switch (resp.statusCode) {
-        case 200:
-          return utils.handleResponseData(resp);
-        case 401:
-          throw new KiteStateError('Kite is not authenticated', {
-            state: STATES.UNLOGGED,
-          });
-        default:
-          return utils.handleResponseData(resp).then(respData => {
-            throw new KiteRequestError('Invalid response status when checking Kite authentication', {
-              responseStatus: resp.statusCode,
-              request: {
-                path: '/clientapi/user',
-                method: 'GET',
-              },
-              response: resp,
-              responseData: respData,
-            });
-          });
-      }
-    });
-  },
-};
-
-
-/***/ }),
-/* 171 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = class KiteStateError extends Error {
-  get type() { return 'bad_state'; }
-  
-  constructor(message, data) {
-    super(message);
-    this.data = data;
-    Error.captureStackTrace(this, this.constructor);
-  }
-};
-
-
-/***/ }),
-/* 172 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-const utils = __webpack_require__(166);
-
-const createResponse = (status, raw, req, headers = {}) => {
-  const resp = {
-    statusCode: status,
-    req,
-    on(event, callback) {
-      switch (event) {
-        case 'data':
-          callback(raw);
-          break;
-        case 'end':
-          callback();
-          break;
-      }
-    },
-  };
-  for (let k in headers) { resp[k] = headers[k]; }
-  resp.headers = resp.headers || {};
-
-  return resp;
-};
-
-module.exports = class BrowserClient {
-  constructor(hostname, port, base, ssl) {
-    base = base || '';
-    ssl = ssl || false;
-    this.hostname = hostname;
-    this.port = port;
-    this.base = base;
-    this.protocol = ssl ? 'https' : 'http';
-    this.cookies = {};
-  }
-
-  request(opts, data, timeout) {
-    const domain = this.port && this.port !== -1
-      ? `${this.hostname}:${this.port}`
-      : this.hostname;
-    const url = `${this.protocol}://${domain}${this.base}${opts.path}`;
-    const method = opts.method || 'GET';
-
-    return new Promise((resolve, reject) => {
-      const query = new XMLHttpRequest();
-      query.addEventListener('error', reject);
-      query.addEventListener('abort', reject);
-      query.addEventListener('load', () => {
-        const raw = query.responseText;
-
-        resolve(createResponse(query.status, raw, {
-          method,
-          path: opts.path,
-          url,
-        }));
-      });
-
-      query.open(method, url);
-      if (timeout) {
-        query.timeout = timeout; // Set timeout to 4 seconds (4000 milliseconds)
-        query.ontimeout = () => { reject(new Error('Request Timeout')); };
-      }
-
-      if (opts.headers) {
-        if (opts.headers['Content-Type'] === 'multipart/form-data' ||
-            opts.headers['content-type'] === 'multipart/form-data') {
-          delete opts.headers['Content-Type'];
-          delete opts.headers['content-type'];
-
-          const form = new FormData();
-
-          for (const key in data) {
-            form.append(key, data[key]);
-          }
-          data = form;
-        }
-
-        for (const header in opts.headers) {
-          query.setRequestHeader(header, opts.headers[header]);
-        }
-      }
-      if (!opts.headers || !opts.headers['Cache-Control']) {
-        query.setRequestHeader('Cache-Control', 'no-cache, must-revalidate');
-      }
-
-      query.send(data);
-    });
-  }
-
-  readCookies(resp) {
-    utils.parseSetCookies(resp.headers['set-cookie']).forEach(c => {
-      this.cookies[c.Name] = c;
-    });
-  }
-
-  writeCookies(hdrs) {
-    var cookies = [];
-    for (var k in this.cookies) {
-      cookies.push(this.cookies[k]);
-    }
-    if (cookies.length) {
-      hdrs.Cookies = utils.dumpCookies(cookies);
-    }
-  }
-};
-
-
-/***/ }),
-/* 173 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-const os = __webpack_require__(6);
-const fs = __webpack_require__(28);
-const path = __webpack_require__(27);
-const https = __webpack_require__(11);
-const child_process = __webpack_require__(16);
-const utils = __webpack_require__(166);
-const KiteStateError = __webpack_require__(171);
-const {STATES} = __webpack_require__(162);
-
-const OSXSupport = {
-  RELEASE_URL: 'https://alpha.kite.com/release/dls/mac/current',
-  APPS_PATH: '/Applications/',
-  KITE_DMG_PATH: '/tmp/Kite.dmg',
-  KITE_VOLUME_PATH: '/Volumes/Kite/',
-  KITE_APP_PATH: {mounted: '/Volumes/Kite/Kite.app', defaultInstalled: '/Applications/Kite.app'},
-  KITE_SIDEBAR_PATH: '/Applications/Kite.app/Contents/MacOS/KiteSidebar.app',
-  KITE_BUNDLE_ID: 'com.kite.Kite',
-  SESSION_FILE_PATH: path.join(os.homedir(), '.kite', 'session.json'),
-
-  get releaseURL() {
-    return this.RELEASE_URL;
-  },
-
-  get downloadPath() {
-    return this.KITE_DMG_PATH;
-  },
-
-  get installPath() {
-    return this.allInstallPaths[0];
-  },
-
-  get allInstallPaths() {
-    let paths = String(child_process.spawnSync('mdfind', [
-      'kMDItemCFBundleIdentifier = "com.kite.Kite"',
-    ]).stdout).trim().split('\n');
-    if (paths.indexOf(this.KITE_APP_PATH.defaultInstalled) === -1 && this.checkDefaultAppPath()) {
-      paths.push(this.KITE_APP_PATH.defaultInstalled);
-    }
-    return paths.filter(p => p !== '');
-  },
-
-  get enterpriseInstallPath() {
-    return this.allEnterpriseInstallPaths[0];
-  },
-
-  get allEnterpriseInstallPaths() {
-    return String(child_process.spawnSync('mdfind', [
-      'kMDItemCFBundleIdentifier = "enterprise.kite.Kite"',
-    ]).stdout).trim().split('\n');
-  },
-
-  get sessionFilePath() {
-    return this.SESSION_FILE_PATH;
-  },
-
-  isAdmin() {
-    try {
-      const user = utils.whoami();
-      const adminUsers = String(child_process.execSync('dscacheutil -q group -a name admin'))
-      .split('\n')
-      .filter(l => /^users:/.test(l))[0]
-      .trim()
-      .replace(/users:\s+/, '')
-      .split(/\s/g);
-      return adminUsers.includes(user);
-    } catch (e) {
-      return false;
-    }
-  },
-
-  arch() {
-    return os.arch();
-  },
-
-  isOSSupported() {
-    return true;
-  },
-
-  isOSVersionSupported() {
-    return parseFloat(os.release()) >= 14;
-  },
-
-  isKiteSupported() {
-    return this.isOSVersionSupported();
-  },
-
-  checkDefaultAppPath() {
-    return fs.existsSync(this.KITE_APP_PATH.defaultInstalled);
-  },
-
-  isKiteInstalled() {
-    return utils.spawnPromise(
-      'mdfind',
-      ['kMDItemCFBundleIdentifier = "com.kite.Kite"'],
-      'mdfind_error',
-      'Unable to run mdfind and verify that Kite is installed')
-    .then(res => {
-      if ((!res || res.trim() === '') && !this.checkDefaultAppPath()) {
-        throw new KiteStateError('Unable to find Kite application install using mdfind', {
-          state: STATES.UNINSTALLED,
-        });
-      }
-    });
-  },
-
-  hasManyKiteInstallation() {
-    return this.allInstallPaths.length > 1;
-  },
-
-  hasManyKiteEnterpriseInstallation() {
-    return this.allEnterpriseInstallPaths.length > 1;
-  },
-
-  hasBothKiteInstalled() {
-    return Promise.all([
-      this.isKiteInstalled(),
-      this.isKiteEnterpriseInstalled(),
-    ]);
-  },
-
-  isKiteEnterpriseInstalled() {
-    return utils.spawnPromise(
-      'mdfind',
-      ['kMDItemCFBundleIdentifier = "enterprise.kite.Kite"'],
-      'mdfind_error',
-      'Unable to run mdfind and verify that kite enterprise is installed')
-    .then(res => {
-      if (!res || res.trim() === '') {
-        throw new KiteStateError('Unable to find Kite Enterprise application install using mdfind', {
-          state: STATES.UNINSTALLED,
-        });
-      }
-    });
-  },
-
-  downloadKiteRelease(opts) {
-    return this.downloadKite(this.releaseURL, opts || {});
-  },
-
-  downloadKite(url, opts) {
-    opts = opts || {};
-    return this.streamKiteDownload(url, opts.onDownloadProgress)
-    .then(() => utils.guardCall(opts.onDownload))
-    .then(() => opts.install && this.installKite(opts));
-  },
-
-  streamKiteDownload(url, progress) {
-    const req = https.request(url);
-    req.end();
-
-    return utils.followRedirections(req)
-    .then(resp => {
-      if (progress) {
-        const total = parseInt(resp.headers['content-length'], 10);
-        let length = 0;
-
-        resp.on('data', chunk => {
-          length += chunk.length;
-          progress(length, total, length / total);
-        });
-      }
-
-      return utils.promisifyStream(
-        resp.pipe(fs.createWriteStream(this.downloadPath))
-      )
-      .then(() => new Promise((resolve, reject) => {
-        setTimeout(resolve, 100);
-      }));
-    });
-  },
-
-  installKite(opts) {
-    opts = opts || {};
-
-    utils.guardCall(opts.onInstallStart);
-    return utils.spawnPromise(
-      'hdiutil',
-      ['attach', '-nobrowse', this.KITE_DMG_PATH],
-      'mount_error',
-      'Unable to mount Kite.dmg')
-    .then(() => utils.guardCall(opts.onMount))
-    .then(() => utils.spawnPromise(
-      'cp',
-      ['-r', this.KITE_APP_PATH.mounted, this.APPS_PATH],
-      'cp_error',
-      'Unable to copy Kite.app in the applications directory'))
-    .then(() => utils.guardCall(opts.onCopy))
-    .then(() => utils.spawnPromise(
-      'hdiutil',
-      ['detach', this.KITE_VOLUME_PATH],
-      'unmount_error',
-      'Unable to unmount Kite.dmg'))
-    .then(() => utils.guardCall(opts.onUnmount))
-    .then(() => utils.spawnPromise(
-      'rm', [this.KITE_DMG_PATH],
-      'rm_error',
-      'Unable to remove Kite.dmg'))
-    .then(() => utils.guardCall(opts.onRemove))
-    // mdfind takes some time to index the app location, so we need to
-    // wait for the install to fully complete. Runs 10 times at 1.5s
-    // intervals.
-    .then(() => utils.retryPromise(() => this.isKiteInstalled(), 10, 1500));
-  },
-
-  isKiteRunning() {
-    return utils.spawnPromise(
-      '/bin/ps',
-      ['-axco', 'command'],
-      {encoding: 'utf8'},
-      'ps_error',
-      'Unable to run the ps command and verify that Kite is running')
-    .then(stdout => {
-      const procs = stdout.split('\n');
-      if (!procs.some(s => /^Kite$/.test(s))) {
-        throw new KiteStateError('Kite process could not be found in the processes list', {
-          state: STATES.NOT_RUNNING,
-        });
-      }
-    });
-  },
-
-  runKite() {
-    const env = Object.assign({}, process.env);
-    delete env['ELECTRON_RUN_AS_NODE'];
-
-    return this.isKiteRunning()
-    .catch(() => utils.spawnPromise(
-      'defaults',
-      ['write', 'com.kite.Kite', 'shouldReopenSidebar', '0'],
-      'defaults_error',
-      'Unable to run defaults command')
-    .then(() =>
-    utils.spawnPromise(
-      'open',
-      ['-a', this.installPath, '--args', '--plugin-launch', '--channel=autocomplete-python'],
-      { env: env },
-      'open_error',
-      'Unable to run the open command to start Kite'
-    )));
-  },
-
-  isKiteEnterpriseRunning() {
-    return utils.spawnPromise(
-      '/bin/ps',
-      ['-axco', 'command'],
-      {encoding: 'utf8'},
-      'ps_error',
-      'Unable to run the ps command and verify that Kite enterprise is running')
-    .then(stdout => {
-      const procs = stdout.split('\n');
-      if (!procs.some(s => /^KiteEnterprise$/.test(s))) {
-        throw new KiteStateError('Kite Enterprise process could not be found in the processes list', {
-          state: STATES.NOT_RUNNING,
-        });
-      }
-    });
-  },
-
-  runKiteEnterprise() {
-    const env = Object.assign({}, process.env);
-    delete env['ELECTRON_RUN_AS_NODE'];
-
-    return utils.spawnPromise(
-      'defaults',
-      ['write', 'enterprise.kite.Kite', 'shouldReopenSidebar', '0'],
-      'defaults_error',
-      'Unable to run defaults command')
-    .then(() =>
-      utils.spawnPromise(
-        'open',
-        ['-a', this.enterpriseInstallPath],
-        { env: env },
-        'open_error',
-        'Unable to run the open command and start Kite enterprise'));
-  },
-};
-
-module.exports = OSXSupport;
-
-
-/***/ }),
-/* 174 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-const os = __webpack_require__(6);
-const fs = __webpack_require__(28);
-const path = __webpack_require__(27);
-const https = __webpack_require__(11);
-const child_process = __webpack_require__(16);
-const utils = __webpack_require__(166);
-const KiteStateError = __webpack_require__(171);
-const KiteProcessError = __webpack_require__(168);
-
-const {STATES} = __webpack_require__(162);
-
-const KEY_BAT = `"${path.join(__dirname, 'read-key.bat')}"`;
-const ARCH_BAT = `"${path.join(__dirname, 'read-arch.bat')}"`;
-let COMPUTED_INSTALL_PATH;
-
-const WindowsSupport = {
-  RELEASE_URL: 'https://alpha.kite.com/release/dls/windows/current',
-  KITE_INSTALLER_PATH: path.join(os.tmpdir(), 'KiteSetup.exe'),
-  SESSION_FILE_PATH: path.join(process.env.LOCALAPPDATA, 'Kite', 'session.json'),
-
-  // We're only setting the install path in tests
-  set KITE_EXE_PATH(path) {
-    COMPUTED_INSTALL_PATH = path;
-  },
-  get KITE_EXE_PATH() {
-    if (!COMPUTED_INSTALL_PATH) {
-      let installDir, fallbackInstallDir;
-
-      if (process.env.ProgramW6432) {
-        fallbackInstallDir = path.join(process.env.ProgramW6432, 'Kite');
-      } else {
-        // TODO: report that even the fallback needed a fallback
-        fallbackInstallDir = 'C:\\Program Files\\Kite';
-      }
-
-      try {
-        const registryDir = String(child_process.execSync(KEY_BAT)).trim();
-
-        installDir = registryDir !== 'not found'
-          ? registryDir
-          : fallbackInstallDir;
-      } catch (err) {
-        installDir = fallbackInstallDir;
-      }
-      COMPUTED_INSTALL_PATH = path.join(installDir, 'kited.exe');
-    }
-
-    return COMPUTED_INSTALL_PATH;
-  },
-
-  get releaseURL() {
-    return this.RELEASE_URL;
-  },
-
-  get downloadPath() {
-    return this.KITE_INSTALLER_PATH;
-  },
-
-  get installPath() {
-    return this.KITE_EXE_PATH;
-  },
-
-  get enterpriseInstallPath() {
-    return null;
-  },
-
-  get allInstallPaths() {
-    return [this.installPath];
-  },
-
-  get allEnterpriseInstallPaths() {
-    return [];
-  },
-
-  get sessionFilePath() {
-    return this.SESSION_FILE_PATH;
-  },
-
-  isAdmin() {
-    try {
-      // Note that this method can still fail if the server has not been started
-      // but it has the merit of being simple and reliable
-      // see https://stackoverflow.com/questions/4051883/batch-script-how-to-check-for-admin-rights
-      // for details
-      child_process.execSync('net session');
-      return true;
-    } catch (e) {
-      return false;
-    }
-  },
-
-  arch() {
-    if (this.cachedArch) { return this.cachedArch; }
-    try {
-      this.cachedArch = String(child_process.execSync(ARCH_BAT)).trim();
-      return this.cachedArch;
-    } catch (err) {
-      return '';
-    }
-  },
-
-  isOSSupported() {
-    return true;
-  },
-
-  isOSVersionSupported() {
-    return parseFloat(os.release()) >= 6.1 &&
-           this.arch() === '64bit';
-  },
-
-  isKiteSupported() {
-    return this.isOSVersionSupported();
-  },
-
-  isKiteInstalled() {
-    return new Promise((resolve, reject) => {
-      fs.exists(this.KITE_EXE_PATH, (exists) => {
-        if (exists) {
-          resolve();
-        } else {
-          reject(new KiteStateError('', {
-            state: STATES.UNINSTALLED,
-          }));
-        }
-      });
-    });
-  },
-
-  isKiteEnterpriseInstalled() {
-    return Promise.reject(new KiteStateError('Kite Enterprise is currently not supported on windows', {
-      state: STATES.UNSUPPORTED,
-    }));
-  },
-
-  hasManyKiteInstallation() {
-    return this.allInstallPaths.length > 1;
-  },
-
-  hasManyKiteEnterpriseInstallation() {
-    return this.allEnterpriseInstallPaths.length > 1;
-  },
-
-  hasBothKiteInstalled() {
-    return Promise.all([
-      this.isKiteInstalled(),
-      this.isKiteEnterpriseInstalled(),
-    ]);
-  },
-
-  downloadKiteRelease(opts) {
-    return this.downloadKite(this.releaseURL, opts || {});
-  },
-
-  downloadKite(url, opts) {
-    opts = opts || {};
-    return this.streamKiteDownload(url, opts.onDownloadProgress)
-    .then(() => utils.guardCall(opts.onDownload))
-    .then(() => opts.install && this.installKite(opts));
-  },
-
-  streamKiteDownload(url, progress) {
-    const req = https.request(url);
-    req.end();
-
-    return utils.followRedirections(req)
-    .then(resp => {
-      if (progress) {
-        const total = parseInt(resp.headers['content-length'], 10);
-        let length = 0;
-
-        resp.on('data', chunk => {
-          length += chunk.length;
-          progress(length, total, length / total);
-        });
-      }
-
-      return utils.promisifyStream(
-        resp.pipe(fs.createWriteStream(this.downloadPath))
-      )
-      .then(() => new Promise((resolve, reject) => {
-        setTimeout(resolve, 100);
-      }));
-    });
-  },
-
-  installKite(opts) {
-    opts = opts || {};
-    var env = Object.create(process.env);
-    env.KITE_SKIP_ONBOARDING = '1';
-
-    utils.guardCall(opts.onInstallStart);
-    return utils.execPromise(
-      `"${this.KITE_INSTALLER_PATH}"` + ' --skip-onboarding --plugin-launch --channel=autocomplete-python',
-      {env: env},
-      'kite_install_error',
-      'Unable to run Kite installer')
-    .then(() => utils.guardCall(opts.onCopy))
-    .then(() => fs.unlinkSync(this.KITE_INSTALLER_PATH))
-    .then(() => utils.guardCall(opts.onRemove));
-  },
-
-  isKiteRunning() {
-    return utils.spawnPromise(
-      'tasklist',
-      'tasklist_error',
-      'Unable to run the tasklist command and verify whether kite is running or not')
-    .then(stdout => {
-      const procs = stdout.split('\n');
-      if (procs.every(l => l.indexOf('kited.exe') === -1)) {
-        throw new KiteStateError('Unable to find kited.exe process in the tasks list', {
-          state: STATES.NOT_RUNNING,
-        });
-      }
-    });
-  },
-
-  runKite() {
-    return this.isKiteRunning()
-    .catch(() => {
-      var env = Object.create(process.env);
-      env.KITE_SKIP_ONBOARDING = '1';
-      delete env["ELECTRON_RUN_AS_NODE"];
-
-      try {
-        child_process.spawn(
-          this.KITE_EXE_PATH,
-          ['--plugin-launch', '--channel=autocomplete-python'],
-          {detached: true, env: env});
-      } catch (err) {
-        throw new KiteProcessError('kite_exe_error',
-          {
-            message: 'Unable to run kite executable',
-            callStack: err.stack,
-            cmd: this.KITE_EXE_PATH,
-            options: {detached: true, env: env},
-          });
-      }
-    });
-  },
-
-  isKiteEnterpriseRunning() {
-    return Promise.reject(new KiteStateError('Kite Enterprise is currently not supported on windows', {
-      state: STATES.UNSUPPORTED,
-    }));
-  },
-
-  runKiteEnterprise() {
-    return Promise.reject(new KiteStateError('Kite Enterprise is currently not supported on windows', {
-      state: STATES.UNSUPPORTED,
-    }));
-  },
-};
-
-module.exports = WindowsSupport;
-
-
-/***/ }),
-/* 175 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-const os = __webpack_require__(6);
-const fs = __webpack_require__(28);
-const path = __webpack_require__(27);
-const https = __webpack_require__(11);
-const child_process = __webpack_require__(16);
-
-const utils = __webpack_require__(166);
-const KiteStateError = __webpack_require__(171);
-const KiteProcessError = __webpack_require__(168);
-
-const {STATES} = __webpack_require__(162);
 
 const LinuxSupport = {
   RELEASE_URL: 'https://linux.kite.com/dls/linux/current',
@@ -21949,15 +18086,15 @@ module.exports = LinuxSupport;
 
 
 /***/ }),
-/* 176 */
+/* 133 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-const KiteStateError = __webpack_require__(171);
+const KiteStateError = __webpack_require__(126);
 
-const {STATES} = __webpack_require__(162);
+const {STATES} = __webpack_require__(127);
 
 module.exports = {
   get releaseURL() {
@@ -22065,7 +18202,364 @@ module.exports = {
 
 
 /***/ }),
-/* 177 */
+/* 134 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = class EditorConfig {
+  constructor(store) {
+    this.store = store;
+  }
+
+  get(path) {
+    return (this.content
+      ? Promise.resolve(this.content)
+      : this.store.get()
+        .then(data => parse(data))
+        .then(data => {
+          this.content = data;
+          return data;
+        }))
+    .then(data => readValueAtPath(path, data));
+  }
+
+  set(path, value) {
+    return this.get().then(data =>
+      this.store.set(stringify(writeValueAtPath(path, value, data))));
+  }
+};
+
+function parse(data) {
+  return data ? JSON.parse(data) : data;
+}
+
+function stringify(data) {
+  return JSON.stringify(data);
+}
+
+function readValueAtPath(path, object) {
+  if (!path) { return object; }
+
+  return path.split(/\./g).reduce((memo, key) => {
+    if (memo == undefined) { return memo; }
+    return memo[key];
+  }, object);
+}
+
+function writeValueAtPath(path, value, object) {
+  if (!object) { object = {}; }
+
+  return path.split(/\./g).reduce((memo, key, i, a) => {
+    if (i === a.length - 1) {
+      memo[key] = value;
+      return object;
+    } else if (memo[key] == undefined) {
+      memo[key] = {};
+      return memo[key];
+    }
+    return memo[key];
+  }, object);
+}
+
+
+/***/ }),
+/* 135 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = class MemoryStore {
+  constructor() {}
+
+  set(content) {
+    this.content = content;
+    return Promise.resolve();
+  }
+  get() {
+    return Promise.resolve(this.content);
+  }
+};
+
+
+/***/ }),
+/* 136 */
+/***/ (function(module, exports) {
+
+
+// MAX_FILE_SIZE is the maximum file size to send to Kite
+const MAX_FILE_SIZE = Math.pow(2, 20); // 1048576
+
+// MAX_PAYLOAD_SIZE is the maximum length for a POST reqest body
+const MAX_PAYLOAD_SIZE = Math.pow(2, 21); // 2097152
+
+module.exports = {
+  MAX_FILE_SIZE,
+  MAX_PAYLOAD_SIZE,
+};
+
+
+/***/ }),
+/* 137 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+function merge(a, b) {
+  const c = {};
+  for (const k in a) { c[k] = a[k]; }
+  for (const k in b) { c[k] = b[k]; }
+  return c;
+}
+
+function reject(key, a) {
+  const b = {};
+  for (const k in a) {
+    if (k !== key) { b[k] = a[k]; }
+  }
+  return b;
+}
+
+function parseSignature(fn) {
+  const [, name, signature] = /(\w+)\(([^\)]+)\)/.exec(fn.toString());
+  const parameters = signature.split(/,\s*/);
+  return [name, parameters];
+}
+
+function checkArguments(fn, ...args) {
+  const [name, parameters] = parseSignature(fn);
+  const missingArguments = [];
+  args.forEach((arg, i) => {
+    if (arg == null) { missingArguments.push(parameters[i]); }
+  });
+  if (missingArguments.length) {
+    throw new Error(
+      `Missing argument${missingArguments.length > 1 ? 's' : ''} ${missingArguments.join(', ')} in ${name}`);
+  }
+}
+
+function checkArgumentKeys(fn, arg, argName, ...keys) {
+  const missingKeys = [];
+  keys.forEach((key, i) => {
+    if (arg[key] == null) { missingKeys.push(key); }
+  });
+  if (missingKeys.length) {
+    throw new Error(
+      `Missing mandatory key${
+        missingKeys.length > 1 ? 's' : ''
+      } ${missingKeys.join(', ')} in argument ${argName} of ${fn.name}`);
+  }
+}
+
+module.exports = {
+  checkArgumentKeys,
+  checkArguments,
+  merge,
+  reject,
+};
+
+
+/***/ }),
+/* 138 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+const md5 = __webpack_require__(52);
+
+function hoverPath(filename, source, position, editor) {
+  const state = md5(source);
+  const buffer = cleanPath(filename);
+  return [
+    `/api/buffer/${editor}/${buffer}/${state}/hover`,
+    `cursor_runes=${position}`,
+  ].join('?');
+}
+
+function membersPath(id, page, limit) {
+  return [
+    `/api/editor/value/${id}/members`,
+    [
+      `offset=${page}`,
+      `limit=${limit}`,
+    ].join('&'),
+  ].join('?');
+}
+
+function usagesPath(id, page, limit) {
+  return [
+    `/api/editor/value/${id}/usages`,
+    [
+      `offset=${page}`,
+      `limit=${limit}`,
+    ].join('&'),
+  ].join('?');
+}
+
+function shouldNotifyPath(path) {
+  return `/clientapi/permissions/notify?filename=${encodeURI(path)}`;
+}
+
+function statusPath(path) {
+  return `/clientapi/status?filename=${encodeURI(path)}`;
+}
+
+function projectDirPath(path) {
+  return `/clientapi/projectdir?filename=${encodeURI(path)}`;
+}
+
+function cleanPath(p) {
+  return encodeURI(p)
+  .replace(/^([A-Z]):/, '/windows/$1')
+  .replace(/\/|\\|%5C/g, ':');
+}
+
+module.exports = {
+  cleanPath,
+  hoverPath,
+  membersPath,
+  projectDirPath,
+  shouldNotifyPath,
+  statusPath,
+  usagesPath,
+};
+
+
+/***/ }),
+/* 139 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+const {LEVELS} = __webpack_require__(127);
+const NullReporter = __webpack_require__(140);
+const ConsoleReporter = __webpack_require__(141);
+
+module.exports =  {
+  LEVELS,
+  LEVEL: LEVELS.INFO,
+
+  output: typeof console != 'undefined' ? ConsoleReporter : NullReporter,
+
+  silly(...msgs) { this.log(LEVELS.SILLY, ...msgs); },
+  verbose(...msgs) { this.log(LEVELS.VERBOSE, ...msgs); },
+  debug(...msgs) { this.log(LEVELS.DEBUG, ...msgs); },
+  info(...msgs) { this.log(LEVELS.INFO, ...msgs); },
+  warn(...msgs) { this.log(LEVELS.WARNING, ...msgs); },
+  error(...msgs) { this.log(LEVELS.ERROR, ...msgs); },
+  log(level, ...msgs) {
+    if (level >= this.LEVEL && !this.SILENT) {
+      this.output.log(level, ...msgs);
+    }
+  },
+  logRequest() {},
+  logResponse() {},
+};
+
+
+/***/ }),
+/* 140 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = {
+  log() {},
+};
+
+
+/***/ }),
+/* 141 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+const {LEVELS} = __webpack_require__(127);
+
+module.exports = {
+  TRACE_ALL: false,
+  METHODS: {
+    [LEVELS.SILLY]: 'debug' in console ? 'debug' : 'log',
+    [LEVELS.VERBOSE]: 'debug' in console ? 'debug' : 'log',
+    [LEVELS.DEBUG]: 'log',
+    [LEVELS.INFO]: 'info' in console ? 'info' : 'log',
+    [LEVELS.WARNING]: 'warn' in console ? 'warn' : 'error',
+    [LEVELS.ERROR]: 'error',
+  },
+
+  log(level, ...msgs) {
+    console[this.METHODS[level]](...msgs);
+  },
+};
+
+
+/***/ }),
+/* 142 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+const fs = __webpack_require__(28);
+
+const os = __webpack_require__(6);
+
+const path = __webpack_require__(27);
+
+const {
+  Logger
+} = __webpack_require__(7);
+
+const configPath = path.join(path.dirname(atom.config.getUserConfigPath() || os.homedir()), 'kite-config.json');
+var config = null;
+
+(function () {
+  try {
+    Logger.verbose(`initializing localconfig from ${configPath}...`);
+    var str = fs.readFileSync(configPath, {
+      encoding: 'utf8'
+    });
+    config = JSON.parse(str);
+  } catch (err) {
+    config = {};
+  }
+})();
+
+function persist() {
+  var str = JSON.stringify(config, null, 2); // serialize with whitespace for human readability
+
+  !atom.inSpecMode() && fs.writeFile(configPath, str, 'utf8', err => {
+    if (err) {
+      Logger.error(`failed to persist localconfig to ${configPath}`, err);
+    }
+  });
+} // get gets a value from storage
+
+
+function get(key, fallback) {
+  return key in config ? config[key] : fallback;
+} // set assigns a value to storage and asynchronously persists it to disk
+
+
+function set(key, value) {
+  config[key] = value;
+  persist(); // will write to disk asynchronously
+}
+
+module.exports = {
+  get: get,
+  set: set
+};
+
+/***/ }),
+/* 143 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22087,15 +18581,15 @@ const {
 const {
   fromSetting,
   all
-} = __webpack_require__(178);
+} = __webpack_require__(144);
 
 const toSentence = a => `${a.slice(0, -1).join(', ')} and ${a.pop()}`;
 
-const KiteNotification = __webpack_require__(180);
+const KiteNotification = __webpack_require__(146);
 
-const NotificationQueue = __webpack_require__(181);
+const NotificationQueue = __webpack_require__(147);
 
-const metrics = __webpack_require__(183);
+const metrics = __webpack_require__(149);
 
 class NotificationsCenter {
   get NOTIFIERS() {
@@ -22494,13 +18988,13 @@ class NotificationsCenter {
 module.exports = NotificationsCenter;
 
 /***/ }),
-/* 178 */
+/* 144 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-const MemoryStore = __webpack_require__(179);
+const MemoryStore = __webpack_require__(145);
 
 const all = (...fs) => a => fs.every(f => f(a));
 
@@ -22523,7 +19017,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 179 */
+/* 145 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22550,7 +19044,7 @@ module.exports = class MemoryStore {
 };
 
 /***/ }),
-/* 180 */
+/* 146 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22653,7 +19147,7 @@ module.exports = class KiteNotification {
 };
 
 /***/ }),
-/* 181 */
+/* 147 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22664,9 +19158,9 @@ const {
   CompositeDisposable
 } = __webpack_require__(2);
 
-const KiteNotification = __webpack_require__(180);
+const KiteNotification = __webpack_require__(146);
 
-const KiteModal = __webpack_require__(182);
+const KiteModal = __webpack_require__(148);
 
 module.exports = class NotificationQueue {
   constructor() {
@@ -22770,7 +19264,7 @@ module.exports = class NotificationQueue {
 };
 
 /***/ }),
-/* 182 */
+/* 148 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22866,7 +19360,7 @@ module.exports = class KiteModal {
 };
 
 /***/ }),
-/* 183 */
+/* 149 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22880,11 +19374,11 @@ const KiteAPI = __webpack_require__(121);
 
 const {
   metricsCounterPath
-} = __webpack_require__(184);
+} = __webpack_require__(150);
 
-const localconfig = __webpack_require__(169);
+const localconfig = __webpack_require__(142);
 
-const version = __webpack_require__(185).version;
+const version = __webpack_require__(151).version;
 
 const OS_VERSION = os.type() + ' ' + os.release();
 const EDITOR_UUID = localStorage.getItem('metrics.userId'); // Generate a unique ID for this user and save it for future use.
@@ -22953,7 +19447,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 184 */
+/* 150 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -23156,25 +19650,25 @@ module.exports = {
 };
 
 /***/ }),
-/* 185 */
+/* 151 */
 /***/ (function(module) {
 
-module.exports = {"name":"kite","main":"./dist/main","version":"0.157.0","description":"Python coding assistant featuring AI-powered autocompletions, advanced function signatures, and instant documentation","repository":"https://github.com/kiteco/atom-plugin","keywords":[],"license":"SEE LICENSE IN LICENSE","engines":{"atom":">=1.0.0 <2.0.0"},"scripts":{"lint":"eslint .","lint:fix":"eslint --fix .","build-prod":"webpack --config config/webpack.config.js --mode production","prepublishOnly":"rm -rf node_modules && rm -f package-lock.json && apm install && rm -rf dist && npm run build-prod","build-dev":"webpack --config config/webpack.config.js --mode none","clean-dev-install":"apm unlink && rm -rf node_modules && rm -f package-lock.json && apm install && rm -rf dist && npm run build-dev && apm link"},"configSchema":{"showWelcomeNotificationOnStartup":{"type":"boolean","default":true,"title":"Show welcome notification on startup","description":"Whether or not to show the Kite welcome notification on startup."},"enableCompletions":{"type":"boolean","default":true,"title":"Enable completions","description":"Automatically show completions from Kite as you type."},"enableHoverUI":{"type":"boolean","default":true,"title":"Enable hover","description":"Show a quick summary of a symbol when you hover your mouse over it."},"enableSnippets":{"type":"boolean","default":false,"title":"Enable snippets","description":"Enable snippets feature (Experimental)"},"maxVisibleSuggestionsAlongSignature":{"type":"integer","default":5,"title":"Completions limit with function signature","description":"Maximum number of completions that can be shown when a function signature is also shown."},"loggingLevel":{"type":"string","default":"info","enum":["silly","verbose","debug","info","warning","error"],"title":"Logging level","description":"The verbosity level of Kite logs."},"pollingInterval":{"type":"integer","default":15000,"min":1000,"max":60000,"title":"Polling interval","description":"Interval in milliseconds at which the Kite package polls Kite Engine to get the status of the current file."},"developerMode":{"type":"boolean","default":false,"title":"Developer mode","description":"Displays JSON data from Kite Engine that's used when rendering a UI element."},"startKiteAtStartup":{"type":"boolean","default":true,"title":"Start Kite Engine on startup","description":"Automatically start Kite Engine on editor startup if it's not already running."},"signatureKwargsVisible":{"type":"boolean","default":false,"title":"Show function keyword arguments","description":"Show inferred keyword arguments for a function when the function signature panel is shown"},"signaturePopularPatternsVisible":{"type":"boolean","default":false,"title":"Show function call examples","description":"Show examples on how to call a function when the function signature panel is shown"}},"providedServices":{"autocomplete.provider":{"versions":{"2.0.0":"completions"}}},"consumedServices":{"status-bar":{"versions":{"^1.0.0":"consumeStatusBar"}}},"dependencies":{"analytics-node":"^3.1.1","element-resize-detector":"^1.1.11","fuzzaldrin-plus":"^0.4.1","getmac":"1.2.1","kite-installer":"^3.2.0","kite-api":"^3.0.0","kite-connector":"^3.0.0","md5":"^2.2.0","rollbar":"^2.3.8","underscore-plus":"^1","tiny-relative-date":"^1.3.0"},"devDependencies":{"@babel/core":"^7.4.3","@babel/preset-env":"^7.4.3","babel-eslint":"^6.1.2","babel-loader":"^8.0.5","editors-json-tests":"git://github.com/kiteco/editors-json-tests.git#master","eslint":"^3.11.1","eslint-config":"^0.3.0","eslint-config-fbjs":"^1.1.1","eslint-plugin-babel":"^3.3.0","eslint-plugin-flowtype":"^2.29.1","eslint-plugin-jasmine":"^2.2.0","eslint-plugin-prefer-object-spread":"^1.1.0","eslint-plugin-react":"^5.2.2","fbjs":"^0.8.6","javascript-obfuscator":"^0.8.3","sinon":"^2.3.5","webpack":"^4.30.0","webpack-cli":"^3.3.0"}};
+module.exports = {"name":"kite","main":"./dist/main","version":"0.157.0","description":"Python coding assistant featuring AI-powered autocompletions, advanced function signatures, and instant documentation","repository":"https://github.com/kiteco/atom-plugin","keywords":[],"license":"SEE LICENSE IN LICENSE","engines":{"atom":">=1.0.0 <2.0.0"},"scripts":{"lint":"eslint .","lint:fix":"eslint --fix .","build-prod":"webpack --config config/webpack.config.js --mode production","prepublishOnly":"rm -rf node_modules && rm -f package-lock.json && apm install && rm -rf dist && npm run build-prod","build-dev":"webpack --config config/webpack.config.js --mode none","clean-dev-install":"apm unlink && rm -rf node_modules && rm -f package-lock.json && apm install && rm -rf dist && npm run build-dev && apm link"},"configSchema":{"showWelcomeNotificationOnStartup":{"type":"boolean","default":true,"title":"Show welcome notification on startup","description":"Whether or not to show the Kite welcome notification on startup."},"enableCompletions":{"type":"boolean","default":true,"title":"Enable completions","description":"Automatically show completions from Kite as you type."},"enableHoverUI":{"type":"boolean","default":true,"title":"Enable hover","description":"Show a quick summary of a symbol when you hover your mouse over it."},"enableSnippets":{"type":"boolean","default":false,"title":"Enable snippets","description":"Enable snippets feature (Experimental)"},"maxVisibleSuggestionsAlongSignature":{"type":"integer","default":5,"title":"Completions limit with function signature","description":"Maximum number of completions that can be shown when a function signature is also shown."},"loggingLevel":{"type":"string","default":"info","enum":["silly","verbose","debug","info","warning","error"],"title":"Logging level","description":"The verbosity level of Kite logs."},"pollingInterval":{"type":"integer","default":15000,"min":1000,"max":60000,"title":"Polling interval","description":"Interval in milliseconds at which the Kite package polls Kite Engine to get the status of the current file."},"developerMode":{"type":"boolean","default":false,"title":"Developer mode","description":"Displays JSON data from Kite Engine that's used when rendering a UI element."},"startKiteAtStartup":{"type":"boolean","default":true,"title":"Start Kite Engine on startup","description":"Automatically start Kite Engine on editor startup if it's not already running."},"signatureKwargsVisible":{"type":"boolean","default":false,"title":"Show function keyword arguments","description":"Show inferred keyword arguments for a function when the function signature panel is shown"},"signaturePopularPatternsVisible":{"type":"boolean","default":false,"title":"Show function call examples","description":"Show examples on how to call a function when the function signature panel is shown"}},"providedServices":{"autocomplete.provider":{"versions":{"2.0.0":"completions"}}},"consumedServices":{"status-bar":{"versions":{"^1.0.0":"consumeStatusBar"}}},"dependencies":{"analytics-node":"^3.1.1","element-resize-detector":"^1.1.11","fuzzaldrin-plus":"^0.4.1","getmac":"1.2.1","kite-installer":"^3.2.0","kite-api":"git://github.com/kiteco/kite-api-js.git#ksg-endpoints","kite-connector":"^3.0.0","md5":"^2.2.0","rollbar":"^2.3.8","underscore-plus":"^1","tiny-relative-date":"^1.3.0"},"devDependencies":{"@babel/core":"^7.4.3","@babel/preset-env":"^7.4.3","babel-eslint":"^6.1.2","babel-loader":"^8.0.5","editors-json-tests":"git://github.com/kiteco/editors-json-tests.git#master","eslint":"^3.11.1","eslint-config":"^0.3.0","eslint-config-fbjs":"^1.1.1","eslint-plugin-babel":"^3.3.0","eslint-plugin-flowtype":"^2.29.1","eslint-plugin-jasmine":"^2.2.0","eslint-plugin-prefer-object-spread":"^1.1.0","eslint-plugin-react":"^5.2.2","fbjs":"^0.8.6","javascript-obfuscator":"^0.8.3","sinon":"^2.3.5","webpack":"^4.30.0","webpack-cli":"^3.3.0"}};
 
 /***/ }),
-/* 186 */
+/* 152 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-const kitePkg = __webpack_require__(185);
+const kitePkg = __webpack_require__(151);
 
 const {
   distinctID,
   EDITOR_UUID,
   OS_VERSION
-} = __webpack_require__(183);
+} = __webpack_require__(149);
 
 if (!atom.inSpecMode()) {
   window._rollbarConfig = {
@@ -23191,7 +19685,7 @@ if (!atom.inSpecMode()) {
     }
   }; // We still want to load the browser version for security purpose
 
-  __webpack_require__(187);
+  __webpack_require__(153);
 
   class RollbarReporter {
     constructor() {
@@ -23225,7 +19719,7 @@ if (!atom.inSpecMode()) {
 }
 
 /***/ }),
-/* 187 */
+/* 153 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /******/ (function(modules) { // webpackBootstrap
@@ -23236,21 +19730,21 @@ if (!atom.inSpecMode()) {
 /******/ 	function __webpack_require__(moduleId) {
 /******/
 /******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId])
+/******/ 		if(installedModules[moduleId]) {
 /******/ 			return installedModules[moduleId].exports;
-/******/
+/******/ 		}
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = installedModules[moduleId] = {
-/******/ 			exports: {},
-/******/ 			id: moduleId,
-/******/ 			loaded: false
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
 /******/ 		};
 /******/
 /******/ 		// Execute the module function
 /******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
 /******/
 /******/ 		// Flag the module as loaded
-/******/ 		module.loaded = true;
+/******/ 		module.l = true;
 /******/
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
@@ -23263,5578 +19757,5605 @@ if (!atom.inSpecMode()) {
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
 /******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = function(exports) {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
+/******/ 	// create a fake namespace object
+/******/ 	// mode & 1: value is a module id, require it
+/******/ 	// mode & 2: merge all properties of value into the ns
+/******/ 	// mode & 4: return value when already ns object
+/******/ 	// mode & 8|1: behave like require
+/******/ 	__webpack_require__.t = function(value, mode) {
+/******/ 		if(mode & 1) value = __webpack_require__(value);
+/******/ 		if(mode & 8) return value;
+/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
+/******/ 		var ns = Object.create(null);
+/******/ 		__webpack_require__.r(ns);
+/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
+/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
+/******/ 		return ns;
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
 /******/ 	// __webpack_public_path__
 /******/ 	__webpack_require__.p = "";
 /******/
+/******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(0);
+/******/ 	return __webpack_require__(__webpack_require__.s = 5);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	'use strict';
-	
-	var rollbar = __webpack_require__(1);
-	
-	var options = (typeof window !== 'undefined') && window._rollbarConfig;
-	var alias = options && options.globalAlias || 'Rollbar';
-	var shimRunning = (typeof window !== 'undefined') && window[alias] && typeof window[alias].shimId === 'function' && window[alias].shimId() !== undefined;
-	
-	if ((typeof window !== 'undefined') && !window._rollbarStartTime) {
-	  window._rollbarStartTime = (new Date()).getTime();
-	}
-	
-	if (!shimRunning && options) {
-	  var Rollbar = new rollbar(options);
-	  window[alias] = Rollbar;
-	} else if (typeof window !== 'undefined') {
-	  window.rollbar = rollbar;
-	  window._rollbarDidLoad = true;
-	} else if (typeof self !== 'undefined') {
-	  self.rollbar = rollbar;
-	  self._rollbarDidLoad = true;
-	}
-	
-	module.exports = rollbar;
+var merge = __webpack_require__(9);
+
+var RollbarJSON = {};
+var __initRollbarJSON = false;
+function setupJSON() {
+  if (__initRollbarJSON) {
+    return;
+  }
+  __initRollbarJSON = true;
+
+  if (isDefined(JSON)) {
+    if (isNativeFunction(JSON.stringify)) {
+      RollbarJSON.stringify = JSON.stringify;
+    }
+    if (isNativeFunction(JSON.parse)) {
+      RollbarJSON.parse = JSON.parse;
+    }
+  }
+  if (!isFunction(RollbarJSON.stringify) || !isFunction(RollbarJSON.parse)) {
+    var setupCustomJSON = __webpack_require__(10);
+    setupCustomJSON(RollbarJSON);
+  }
+}
+setupJSON();
+
+/*
+ * isType - Given a Javascript value and a string, returns true if the type of the value matches the
+ * given string.
+ *
+ * @param x - any value
+ * @param t - a lowercase string containing one of the following type names:
+ *    - undefined
+ *    - null
+ *    - error
+ *    - number
+ *    - boolean
+ *    - string
+ *    - symbol
+ *    - function
+ *    - object
+ *    - array
+ * @returns true if x is of type t, otherwise false
+ */
+function isType(x, t) {
+  return t === typeName(x);
+}
+
+/*
+ * typeName - Given a Javascript value, returns the type of the object as a string
+ */
+function typeName(x) {
+  var name = typeof x;
+  if (name !== 'object') {
+    return name;
+  }
+  if (!x) {
+    return 'null';
+  }
+  if (x instanceof Error) {
+    return 'error';
+  }
+  return ({}).toString.call(x).match(/\s([a-zA-Z]+)/)[1].toLowerCase();
+}
+
+/* isFunction - a convenience function for checking if a value is a function
+ *
+ * @param f - any value
+ * @returns true if f is a function, otherwise false
+ */
+function isFunction(f) {
+  return isType(f, 'function');
+}
+
+/* isNativeFunction - a convenience function for checking if a value is a native JS function
+ *
+ * @param f - any value
+ * @returns true if f is a native JS function, otherwise false
+ */
+function isNativeFunction(f) {
+  var reRegExpChar = /[\\^$.*+?()[\]{}|]/g;
+  var funcMatchString = Function.prototype.toString.call(Object.prototype.hasOwnProperty)
+    .replace(reRegExpChar, '\\$&')
+    .replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?');
+  var reIsNative = RegExp('^' + funcMatchString + '$');
+  return isObject(f) && reIsNative.test(f);
+}
+
+/* isObject - Checks if the argument is an object
+ *
+ * @param value - any value
+ * @returns true is value is an object function is an object)
+*/
+function isObject(value) {
+  var type = typeof value;
+  return value != null && (type == 'object' || type == 'function');
+}
+
+/*
+ * isDefined - a convenience function for checking if a value is not equal to undefined
+ *
+ * @param u - any value
+ * @returns true if u is anything other than undefined
+ */
+function isDefined(u) {
+  return !isType(u, 'undefined');
+}
+
+/*
+ * isIterable - convenience function for checking if a value can be iterated, essentially
+ * whether it is an object or an array.
+ *
+ * @param i - any value
+ * @returns true if i is an object or an array as determined by `typeName`
+ */
+function isIterable(i) {
+  var type = typeName(i);
+  return (type === 'object' || type === 'array');
+}
+
+/*
+ * isError - convenience function for checking if a value is of an error type
+ *
+ * @param e - any value
+ * @returns true if e is an error
+ */
+function isError(e) {
+  // Detect both Error and Firefox Exception type
+  return isType(e, 'error') || isType(e, 'exception');
+}
+
+function traverse(obj, func, seen) {
+  var k, v, i;
+  var isObj = isType(obj, 'object');
+  var isArray = isType(obj, 'array');
+  var keys = [];
+
+  if (isObj && seen.indexOf(obj) !== -1) {
+    return obj;
+  }
+  seen.push(obj);
+
+  if (isObj) {
+    for (k in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, k)) {
+        keys.push(k);
+      }
+    }
+  } else if (isArray) {
+    for (i = 0; i < obj.length; ++i) {
+      keys.push(i);
+    }
+  }
+
+  var result = isObj ? {} : [];
+  var same = true;
+  for (i = 0; i < keys.length; ++i) {
+    k = keys[i];
+    v = obj[k];
+    result[k] = func(k, v, seen);
+    same = same && result[k] === obj[k];
+  }
+
+  return (keys.length != 0 && !same) ? result : obj;
+}
+
+function redact() {
+  return '********';
+}
+
+// from http://stackoverflow.com/a/8809472/1138191
+function uuid4() {
+  var d = now();
+  var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = (d + Math.random() * 16) % 16 | 0;
+    d = Math.floor(d / 16);
+    return (c === 'x' ? r : (r & 0x7 | 0x8)).toString(16);
+  });
+  return uuid;
+}
+
+var LEVELS = {
+  debug: 0,
+  info: 1,
+  warning: 2,
+  error: 3,
+  critical: 4
+};
+
+function sanitizeUrl(url) {
+  var baseUrlParts = parseUri(url);
+  if (!baseUrlParts) {
+    return '(unknown)';
+  }
+
+  // remove a trailing # if there is no anchor
+  if (baseUrlParts.anchor === '') {
+    baseUrlParts.source = baseUrlParts.source.replace('#', '');
+  }
+
+  url = baseUrlParts.source.replace('?' + baseUrlParts.query, '');
+  return url;
+}
+
+var parseUriOptions = {
+  strictMode: false,
+  key: [
+    'source',
+    'protocol',
+    'authority',
+    'userInfo',
+    'user',
+    'password',
+    'host',
+    'port',
+    'relative',
+    'path',
+    'directory',
+    'file',
+    'query',
+    'anchor'
+  ],
+  q: {
+    name: 'queryKey',
+    parser: /(?:^|&)([^&=]*)=?([^&]*)/g
+  },
+  parser: {
+    strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
+    loose: /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
+  }
+};
+
+function parseUri(str) {
+  if (!isType(str, 'string')) {
+    return undefined;
+  }
+
+  var o = parseUriOptions;
+  var m = o.parser[o.strictMode ? 'strict' : 'loose'].exec(str);
+  var uri = {};
+
+  for (var i = 0, l = o.key.length; i < l; ++i) {
+    uri[o.key[i]] = m[i] || '';
+  }
+
+  uri[o.q.name] = {};
+  uri[o.key[12]].replace(o.q.parser, function ($0, $1, $2) {
+    if ($1) {
+      uri[o.q.name][$1] = $2;
+    }
+  });
+
+  return uri;
+}
+
+function addParamsAndAccessTokenToPath(accessToken, options, params) {
+  params = params || {};
+  params.access_token = accessToken;
+  var paramsArray = [];
+  var k;
+  for (k in params) {
+    if (Object.prototype.hasOwnProperty.call(params, k)) {
+      paramsArray.push([k, params[k]].join('='));
+    }
+  }
+  var query = '?' + paramsArray.sort().join('&');
+
+  options = options || {};
+  options.path = options.path || '';
+  var qs = options.path.indexOf('?');
+  var h = options.path.indexOf('#');
+  var p;
+  if (qs !== -1 && (h === -1 || h > qs)) {
+    p = options.path;
+    options.path = p.substring(0,qs) + query + '&' + p.substring(qs+1);
+  } else {
+    if (h !== -1) {
+      p = options.path;
+      options.path = p.substring(0,h) + query + p.substring(h);
+    } else {
+      options.path = options.path + query;
+    }
+  }
+}
+
+function formatUrl(u, protocol) {
+  protocol = protocol || u.protocol;
+  if (!protocol && u.port) {
+    if (u.port === 80) {
+      protocol = 'http:';
+    } else if (u.port === 443) {
+      protocol = 'https:';
+    }
+  }
+  protocol = protocol || 'https:';
+
+  if (!u.hostname) {
+    return null;
+  }
+  var result = protocol + '//' + u.hostname;
+  if (u.port) {
+    result = result + ':' + u.port;
+  }
+  if (u.path) {
+    result = result + u.path;
+  }
+  return result;
+}
+
+function stringify(obj, backup) {
+  var value, error;
+  try {
+    value = RollbarJSON.stringify(obj);
+  } catch (jsonError) {
+    if (backup && isFunction(backup)) {
+      try {
+        value = backup(obj);
+      } catch (backupError) {
+        error = backupError;
+      }
+    } else {
+      error = jsonError;
+    }
+  }
+  return {error: error, value: value};
+}
+
+function jsonParse(s) {
+  var value, error;
+  try {
+    value = RollbarJSON.parse(s);
+  } catch (e) {
+    error = e;
+  }
+  return {error: error, value: value};
+}
+
+function makeUnhandledStackInfo(
+  message,
+  url,
+  lineno,
+  colno,
+  error,
+  mode,
+  backupMessage,
+  errorParser
+) {
+  var location = {
+    url: url || '',
+    line: lineno,
+    column: colno
+  };
+  location.func = errorParser.guessFunctionName(location.url, location.line);
+  location.context = errorParser.gatherContext(location.url, location.line);
+  var href = document && document.location && document.location.href;
+  var useragent = window && window.navigator && window.navigator.userAgent;
+  return {
+    'mode': mode,
+    'message': error ? String(error) : (message || backupMessage),
+    'url': href,
+    'stack': [location],
+    'useragent': useragent
+  };
+}
+
+function wrapCallback(logger, f) {
+  return function(err, resp) {
+    try {
+      f(err, resp);
+    } catch (e) {
+      logger.error(e);
+    }
+  };
+}
+
+function createItem(args, logger, notifier, requestKeys, lambdaContext) {
+  var message, err, custom, callback, request;
+  var arg;
+  var extraArgs = [];
+
+  for (var i = 0, l = args.length; i < l; ++i) {
+    arg = args[i];
+
+    var typ = typeName(arg);
+    switch (typ) {
+      case 'undefined':
+        break;
+      case 'string':
+        message ? extraArgs.push(arg) : message = arg;
+        break;
+      case 'function':
+        callback = wrapCallback(logger, arg);
+        break;
+      case 'date':
+        extraArgs.push(arg);
+        break;
+      case 'error':
+      case 'domexception':
+      case 'exception': // Firefox Exception type
+        err ? extraArgs.push(arg) : err = arg;
+        break;
+      case 'object':
+      case 'array':
+        if (arg instanceof Error || (typeof DOMException !== 'undefined' && arg instanceof DOMException)) {
+          err ? extraArgs.push(arg) : err = arg;
+          break;
+        }
+        if (requestKeys && typ === 'object' && !request) {
+          for (var j = 0, len = requestKeys.length; j < len; ++j) {
+            if (arg[requestKeys[j]] !== undefined) {
+              request = arg;
+              break;
+            }
+          }
+          if (request) {
+            break;
+          }
+        }
+        custom ? extraArgs.push(arg) : custom = arg;
+        break;
+      default:
+        if (arg instanceof Error || (typeof DOMException !== 'undefined' && arg instanceof DOMException)) {
+          err ? extraArgs.push(arg) : err = arg;
+          break;
+        }
+        extraArgs.push(arg);
+    }
+  }
+
+  if (extraArgs.length > 0) {
+    // if custom is an array this turns it into an object with integer keys
+    custom = merge(custom);
+    custom.extraArgs = extraArgs;
+  }
+
+  var item = {
+    message: message,
+    err: err,
+    custom: custom,
+    timestamp: now(),
+    callback: callback,
+    uuid: uuid4()
+  };
+  if (custom && custom.level !== undefined) {
+    item.level = custom.level;
+    delete custom.level;
+  }
+  if (requestKeys && request) {
+    item.request = request;
+  }
+  if (lambdaContext) {
+    item.lambdaContext = lambdaContext;
+  }
+  item._originalArgs = args;
+  return item;
+}
+
+var TELEMETRY_TYPES = ['log', 'network', 'dom', 'navigation', 'error', 'manual'];
+var TELEMETRY_LEVELS = ['critical', 'error', 'warning', 'info', 'debug'];
+
+function arrayIncludes(arr, val) {
+  for (var k = 0; k < arr.length; ++k) {
+    if (arr[k] === val) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function createTelemetryEvent(args) {
+  var type, metadata, level;
+  var arg;
+
+  for (var i = 0, l = args.length; i < l; ++i) {
+    arg = args[i];
+
+    var typ = typeName(arg);
+    switch (typ) {
+      case 'string':
+        if (arrayIncludes(TELEMETRY_TYPES, arg)) {
+          type = arg;
+        } else if (arrayIncludes(TELEMETRY_LEVELS, arg)) {
+          level = arg;
+        }
+        break;
+      case 'object':
+        metadata = arg;
+        break;
+      default:
+        break;
+    }
+  }
+  var event = {
+    type: type || 'manual',
+    metadata: metadata || {},
+    level: level
+  };
+
+  return event;
+}
+
+/*
+ * get - given an obj/array and a keypath, return the value at that keypath or
+ *       undefined if not possible.
+ *
+ * @param obj - an object or array
+ * @param path - a string of keys separated by '.' such as 'plugin.jquery.0.message'
+ *    which would correspond to 42 in `{plugin: {jquery: [{message: 42}]}}`
+ */
+function get(obj, path) {
+  if (!obj) {
+    return undefined;
+  }
+  var keys = path.split('.');
+  var result = obj;
+  try {
+    for (var i = 0, len = keys.length; i < len; ++i) {
+      result = result[keys[i]];
+    }
+  } catch (e) {
+    result = undefined;
+  }
+  return result;
+}
+
+function set(obj, path, value) {
+  if (!obj) {
+    return;
+  }
+  var keys = path.split('.');
+  var len = keys.length;
+  if (len < 1) {
+    return;
+  }
+  if (len === 1) {
+    obj[keys[0]] = value;
+    return;
+  }
+  try {
+    var temp = obj[keys[0]] || {};
+    var replacement = temp;
+    for (var i = 1; i < len - 1; ++i) {
+      temp[keys[i]] = temp[keys[i]] || {};
+      temp = temp[keys[i]];
+    }
+    temp[keys[len-1]] = value;
+    obj[keys[0]] = replacement;
+  } catch (e) {
+    return;
+  }
+}
+
+function scrub(data, scrubFields) {
+  scrubFields = scrubFields || [];
+  var paramRes = _getScrubFieldRegexs(scrubFields);
+  var queryRes = _getScrubQueryParamRegexs(scrubFields);
+
+  function redactQueryParam(dummy0, paramPart) {
+    return paramPart + redact();
+  }
+
+  function paramScrubber(v) {
+    var i;
+    if (isType(v, 'string')) {
+      for (i = 0; i < queryRes.length; ++i) {
+        v = v.replace(queryRes[i], redactQueryParam);
+      }
+    }
+    return v;
+  }
+
+  function valScrubber(k, v) {
+    var i;
+    for (i = 0; i < paramRes.length; ++i) {
+      if (paramRes[i].test(k)) {
+        v = redact();
+        break;
+      }
+    }
+    return v;
+  }
+
+  function scrubber(k, v, seen) {
+    var tmpV = valScrubber(k, v);
+    if (tmpV === v) {
+      if (isType(v, 'object') || isType(v, 'array')) {
+        return traverse(v, scrubber, seen);
+      }
+      return paramScrubber(tmpV);
+    } else {
+      return tmpV;
+    }
+  }
+
+  return traverse(data, scrubber, []);
+}
+
+function _getScrubFieldRegexs(scrubFields) {
+  var ret = [];
+  var pat;
+  for (var i = 0; i < scrubFields.length; ++i) {
+    pat = '^\\[?(%5[bB])?' + scrubFields[i] + '\\[?(%5[bB])?\\]?(%5[dD])?$';
+    ret.push(new RegExp(pat, 'i'));
+  }
+  return ret;
+}
+
+
+function _getScrubQueryParamRegexs(scrubFields) {
+  var ret = [];
+  var pat;
+  for (var i = 0; i < scrubFields.length; ++i) {
+    pat = '\\[?(%5[bB])?' + scrubFields[i] + '\\[?(%5[bB])?\\]?(%5[dD])?';
+    ret.push(new RegExp('(' + pat + '=)([^&\\n]+)', 'igm'));
+  }
+  return ret;
+}
+
+function formatArgsAsString(args) {
+  var i, len, arg;
+  var result = [];
+  for (i = 0, len = args.length; i < len; ++i) {
+    arg = args[i];
+    switch (typeName(arg)) {
+      case 'object':
+        arg = stringify(arg);
+        arg = arg.error || arg.value;
+        if (arg.length > 500) {
+          arg = arg.substr(0, 497) + '...';
+        }
+        break;
+      case 'null':
+        arg = 'null';
+        break;
+      case 'undefined':
+        arg = 'undefined';
+        break;
+      case 'symbol':
+        arg = arg.toString();
+        break;
+    }
+    result.push(arg);
+  }
+  return result.join(' ');
+}
+
+function now() {
+  if (Date.now) {
+    return +Date.now();
+  }
+  return +new Date();
+}
+
+function filterIp(requestData, captureIp) {
+  if (!requestData || !requestData['user_ip'] || captureIp === true) {
+    return;
+  }
+  var newIp = requestData['user_ip'];
+  if (!captureIp) {
+    newIp = null;
+  } else {
+    try {
+      var parts;
+      if (newIp.indexOf('.') !== -1) {
+        parts = newIp.split('.');
+        parts.pop();
+        parts.push('0');
+        newIp = parts.join('.');
+      } else if (newIp.indexOf(':') !== -1) {
+        parts = newIp.split(':');
+        if (parts.length > 2) {
+          var beginning = parts.slice(0, 3);
+          var slashIdx = beginning[2].indexOf('/');
+          if (slashIdx !== -1) {
+            beginning[2] = beginning[2].substring(0, slashIdx);
+          }
+          var terminal = '0000:0000:0000:0000:0000';
+          newIp = beginning.concat(terminal).join(':');
+        }
+      } else {
+        newIp = null;
+      }
+    } catch (e) {
+      newIp = null;
+    }
+  }
+  requestData['user_ip'] = newIp;
+}
+
+function handleOptions(current, input, payload) {
+  var result = merge(current, input, payload);
+  if (!input || input.overwriteScrubFields) {
+    return result;
+  }
+  if (input.scrubFields) {
+    result.scrubFields = (current.scrubFields || []).concat(input.scrubFields);
+  }
+  return result;
+}
+
+module.exports = {
+  addParamsAndAccessTokenToPath: addParamsAndAccessTokenToPath,
+  createItem: createItem,
+  createTelemetryEvent: createTelemetryEvent,
+  filterIp: filterIp,
+  formatArgsAsString: formatArgsAsString,
+  formatUrl: formatUrl,
+  get: get,
+  handleOptions: handleOptions,
+  isError: isError,
+  isFunction: isFunction,
+  isIterable: isIterable,
+  isNativeFunction: isNativeFunction,
+  isType: isType,
+  jsonParse: jsonParse,
+  LEVELS: LEVELS,
+  makeUnhandledStackInfo: makeUnhandledStackInfo,
+  merge: merge,
+  now: now,
+  redact: redact,
+  sanitizeUrl: sanitizeUrl,
+  scrub: scrub,
+  set: set,
+  stringify: stringify,
+  traverse: traverse,
+  typeName: typeName,
+  uuid4: uuid4
+};
 
 
 /***/ }),
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	'use strict';
-	
-	var Client = __webpack_require__(2);
-	var _ = __webpack_require__(4);
-	var API = __webpack_require__(10);
-	var logger = __webpack_require__(13);
-	var globals = __webpack_require__(16);
-	
-	var transport = __webpack_require__(17);
-	var urllib = __webpack_require__(18);
-	
-	var transforms = __webpack_require__(19);
-	var sharedTransforms = __webpack_require__(23);
-	var predicates = __webpack_require__(24);
-	var sharedPredicates = __webpack_require__(25);
-	var errorParser = __webpack_require__(20);
-	var Instrumenter = __webpack_require__(26);
-	
-	function Rollbar(options, client) {
-	  this.options = _.handleOptions(defaultOptions, options);
-	  var api = new API(this.options, transport, urllib);
-	  this.client = client || new Client(this.options, api, logger, 'browser');
-	
-	  var gWindow = ((typeof window != 'undefined') && window) || ((typeof self != 'undefined') && self);
-	  var gDocument = (typeof document != 'undefined') && document;
-	  addTransformsToNotifier(this.client.notifier, gWindow);
-	  addPredicatesToQueue(this.client.queue);
-	  if (this.options.captureUncaught || this.options.handleUncaughtExceptions) {
-	    globals.captureUncaughtExceptions(gWindow, this);
-	    globals.wrapGlobals(gWindow, this);
-	  }
-	  if (this.options.captureUnhandledRejections || this.options.handleUnhandledRejections) {
-	    globals.captureUnhandledRejections(gWindow, this);
-	  }
-	
-	  this.instrumenter = new Instrumenter(this.options, this.client.telemeter, this, gWindow, gDocument);
-	  this.instrumenter.instrument();
-	}
-	
-	var _instance = null;
-	Rollbar.init = function(options, client) {
-	  if (_instance) {
-	    return _instance.global(options).configure(options);
-	  }
-	  _instance = new Rollbar(options, client);
-	  return _instance;
-	};
-	
-	function handleUninitialized(maybeCallback) {
-	  var message = 'Rollbar is not initialized';
-	  logger.error(message);
-	  if (maybeCallback) {
-	    maybeCallback(new Error(message));
-	  }
-	}
-	
-	Rollbar.prototype.global = function(options) {
-	  this.client.global(options);
-	  return this;
-	};
-	Rollbar.global = function(options) {
-	  if (_instance) {
-	    return _instance.global(options);
-	  } else {
-	    handleUninitialized();
-	  }
-	};
-	
-	Rollbar.prototype.configure = function(options, payloadData) {
-	  var oldOptions = this.options;
-	  var payload = {};
-	  if (payloadData) {
-	    payload = {payload: payloadData};
-	  }
-	  this.options = _.handleOptions(oldOptions, options, payload);
-	  this.client.configure(this.options, payloadData);
-	  this.instrumenter.configure(this.options);
-	  return this;
-	};
-	Rollbar.configure = function(options, payloadData) {
-	  if (_instance) {
-	    return _instance.configure(options, payloadData);
-	  } else {
-	    handleUninitialized();
-	  }
-	};
-	
-	Rollbar.prototype.lastError = function() {
-	  return this.client.lastError;
-	};
-	Rollbar.lastError = function() {
-	  if (_instance) {
-	    return _instance.lastError();
-	  } else {
-	    handleUninitialized();
-	  }
-	};
-	
-	Rollbar.prototype.log = function() {
-	  var item = this._createItem(arguments);
-	  var uuid = item.uuid;
-	  this.client.log(item);
-	  return {uuid: uuid};
-	};
-	Rollbar.log = function() {
-	  if (_instance) {
-	    return _instance.log.apply(_instance, arguments);
-	  } else {
-	    var maybeCallback = _getFirstFunction(arguments);
-	    handleUninitialized(maybeCallback);
-	  }
-	};
-	
-	Rollbar.prototype.debug = function() {
-	  var item = this._createItem(arguments);
-	  var uuid = item.uuid;
-	  this.client.debug(item);
-	  return {uuid: uuid};
-	};
-	Rollbar.debug = function() {
-	  if (_instance) {
-	    return _instance.debug.apply(_instance, arguments);
-	  } else {
-	    var maybeCallback = _getFirstFunction(arguments);
-	    handleUninitialized(maybeCallback);
-	  }
-	};
-	
-	Rollbar.prototype.info = function() {
-	  var item = this._createItem(arguments);
-	  var uuid = item.uuid;
-	  this.client.info(item);
-	  return {uuid: uuid};
-	};
-	Rollbar.info = function() {
-	  if (_instance) {
-	    return _instance.info.apply(_instance, arguments);
-	  } else {
-	    var maybeCallback = _getFirstFunction(arguments);
-	    handleUninitialized(maybeCallback);
-	  }
-	};
-	
-	Rollbar.prototype.warn = function() {
-	  var item = this._createItem(arguments);
-	  var uuid = item.uuid;
-	  this.client.warn(item);
-	  return {uuid: uuid};
-	};
-	Rollbar.warn = function() {
-	  if (_instance) {
-	    return _instance.warn.apply(_instance, arguments);
-	  } else {
-	    var maybeCallback = _getFirstFunction(arguments);
-	    handleUninitialized(maybeCallback);
-	  }
-	};
-	
-	Rollbar.prototype.warning = function() {
-	  var item = this._createItem(arguments);
-	  var uuid = item.uuid;
-	  this.client.warning(item);
-	  return {uuid: uuid};
-	};
-	Rollbar.warning = function() {
-	  if (_instance) {
-	    return _instance.warning.apply(_instance, arguments);
-	  } else {
-	    var maybeCallback = _getFirstFunction(arguments);
-	    handleUninitialized(maybeCallback);
-	  }
-	};
-	
-	Rollbar.prototype.error = function() {
-	  var item = this._createItem(arguments);
-	  var uuid = item.uuid;
-	  this.client.error(item);
-	  return {uuid: uuid};
-	};
-	Rollbar.error = function() {
-	  if (_instance) {
-	    return _instance.error.apply(_instance, arguments);
-	  } else {
-	    var maybeCallback = _getFirstFunction(arguments);
-	    handleUninitialized(maybeCallback);
-	  }
-	};
-	
-	Rollbar.prototype.critical = function() {
-	  var item = this._createItem(arguments);
-	  var uuid = item.uuid;
-	  this.client.critical(item);
-	  return {uuid: uuid};
-	};
-	Rollbar.critical = function() {
-	  if (_instance) {
-	    return _instance.critical.apply(_instance, arguments);
-	  } else {
-	    var maybeCallback = _getFirstFunction(arguments);
-	    handleUninitialized(maybeCallback);
-	  }
-	};
-	
-	Rollbar.prototype.buildJsonPayload = function(item) {
-	  return this.client.buildJsonPayload(item);
-	};
-	Rollbar.buildJsonPayload = function() {
-	  if (_instance) {
-	    return _instance.buildJsonPayload.apply(_instance, arguments);
-	  } else {
-	    handleUninitialized();
-	  }
-	};
-	
-	Rollbar.prototype.sendJsonPayload = function(jsonPayload) {
-	  return this.client.sendJsonPayload(jsonPayload);
-	};
-	Rollbar.sendJsonPayload = function() {
-	  if (_instance) {
-	    return _instance.sendJsonPayload.apply(_instance, arguments);
-	  } else {
-	    handleUninitialized();
-	  }
-	};
-	
-	Rollbar.prototype.handleUncaughtException = function(message, url, lineno, colno, error, context) {
-	  var item;
-	  var stackInfo = _.makeUnhandledStackInfo(
-	    message,
-	    url,
-	    lineno,
-	    colno,
-	    error,
-	    'onerror',
-	    'uncaught exception',
-	    errorParser
-	  );
-	  if (_.isError(error)) {
-	    item = this._createItem([message, error, context]);
-	    item._unhandledStackInfo = stackInfo;
-	  } else if (_.isError(url)) {
-	    item = this._createItem([message, url, context]);
-	    item._unhandledStackInfo = stackInfo;
-	  } else {
-	    item = this._createItem([message, context]);
-	    item.stackInfo = stackInfo;
-	  }
-	  item.level = this.options.uncaughtErrorLevel;
-	  item._isUncaught = true;
-	  this.client.log(item);
-	};
-	
-	Rollbar.prototype.handleUnhandledRejection = function(reason, promise) {
-	  var message = 'unhandled rejection was null or undefined!';
-	  if (reason) {
-	    if (reason.message) {
-	      message = reason.message;
-	    } else {
-	      var reasonResult = _.stringify(reason);
-	      if (reasonResult.value) {
-	        message = reasonResult.value;
-	      }
-	    }
-	  }
-	  var context = (reason && reason._rollbarContext) || (promise && promise._rollbarContext);
-	
-	  var item;
-	  if (_.isError(reason)) {
-	    item = this._createItem([message, reason, context]);
-	  } else {
-	    item = this._createItem([message, reason, context]);
-	    item.stackInfo = _.makeUnhandledStackInfo(
-	      message,
-	      '',
-	      0,
-	      0,
-	      null,
-	      'unhandledrejection',
-	      '',
-	      errorParser
-	    );
-	  }
-	  item.level = this.options.uncaughtErrorLevel;
-	  item._isUncaught = true;
-	  item._originalArgs = item._originalArgs || [];
-	  item._originalArgs.push(promise);
-	  this.client.log(item);
-	};
-	
-	Rollbar.prototype.wrap = function(f, context, _before) {
-	  try {
-	    var ctxFn;
-	    if(_.isFunction(context)) {
-	      ctxFn = context;
-	    } else {
-	      ctxFn = function() { return context || {}; };
-	    }
-	
-	    if (!_.isFunction(f)) {
-	      return f;
-	    }
-	
-	    if (f._isWrap) {
-	      return f;
-	    }
-	
-	    if (!f._rollbar_wrapped) {
-	      f._rollbar_wrapped = function () {
-	        if (_before && _.isFunction(_before)) {
-	          _before.apply(this, arguments);
-	        }
-	        try {
-	          return f.apply(this, arguments);
-	        } catch(exc) {
-	          var e = exc;
-	          if (e && window._rollbarWrappedError !== e) {
-	            if (_.isType(e, 'string')) {
-	              e = new String(e);
-	            }
-	            e._rollbarContext = ctxFn() || {};
-	            e._rollbarContext._wrappedSource = f.toString();
-	
-	            window._rollbarWrappedError = e;
-	          }
-	          throw e;
-	        }
-	      };
-	
-	      f._rollbar_wrapped._isWrap = true;
-	
-	      if (f.hasOwnProperty) {
-	        for (var prop in f) {
-	          if (f.hasOwnProperty(prop) && prop !== '_rollbar_wrapped') {
-	            f._rollbar_wrapped[prop] = f[prop];
-	          }
-	        }
-	      }
-	    }
-	
-	    return f._rollbar_wrapped;
-	  } catch (e) {
-	    // Return the original function if the wrap fails.
-	    return f;
-	  }
-	};
-	Rollbar.wrap = function(f, context) {
-	  if (_instance) {
-	    return _instance.wrap(f, context);
-	  } else {
-	    handleUninitialized();
-	  }
-	};
-	
-	Rollbar.prototype.captureEvent = function() {
-	  var event = _.createTelemetryEvent(arguments);
-	  return this.client.captureEvent(event.type, event.metadata, event.level);
-	};
-	Rollbar.captureEvent = function() {
-	  if (_instance) {
-	    return _instance.captureEvent.apply(_instance, arguments);
-	  } else {
-	    handleUninitialized();
-	  }
-	};
-	
-	// The following two methods are used internally and are not meant for public use
-	Rollbar.prototype.captureDomContentLoaded = function(e, ts) {
-	  if (!ts) {
-	    ts = new Date();
-	  }
-	  return this.client.captureDomContentLoaded(ts);
-	};
-	
-	Rollbar.prototype.captureLoad = function(e, ts) {
-	  if (!ts) {
-	    ts = new Date();
-	  }
-	  return this.client.captureLoad(ts);
-	};
-	
-	/* Internal */
-	
-	function addTransformsToNotifier(notifier, gWindow) {
-	  notifier
-	    .addTransform(transforms.handleItemWithError)
-	    .addTransform(transforms.ensureItemHasSomethingToSay)
-	    .addTransform(transforms.addBaseInfo)
-	    .addTransform(transforms.addRequestInfo(gWindow))
-	    .addTransform(transforms.addClientInfo(gWindow))
-	    .addTransform(transforms.addPluginInfo(gWindow))
-	    .addTransform(transforms.addBody)
-	    .addTransform(sharedTransforms.addMessageWithError)
-	    .addTransform(sharedTransforms.addTelemetryData)
-	    .addTransform(sharedTransforms.addConfigToPayload)
-	    .addTransform(transforms.scrubPayload)
-	    .addTransform(sharedTransforms.userTransform(logger))
-	    .addTransform(sharedTransforms.itemToPayload);
-	}
-	
-	function addPredicatesToQueue(queue) {
-	  queue
-	    .addPredicate(sharedPredicates.checkLevel)
-	    .addPredicate(predicates.checkIgnore)
-	    .addPredicate(sharedPredicates.userCheckIgnore(logger))
-	    .addPredicate(sharedPredicates.urlIsNotBlacklisted(logger))
-	    .addPredicate(sharedPredicates.urlIsWhitelisted(logger))
-	    .addPredicate(sharedPredicates.messageIsIgnored(logger));
-	}
-	
-	Rollbar.prototype._createItem = function(args) {
-	  return _.createItem(args, logger, this);
-	};
-	
-	function _getFirstFunction(args) {
-	  for (var i = 0, len = args.length; i < len; ++i) {
-	    if (_.isFunction(args[i])) {
-	      return args[i];
-	    }
-	  }
-	  return undefined;
-	}
-	
-	/* global __NOTIFIER_VERSION__:false */
-	/* global __DEFAULT_BROWSER_SCRUB_FIELDS__:false */
-	/* global __DEFAULT_LOG_LEVEL__:false */
-	/* global __DEFAULT_REPORT_LEVEL__:false */
-	/* global __DEFAULT_UNCAUGHT_ERROR_LEVEL:false */
-	/* global __DEFAULT_ENDPOINT__:false */
-	
-	var defaultOptions = {
-	  version: ("2.6.1"),
-	  scrubFields: (["pw","pass","passwd","password","secret","confirm_password","confirmPassword","password_confirmation","passwordConfirmation","access_token","accessToken","secret_key","secretKey","secretToken","cc-number","card number","cardnumber","cardnum","ccnum","ccnumber","cc num","creditcardnumber","credit card number","newcreditcardnumber","new credit card","creditcardno","credit card no","card#","card #","cc-csc","cvc2","cvv2","ccv2","security code","card verification","name on credit card","name on card","nameoncard","cardholder","card holder","name des karteninhabers","card type","cardtype","cc type","cctype","payment type","expiration date","expirationdate","expdate","cc-exp"]),
-	  logLevel: ("debug"),
-	  reportLevel: ("debug"),
-	  uncaughtErrorLevel: ("error"),
-	  endpoint: ("api.rollbar.com/api/1/item/"),
-	  verbose: false,
-	  enabled: true,
-	  sendConfig: false,
-	  includeItemsInTelemetry: true,
-	  captureIp: true
-	};
-	
-	module.exports = Rollbar;
+/* eslint-disable no-console */
+__webpack_require__(16);
+var detection = __webpack_require__(17);
+var _ = __webpack_require__(0);
+
+function error() {
+  var args = Array.prototype.slice.call(arguments, 0);
+  args.unshift('Rollbar:');
+  if (detection.ieVersion() <= 8) {
+    console.error(_.formatArgsAsString(args));
+  } else {
+    console.error.apply(console, args);
+  }
+}
+
+function info() {
+  var args = Array.prototype.slice.call(arguments, 0);
+  args.unshift('Rollbar:');
+  if (detection.ieVersion() <= 8) {
+    console.info(_.formatArgsAsString(args));
+  } else {
+    console.info.apply(console, args);
+  }
+}
+
+function log() {
+  var args = Array.prototype.slice.call(arguments, 0);
+  args.unshift('Rollbar:');
+  if (detection.ieVersion() <= 8) {
+    console.log(_.formatArgsAsString(args));
+  } else {
+    console.log.apply(console, args);
+  }
+}
+
+/* eslint-enable no-console */
+
+module.exports = {
+  error: error,
+  info: info,
+  log: log
+};
 
 
 /***/ }),
 /* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	'use strict';
-	
-	var RateLimiter = __webpack_require__(3);
-	var Queue = __webpack_require__(7);
-	var Notifier = __webpack_require__(8);
-	var Telemeter = __webpack_require__(9);
-	var _ = __webpack_require__(4);
-	
-	/*
-	 * Rollbar - the interface to Rollbar
-	 *
-	 * @param options
-	 * @param api
-	 * @param logger
-	 */
-	function Rollbar(options, api, logger, platform) {
-	  this.options = _.merge(options);
-	  this.logger = logger;
-	  Rollbar.rateLimiter.configureGlobal(this.options);
-	  Rollbar.rateLimiter.setPlatformOptions(platform, this.options);
-	  this.api = api;
-	  this.queue = new Queue(Rollbar.rateLimiter, api, logger, this.options);
-	  this.notifier = new Notifier(this.queue, this.options);
-	  this.telemeter = new Telemeter(this.options);
-	  this.lastError = null;
-	  this.lastErrorHash = 'none';
-	}
-	
-	var defaultOptions = {
-	  maxItems: 0,
-	  itemsPerMinute: 60
-	};
-	
-	Rollbar.rateLimiter = new RateLimiter(defaultOptions);
-	
-	Rollbar.prototype.global = function(options) {
-	  Rollbar.rateLimiter.configureGlobal(options);
-	  return this;
-	};
-	
-	Rollbar.prototype.configure = function(options, payloadData) {
-	  var oldOptions = this.options;
-	  var payload = {};
-	  if (payloadData) {
-	    payload = {payload: payloadData};
-	  }
-	  this.options = _.merge(oldOptions, options, payload);
-	  this.notifier && this.notifier.configure(this.options);
-	  this.telemeter && this.telemeter.configure(this.options);
-	  this.global(this.options);
-	  return this;
-	};
-	
-	Rollbar.prototype.log = function(item) {
-	  var level = this._defaultLogLevel();
-	  return this._log(level, item);
-	};
-	
-	Rollbar.prototype.debug = function(item) {
-	  this._log('debug', item);
-	};
-	
-	Rollbar.prototype.info = function(item) {
-	  this._log('info', item);
-	};
-	
-	Rollbar.prototype.warn = function(item) {
-	  this._log('warning', item);
-	};
-	
-	Rollbar.prototype.warning = function(item) {
-	  this._log('warning', item);
-	};
-	
-	Rollbar.prototype.error = function(item) {
-	  this._log('error', item);
-	};
-	
-	Rollbar.prototype.critical = function(item) {
-	  this._log('critical', item);
-	};
-	
-	Rollbar.prototype.wait = function(callback) {
-	  this.queue.wait(callback);
-	};
-	
-	Rollbar.prototype.captureEvent = function(type, metadata, level) {
-	  return this.telemeter.captureEvent(type, metadata, level);
-	};
-	
-	Rollbar.prototype.captureDomContentLoaded = function(ts) {
-	  return this.telemeter.captureDomContentLoaded(ts);
-	};
-	
-	Rollbar.prototype.captureLoad = function(ts) {
-	  return this.telemeter.captureLoad(ts);
-	};
-	
-	Rollbar.prototype.buildJsonPayload = function(item) {
-	  return this.api.buildJsonPayload(item);
-	};
-	
-	Rollbar.prototype.sendJsonPayload = function(jsonPayload) {
-	  this.api.postJsonPayload(jsonPayload);
-	};
-	
-	/* Internal */
-	
-	Rollbar.prototype._log = function(defaultLevel, item) {
-	  var callback;
-	  if (item.callback) {
-	    callback = item.callback;
-	    delete item.callback;
-	  }
-	  if (this._sameAsLastError(item)) {
-	    if (callback) {
-	      var error = new Error('ignored identical item');
-	      error.item = item;
-	      callback(error);
-	    }
-	    return;
-	  }
-	  try {
-	    item.level = item.level || defaultLevel;
-	    this.telemeter._captureRollbarItem(item);
-	    item.telemetryEvents = this.telemeter.copyEvents();
-	    this.notifier.log(item, callback);
-	  } catch (e) {
-	    this.logger.error(e);
-	  }
-	};
-	
-	Rollbar.prototype._defaultLogLevel = function() {
-	  return this.options.logLevel || 'debug';
-	};
-	
-	Rollbar.prototype._sameAsLastError = function(item) {
-	  if (!item._isUncaught) {
-	    return false;
-	  }
-	  var itemHash = generateItemHash(item);
-	  if (this.lastErrorHash === itemHash) {
-	    return true;
-	  }
-	  this.lastError = item.err;
-	  this.lastErrorHash = itemHash;
-	  return false;
-	};
-	
-	function generateItemHash(item) {
-	  var message = item.message || '';
-	  var stack = (item.err || {}).stack || String(item.err);
-	  return message + '::' + stack;
-	}
-	
-	module.exports = Rollbar;
+var _ = __webpack_require__(0);
+
+function raw(payload, jsonBackup) {
+  return [payload, _.stringify(payload, jsonBackup)];
+}
+
+function selectFrames(frames, range) {
+  var len = frames.length;
+  if (len > range * 2) {
+    return frames.slice(0, range).concat(frames.slice(len - range));
+  }
+  return frames;
+}
+
+function truncateFrames(payload, jsonBackup, range) {
+  range = (typeof range === 'undefined') ? 30 : range;
+  var body = payload.data.body;
+  var frames;
+  if (body.trace_chain) {
+    var chain = body.trace_chain;
+    for (var i = 0; i < chain.length; i++) {
+      frames = chain[i].frames;
+      frames = selectFrames(frames, range);
+      chain[i].frames = frames;
+    }
+  } else if (body.trace) {
+    frames = body.trace.frames;
+    frames = selectFrames(frames, range);
+    body.trace.frames = frames;
+  }
+  return [payload, _.stringify(payload, jsonBackup)];
+}
+
+function maybeTruncateValue(len, val) {
+  if (!val) {
+    return val;
+  }
+  if (val.length > len) {
+    return val.slice(0, len - 3).concat('...');
+  }
+  return val;
+}
+
+function truncateStrings(len, payload, jsonBackup) {
+  function truncator(k, v, seen) {
+    switch (_.typeName(v)) {
+      case 'string':
+        return maybeTruncateValue(len, v);
+      case 'object':
+      case 'array':
+        return _.traverse(v, truncator, seen);
+      default:
+        return v;
+    }
+  }
+  payload = _.traverse(payload, truncator, []);
+  return [payload, _.stringify(payload, jsonBackup)];
+}
+
+function truncateTraceData(traceData) {
+  if (traceData.exception) {
+    delete traceData.exception.description;
+    traceData.exception.message = maybeTruncateValue(255, traceData.exception.message);
+  }
+  traceData.frames = selectFrames(traceData.frames, 1);
+  return traceData;
+}
+
+function minBody(payload, jsonBackup) {
+  var body = payload.data.body;
+  if (body.trace_chain) {
+    var chain = body.trace_chain;
+    for (var i = 0; i < chain.length; i++) {
+      chain[i] = truncateTraceData(chain[i]);
+    }
+  } else if (body.trace) {
+    body.trace = truncateTraceData(body.trace);
+  }
+  return [payload, _.stringify(payload, jsonBackup)];
+}
+
+function needsTruncation(payload, maxSize) {
+  return payload.length > maxSize;
+}
+
+function truncate(payload, jsonBackup, maxSize) {
+  maxSize = (typeof maxSize === 'undefined') ? (512 * 1024) : maxSize;
+  var strategies = [
+    raw,
+    truncateFrames,
+    truncateStrings.bind(null, 1024),
+    truncateStrings.bind(null, 512),
+    truncateStrings.bind(null, 256),
+    minBody
+  ];
+  var strategy, results, result;
+
+  while ((strategy = strategies.shift())) {
+    results = strategy(payload, jsonBackup);
+    payload = results[0];
+    result = results[1];
+    if (result.error || !needsTruncation(result.value, maxSize)) {
+      return result;
+    }
+  }
+  return result;
+}
+
+module.exports = {
+  truncate: truncate,
+
+  /* for testing */
+  raw: raw,
+  truncateFrames: truncateFrames,
+  truncateStrings: truncateStrings,
+  maybeTruncateValue: maybeTruncateValue
+};
 
 
 /***/ }),
 /* 3 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, exports) {
 
-	'use strict';
-	
-	var _ = __webpack_require__(4);
-	
-	/*
-	 * RateLimiter - an object that encapsulates the logic for counting items sent to Rollbar
-	 *
-	 * @param options - the same options that are accepted by configureGlobal offered as a convenience
-	 */
-	function RateLimiter(options) {
-	  this.startTime = _.now();
-	  this.counter = 0;
-	  this.perMinCounter = 0;
-	  this.platform = null;
-	  this.platformOptions = {};
-	  this.configureGlobal(options);
-	}
-	
-	RateLimiter.globalSettings = {
-	  startTime: _.now(),
-	  maxItems: undefined,
-	  itemsPerMinute: undefined
-	};
-	
-	/*
-	 * configureGlobal - set the global rate limiter options
-	 *
-	 * @param options - Only the following values are recognized:
-	 *    startTime: a timestamp of the form returned by (new Date()).getTime()
-	 *    maxItems: the maximum items
-	 *    itemsPerMinute: the max number of items to send in a given minute
-	 */
-	RateLimiter.prototype.configureGlobal = function(options) {
-	  if (options.startTime !== undefined) {
-	    RateLimiter.globalSettings.startTime = options.startTime;
-	  }
-	  if (options.maxItems !== undefined) {
-	    RateLimiter.globalSettings.maxItems = options.maxItems;
-	  }
-	  if (options.itemsPerMinute !== undefined) {
-	    RateLimiter.globalSettings.itemsPerMinute = options.itemsPerMinute;
-	  }
-	};
-	
-	/*
-	 * shouldSend - determine if we should send a given item based on rate limit settings
-	 *
-	 * @param item - the item we are about to send
-	 * @returns An object with the following structure:
-	 *  error: (Error|null)
-	 *  shouldSend: bool
-	 *  payload: (Object|null)
-	 *  If shouldSend is false, the item passed as a parameter should not be sent to Rollbar, and
-	 *  exactly one of error or payload will be non-null. If error is non-null, the returned Error will
-	 *  describe the situation, but it means that we were already over a rate limit (either globally or
-	 *  per minute) when this item was checked. If error is null, and therefore payload is non-null, it
-	 *  means this item put us over the global rate limit and the payload should be sent to Rollbar in
-	 *  place of the passed in item.
-	 */
-	RateLimiter.prototype.shouldSend = function(item, now) {
-	  now = now || _.now();
-	  var elapsedTime = now - this.startTime;
-	  if (elapsedTime < 0 || elapsedTime >= 60000) {
-	    this.startTime = now;
-	    this.perMinCounter = 0;
-	  }
-	
-	  var globalRateLimit = RateLimiter.globalSettings.maxItems;
-	  var globalRateLimitPerMin = RateLimiter.globalSettings.itemsPerMinute;
-	
-	  if (checkRate(item, globalRateLimit, this.counter)) {
-	    return shouldSendValue(this.platform, this.platformOptions, globalRateLimit + ' max items reached', false);
-	  } else if (checkRate(item, globalRateLimitPerMin, this.perMinCounter)) {
-	    return shouldSendValue(this.platform, this.platformOptions, globalRateLimitPerMin + ' items per minute reached', false);
-	  }
-	  this.counter++;
-	  this.perMinCounter++;
-	
-	  var shouldSend = !checkRate(item, globalRateLimit, this.counter);
-	  var perMinute = shouldSend;
-	  shouldSend = shouldSend && !checkRate(item, globalRateLimitPerMin, this.perMinCounter);
-	  return shouldSendValue(this.platform, this.platformOptions, null, shouldSend, globalRateLimit, globalRateLimitPerMin, perMinute);
-	};
-	
-	RateLimiter.prototype.setPlatformOptions = function(platform, options) {
-	  this.platform = platform;
-	  this.platformOptions = options;
-	};
-	
-	/* Helpers */
-	
-	function checkRate(item, limit, counter) {
-	  return !item.ignoreRateLimit && limit >= 1 && counter > limit;
-	}
-	
-	function shouldSendValue(platform, options, error, shouldSend, globalRateLimit, limitPerMin, perMinute) {
-	  var payload = null;
-	  if (error) {
-	    error = new Error(error);
-	  }
-	  if (!error && !shouldSend) {
-	    payload = rateLimitPayload(platform, options, globalRateLimit, limitPerMin, perMinute);
-	  }
-	  return {error: error, shouldSend: shouldSend, payload: payload};
-	}
-	
-	function rateLimitPayload(platform, options, globalRateLimit, limitPerMin, perMinute) {
-	  var environment = options.environment || (options.payload && options.payload.environment);
-	  var msg;
-	  if (perMinute) {
-	    msg = 'item per minute limit reached, ignoring errors until timeout';
-	  } else {
-	    msg = 'maxItems has been hit, ignoring errors until reset.';
-	  }
-	  var item = {
-	    body: {
-	      message: {
-	        body: msg,
-	        extra: {
-	          maxItems: globalRateLimit,
-	          itemsPerMinute: limitPerMin
-	        }
-	      }
-	    },
-	    language: 'javascript',
-	    environment: environment,
-	    notifier: {
-	      version: (options.notifier && options.notifier.version) || options.version
-	    }
-	  };
-	  if (platform === 'browser') {
-	    item.platform = 'browser';
-	    item.framework = 'browser-js';
-	    item.notifier.name = 'rollbar-browser-js';
-	  } else if (platform === 'server') {
-	    item.framework = options.framework || 'node-js';
-	    item.notifier.name = options.notifier.name;
-	  } else if (platform === 'react-native') {
-	    item.framework = options.framework || 'react-native';
-	    item.notifier.name = options.notifier.name;
-	  }
-	  return item;
-	}
-	
-	module.exports = RateLimiter;
+// See https://nodejs.org/docs/latest/api/url.html
+function parse(url) {
+  var result = {
+    protocol: null, auth: null, host: null, path: null,
+    hash: null, href: url, hostname: null, port: null,
+    pathname: null, search: null, query: null
+  };
+
+  var i, last;
+  i = url.indexOf('//');
+  if (i !== -1) {
+    result.protocol = url.substring(0,i);
+    last = i+2;
+  } else {
+    last = 0;
+  }
+  
+  i = url.indexOf('@', last);
+  if (i !== -1) {
+    result.auth = url.substring(last, i);
+    last = i+1;
+  }
+
+  i = url.indexOf('/', last);
+  if (i === -1) {
+    i = url.indexOf('?', last);
+    if (i === -1) {
+      i = url.indexOf('#', last);
+      if (i === -1) {
+        result.host = url.substring(last);
+      } else {
+        result.host = url.substring(last, i);
+        result.hash = url.substring(i);
+      }
+      result.hostname = result.host.split(':')[0];
+      result.port = result.host.split(':')[1];
+      if (result.port) {
+        result.port = parseInt(result.port, 10);
+      }
+      return result;
+    } else {
+      result.host = url.substring(last, i);
+      result.hostname = result.host.split(':')[0];
+      result.port = result.host.split(':')[1];
+      if (result.port) {
+        result.port = parseInt(result.port, 10);
+      }
+      last = i;
+    }
+  } else {
+    result.host = url.substring(last, i);
+    result.hostname = result.host.split(':')[0];
+    result.port = result.host.split(':')[1];
+    if (result.port) {
+      result.port = parseInt(result.port, 10);
+    }
+    last = i;
+  }
+
+  i = url.indexOf('#', last);
+  if (i === -1) {
+    result.path = url.substring(last);
+  } else {
+    result.path = url.substring(last, i);
+    result.hash = url.substring(i);
+  }
+
+  if (result.path) {
+    var pathParts = result.path.split('?');
+    result.pathname = pathParts[0];
+    result.query = pathParts[1];
+    result.search = result.query ? '?' + result.query : null;
+  }
+  return result;
+}
+
+module.exports = {
+  parse: parse
+};
 
 
 /***/ }),
 /* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	'use strict';
-	
-	var merge = __webpack_require__(5);
-	
-	var RollbarJSON = {};
-	var __initRollbarJSON = false;
-	function setupJSON() {
-	  if (__initRollbarJSON) {
-	    return;
-	  }
-	  __initRollbarJSON = true;
-	
-	  if (isDefined(JSON)) {
-	    if (isNativeFunction(JSON.stringify)) {
-	      RollbarJSON.stringify = JSON.stringify;
-	    }
-	    if (isNativeFunction(JSON.parse)) {
-	      RollbarJSON.parse = JSON.parse;
-	    }
-	  }
-	  if (!isFunction(RollbarJSON.stringify) || !isFunction(RollbarJSON.parse)) {
-	    var setupCustomJSON = __webpack_require__(6);
-	    setupCustomJSON(RollbarJSON);
-	  }
-	}
-	setupJSON();
-	
-	/*
-	 * isType - Given a Javascript value and a string, returns true if the type of the value matches the
-	 * given string.
-	 *
-	 * @param x - any value
-	 * @param t - a lowercase string containing one of the following type names:
-	 *    - undefined
-	 *    - null
-	 *    - error
-	 *    - number
-	 *    - boolean
-	 *    - string
-	 *    - symbol
-	 *    - function
-	 *    - object
-	 *    - array
-	 * @returns true if x is of type t, otherwise false
-	 */
-	function isType(x, t) {
-	  return t === typeName(x);
-	}
-	
-	/*
-	 * typeName - Given a Javascript value, returns the type of the object as a string
-	 */
-	function typeName(x) {
-	  var name = typeof x;
-	  if (name !== 'object') {
-	    return name;
-	  }
-	  if (!x) {
-	    return 'null';
-	  }
-	  if (x instanceof Error) {
-	    return 'error';
-	  }
-	  return ({}).toString.call(x).match(/\s([a-zA-Z]+)/)[1].toLowerCase();
-	}
-	
-	/* isFunction - a convenience function for checking if a value is a function
-	 *
-	 * @param f - any value
-	 * @returns true if f is a function, otherwise false
-	 */
-	function isFunction(f) {
-	  return isType(f, 'function');
-	}
-	
-	/* isNativeFunction - a convenience function for checking if a value is a native JS function
-	 *
-	 * @param f - any value
-	 * @returns true if f is a native JS function, otherwise false
-	 */
-	function isNativeFunction(f) {
-	  var reRegExpChar = /[\\^$.*+?()[\]{}|]/g;
-	  var funcMatchString = Function.prototype.toString.call(Object.prototype.hasOwnProperty)
-	    .replace(reRegExpChar, '\\$&')
-	    .replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?');
-	  var reIsNative = RegExp('^' + funcMatchString + '$');
-	  return isObject(f) && reIsNative.test(f);
-	}
-	
-	/* isObject - Checks if the argument is an object
-	 *
-	 * @param value - any value
-	 * @returns true is value is an object function is an object)
-	*/
-	function isObject(value) {
-	  var type = typeof value;
-	  return value != null && (type == 'object' || type == 'function');
-	}
-	
-	/*
-	 * isDefined - a convenience function for checking if a value is not equal to undefined
-	 *
-	 * @param u - any value
-	 * @returns true if u is anything other than undefined
-	 */
-	function isDefined(u) {
-	  return !isType(u, 'undefined');
-	}
-	
-	/*
-	 * isIterable - convenience function for checking if a value can be iterated, essentially
-	 * whether it is an object or an array.
-	 *
-	 * @param i - any value
-	 * @returns true if i is an object or an array as determined by `typeName`
-	 */
-	function isIterable(i) {
-	  var type = typeName(i);
-	  return (type === 'object' || type === 'array');
-	}
-	
-	/*
-	 * isError - convenience function for checking if a value is of an error type
-	 *
-	 * @param e - any value
-	 * @returns true if e is an error
-	 */
-	function isError(e) {
-	  // Detect both Error and Firefox Exception type
-	  return isType(e, 'error') || isType(e, 'exception');
-	}
-	
-	function traverse(obj, func, seen) {
-	  var k, v, i;
-	  var isObj = isType(obj, 'object');
-	  var isArray = isType(obj, 'array');
-	  var keys = [];
-	
-	  if (isObj && seen.indexOf(obj) !== -1) {
-	    return obj;
-	  }
-	  seen.push(obj);
-	
-	  if (isObj) {
-	    for (k in obj) {
-	      if (Object.prototype.hasOwnProperty.call(obj, k)) {
-	        keys.push(k);
-	      }
-	    }
-	  } else if (isArray) {
-	    for (i = 0; i < obj.length; ++i) {
-	      keys.push(i);
-	    }
-	  }
-	
-	  var result = isObj ? {} : [];
-	  var same = true;
-	  for (i = 0; i < keys.length; ++i) {
-	    k = keys[i];
-	    v = obj[k];
-	    result[k] = func(k, v, seen);
-	    same = same && result[k] === obj[k];
-	  }
-	
-	  return (keys.length != 0 && !same) ? result : obj;
-	}
-	
-	function redact() {
-	  return '********';
-	}
-	
-	// from http://stackoverflow.com/a/8809472/1138191
-	function uuid4() {
-	  var d = now();
-	  var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-	    var r = (d + Math.random() * 16) % 16 | 0;
-	    d = Math.floor(d / 16);
-	    return (c === 'x' ? r : (r & 0x7 | 0x8)).toString(16);
-	  });
-	  return uuid;
-	}
-	
-	var LEVELS = {
-	  debug: 0,
-	  info: 1,
-	  warning: 2,
-	  error: 3,
-	  critical: 4
-	};
-	
-	function sanitizeUrl(url) {
-	  var baseUrlParts = parseUri(url);
-	  if (!baseUrlParts) {
-	    return '(unknown)';
-	  }
-	
-	  // remove a trailing # if there is no anchor
-	  if (baseUrlParts.anchor === '') {
-	    baseUrlParts.source = baseUrlParts.source.replace('#', '');
-	  }
-	
-	  url = baseUrlParts.source.replace('?' + baseUrlParts.query, '');
-	  return url;
-	}
-	
-	var parseUriOptions = {
-	  strictMode: false,
-	  key: [
-	    'source',
-	    'protocol',
-	    'authority',
-	    'userInfo',
-	    'user',
-	    'password',
-	    'host',
-	    'port',
-	    'relative',
-	    'path',
-	    'directory',
-	    'file',
-	    'query',
-	    'anchor'
-	  ],
-	  q: {
-	    name: 'queryKey',
-	    parser: /(?:^|&)([^&=]*)=?([^&]*)/g
-	  },
-	  parser: {
-	    strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
-	    loose: /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
-	  }
-	};
-	
-	function parseUri(str) {
-	  if (!isType(str, 'string')) {
-	    return undefined;
-	  }
-	
-	  var o = parseUriOptions;
-	  var m = o.parser[o.strictMode ? 'strict' : 'loose'].exec(str);
-	  var uri = {};
-	
-	  for (var i = 0, l = o.key.length; i < l; ++i) {
-	    uri[o.key[i]] = m[i] || '';
-	  }
-	
-	  uri[o.q.name] = {};
-	  uri[o.key[12]].replace(o.q.parser, function ($0, $1, $2) {
-	    if ($1) {
-	      uri[o.q.name][$1] = $2;
-	    }
-	  });
-	
-	  return uri;
-	}
-	
-	function addParamsAndAccessTokenToPath(accessToken, options, params) {
-	  params = params || {};
-	  params.access_token = accessToken;
-	  var paramsArray = [];
-	  var k;
-	  for (k in params) {
-	    if (Object.prototype.hasOwnProperty.call(params, k)) {
-	      paramsArray.push([k, params[k]].join('='));
-	    }
-	  }
-	  var query = '?' + paramsArray.sort().join('&');
-	
-	  options = options || {};
-	  options.path = options.path || '';
-	  var qs = options.path.indexOf('?');
-	  var h = options.path.indexOf('#');
-	  var p;
-	  if (qs !== -1 && (h === -1 || h > qs)) {
-	    p = options.path;
-	    options.path = p.substring(0,qs) + query + '&' + p.substring(qs+1);
-	  } else {
-	    if (h !== -1) {
-	      p = options.path;
-	      options.path = p.substring(0,h) + query + p.substring(h);
-	    } else {
-	      options.path = options.path + query;
-	    }
-	  }
-	}
-	
-	function formatUrl(u, protocol) {
-	  protocol = protocol || u.protocol;
-	  if (!protocol && u.port) {
-	    if (u.port === 80) {
-	      protocol = 'http:';
-	    } else if (u.port === 443) {
-	      protocol = 'https:';
-	    }
-	  }
-	  protocol = protocol || 'https:';
-	
-	  if (!u.hostname) {
-	    return null;
-	  }
-	  var result = protocol + '//' + u.hostname;
-	  if (u.port) {
-	    result = result + ':' + u.port;
-	  }
-	  if (u.path) {
-	    result = result + u.path;
-	  }
-	  return result;
-	}
-	
-	function stringify(obj, backup) {
-	  var value, error;
-	  try {
-	    value = RollbarJSON.stringify(obj);
-	  } catch (jsonError) {
-	    if (backup && isFunction(backup)) {
-	      try {
-	        value = backup(obj);
-	      } catch (backupError) {
-	        error = backupError;
-	      }
-	    } else {
-	      error = jsonError;
-	    }
-	  }
-	  return {error: error, value: value};
-	}
-	
-	function jsonParse(s) {
-	  var value, error;
-	  try {
-	    value = RollbarJSON.parse(s);
-	  } catch (e) {
-	    error = e;
-	  }
-	  return {error: error, value: value};
-	}
-	
-	function makeUnhandledStackInfo(
-	  message,
-	  url,
-	  lineno,
-	  colno,
-	  error,
-	  mode,
-	  backupMessage,
-	  errorParser
-	) {
-	  var location = {
-	    url: url || '',
-	    line: lineno,
-	    column: colno
-	  };
-	  location.func = errorParser.guessFunctionName(location.url, location.line);
-	  location.context = errorParser.gatherContext(location.url, location.line);
-	  var href = document && document.location && document.location.href;
-	  var useragent = window && window.navigator && window.navigator.userAgent;
-	  return {
-	    'mode': mode,
-	    'message': error ? String(error) : (message || backupMessage),
-	    'url': href,
-	    'stack': [location],
-	    'useragent': useragent
-	  };
-	}
-	
-	function wrapCallback(logger, f) {
-	  return function(err, resp) {
-	    try {
-	      f(err, resp);
-	    } catch (e) {
-	      logger.error(e);
-	    }
-	  };
-	}
-	
-	function createItem(args, logger, notifier, requestKeys, lambdaContext) {
-	  var message, err, custom, callback, request;
-	  var arg;
-	  var extraArgs = [];
-	
-	  for (var i = 0, l = args.length; i < l; ++i) {
-	    arg = args[i];
-	
-	    var typ = typeName(arg);
-	    switch (typ) {
-	      case 'undefined':
-	        break;
-	      case 'string':
-	        message ? extraArgs.push(arg) : message = arg;
-	        break;
-	      case 'function':
-	        callback = wrapCallback(logger, arg);
-	        break;
-	      case 'date':
-	        extraArgs.push(arg);
-	        break;
-	      case 'error':
-	      case 'domexception':
-	      case 'exception': // Firefox Exception type
-	        err ? extraArgs.push(arg) : err = arg;
-	        break;
-	      case 'object':
-	      case 'array':
-	        if (arg instanceof Error || (typeof DOMException !== 'undefined' && arg instanceof DOMException)) {
-	          err ? extraArgs.push(arg) : err = arg;
-	          break;
-	        }
-	        if (requestKeys && typ === 'object' && !request) {
-	          for (var j = 0, len = requestKeys.length; j < len; ++j) {
-	            if (arg[requestKeys[j]] !== undefined) {
-	              request = arg;
-	              break;
-	            }
-	          }
-	          if (request) {
-	            break;
-	          }
-	        }
-	        custom ? extraArgs.push(arg) : custom = arg;
-	        break;
-	      default:
-	        if (arg instanceof Error || (typeof DOMException !== 'undefined' && arg instanceof DOMException)) {
-	          err ? extraArgs.push(arg) : err = arg;
-	          break;
-	        }
-	        extraArgs.push(arg);
-	    }
-	  }
-	
-	  if (extraArgs.length > 0) {
-	    // if custom is an array this turns it into an object with integer keys
-	    custom = merge(custom);
-	    custom.extraArgs = extraArgs;
-	  }
-	
-	  var item = {
-	    message: message,
-	    err: err,
-	    custom: custom,
-	    timestamp: now(),
-	    callback: callback,
-	    uuid: uuid4()
-	  };
-	  if (custom && custom.level !== undefined) {
-	    item.level = custom.level;
-	    delete custom.level;
-	  }
-	  if (requestKeys && request) {
-	    item.request = request;
-	  }
-	  if (lambdaContext) {
-	    item.lambdaContext = lambdaContext;
-	  }
-	  item._originalArgs = args;
-	  return item;
-	}
-	
-	var TELEMETRY_TYPES = ['log', 'network', 'dom', 'navigation', 'error', 'manual'];
-	var TELEMETRY_LEVELS = ['critical', 'error', 'warning', 'info', 'debug'];
-	
-	function arrayIncludes(arr, val) {
-	  for (var k = 0; k < arr.length; ++k) {
-	    if (arr[k] === val) {
-	      return true;
-	    }
-	  }
-	
-	  return false;
-	}
-	
-	function createTelemetryEvent(args) {
-	  var type, metadata, level;
-	  var arg;
-	
-	  for (var i = 0, l = args.length; i < l; ++i) {
-	    arg = args[i];
-	
-	    var typ = typeName(arg);
-	    switch (typ) {
-	      case 'string':
-	        if (arrayIncludes(TELEMETRY_TYPES, arg)) {
-	          type = arg;
-	        } else if (arrayIncludes(TELEMETRY_LEVELS, arg)) {
-	          level = arg;
-	        }
-	        break;
-	      case 'object':
-	        metadata = arg;
-	        break;
-	      default:
-	        break;
-	    }
-	  }
-	  var event = {
-	    type: type || 'manual',
-	    metadata: metadata || {},
-	    level: level
-	  };
-	
-	  return event;
-	}
-	
-	/*
-	 * get - given an obj/array and a keypath, return the value at that keypath or
-	 *       undefined if not possible.
-	 *
-	 * @param obj - an object or array
-	 * @param path - a string of keys separated by '.' such as 'plugin.jquery.0.message'
-	 *    which would correspond to 42 in `{plugin: {jquery: [{message: 42}]}}`
-	 */
-	function get(obj, path) {
-	  if (!obj) {
-	    return undefined;
-	  }
-	  var keys = path.split('.');
-	  var result = obj;
-	  try {
-	    for (var i = 0, len = keys.length; i < len; ++i) {
-	      result = result[keys[i]];
-	    }
-	  } catch (e) {
-	    result = undefined;
-	  }
-	  return result;
-	}
-	
-	function set(obj, path, value) {
-	  if (!obj) {
-	    return;
-	  }
-	  var keys = path.split('.');
-	  var len = keys.length;
-	  if (len < 1) {
-	    return;
-	  }
-	  if (len === 1) {
-	    obj[keys[0]] = value;
-	    return;
-	  }
-	  try {
-	    var temp = obj[keys[0]] || {};
-	    var replacement = temp;
-	    for (var i = 1; i < len - 1; ++i) {
-	      temp[keys[i]] = temp[keys[i]] || {};
-	      temp = temp[keys[i]];
-	    }
-	    temp[keys[len-1]] = value;
-	    obj[keys[0]] = replacement;
-	  } catch (e) {
-	    return;
-	  }
-	}
-	
-	function scrub(data, scrubFields) {
-	  scrubFields = scrubFields || [];
-	  var paramRes = _getScrubFieldRegexs(scrubFields);
-	  var queryRes = _getScrubQueryParamRegexs(scrubFields);
-	
-	  function redactQueryParam(dummy0, paramPart) {
-	    return paramPart + redact();
-	  }
-	
-	  function paramScrubber(v) {
-	    var i;
-	    if (isType(v, 'string')) {
-	      for (i = 0; i < queryRes.length; ++i) {
-	        v = v.replace(queryRes[i], redactQueryParam);
-	      }
-	    }
-	    return v;
-	  }
-	
-	  function valScrubber(k, v) {
-	    var i;
-	    for (i = 0; i < paramRes.length; ++i) {
-	      if (paramRes[i].test(k)) {
-	        v = redact();
-	        break;
-	      }
-	    }
-	    return v;
-	  }
-	
-	  function scrubber(k, v, seen) {
-	    var tmpV = valScrubber(k, v);
-	    if (tmpV === v) {
-	      if (isType(v, 'object') || isType(v, 'array')) {
-	        return traverse(v, scrubber, seen);
-	      }
-	      return paramScrubber(tmpV);
-	    } else {
-	      return tmpV;
-	    }
-	  }
-	
-	  return traverse(data, scrubber, []);
-	}
-	
-	function _getScrubFieldRegexs(scrubFields) {
-	  var ret = [];
-	  var pat;
-	  for (var i = 0; i < scrubFields.length; ++i) {
-	    pat = '^\\[?(%5[bB])?' + scrubFields[i] + '\\[?(%5[bB])?\\]?(%5[dD])?$';
-	    ret.push(new RegExp(pat, 'i'));
-	  }
-	  return ret;
-	}
-	
-	
-	function _getScrubQueryParamRegexs(scrubFields) {
-	  var ret = [];
-	  var pat;
-	  for (var i = 0; i < scrubFields.length; ++i) {
-	    pat = '\\[?(%5[bB])?' + scrubFields[i] + '\\[?(%5[bB])?\\]?(%5[dD])?';
-	    ret.push(new RegExp('(' + pat + '=)([^&\\n]+)', 'igm'));
-	  }
-	  return ret;
-	}
-	
-	function formatArgsAsString(args) {
-	  var i, len, arg;
-	  var result = [];
-	  for (i = 0, len = args.length; i < len; ++i) {
-	    arg = args[i];
-	    switch (typeName(arg)) {
-	      case 'object':
-	        arg = stringify(arg);
-	        arg = arg.error || arg.value;
-	        if (arg.length > 500) {
-	          arg = arg.substr(0, 497) + '...';
-	        }
-	        break;
-	      case 'null':
-	        arg = 'null';
-	        break;
-	      case 'undefined':
-	        arg = 'undefined';
-	        break;
-	      case 'symbol':
-	        arg = arg.toString();
-	        break;
-	    }
-	    result.push(arg);
-	  }
-	  return result.join(' ');
-	}
-	
-	function now() {
-	  if (Date.now) {
-	    return +Date.now();
-	  }
-	  return +new Date();
-	}
-	
-	function filterIp(requestData, captureIp) {
-	  if (!requestData || !requestData['user_ip'] || captureIp === true) {
-	    return;
-	  }
-	  var newIp = requestData['user_ip'];
-	  if (!captureIp) {
-	    newIp = null;
-	  } else {
-	    try {
-	      var parts;
-	      if (newIp.indexOf('.') !== -1) {
-	        parts = newIp.split('.');
-	        parts.pop();
-	        parts.push('0');
-	        newIp = parts.join('.');
-	      } else if (newIp.indexOf(':') !== -1) {
-	        parts = newIp.split(':');
-	        if (parts.length > 2) {
-	          var beginning = parts.slice(0, 3);
-	          var slashIdx = beginning[2].indexOf('/');
-	          if (slashIdx !== -1) {
-	            beginning[2] = beginning[2].substring(0, slashIdx);
-	          }
-	          var terminal = '0000:0000:0000:0000:0000';
-	          newIp = beginning.concat(terminal).join(':');
-	        }
-	      } else {
-	        newIp = null;
-	      }
-	    } catch (e) {
-	      newIp = null;
-	    }
-	  }
-	  requestData['user_ip'] = newIp;
-	}
-	
-	function handleOptions(current, input, payload) {
-	  var result = merge(current, input, payload);
-	  if (!input || input.overwriteScrubFields) {
-	    return result;
-	  }
-	  if (input.scrubFields) {
-	    result.scrubFields = (current.scrubFields || []).concat(input.scrubFields);
-	  }
-	  return result;
-	}
-	
-	module.exports = {
-	  addParamsAndAccessTokenToPath: addParamsAndAccessTokenToPath,
-	  createItem: createItem,
-	  createTelemetryEvent: createTelemetryEvent,
-	  filterIp: filterIp,
-	  formatArgsAsString: formatArgsAsString,
-	  formatUrl: formatUrl,
-	  get: get,
-	  handleOptions: handleOptions,
-	  isError: isError,
-	  isFunction: isFunction,
-	  isIterable: isIterable,
-	  isNativeFunction: isNativeFunction,
-	  isType: isType,
-	  jsonParse: jsonParse,
-	  LEVELS: LEVELS,
-	  makeUnhandledStackInfo: makeUnhandledStackInfo,
-	  merge: merge,
-	  now: now,
-	  redact: redact,
-	  sanitizeUrl: sanitizeUrl,
-	  scrub: scrub,
-	  set: set,
-	  stringify: stringify,
-	  traverse: traverse,
-	  typeName: typeName,
-	  uuid4: uuid4
-	};
+var ErrorStackParser = __webpack_require__(21);
+
+var UNKNOWN_FUNCTION = '?';
+var ERR_CLASS_REGEXP = new RegExp('^(([a-zA-Z0-9-_$ ]*): *)?(Uncaught )?([a-zA-Z0-9-_$ ]*): ');
+
+function guessFunctionName() {
+  return UNKNOWN_FUNCTION;
+}
+
+
+function gatherContext() {
+  return null;
+}
+
+
+function Frame(stackFrame) {
+  var data = {};
+
+  data._stackFrame = stackFrame;
+
+  data.url = stackFrame.fileName;
+  data.line = stackFrame.lineNumber;
+  data.func = stackFrame.functionName;
+  data.column = stackFrame.columnNumber;
+  data.args = stackFrame.args;
+
+  data.context = gatherContext();
+
+  return data;
+}
+
+
+function Stack(exception) {
+  function getStack() {
+    var parserStack = [];
+    var exc;
+
+    if (!exception.stack) {
+      try {
+        throw exception;
+      } catch (e) {
+        exc = e;
+      }
+    } else {
+      exc = exception;
+    }
+
+    try {
+      parserStack = ErrorStackParser.parse(exc);
+    } catch(e) {
+      parserStack = [];
+    }
+
+    var stack = [];
+
+    for (var i = 0; i < parserStack.length; i++) {
+      stack.push(new Frame(parserStack[i]));
+    }
+
+    return stack;
+  }
+
+  var name = exception.constructor && exception.constructor.name;
+  if (!name || !name.length || name.length < 3) {
+    name = exception.name;
+  }
+
+  return {
+    stack: getStack(),
+    message: exception.message,
+    name: name,
+    rawStack: exception.stack,
+    rawException: exception
+  };
+}
+
+
+function parse(e) {
+  return new Stack(e);
+}
+
+
+function guessErrorClass(errMsg) {
+  if (!errMsg || !errMsg.match) {
+    return ['Unknown error. There was no error message to display.', ''];
+  }
+  var errClassMatch = errMsg.match(ERR_CLASS_REGEXP);
+  var errClass = '(unknown)';
+
+  if (errClassMatch) {
+    errClass = errClassMatch[errClassMatch.length - 1];
+    errMsg = errMsg.replace((errClassMatch[errClassMatch.length - 2] || '') + errClass + ':', '');
+    errMsg = errMsg.replace(/(^[\s]+|[\s]+$)/g, '');
+  }
+  return [errClass, errMsg];
+}
+
+
+module.exports = {
+  guessFunctionName: guessFunctionName,
+  guessErrorClass: guessErrorClass,
+  gatherContext: gatherContext,
+  parse: parse,
+  Stack: Stack,
+  Frame: Frame
+};
 
 
 /***/ }),
 /* 5 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-	'use strict';
-	
-	'use strict';
-	
-	var hasOwn = Object.prototype.hasOwnProperty;
-	var toStr = Object.prototype.toString;
-	
-	var isPlainObject = function isPlainObject(obj) {
-		if (!obj || toStr.call(obj) !== '[object Object]') {
-			return false;
-		}
-	
-		var hasOwnConstructor = hasOwn.call(obj, 'constructor');
-		var hasIsPrototypeOf = obj.constructor && obj.constructor.prototype && hasOwn.call(obj.constructor.prototype, 'isPrototypeOf');
-		// Not own constructor property must be Object
-		if (obj.constructor && !hasOwnConstructor && !hasIsPrototypeOf) {
-			return false;
-		}
-	
-		// Own properties are enumerated firstly, so to speed up,
-		// if last one is own, then all properties are own.
-		var key;
-		for (key in obj) {/**/}
-	
-		return typeof key === 'undefined' || hasOwn.call(obj, key);
-	};
-	
-	function merge() {
-	  var i, src, copy, clone, name,
-	      result = {},
-	     current = null,
-	      length = arguments.length;
-	
-	  for (i=0; i < length; i++) {
-	    current = arguments[i];
-	    if (current == null) {
-	      continue;
-	    }
-	
-	    for (name in current) {
-	      src = result[name];
-	      copy = current[name];
-	      if (result !== copy) {
-	        if (copy && isPlainObject(copy)) {
-	          clone = src && isPlainObject(src) ? src : {};
-	          result[name] = merge(clone, copy);
-	        } else if (typeof copy !== 'undefined') {
-	          result[name] = copy;
-	        }
-	      }
-	    }
-	  }
-	  return result;
-	}
-	
-	module.exports = merge;
+var rollbar = __webpack_require__(6);
+
+var options = (typeof window !== 'undefined') && window._rollbarConfig;
+var alias = options && options.globalAlias || 'Rollbar';
+var shimRunning = (typeof window !== 'undefined') && window[alias] && typeof window[alias].shimId === 'function' && window[alias].shimId() !== undefined;
+
+if ((typeof window !== 'undefined') && !window._rollbarStartTime) {
+  window._rollbarStartTime = (new Date()).getTime();
+}
+
+if (!shimRunning && options) {
+  var Rollbar = new rollbar(options);
+  window[alias] = Rollbar;
+} else if (typeof window !== 'undefined') {
+  window.rollbar = rollbar;
+  window._rollbarDidLoad = true;
+} else if (typeof self !== 'undefined') {
+  self.rollbar = rollbar;
+  self._rollbarDidLoad = true;
+}
+
+module.exports = rollbar;
 
 
 /***/ }),
 /* 6 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-	//  json3.js
-	//  2017-02-21
-	//  Public Domain.
-	//  NO WARRANTY EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
-	//  See http://www.JSON.org/js.html
-	//  This code should be minified before deployment.
-	//  See http://javascript.crockford.com/jsmin.html
-	
-	//  USE YOUR OWN COPY. IT IS EXTREMELY UNWISE TO LOAD CODE FROM SERVERS YOU DO
-	//  NOT CONTROL.
-	
-	//  This file creates a global JSON object containing two methods: stringify
-	//  and parse. This file provides the ES5 JSON capability to ES3 systems.
-	//  If a project might run on IE8 or earlier, then this file should be included.
-	//  This file does nothing on ES5 systems.
-	
-	//      JSON.stringify(value, replacer, space)
-	//          value       any JavaScript value, usually an object or array.
-	//          replacer    an optional parameter that determines how object
-	//                      values are stringified for objects. It can be a
-	//                      function or an array of strings.
-	//          space       an optional parameter that specifies the indentation
-	//                      of nested structures. If it is omitted, the text will
-	//                      be packed without extra whitespace. If it is a number,
-	//                      it will specify the number of spaces to indent at each
-	//                      level. If it is a string (such as "\t" or "&nbsp;"),
-	//                      it contains the characters used to indent at each level.
-	//          This method produces a JSON text from a JavaScript value.
-	//          When an object value is found, if the object contains a toJSON
-	//          method, its toJSON method will be called and the result will be
-	//          stringified. A toJSON method does not serialize: it returns the
-	//          value represented by the name/value pair that should be serialized,
-	//          or undefined if nothing should be serialized. The toJSON method
-	//          will be passed the key associated with the value, and this will be
-	//          bound to the value.
-	
-	//          For example, this would serialize Dates as ISO strings.
-	
-	//              Date.prototype.toJSON = function (key) {
-	//                  function f(n) {
-	//                      // Format integers to have at least two digits.
-	//                      return (n < 10)
-	//                          ? "0" + n
-	//                          : n;
-	//                  }
-	//                  return this.getUTCFullYear()   + "-" +
-	//                       f(this.getUTCMonth() + 1) + "-" +
-	//                       f(this.getUTCDate())      + "T" +
-	//                       f(this.getUTCHours())     + ":" +
-	//                       f(this.getUTCMinutes())   + ":" +
-	//                       f(this.getUTCSeconds())   + "Z";
-	//              };
-	
-	//          You can provide an optional replacer method. It will be passed the
-	//          key and value of each member, with this bound to the containing
-	//          object. The value that is returned from your method will be
-	//          serialized. If your method returns undefined, then the member will
-	//          be excluded from the serialization.
-	
-	//          If the replacer parameter is an array of strings, then it will be
-	//          used to select the members to be serialized. It filters the results
-	//          such that only members with keys listed in the replacer array are
-	//          stringified.
-	
-	//          Values that do not have JSON representations, such as undefined or
-	//          functions, will not be serialized. Such values in objects will be
-	//          dropped; in arrays they will be replaced with null. You can use
-	//          a replacer function to replace those with JSON values.
-	
-	//          JSON.stringify(undefined) returns undefined.
-	
-	//          The optional space parameter produces a stringification of the
-	//          value that is filled with line breaks and indentation to make it
-	//          easier to read.
-	
-	//          If the space parameter is a non-empty string, then that string will
-	//          be used for indentation. If the space parameter is a number, then
-	//          the indentation will be that many spaces.
-	
-	//          Example:
-	
-	//          text = JSON.stringify(["e", {pluribus: "unum"}]);
-	//          // text is '["e",{"pluribus":"unum"}]'
-	
-	//          text = JSON.stringify(["e", {pluribus: "unum"}], null, "\t");
-	//          // text is '[\n\t"e",\n\t{\n\t\t"pluribus": "unum"\n\t}\n]'
-	
-	//          text = JSON.stringify([new Date()], function (key, value) {
-	//              return this[key] instanceof Date
-	//                  ? "Date(" + this[key] + ")"
-	//                  : value;
-	//          });
-	//          // text is '["Date(---current time---)"]'
-	
-	//      JSON.parse(text, reviver)
-	//          This method parses a JSON text to produce an object or array.
-	//          It can throw a SyntaxError exception.
-	//          This has been modified to use JSON-js/json_parse_state.js as the
-	//          parser instead of the one built around eval found in JSON-js/json2.js
-	
-	//          The optional reviver parameter is a function that can filter and
-	//          transform the results. It receives each of the keys and values,
-	//          and its return value is used instead of the original value.
-	//          If it returns what it received, then the structure is not modified.
-	//          If it returns undefined then the member is deleted.
-	
-	//          Example:
-	
-	//          // Parse the text. Values that look like ISO date strings will
-	//          // be converted to Date objects.
-	
-	//          myData = JSON.parse(text, function (key, value) {
-	//              var a;
-	//              if (typeof value === "string") {
-	//                  a =
-	//   /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/.exec(value);
-	//                  if (a) {
-	//                      return new Date(Date.UTC(+a[1], +a[2] - 1, +a[3], +a[4],
-	//                          +a[5], +a[6]));
-	//                  }
-	//              }
-	//              return value;
-	//          });
-	
-	//          myData = JSON.parse('["Date(09/09/2001)"]', function (key, value) {
-	//              var d;
-	//              if (typeof value === "string" &&
-	//                      value.slice(0, 5) === "Date(" &&
-	//                      value.slice(-1) === ")") {
-	//                  d = new Date(value.slice(5, -1));
-	//                  if (d) {
-	//                      return d;
-	//                  }
-	//              }
-	//              return value;
-	//          });
-	
-	//  This is a reference implementation. You are free to copy, modify, or
-	//  redistribute.
-	
-	/*jslint
-	  for, this
-	  */
-	
-	/*property
-	  JSON, apply, call, charCodeAt, getUTCDate, getUTCFullYear, getUTCHours,
-	  getUTCMinutes, getUTCMonth, getUTCSeconds, hasOwnProperty, join,
-	  lastIndex, length, parse, prototype, push, replace, slice, stringify,
-	  test, toJSON, toString, valueOf
-	  */
-	
-	var setupCustomJSON = function(JSON) {
-	
-	  var rx_one = /^[\],:{}\s]*$/;
-	  var rx_two = /\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g;
-	  var rx_three = /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g;
-	  var rx_four = /(?:^|:|,)(?:\s*\[)+/g;
-	  var rx_escapable = /[\\"\u0000-\u001f\u007f-\u009f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
-	  var rx_dangerous = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
-	
-	  function f(n) {
-	    // Format integers to have at least two digits.
-	    return n < 10
-	      ? "0" + n
-	      : n;
-	  }
-	
-	  function this_value() {
-	    return this.valueOf();
-	  }
-	
-	  if (typeof Date.prototype.toJSON !== "function") {
-	
-	    Date.prototype.toJSON = function () {
-	
-	      return isFinite(this.valueOf())
-	        ? this.getUTCFullYear() + "-" +
-	        f(this.getUTCMonth() + 1) + "-" +
-	        f(this.getUTCDate()) + "T" +
-	        f(this.getUTCHours()) + ":" +
-	        f(this.getUTCMinutes()) + ":" +
-	        f(this.getUTCSeconds()) + "Z"
-	        : null;
-	    };
-	
-	    Boolean.prototype.toJSON = this_value;
-	    Number.prototype.toJSON = this_value;
-	    String.prototype.toJSON = this_value;
-	  }
-	
-	  var gap;
-	  var indent;
-	  var meta;
-	  var rep;
-	
-	
-	  function quote(string) {
-	
-	    // If the string contains no control characters, no quote characters, and no
-	    // backslash characters, then we can safely slap some quotes around it.
-	    // Otherwise we must also replace the offending characters with safe escape
-	    // sequences.
-	
-	    rx_escapable.lastIndex = 0;
-	    return rx_escapable.test(string)
-	      ? "\"" + string.replace(rx_escapable, function (a) {
-	        var c = meta[a];
-	        return typeof c === "string"
-	          ? c
-	          : "\\u" + ("0000" + a.charCodeAt(0).toString(16)).slice(-4);
-	      }) + "\""
-	    : "\"" + string + "\"";
-	  }
-	
-	
-	  function str(key, holder) {
-	
-	    // Produce a string from holder[key].
-	
-	    var i;          // The loop counter.
-	    var k;          // The member key.
-	    var v;          // The member value.
-	    var length;
-	    var mind = gap;
-	    var partial;
-	    var value = holder[key];
-	
-	    // If the value has a toJSON method, call it to obtain a replacement value.
-	
-	    if (value && typeof value === "object" &&
-	        typeof value.toJSON === "function") {
-	      value = value.toJSON(key);
-	    }
-	
-	    // If we were called with a replacer function, then call the replacer to
-	    // obtain a replacement value.
-	
-	    if (typeof rep === "function") {
-	      value = rep.call(holder, key, value);
-	    }
-	
-	    // What happens next depends on the value's type.
-	
-	    switch (typeof value) {
-	      case "string":
-	        return quote(value);
-	
-	      case "number":
-	
-	        // JSON numbers must be finite. Encode non-finite numbers as null.
-	
-	        return isFinite(value)
-	          ? String(value)
-	          : "null";
-	
-	      case "boolean":
-	      case "null":
-	
-	        // If the value is a boolean or null, convert it to a string. Note:
-	        // typeof null does not produce "null". The case is included here in
-	        // the remote chance that this gets fixed someday.
-	
-	        return String(value);
-	
-	        // If the type is "object", we might be dealing with an object or an array or
-	        // null.
-	
-	      case "object":
-	
-	        // Due to a specification blunder in ECMAScript, typeof null is "object",
-	        // so watch out for that case.
-	
-	        if (!value) {
-	          return "null";
-	        }
-	
-	        // Make an array to hold the partial results of stringifying this object value.
-	
-	        gap += indent;
-	        partial = [];
-	
-	        // Is the value an array?
-	
-	        if (Object.prototype.toString.apply(value) === "[object Array]") {
-	
-	          // The value is an array. Stringify every element. Use null as a placeholder
-	          // for non-JSON values.
-	
-	          length = value.length;
-	          for (i = 0; i < length; i += 1) {
-	            partial[i] = str(i, value) || "null";
-	          }
-	
-	          // Join all of the elements together, separated with commas, and wrap them in
-	          // brackets.
-	
-	          v = partial.length === 0
-	            ? "[]"
-	            : gap
-	            ? "[\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "]"
-	            : "[" + partial.join(",") + "]";
-	          gap = mind;
-	          return v;
-	        }
-	
-	        // If the replacer is an array, use it to select the members to be stringified.
-	
-	        if (rep && typeof rep === "object") {
-	          length = rep.length;
-	          for (i = 0; i < length; i += 1) {
-	            if (typeof rep[i] === "string") {
-	              k = rep[i];
-	              v = str(k, value);
-	              if (v) {
-	                partial.push(quote(k) + (
-	                      gap
-	                      ? ": "
-	                      : ":"
-	                      ) + v);
-	              }
-	            }
-	          }
-	        } else {
-	
-	          // Otherwise, iterate through all of the keys in the object.
-	
-	          for (k in value) {
-	            if (Object.prototype.hasOwnProperty.call(value, k)) {
-	              v = str(k, value);
-	              if (v) {
-	                partial.push(quote(k) + (
-	                      gap
-	                      ? ": "
-	                      : ":"
-	                      ) + v);
-	              }
-	            }
-	          }
-	        }
-	
-	        // Join all of the member texts together, separated with commas,
-	        // and wrap them in braces.
-	
-	        v = partial.length === 0
-	          ? "{}"
-	          : gap
-	          ? "{\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "}"
-	          : "{" + partial.join(",") + "}";
-	        gap = mind;
-	        return v;
-	    }
-	  }
-	
-	  // If the JSON object does not yet have a stringify method, give it one.
-	
-	  if (typeof JSON.stringify !== "function") {
-	    meta = {    // table of character substitutions
-	      "\b": "\\b",
-	      "\t": "\\t",
-	      "\n": "\\n",
-	      "\f": "\\f",
-	      "\r": "\\r",
-	      "\"": "\\\"",
-	      "\\": "\\\\"
-	    };
-	    JSON.stringify = function (value, replacer, space) {
-	
-	      // The stringify method takes a value and an optional replacer, and an optional
-	      // space parameter, and returns a JSON text. The replacer can be a function
-	      // that can replace values, or an array of strings that will select the keys.
-	      // A default replacer method can be provided. Use of the space parameter can
-	      // produce text that is more easily readable.
-	
-	      var i;
-	      gap = "";
-	      indent = "";
-	
-	      // If the space parameter is a number, make an indent string containing that
-	      // many spaces.
-	
-	      if (typeof space === "number") {
-	        for (i = 0; i < space; i += 1) {
-	          indent += " ";
-	        }
-	
-	        // If the space parameter is a string, it will be used as the indent string.
-	
-	      } else if (typeof space === "string") {
-	        indent = space;
-	      }
-	
-	      // If there is a replacer, it must be a function or an array.
-	      // Otherwise, throw an error.
-	
-	      rep = replacer;
-	      if (replacer && typeof replacer !== "function" &&
-	          (typeof replacer !== "object" ||
-	           typeof replacer.length !== "number")) {
-	        throw new Error("JSON.stringify");
-	      }
-	
-	      // Make a fake root object containing our value under the key of "".
-	      // Return the result of stringifying the value.
-	
-	      return str("", {"": value});
-	    };
-	  }
-	
-	
-	  // If the JSON object does not yet have a parse method, give it one.
-	
-	  if (typeof JSON.parse !== "function") {
-	    JSON.parse = (function () {
-	
-	      // This function creates a JSON parse function that uses a state machine rather
-	      // than the dangerous eval function to parse a JSON text.
-	
-	      var state;      // The state of the parser, one of
-	      // 'go'         The starting state
-	      // 'ok'         The final, accepting state
-	      // 'firstokey'  Ready for the first key of the object or
-	      //              the closing of an empty object
-	      // 'okey'       Ready for the next key of the object
-	      // 'colon'      Ready for the colon
-	      // 'ovalue'     Ready for the value half of a key/value pair
-	      // 'ocomma'     Ready for a comma or closing }
-	      // 'firstavalue' Ready for the first value of an array or
-	      //              an empty array
-	      // 'avalue'     Ready for the next value of an array
-	      // 'acomma'     Ready for a comma or closing ]
-	      var stack;      // The stack, for controlling nesting.
-	      var container;  // The current container object or array
-	      var key;        // The current key
-	      var value;      // The current value
-	      var escapes = { // Escapement translation table
-	        "\\": "\\",
-	        "\"": "\"",
-	        "/": "/",
-	        "t": "\t",
-	        "n": "\n",
-	        "r": "\r",
-	        "f": "\f",
-	        "b": "\b"
-	      };
-	      var string = {   // The actions for string tokens
-	        go: function () {
-	          state = "ok";
-	        },
-	        firstokey: function () {
-	          key = value;
-	          state = "colon";
-	        },
-	        okey: function () {
-	          key = value;
-	          state = "colon";
-	        },
-	        ovalue: function () {
-	          state = "ocomma";
-	        },
-	        firstavalue: function () {
-	          state = "acomma";
-	        },
-	        avalue: function () {
-	          state = "acomma";
-	        }
-	      };
-	      var number = {   // The actions for number tokens
-	        go: function () {
-	          state = "ok";
-	        },
-	        ovalue: function () {
-	          state = "ocomma";
-	        },
-	        firstavalue: function () {
-	          state = "acomma";
-	        },
-	        avalue: function () {
-	          state = "acomma";
-	        }
-	      };
-	      var action = {
-	
-	        // The action table describes the behavior of the machine. It contains an
-	        // object for each token. Each object contains a method that is called when
-	        // a token is matched in a state. An object will lack a method for illegal
-	        // states.
-	
-	        "{": {
-	          go: function () {
-	            stack.push({state: "ok"});
-	            container = {};
-	            state = "firstokey";
-	          },
-	          ovalue: function () {
-	            stack.push({container: container, state: "ocomma", key: key});
-	            container = {};
-	            state = "firstokey";
-	          },
-	          firstavalue: function () {
-	            stack.push({container: container, state: "acomma"});
-	            container = {};
-	            state = "firstokey";
-	          },
-	          avalue: function () {
-	            stack.push({container: container, state: "acomma"});
-	            container = {};
-	            state = "firstokey";
-	          }
-	        },
-	        "}": {
-	          firstokey: function () {
-	            var pop = stack.pop();
-	            value = container;
-	            container = pop.container;
-	            key = pop.key;
-	            state = pop.state;
-	          },
-	          ocomma: function () {
-	            var pop = stack.pop();
-	            container[key] = value;
-	            value = container;
-	            container = pop.container;
-	            key = pop.key;
-	            state = pop.state;
-	          }
-	        },
-	        "[": {
-	          go: function () {
-	            stack.push({state: "ok"});
-	            container = [];
-	            state = "firstavalue";
-	          },
-	          ovalue: function () {
-	            stack.push({container: container, state: "ocomma", key: key});
-	            container = [];
-	            state = "firstavalue";
-	          },
-	          firstavalue: function () {
-	            stack.push({container: container, state: "acomma"});
-	            container = [];
-	            state = "firstavalue";
-	          },
-	          avalue: function () {
-	            stack.push({container: container, state: "acomma"});
-	            container = [];
-	            state = "firstavalue";
-	          }
-	        },
-	        "]": {
-	          firstavalue: function () {
-	            var pop = stack.pop();
-	            value = container;
-	            container = pop.container;
-	            key = pop.key;
-	            state = pop.state;
-	          },
-	          acomma: function () {
-	            var pop = stack.pop();
-	            container.push(value);
-	            value = container;
-	            container = pop.container;
-	            key = pop.key;
-	            state = pop.state;
-	          }
-	        },
-	        ":": {
-	          colon: function () {
-	            if (Object.hasOwnProperty.call(container, key)) {
-	              throw new SyntaxError("Duplicate key '" + key + "\"");
-	            }
-	            state = "ovalue";
-	          }
-	        },
-	        ",": {
-	          ocomma: function () {
-	            container[key] = value;
-	            state = "okey";
-	          },
-	          acomma: function () {
-	            container.push(value);
-	            state = "avalue";
-	          }
-	        },
-	        "true": {
-	          go: function () {
-	            value = true;
-	            state = "ok";
-	          },
-	          ovalue: function () {
-	            value = true;
-	            state = "ocomma";
-	          },
-	          firstavalue: function () {
-	            value = true;
-	            state = "acomma";
-	          },
-	          avalue: function () {
-	            value = true;
-	            state = "acomma";
-	          }
-	        },
-	        "false": {
-	          go: function () {
-	            value = false;
-	            state = "ok";
-	          },
-	          ovalue: function () {
-	            value = false;
-	            state = "ocomma";
-	          },
-	          firstavalue: function () {
-	            value = false;
-	            state = "acomma";
-	          },
-	          avalue: function () {
-	            value = false;
-	            state = "acomma";
-	          }
-	        },
-	        "null": {
-	          go: function () {
-	            value = null;
-	            state = "ok";
-	          },
-	          ovalue: function () {
-	            value = null;
-	            state = "ocomma";
-	          },
-	          firstavalue: function () {
-	            value = null;
-	            state = "acomma";
-	          },
-	          avalue: function () {
-	            value = null;
-	            state = "acomma";
-	          }
-	        }
-	      };
-	
-	      function debackslashify(text) {
-	
-	        // Remove and replace any backslash escapement.
-	
-	        return text.replace(/\\(?:u(.{4})|([^u]))/g, function (ignore, b, c) {
-	          return b
-	            ? String.fromCharCode(parseInt(b, 16))
-	            : escapes[c];
-	        });
-	      }
-	
-	      return function (source, reviver) {
-	
-	        // A regular expression is used to extract tokens from the JSON text.
-	        // The extraction process is cautious.
-	
-	        var result;
-	        var tx = /^[\u0020\t\n\r]*(?:([,:\[\]{}]|true|false|null)|(-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)|"((?:[^\r\n\t\\\"]|\\(?:["\\\/trnfb]|u[0-9a-fA-F]{4}))*)")/;
-	
-	        // Set the starting state.
-	
-	        state = "go";
-	
-	        // The stack records the container, key, and state for each object or array
-	        // that contains another object or array while processing nested structures.
-	
-	        stack = [];
-	
-	        // If any error occurs, we will catch it and ultimately throw a syntax error.
-	
-	        try {
-	
-	          // For each token...
-	
-	          while (true) {
-	            result = tx.exec(source);
-	            if (!result) {
-	              break;
-	            }
-	
-	            // result is the result array from matching the tokenizing regular expression.
-	            //  result[0] contains everything that matched, including any initial whitespace.
-	            //  result[1] contains any punctuation that was matched, or true, false, or null.
-	            //  result[2] contains a matched number, still in string form.
-	            //  result[3] contains a matched string, without quotes but with escapement.
-	
-	            if (result[1]) {
-	
-	              // Token: Execute the action for this state and token.
-	
-	              action[result[1]][state]();
-	
-	            } else if (result[2]) {
-	
-	              // Number token: Convert the number string into a number value and execute
-	              // the action for this state and number.
-	
-	              value = +result[2];
-	              number[state]();
-	            } else {
-	
-	              // String token: Replace the escapement sequences and execute the action for
-	              // this state and string.
-	
-	              value = debackslashify(result[3]);
-	              string[state]();
-	            }
-	
-	            // Remove the token from the string. The loop will continue as long as there
-	            // are tokens. This is a slow process, but it allows the use of ^ matching,
-	            // which assures that no illegal tokens slip through.
-	
-	            source = source.slice(result[0].length);
-	          }
-	
-	          // If we find a state/token combination that is illegal, then the action will
-	          // cause an error. We handle the error by simply changing the state.
-	
-	        } catch (e) {
-	          state = e;
-	        }
-	
-	        // The parsing is finished. If we are not in the final "ok" state, or if the
-	        // remaining source contains anything except whitespace, then we did not have
-	        //a well-formed JSON text.
-	
-	        if (state !== "ok" || (/[^\u0020\t\n\r]/.test(source))) {
-	          throw (state instanceof SyntaxError)
-	            ? state
-	            : new SyntaxError("JSON");
-	        }
-	
-	        // If there is a reviver function, we recursively walk the new structure,
-	        // passing each name/value pair to the reviver function for possible
-	        // transformation, starting with a temporary root object that holds the current
-	        // value in an empty key. If there is not a reviver function, we simply return
-	        // that value.
-	
-	        return (typeof reviver === "function")
-	          ? (function walk(holder, key) {
-	            var k;
-	            var v;
-	            var val = holder[key];
-	            if (val && typeof val === "object") {
-	              for (k in value) {
-	                if (Object.prototype.hasOwnProperty.call(val, k)) {
-	                  v = walk(val, k);
-	                  if (v !== undefined) {
-	                    val[k] = v;
-	                  } else {
-	                    delete val[k];
-	                  }
-	                }
-	              }
-	            }
-	            return reviver.call(holder, key, val);
-	          }({"": value}, ""))
-	        : value;
-	      };
-	    }());
-	  }
-	}
-	
-	module.exports = setupCustomJSON;
+var Client = __webpack_require__(7);
+var _ = __webpack_require__(0);
+var API = __webpack_require__(14);
+var logger = __webpack_require__(1);
+var globals = __webpack_require__(18);
+
+var transport = __webpack_require__(19);
+var urllib = __webpack_require__(3);
+
+var transforms = __webpack_require__(20);
+var sharedTransforms = __webpack_require__(23);
+var predicates = __webpack_require__(24);
+var sharedPredicates = __webpack_require__(25);
+var errorParser = __webpack_require__(4);
+var Instrumenter = __webpack_require__(26);
+
+function Rollbar(options, client) {
+  this.options = _.handleOptions(defaultOptions, options);
+  var api = new API(this.options, transport, urllib);
+  this.client = client || new Client(this.options, api, logger, 'browser');
+
+  var gWindow = _gWindow();
+  var gDocument = (typeof document != 'undefined') && document;
+  addTransformsToNotifier(this.client.notifier, gWindow);
+  addPredicatesToQueue(this.client.queue);
+  this.setupUnhandledCapture();
+  this.instrumenter = new Instrumenter(this.options, this.client.telemeter, this, gWindow, gDocument);
+  this.instrumenter.instrument();
+}
+
+var _instance = null;
+Rollbar.init = function(options, client) {
+  if (_instance) {
+    return _instance.global(options).configure(options);
+  }
+  _instance = new Rollbar(options, client);
+  return _instance;
+};
+
+function handleUninitialized(maybeCallback) {
+  var message = 'Rollbar is not initialized';
+  logger.error(message);
+  if (maybeCallback) {
+    maybeCallback(new Error(message));
+  }
+}
+
+Rollbar.prototype.global = function(options) {
+  this.client.global(options);
+  return this;
+};
+Rollbar.global = function(options) {
+  if (_instance) {
+    return _instance.global(options);
+  } else {
+    handleUninitialized();
+  }
+};
+
+Rollbar.prototype.configure = function(options, payloadData) {
+  var oldOptions = this.options;
+  var payload = {};
+  if (payloadData) {
+    payload = {payload: payloadData};
+  }
+  this.options = _.handleOptions(oldOptions, options, payload);
+  this.client.configure(this.options, payloadData);
+  this.instrumenter.configure(this.options);
+  this.setupUnhandledCapture();
+  return this;
+};
+Rollbar.configure = function(options, payloadData) {
+  if (_instance) {
+    return _instance.configure(options, payloadData);
+  } else {
+    handleUninitialized();
+  }
+};
+
+Rollbar.prototype.lastError = function() {
+  return this.client.lastError;
+};
+Rollbar.lastError = function() {
+  if (_instance) {
+    return _instance.lastError();
+  } else {
+    handleUninitialized();
+  }
+};
+
+Rollbar.prototype.log = function() {
+  var item = this._createItem(arguments);
+  var uuid = item.uuid;
+  this.client.log(item);
+  return {uuid: uuid};
+};
+Rollbar.log = function() {
+  if (_instance) {
+    return _instance.log.apply(_instance, arguments);
+  } else {
+    var maybeCallback = _getFirstFunction(arguments);
+    handleUninitialized(maybeCallback);
+  }
+};
+
+Rollbar.prototype.debug = function() {
+  var item = this._createItem(arguments);
+  var uuid = item.uuid;
+  this.client.debug(item);
+  return {uuid: uuid};
+};
+Rollbar.debug = function() {
+  if (_instance) {
+    return _instance.debug.apply(_instance, arguments);
+  } else {
+    var maybeCallback = _getFirstFunction(arguments);
+    handleUninitialized(maybeCallback);
+  }
+};
+
+Rollbar.prototype.info = function() {
+  var item = this._createItem(arguments);
+  var uuid = item.uuid;
+  this.client.info(item);
+  return {uuid: uuid};
+};
+Rollbar.info = function() {
+  if (_instance) {
+    return _instance.info.apply(_instance, arguments);
+  } else {
+    var maybeCallback = _getFirstFunction(arguments);
+    handleUninitialized(maybeCallback);
+  }
+};
+
+Rollbar.prototype.warn = function() {
+  var item = this._createItem(arguments);
+  var uuid = item.uuid;
+  this.client.warn(item);
+  return {uuid: uuid};
+};
+Rollbar.warn = function() {
+  if (_instance) {
+    return _instance.warn.apply(_instance, arguments);
+  } else {
+    var maybeCallback = _getFirstFunction(arguments);
+    handleUninitialized(maybeCallback);
+  }
+};
+
+Rollbar.prototype.warning = function() {
+  var item = this._createItem(arguments);
+  var uuid = item.uuid;
+  this.client.warning(item);
+  return {uuid: uuid};
+};
+Rollbar.warning = function() {
+  if (_instance) {
+    return _instance.warning.apply(_instance, arguments);
+  } else {
+    var maybeCallback = _getFirstFunction(arguments);
+    handleUninitialized(maybeCallback);
+  }
+};
+
+Rollbar.prototype.error = function() {
+  var item = this._createItem(arguments);
+  var uuid = item.uuid;
+  this.client.error(item);
+  return {uuid: uuid};
+};
+Rollbar.error = function() {
+  if (_instance) {
+    return _instance.error.apply(_instance, arguments);
+  } else {
+    var maybeCallback = _getFirstFunction(arguments);
+    handleUninitialized(maybeCallback);
+  }
+};
+
+Rollbar.prototype.critical = function() {
+  var item = this._createItem(arguments);
+  var uuid = item.uuid;
+  this.client.critical(item);
+  return {uuid: uuid};
+};
+Rollbar.critical = function() {
+  if (_instance) {
+    return _instance.critical.apply(_instance, arguments);
+  } else {
+    var maybeCallback = _getFirstFunction(arguments);
+    handleUninitialized(maybeCallback);
+  }
+};
+
+Rollbar.prototype.buildJsonPayload = function(item) {
+  return this.client.buildJsonPayload(item);
+};
+Rollbar.buildJsonPayload = function() {
+  if (_instance) {
+    return _instance.buildJsonPayload.apply(_instance, arguments);
+  } else {
+    handleUninitialized();
+  }
+};
+
+Rollbar.prototype.sendJsonPayload = function(jsonPayload) {
+  return this.client.sendJsonPayload(jsonPayload);
+};
+Rollbar.sendJsonPayload = function() {
+  if (_instance) {
+    return _instance.sendJsonPayload.apply(_instance, arguments);
+  } else {
+    handleUninitialized();
+  }
+};
+
+Rollbar.prototype.setupUnhandledCapture = function() {
+  var gWindow = _gWindow();
+
+  if (!this.unhandledExceptionsInitialized) {
+    if (this.options.captureUncaught || this.options.handleUncaughtExceptions) {
+      globals.captureUncaughtExceptions(gWindow, this);
+      globals.wrapGlobals(gWindow, this);
+      this.unhandledExceptionsInitialized = true;
+    }
+  }
+  if (!this.unhandledRejectionsInitialized) {
+    if (this.options.captureUnhandledRejections || this.options.handleUnhandledRejections) {
+      globals.captureUnhandledRejections(gWindow, this);
+      this.unhandledRejectionsInitialized = true;
+    }
+  }
+};
+
+Rollbar.prototype.handleUncaughtException = function(message, url, lineno, colno, error, context) {
+  if (!this.options.captureUncaught && !this.options.handleUncaughtExceptions) {
+    return;
+  }
+
+  var item;
+  var stackInfo = _.makeUnhandledStackInfo(
+    message,
+    url,
+    lineno,
+    colno,
+    error,
+    'onerror',
+    'uncaught exception',
+    errorParser
+  );
+  if (_.isError(error)) {
+    item = this._createItem([message, error, context]);
+    item._unhandledStackInfo = stackInfo;
+  } else if (_.isError(url)) {
+    item = this._createItem([message, url, context]);
+    item._unhandledStackInfo = stackInfo;
+  } else {
+    item = this._createItem([message, context]);
+    item.stackInfo = stackInfo;
+  }
+  item.level = this.options.uncaughtErrorLevel;
+  item._isUncaught = true;
+  this.client.log(item);
+};
+
+Rollbar.prototype.handleUnhandledRejection = function(reason, promise) {
+  if (!this.options.captureUnhandledRejections && !this.options.handleUnhandledRejections) {
+    return;
+  }
+
+  var message = 'unhandled rejection was null or undefined!';
+  if (reason) {
+    if (reason.message) {
+      message = reason.message;
+    } else {
+      var reasonResult = _.stringify(reason);
+      if (reasonResult.value) {
+        message = reasonResult.value;
+      }
+    }
+  }
+  var context = (reason && reason._rollbarContext) || (promise && promise._rollbarContext);
+
+  var item;
+  if (_.isError(reason)) {
+    item = this._createItem([message, reason, context]);
+  } else {
+    item = this._createItem([message, reason, context]);
+    item.stackInfo = _.makeUnhandledStackInfo(
+      message,
+      '',
+      0,
+      0,
+      null,
+      'unhandledrejection',
+      '',
+      errorParser
+    );
+  }
+  item.level = this.options.uncaughtErrorLevel;
+  item._isUncaught = true;
+  item._originalArgs = item._originalArgs || [];
+  item._originalArgs.push(promise);
+  this.client.log(item);
+};
+
+Rollbar.prototype.wrap = function(f, context, _before) {
+  try {
+    var ctxFn;
+    if(_.isFunction(context)) {
+      ctxFn = context;
+    } else {
+      ctxFn = function() { return context || {}; };
+    }
+
+    if (!_.isFunction(f)) {
+      return f;
+    }
+
+    if (f._isWrap) {
+      return f;
+    }
+
+    if (!f._rollbar_wrapped) {
+      f._rollbar_wrapped = function () {
+        if (_before && _.isFunction(_before)) {
+          _before.apply(this, arguments);
+        }
+        try {
+          return f.apply(this, arguments);
+        } catch(exc) {
+          var e = exc;
+          if (e && window._rollbarWrappedError !== e) {
+            if (_.isType(e, 'string')) {
+              e = new String(e);
+            }
+            e._rollbarContext = ctxFn() || {};
+            e._rollbarContext._wrappedSource = f.toString();
+
+            window._rollbarWrappedError = e;
+          }
+          throw e;
+        }
+      };
+
+      f._rollbar_wrapped._isWrap = true;
+
+      if (f.hasOwnProperty) {
+        for (var prop in f) {
+          if (f.hasOwnProperty(prop) && prop !== '_rollbar_wrapped') {
+            f._rollbar_wrapped[prop] = f[prop];
+          }
+        }
+      }
+    }
+
+    return f._rollbar_wrapped;
+  } catch (e) {
+    // Return the original function if the wrap fails.
+    return f;
+  }
+};
+Rollbar.wrap = function(f, context) {
+  if (_instance) {
+    return _instance.wrap(f, context);
+  } else {
+    handleUninitialized();
+  }
+};
+
+Rollbar.prototype.captureEvent = function() {
+  var event = _.createTelemetryEvent(arguments);
+  return this.client.captureEvent(event.type, event.metadata, event.level);
+};
+Rollbar.captureEvent = function() {
+  if (_instance) {
+    return _instance.captureEvent.apply(_instance, arguments);
+  } else {
+    handleUninitialized();
+  }
+};
+
+// The following two methods are used internally and are not meant for public use
+Rollbar.prototype.captureDomContentLoaded = function(e, ts) {
+  if (!ts) {
+    ts = new Date();
+  }
+  return this.client.captureDomContentLoaded(ts);
+};
+
+Rollbar.prototype.captureLoad = function(e, ts) {
+  if (!ts) {
+    ts = new Date();
+  }
+  return this.client.captureLoad(ts);
+};
+
+/* Internal */
+
+function addTransformsToNotifier(notifier, gWindow) {
+  notifier
+    .addTransform(transforms.handleItemWithError)
+    .addTransform(transforms.ensureItemHasSomethingToSay)
+    .addTransform(transforms.addBaseInfo)
+    .addTransform(transforms.addRequestInfo(gWindow))
+    .addTransform(transforms.addClientInfo(gWindow))
+    .addTransform(transforms.addPluginInfo(gWindow))
+    .addTransform(transforms.addBody)
+    .addTransform(sharedTransforms.addMessageWithError)
+    .addTransform(sharedTransforms.addTelemetryData)
+    .addTransform(sharedTransforms.addConfigToPayload)
+    .addTransform(transforms.scrubPayload)
+    .addTransform(sharedTransforms.userTransform(logger))
+    .addTransform(sharedTransforms.itemToPayload);
+}
+
+function addPredicatesToQueue(queue) {
+  queue
+    .addPredicate(sharedPredicates.checkLevel)
+    .addPredicate(predicates.checkIgnore)
+    .addPredicate(sharedPredicates.userCheckIgnore(logger))
+    .addPredicate(sharedPredicates.urlIsNotBlacklisted(logger))
+    .addPredicate(sharedPredicates.urlIsWhitelisted(logger))
+    .addPredicate(sharedPredicates.messageIsIgnored(logger));
+}
+
+Rollbar.prototype._createItem = function(args) {
+  return _.createItem(args, logger, this);
+};
+
+function _getFirstFunction(args) {
+  for (var i = 0, len = args.length; i < len; ++i) {
+    if (_.isFunction(args[i])) {
+      return args[i];
+    }
+  }
+  return undefined;
+}
+
+function _gWindow() {
+  return ((typeof window != 'undefined') && window) || ((typeof self != 'undefined') && self);
+}
+
+/* global __NOTIFIER_VERSION__:false */
+/* global __DEFAULT_BROWSER_SCRUB_FIELDS__:false */
+/* global __DEFAULT_LOG_LEVEL__:false */
+/* global __DEFAULT_REPORT_LEVEL__:false */
+/* global __DEFAULT_UNCAUGHT_ERROR_LEVEL:false */
+/* global __DEFAULT_ENDPOINT__:false */
+
+var defaultOptions = {
+  version: "2.7.0",
+  scrubFields: ["pw","pass","passwd","password","secret","confirm_password","confirmPassword","password_confirmation","passwordConfirmation","access_token","accessToken","secret_key","secretKey","secretToken","cc-number","card number","cardnumber","cardnum","ccnum","ccnumber","cc num","creditcardnumber","credit card number","newcreditcardnumber","new credit card","creditcardno","credit card no","card#","card #","cc-csc","cvc2","cvv2","ccv2","security code","card verification","name on credit card","name on card","nameoncard","cardholder","card holder","name des karteninhabers","card type","cardtype","cc type","cctype","payment type","expiration date","expirationdate","expdate","cc-exp"],
+  logLevel: "debug",
+  reportLevel: "debug",
+  uncaughtErrorLevel: "error",
+  endpoint: "api.rollbar.com/api/1/item/",
+  verbose: false,
+  enabled: true,
+  sendConfig: false,
+  includeItemsInTelemetry: true,
+  captureIp: true
+};
+
+module.exports = Rollbar;
 
 
 /***/ }),
 /* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	'use strict';
-	
-	var _ = __webpack_require__(4);
-	
-	/*
-	 * Queue - an object which handles which handles a queue of items to be sent to Rollbar.
-	 *   This object handles rate limiting via a passed in rate limiter, retries based on connection
-	 *   errors, and filtering of items based on a set of configurable predicates. The communication to
-	 *   the backend is performed via a given API object.
-	 *
-	 * @param rateLimiter - An object which conforms to the interface
-	 *    rateLimiter.shouldSend(item) -> bool
-	 * @param api - An object which conforms to the interface
-	 *    api.postItem(payload, function(err, response))
-	 * @param logger - An object used to log verbose messages if desired
-	 * @param options - see Queue.prototype.configure
-	 */
-	function Queue(rateLimiter, api, logger, options) {
-	  this.rateLimiter = rateLimiter;
-	  this.api = api;
-	  this.logger = logger;
-	  this.options = options;
-	  this.predicates = [];
-	  this.pendingItems = [];
-	  this.pendingRequests = [];
-	  this.retryQueue = [];
-	  this.retryHandle = null;
-	  this.waitCallback = null;
-	  this.waitIntervalID = null;
-	}
-	
-	/*
-	 * configure - updates the options this queue uses
-	 *
-	 * @param options
-	 */
-	Queue.prototype.configure = function(options) {
-	  this.api && this.api.configure(options);
-	  var oldOptions = this.options;
-	  this.options = _.merge(oldOptions, options);
-	  return this;
-	};
-	
-	/*
-	 * addPredicate - adds a predicate to the end of the list of predicates for this queue
-	 *
-	 * @param predicate - function(item, options) -> (bool|{err: Error})
-	 *  Returning true means that this predicate passes and the item is okay to go on the queue
-	 *  Returning false means do not add the item to the queue, but it is not an error
-	 *  Returning {err: Error} means do not add the item to the queue, and the given error explains why
-	 *  Returning {err: undefined} is equivalent to returning true but don't do that
-	 */
-	Queue.prototype.addPredicate = function(predicate) {
-	  if (_.isFunction(predicate)) {
-	    this.predicates.push(predicate);
-	  }
-	  return this;
-	};
-	
-	Queue.prototype.addPendingItem = function(item) {
-	  this.pendingItems.push(item);
-	};
-	
-	Queue.prototype.removePendingItem = function(item) {
-	  var idx = this.pendingItems.indexOf(item);
-	  if (idx !== -1) {
-	    this.pendingItems.splice(idx, 1);
-	  }
-	};
-	
-	/*
-	 * addItem - Send an item to the Rollbar API if all of the predicates are satisfied
-	 *
-	 * @param item - The payload to send to the backend
-	 * @param callback - function(error, repsonse) which will be called with the response from the API
-	 *  in the case of a success, otherwise response will be null and error will have a value. If both
-	 *  error and response are null then the item was stopped by a predicate which did not consider this
-	 *  to be an error condition, but nonetheless did not send the item to the API.
-	 *  @param originalError - The original error before any transformations that is to be logged if any
-	 */
-	Queue.prototype.addItem = function(item, callback, originalError, originalItem) {
-	  if (!callback || !_.isFunction(callback)) {
-	    callback = function() { return; };
-	  }
-	  var predicateResult = this._applyPredicates(item);
-	  if (predicateResult.stop) {
-	    this.removePendingItem(originalItem);
-	    callback(predicateResult.err);
-	    return;
-	  }
-	  this._maybeLog(item, originalError);
-	  this.removePendingItem(originalItem);
-	  this.pendingRequests.push(item);
-	  try {
-	    this._makeApiRequest(item, function(err, resp) {
-	      this._dequeuePendingRequest(item);
-	      callback(err, resp);
-	    }.bind(this));
-	  } catch (e) {
-	    this._dequeuePendingRequest(item);
-	    callback(e);
-	  }
-	};
-	
-	/*
-	 * wait - Stop any further errors from being added to the queue, and get called back when all items
-	 *   currently processing have finished sending to the backend.
-	 *
-	 * @param callback - function() called when all pending items have been sent
-	 */
-	Queue.prototype.wait = function(callback) {
-	  if (!_.isFunction(callback)) {
-	    return;
-	  }
-	  this.waitCallback = callback;
-	  if (this._maybeCallWait()) {
-	    return;
-	  }
-	  if (this.waitIntervalID) {
-	    this.waitIntervalID = clearInterval(this.waitIntervalID);
-	  }
-	  this.waitIntervalID = setInterval(function() {
-	    this._maybeCallWait();
-	  }.bind(this), 500);
-	};
-	
-	/* _applyPredicates - Sequentially applies the predicates that have been added to the queue to the
-	 *   given item with the currently configured options.
-	 *
-	 * @param item - An item in the queue
-	 * @returns {stop: bool, err: (Error|null)} - stop being true means do not add item to the queue,
-	 *   the error value should be passed up to a callbak if we are stopping.
-	 */
-	Queue.prototype._applyPredicates = function(item) {
-	  var p = null;
-	  for (var i = 0, len = this.predicates.length; i < len; i++) {
-	    p = this.predicates[i](item, this.options);
-	    if (!p || p.err !== undefined) {
-	      return {stop: true, err: p.err};
-	    }
-	  }
-	  return {stop: false, err: null};
-	};
-	
-	/*
-	 * _makeApiRequest - Send an item to Rollbar, callback when done, if there is an error make an
-	 *   effort to retry if we are configured to do so.
-	 *
-	 * @param item - an item ready to send to the backend
-	 * @param callback - function(err, response)
-	 */
-	Queue.prototype._makeApiRequest = function(item, callback) {
-	  var rateLimitResponse = this.rateLimiter.shouldSend(item);
-	  if (rateLimitResponse.shouldSend) {
-	    this.api.postItem(item, function(err, resp) {
-	      if (err) {
-	        this._maybeRetry(err, item, callback);
-	      } else {
-	        callback(err, resp);
-	      }
-	    }.bind(this));
-	  } else if (rateLimitResponse.error) {
-	    callback(rateLimitResponse.error);
-	  } else {
-	    this.api.postItem(rateLimitResponse.payload, callback);
-	  }
-	};
-	
-	// These are errors basically mean there is no internet connection
-	var RETRIABLE_ERRORS = ['ECONNRESET', 'ENOTFOUND', 'ESOCKETTIMEDOUT', 'ETIMEDOUT', 'ECONNREFUSED', 'EHOSTUNREACH', 'EPIPE', 'EAI_AGAIN'];
-	
-	/*
-	 * _maybeRetry - Given the error returned by the API, decide if we should retry or just callback
-	 *   with the error.
-	 *
-	 * @param err - an error returned by the API transport
-	 * @param item - the item that was trying to be sent when this error occured
-	 * @param callback - function(err, response)
-	 */
-	Queue.prototype._maybeRetry = function(err, item, callback) {
-	  var shouldRetry = false;
-	  if (this.options.retryInterval) {
-	    for (var i = 0, len = RETRIABLE_ERRORS.length; i < len; i++) {
-	      if (err.code === RETRIABLE_ERRORS[i]) {
-	        shouldRetry = true;
-	        break;
-	      }
-	    }
-	  }
-	  if (shouldRetry) {
-	    this._retryApiRequest(item, callback);
-	  } else {
-	    callback(err);
-	  }
-	};
-	
-	/*
-	 * _retryApiRequest - Add an item and a callback to a queue and possibly start a timer to process
-	 *   that queue based on the retryInterval in the options for this queue.
-	 *
-	 * @param item - an item that failed to send due to an error we deem retriable
-	 * @param callback - function(err, response)
-	 */
-	Queue.prototype._retryApiRequest = function(item, callback) {
-	  this.retryQueue.push({item: item, callback: callback});
-	
-	  if (!this.retryHandle) {
-	    this.retryHandle = setInterval(function() {
-	      while (this.retryQueue.length) {
-	        var retryObject = this.retryQueue.shift();
-	        this._makeApiRequest(retryObject.item, retryObject.callback);
-	      }
-	    }.bind(this), this.options.retryInterval);
-	  }
-	};
-	
-	/*
-	 * _dequeuePendingRequest - Removes the item from the pending request queue, this queue is used to
-	 *   enable to functionality of providing a callback that clients can pass to `wait` to be notified
-	 *   when the pending request queue has been emptied. This must be called when the API finishes
-	 *   processing this item. If a `wait` callback is configured, it is called by this function.
-	 *
-	 * @param item - the item previously added to the pending request queue
-	 */
-	Queue.prototype._dequeuePendingRequest = function(item) {
-	  var idx = this.pendingRequests.indexOf(item);
-	  if (idx !== -1) {
-	    this.pendingRequests.splice(idx, 1);
-	    this._maybeCallWait();
-	  }
-	};
-	
-	Queue.prototype._maybeLog = function(data, originalError) {
-	  if (this.logger && this.options.verbose) {
-	    var message = originalError;
-	    message = message || _.get(data, 'body.trace.exception.message');
-	    message = message || _.get(data, 'body.trace_chain.0.exception.message');
-	    if (message) {
-	      this.logger.error(message);
-	      return;
-	    }
-	    message = _.get(data, 'body.message.body');
-	    if (message) {
-	      this.logger.log(message);
-	    }
-	  }
-	};
-	
-	Queue.prototype._maybeCallWait = function() {
-	  if (_.isFunction(this.waitCallback) && this.pendingItems.length === 0 && this.pendingRequests.length === 0) {
-	    if (this.waitIntervalID) {
-	      this.waitIntervalID = clearInterval(this.waitIntervalID);
-	    }
-	    this.waitCallback();
-	    return true;
-	  }
-	  return false;
-	};
-	
-	module.exports = Queue;
+var RateLimiter = __webpack_require__(8);
+var Queue = __webpack_require__(11);
+var Notifier = __webpack_require__(12);
+var Telemeter = __webpack_require__(13);
+var _ = __webpack_require__(0);
+
+/*
+ * Rollbar - the interface to Rollbar
+ *
+ * @param options
+ * @param api
+ * @param logger
+ */
+function Rollbar(options, api, logger, platform) {
+  this.options = _.merge(options);
+  this.logger = logger;
+  Rollbar.rateLimiter.configureGlobal(this.options);
+  Rollbar.rateLimiter.setPlatformOptions(platform, this.options);
+  this.api = api;
+  this.queue = new Queue(Rollbar.rateLimiter, api, logger, this.options);
+  this.notifier = new Notifier(this.queue, this.options);
+  this.telemeter = new Telemeter(this.options);
+  this.lastError = null;
+  this.lastErrorHash = 'none';
+}
+
+var defaultOptions = {
+  maxItems: 0,
+  itemsPerMinute: 60
+};
+
+Rollbar.rateLimiter = new RateLimiter(defaultOptions);
+
+Rollbar.prototype.global = function(options) {
+  Rollbar.rateLimiter.configureGlobal(options);
+  return this;
+};
+
+Rollbar.prototype.configure = function(options, payloadData) {
+  var oldOptions = this.options;
+  var payload = {};
+  if (payloadData) {
+    payload = {payload: payloadData};
+  }
+  this.options = _.merge(oldOptions, options, payload);
+  this.notifier && this.notifier.configure(this.options);
+  this.telemeter && this.telemeter.configure(this.options);
+  this.global(this.options);
+  return this;
+};
+
+Rollbar.prototype.log = function(item) {
+  var level = this._defaultLogLevel();
+  return this._log(level, item);
+};
+
+Rollbar.prototype.debug = function(item) {
+  this._log('debug', item);
+};
+
+Rollbar.prototype.info = function(item) {
+  this._log('info', item);
+};
+
+Rollbar.prototype.warn = function(item) {
+  this._log('warning', item);
+};
+
+Rollbar.prototype.warning = function(item) {
+  this._log('warning', item);
+};
+
+Rollbar.prototype.error = function(item) {
+  this._log('error', item);
+};
+
+Rollbar.prototype.critical = function(item) {
+  this._log('critical', item);
+};
+
+Rollbar.prototype.wait = function(callback) {
+  this.queue.wait(callback);
+};
+
+Rollbar.prototype.captureEvent = function(type, metadata, level) {
+  return this.telemeter.captureEvent(type, metadata, level);
+};
+
+Rollbar.prototype.captureDomContentLoaded = function(ts) {
+  return this.telemeter.captureDomContentLoaded(ts);
+};
+
+Rollbar.prototype.captureLoad = function(ts) {
+  return this.telemeter.captureLoad(ts);
+};
+
+Rollbar.prototype.buildJsonPayload = function(item) {
+  return this.api.buildJsonPayload(item);
+};
+
+Rollbar.prototype.sendJsonPayload = function(jsonPayload) {
+  this.api.postJsonPayload(jsonPayload);
+};
+
+/* Internal */
+
+Rollbar.prototype._log = function(defaultLevel, item) {
+  var callback;
+  if (item.callback) {
+    callback = item.callback;
+    delete item.callback;
+  }
+  if (this._sameAsLastError(item)) {
+    if (callback) {
+      var error = new Error('ignored identical item');
+      error.item = item;
+      callback(error);
+    }
+    return;
+  }
+  try {
+    item.level = item.level || defaultLevel;
+    this.telemeter._captureRollbarItem(item);
+    item.telemetryEvents = this.telemeter.copyEvents();
+    this.notifier.log(item, callback);
+  } catch (e) {
+    this.logger.error(e);
+  }
+};
+
+Rollbar.prototype._defaultLogLevel = function() {
+  return this.options.logLevel || 'debug';
+};
+
+Rollbar.prototype._sameAsLastError = function(item) {
+  if (!item._isUncaught) {
+    return false;
+  }
+  var itemHash = generateItemHash(item);
+  if (this.lastErrorHash === itemHash) {
+    return true;
+  }
+  this.lastError = item.err;
+  this.lastErrorHash = itemHash;
+  return false;
+};
+
+function generateItemHash(item) {
+  var message = item.message || '';
+  var stack = (item.err || {}).stack || String(item.err);
+  return message + '::' + stack;
+}
+
+module.exports = Rollbar;
 
 
 /***/ }),
 /* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	'use strict';
-	
-	var _ = __webpack_require__(4);
-	
-	/*
-	 * Notifier - the internal object responsible for delegating between the client exposed API, the
-	 * chain of transforms necessary to turn an item into something that can be sent to Rollbar, and the
-	 * queue which handles the communcation with the Rollbar API servers.
-	 *
-	 * @param queue - an object that conforms to the interface: addItem(item, callback)
-	 * @param options - an object representing the options to be set for this notifier, this should have
-	 * any defaults already set by the caller
-	 */
-	function Notifier(queue, options) {
-	  this.queue = queue;
-	  this.options = options;
-	  this.transforms = [];
-	}
-	
-	/*
-	 * configure - updates the options for this notifier with the passed in object
-	 *
-	 * @param options - an object which gets merged with the current options set on this notifier
-	 * @returns this
-	 */
-	Notifier.prototype.configure = function(options) {
-	  this.queue && this.queue.configure(options);
-	  var oldOptions = this.options;
-	  this.options = _.merge(oldOptions, options);
-	  return this;
-	};
-	
-	/*
-	 * addTransform - adds a transform onto the end of the queue of transforms for this notifier
-	 *
-	 * @param transform - a function which takes three arguments:
-	 *    * item: An Object representing the data to eventually be sent to Rollbar
-	 *    * options: The current value of the options for this notifier
-	 *    * callback: function(err: (Null|Error), item: (Null|Object)) the transform must call this
-	 *    callback with a null value for error if it wants the processing chain to continue, otherwise
-	 *    with an error to terminate the processing. The item should be the updated item after this
-	 *    transform is finished modifying it.
-	 */
-	Notifier.prototype.addTransform = function(transform) {
-	  if (_.isFunction(transform)) {
-	    this.transforms.push(transform);
-	  }
-	  return this;
-	};
-	
-	/*
-	 * log - the internal log function which applies the configured transforms and then pushes onto the
-	 * queue to be sent to the backend.
-	 *
-	 * @param item - An object with the following structure:
-	 *    message [String] - An optional string to be sent to rollbar
-	 *    error [Error] - An optional error
-	 *
-	 * @param callback - A function of type function(err, resp) which will be called with exactly one
-	 * null argument and one non-null argument. The callback will be called once, either during the
-	 * transform stage if an error occurs inside a transform, or in response to the communication with
-	 * the backend. The second argument will be the response from the backend in case of success.
-	 */
-	Notifier.prototype.log = function(item, callback) {
-	  if (!callback || !_.isFunction(callback)) {
-	    callback = function() {};
-	  }
-	
-	  if (!this.options.enabled) {
-	    return callback(new Error('Rollbar is not enabled'));
-	  }
-	
-	  this.queue.addPendingItem(item);
-	  var originalError = item.err;
-	  this._applyTransforms(item, function(err, i) {
-	    if (err) {
-	      this.queue.removePendingItem(item);
-	      return callback(err, null);
-	    }
-	    this.queue.addItem(i, callback, originalError, item);
-	  }.bind(this));
-	};
-	
-	/* Internal */
-	
-	/*
-	 * _applyTransforms - Applies the transforms that have been added to this notifier sequentially. See
-	 * `addTransform` for more information.
-	 *
-	 * @param item - An item to be transformed
-	 * @param callback - A function of type function(err, item) which will be called with a non-null
-	 * error and a null item in the case of a transform failure, or a null error and non-null item after
-	 * all transforms have been applied.
-	 */
-	Notifier.prototype._applyTransforms = function(item, callback) {
-	  var transformIndex = -1;
-	  var transformsLength = this.transforms.length;
-	  var transforms = this.transforms;
-	  var options = this.options;
-	
-	  var cb = function(err, i) {
-	    if (err) {
-	      callback(err, null);
-	      return;
-	    }
-	
-	    transformIndex++;
-	
-	    if (transformIndex === transformsLength) {
-	      callback(null, i);
-	      return;
-	    }
-	
-	    transforms[transformIndex](i, options, cb);
-	  };
-	
-	  cb(null, item);
-	};
-	
-	module.exports = Notifier;
+var _ = __webpack_require__(0);
+
+/*
+ * RateLimiter - an object that encapsulates the logic for counting items sent to Rollbar
+ *
+ * @param options - the same options that are accepted by configureGlobal offered as a convenience
+ */
+function RateLimiter(options) {
+  this.startTime = _.now();
+  this.counter = 0;
+  this.perMinCounter = 0;
+  this.platform = null;
+  this.platformOptions = {};
+  this.configureGlobal(options);
+}
+
+RateLimiter.globalSettings = {
+  startTime: _.now(),
+  maxItems: undefined,
+  itemsPerMinute: undefined
+};
+
+/*
+ * configureGlobal - set the global rate limiter options
+ *
+ * @param options - Only the following values are recognized:
+ *    startTime: a timestamp of the form returned by (new Date()).getTime()
+ *    maxItems: the maximum items
+ *    itemsPerMinute: the max number of items to send in a given minute
+ */
+RateLimiter.prototype.configureGlobal = function(options) {
+  if (options.startTime !== undefined) {
+    RateLimiter.globalSettings.startTime = options.startTime;
+  }
+  if (options.maxItems !== undefined) {
+    RateLimiter.globalSettings.maxItems = options.maxItems;
+  }
+  if (options.itemsPerMinute !== undefined) {
+    RateLimiter.globalSettings.itemsPerMinute = options.itemsPerMinute;
+  }
+};
+
+/*
+ * shouldSend - determine if we should send a given item based on rate limit settings
+ *
+ * @param item - the item we are about to send
+ * @returns An object with the following structure:
+ *  error: (Error|null)
+ *  shouldSend: bool
+ *  payload: (Object|null)
+ *  If shouldSend is false, the item passed as a parameter should not be sent to Rollbar, and
+ *  exactly one of error or payload will be non-null. If error is non-null, the returned Error will
+ *  describe the situation, but it means that we were already over a rate limit (either globally or
+ *  per minute) when this item was checked. If error is null, and therefore payload is non-null, it
+ *  means this item put us over the global rate limit and the payload should be sent to Rollbar in
+ *  place of the passed in item.
+ */
+RateLimiter.prototype.shouldSend = function(item, now) {
+  now = now || _.now();
+  var elapsedTime = now - this.startTime;
+  if (elapsedTime < 0 || elapsedTime >= 60000) {
+    this.startTime = now;
+    this.perMinCounter = 0;
+  }
+
+  var globalRateLimit = RateLimiter.globalSettings.maxItems;
+  var globalRateLimitPerMin = RateLimiter.globalSettings.itemsPerMinute;
+
+  if (checkRate(item, globalRateLimit, this.counter)) {
+    return shouldSendValue(this.platform, this.platformOptions, globalRateLimit + ' max items reached', false);
+  } else if (checkRate(item, globalRateLimitPerMin, this.perMinCounter)) {
+    return shouldSendValue(this.platform, this.platformOptions, globalRateLimitPerMin + ' items per minute reached', false);
+  }
+  this.counter++;
+  this.perMinCounter++;
+
+  var shouldSend = !checkRate(item, globalRateLimit, this.counter);
+  var perMinute = shouldSend;
+  shouldSend = shouldSend && !checkRate(item, globalRateLimitPerMin, this.perMinCounter);
+  return shouldSendValue(this.platform, this.platformOptions, null, shouldSend, globalRateLimit, globalRateLimitPerMin, perMinute);
+};
+
+RateLimiter.prototype.setPlatformOptions = function(platform, options) {
+  this.platform = platform;
+  this.platformOptions = options;
+};
+
+/* Helpers */
+
+function checkRate(item, limit, counter) {
+  return !item.ignoreRateLimit && limit >= 1 && counter > limit;
+}
+
+function shouldSendValue(platform, options, error, shouldSend, globalRateLimit, limitPerMin, perMinute) {
+  var payload = null;
+  if (error) {
+    error = new Error(error);
+  }
+  if (!error && !shouldSend) {
+    payload = rateLimitPayload(platform, options, globalRateLimit, limitPerMin, perMinute);
+  }
+  return {error: error, shouldSend: shouldSend, payload: payload};
+}
+
+function rateLimitPayload(platform, options, globalRateLimit, limitPerMin, perMinute) {
+  var environment = options.environment || (options.payload && options.payload.environment);
+  var msg;
+  if (perMinute) {
+    msg = 'item per minute limit reached, ignoring errors until timeout';
+  } else {
+    msg = 'maxItems has been hit, ignoring errors until reset.';
+  }
+  var item = {
+    body: {
+      message: {
+        body: msg,
+        extra: {
+          maxItems: globalRateLimit,
+          itemsPerMinute: limitPerMin
+        }
+      }
+    },
+    language: 'javascript',
+    environment: environment,
+    notifier: {
+      version: (options.notifier && options.notifier.version) || options.version
+    }
+  };
+  if (platform === 'browser') {
+    item.platform = 'browser';
+    item.framework = 'browser-js';
+    item.notifier.name = 'rollbar-browser-js';
+  } else if (platform === 'server') {
+    item.framework = options.framework || 'node-js';
+    item.notifier.name = options.notifier.name;
+  } else if (platform === 'react-native') {
+    item.framework = options.framework || 'react-native';
+    item.notifier.name = options.notifier.name;
+  }
+  return item;
+}
+
+module.exports = RateLimiter;
 
 
 /***/ }),
 /* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	'use strict';
-	
-	var _ = __webpack_require__(4);
-	
-	var MAX_EVENTS = 100;
-	
-	function Telemeter(options) {
-	  this.queue = [];
-	  this.options = _.merge(options);
-	  var maxTelemetryEvents = this.options.maxTelemetryEvents || MAX_EVENTS;
-	  this.maxQueueSize = Math.max(0, Math.min(maxTelemetryEvents, MAX_EVENTS));
+"use strict";
+
+
+var hasOwn = Object.prototype.hasOwnProperty;
+var toStr = Object.prototype.toString;
+
+var isPlainObject = function isPlainObject(obj) {
+	if (!obj || toStr.call(obj) !== '[object Object]') {
+		return false;
 	}
-	
-	Telemeter.prototype.configure = function(options) {
-	  var oldOptions = this.options;
-	  this.options = _.merge(oldOptions, options);
-	  var maxTelemetryEvents = this.options.maxTelemetryEvents || MAX_EVENTS;
-	  var newMaxEvents = Math.max(0, Math.min(maxTelemetryEvents, MAX_EVENTS));
-	  var deleteCount = 0;
-	  if (this.maxQueueSize > newMaxEvents) {
-	    deleteCount = this.maxQueueSize - newMaxEvents;
-	  }
-	  this.maxQueueSize = newMaxEvents;
-	  this.queue.splice(0, deleteCount);
-	};
-	
-	Telemeter.prototype.copyEvents = function() {
-	  var events = Array.prototype.slice.call(this.queue, 0);
-	  if (_.isFunction(this.options.filterTelemetry)) {
-	    try {
-	      var i = events.length;
-	      while (i--) {
-	        if (this.options.filterTelemetry(events[i])) {
-	          events.splice(i, 1);
-	        }
-	      }
-	    } catch (e) {
-	      this.options.filterTelemetry = null;
-	    }
-	  }
-	  return events;
-	};
-	
-	Telemeter.prototype.capture = function(type, metadata, level, rollbarUUID, timestamp) {
-	  var e = {
-	    level: getLevel(type, level),
-	    type: type,
-	    timestamp_ms: timestamp || _.now(),
-	    body: metadata,
-	    source: 'client'
-	  };
-	  if (rollbarUUID) {
-	    e.uuid = rollbarUUID;
-	  }
-	
-	  try {
-	    if (_.isFunction(this.options.filterTelemetry) && this.options.filterTelemetry(e)) {
-	      return false;
-	    }
-	  } catch (exc) {
-	    this.options.filterTelemetry = null;
-	  }
-	
-	  this.push(e);
-	  return e;
-	};
-	
-	Telemeter.prototype.captureEvent = function(type, metadata, level, rollbarUUID) {
-	  return this.capture(type, metadata, level, rollbarUUID);
-	};
-	
-	Telemeter.prototype.captureError = function(err, level, rollbarUUID, timestamp) {
-	  var metadata = {
-	    message: err.message || String(err)
-	  };
-	  if (err.stack) {
-	    metadata.stack = err.stack;
-	  }
-	  return this.capture('error', metadata, level, rollbarUUID, timestamp);
-	};
-	
-	Telemeter.prototype.captureLog = function(message, level, rollbarUUID, timestamp) {
-	  return this.capture('log', {
-	    message: message
-	  }, level, rollbarUUID, timestamp);
-	};
-	
-	Telemeter.prototype.captureNetwork = function(metadata, subtype, rollbarUUID, requestData) {
-	  subtype = subtype || 'xhr';
-	  metadata.subtype = metadata.subtype || subtype;
-	  if (requestData) {
-	    metadata.request = requestData;
-	  }
-	  var level = this.levelFromStatus(metadata.status_code);
-	  return this.capture('network', metadata, level, rollbarUUID);
-	};
-	
-	Telemeter.prototype.levelFromStatus = function(statusCode) {
-	  if (statusCode >= 200 && statusCode < 400) {
-	    return 'info';
-	  }
-	  if (statusCode === 0 || statusCode >= 400) {
-	    return 'error';
-	  }
-	  return 'info';
-	};
-	
-	Telemeter.prototype.captureDom = function(subtype, element, value, checked, rollbarUUID) {
-	  var metadata = {
-	    subtype: subtype,
-	    element: element
-	  };
-	  if (value !== undefined) {
-	    metadata.value = value;
-	  }
-	  if (checked !== undefined) {
-	    metadata.checked = checked;
-	  }
-	  return this.capture('dom', metadata, 'info', rollbarUUID);
-	};
-	
-	Telemeter.prototype.captureNavigation = function(from, to, rollbarUUID) {
-	  return this.capture('navigation', {from: from, to: to}, 'info', rollbarUUID);
-	};
-	
-	Telemeter.prototype.captureDomContentLoaded = function(ts) {
-	  return this.capture('navigation', {subtype: 'DOMContentLoaded'}, 'info', undefined, ts && ts.getTime());
-	  /**
-	   * If we decide to make this a dom event instead, then use the line below:
-	  return this.capture('dom', {subtype: 'DOMContentLoaded'}, 'info', undefined, ts && ts.getTime());
-	  */
-	};
-	Telemeter.prototype.captureLoad = function(ts) {
-	  return this.capture('navigation', {subtype: 'load'}, 'info', undefined, ts && ts.getTime());
-	  /**
-	   * If we decide to make this a dom event instead, then use the line below:
-	  return this.capture('dom', {subtype: 'load'}, 'info', undefined, ts && ts.getTime());
-	  */
-	};
-	
-	Telemeter.prototype.captureConnectivityChange = function(type, rollbarUUID) {
-	  return this.captureNetwork({change: type}, 'connectivity', rollbarUUID);
-	};
-	
-	// Only intended to be used internally by the notifier
-	Telemeter.prototype._captureRollbarItem = function(item) {
-	  if (!this.options.includeItemsInTelemetry) {
-	    return;
-	  }
-	  if (item.err) {
-	    return this.captureError(item.err, item.level, item.uuid, item.timestamp);
-	  }
-	  if (item.message) {
-	    return this.captureLog(item.message, item.level, item.uuid, item.timestamp);
-	  }
-	  if (item.custom) {
-	    return this.capture('log', item.custom, item.level, item.uuid, item.timestamp);
-	  }
-	};
-	
-	Telemeter.prototype.push = function(e) {
-	  this.queue.push(e);
-	  if (this.queue.length > this.maxQueueSize) {
-	    this.queue.shift();
-	  }
-	};
-	
-	function getLevel(type, level) {
-	  if (level) {
-	    return level;
-	  }
-	  var defaultLevel = {
-	    error: 'error',
-	    manual: 'info'
-	  };
-	  return defaultLevel[type] || 'info';
+
+	var hasOwnConstructor = hasOwn.call(obj, 'constructor');
+	var hasIsPrototypeOf = obj.constructor && obj.constructor.prototype && hasOwn.call(obj.constructor.prototype, 'isPrototypeOf');
+	// Not own constructor property must be Object
+	if (obj.constructor && !hasOwnConstructor && !hasIsPrototypeOf) {
+		return false;
 	}
-	
-	module.exports = Telemeter;
+
+	// Own properties are enumerated firstly, so to speed up,
+	// if last one is own, then all properties are own.
+	var key;
+	for (key in obj) {/**/}
+
+	return typeof key === 'undefined' || hasOwn.call(obj, key);
+};
+
+function merge() {
+  var i, src, copy, clone, name,
+      result = {},
+     current = null,
+      length = arguments.length;
+
+  for (i=0; i < length; i++) {
+    current = arguments[i];
+    if (current == null) {
+      continue;
+    }
+
+    for (name in current) {
+      src = result[name];
+      copy = current[name];
+      if (result !== copy) {
+        if (copy && isPlainObject(copy)) {
+          clone = src && isPlainObject(src) ? src : {};
+          result[name] = merge(clone, copy);
+        } else if (typeof copy !== 'undefined') {
+          result[name] = copy;
+        }
+      }
+    }
+  }
+  return result;
+}
+
+module.exports = merge;
 
 
 /***/ }),
 /* 10 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, exports) {
 
-	'use strict';
-	
-	var _ = __webpack_require__(4);
-	var helpers = __webpack_require__(11);
-	var truncation = __webpack_require__(12);
-	
-	var defaultOptions = {
-	  hostname: 'api.rollbar.com',
-	  path: '/api/1/item/',
-	  search: null,
-	  version: '1',
-	  protocol: 'https:',
-	  port: 443
-	};
-	
-	/**
-	 * Api is an object that encapsulates methods of communicating with
-	 * the Rollbar API.  It is a standard interface with some parts implemented
-	 * differently for server or browser contexts.  It is an object that should
-	 * be instantiated when used so it can contain non-global options that may
-	 * be different for another instance of RollbarApi.
-	 *
-	 * @param options {
-	 *    accessToken: the accessToken to use for posting items to rollbar
-	 *    endpoint: an alternative endpoint to send errors to
-	 *        must be a valid, fully qualified URL.
-	 *        The default is: https://api.rollbar.com/api/1/item
-	 *    proxy: if you wish to proxy requests provide an object
-	 *        with the following keys:
-	 *          host or hostname (required): foo.example.com
-	 *          port (optional): 123
-	 *          protocol (optional): https
-	 * }
-	 */
-	function Api(options, t, u, j) {
-	  this.options = options;
-	  this.transport = t;
-	  this.url = u;
-	  this.jsonBackup = j;
-	  this.accessToken = options.accessToken;
-	  this.transportOptions = _getTransport(options, u);
-	}
-	
-	/**
-	 *
-	 * @param data
-	 * @param callback
-	 */
-	Api.prototype.postItem = function(data, callback) {
-	  var transportOptions = helpers.transportOptions(this.transportOptions, 'POST');
-	  var payload = helpers.buildPayload(this.accessToken, data, this.jsonBackup);
-	  this.transport.post(this.accessToken, transportOptions, payload, callback);
-	};
-	
-	/**
-	 *
-	 * @param data
-	 * @param callback
-	 */
-	Api.prototype.buildJsonPayload = function(data, callback) {
-	  var payload = helpers.buildPayload(this.accessToken, data, this.jsonBackup);
-	
-	  var stringifyResult = truncation.truncate(payload);
-	  if (stringifyResult.error) {
-	    if (callback) {
-	      callback(stringifyResult.error);
-	    }
-	    return null;
-	  }
-	
-	  return stringifyResult.value;
-	};
-	
-	/**
-	 *
-	 * @param jsonPayload
-	 * @param callback
-	 */
-	Api.prototype.postJsonPayload = function(jsonPayload, callback) {
-	  var transportOptions = helpers.transportOptions(this.transportOptions, 'POST');
-	  this.transport.postJsonPayload(this.accessToken, transportOptions, jsonPayload, callback);
-	};
-	
-	Api.prototype.configure = function(options) {
-	  var oldOptions = this.oldOptions;
-	  this.options = _.merge(oldOptions, options);
-	  this.transportOptions = _getTransport(this.options, this.url);
-	  if (this.options.accessToken !== undefined) {
-	    this.accessToken = this.options.accessToken;
-	  }
-	  return this;
-	};
-	
-	function _getTransport(options, url) {
-	  return helpers.getTransportFromOptions(options, defaultOptions, url);
-	}
-	
-	module.exports = Api;
+//  json3.js
+//  2017-02-21
+//  Public Domain.
+//  NO WARRANTY EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
+//  See http://www.JSON.org/js.html
+//  This code should be minified before deployment.
+//  See http://javascript.crockford.com/jsmin.html
+
+//  USE YOUR OWN COPY. IT IS EXTREMELY UNWISE TO LOAD CODE FROM SERVERS YOU DO
+//  NOT CONTROL.
+
+//  This file creates a global JSON object containing two methods: stringify
+//  and parse. This file provides the ES5 JSON capability to ES3 systems.
+//  If a project might run on IE8 or earlier, then this file should be included.
+//  This file does nothing on ES5 systems.
+
+//      JSON.stringify(value, replacer, space)
+//          value       any JavaScript value, usually an object or array.
+//          replacer    an optional parameter that determines how object
+//                      values are stringified for objects. It can be a
+//                      function or an array of strings.
+//          space       an optional parameter that specifies the indentation
+//                      of nested structures. If it is omitted, the text will
+//                      be packed without extra whitespace. If it is a number,
+//                      it will specify the number of spaces to indent at each
+//                      level. If it is a string (such as "\t" or "&nbsp;"),
+//                      it contains the characters used to indent at each level.
+//          This method produces a JSON text from a JavaScript value.
+//          When an object value is found, if the object contains a toJSON
+//          method, its toJSON method will be called and the result will be
+//          stringified. A toJSON method does not serialize: it returns the
+//          value represented by the name/value pair that should be serialized,
+//          or undefined if nothing should be serialized. The toJSON method
+//          will be passed the key associated with the value, and this will be
+//          bound to the value.
+
+//          For example, this would serialize Dates as ISO strings.
+
+//              Date.prototype.toJSON = function (key) {
+//                  function f(n) {
+//                      // Format integers to have at least two digits.
+//                      return (n < 10)
+//                          ? "0" + n
+//                          : n;
+//                  }
+//                  return this.getUTCFullYear()   + "-" +
+//                       f(this.getUTCMonth() + 1) + "-" +
+//                       f(this.getUTCDate())      + "T" +
+//                       f(this.getUTCHours())     + ":" +
+//                       f(this.getUTCMinutes())   + ":" +
+//                       f(this.getUTCSeconds())   + "Z";
+//              };
+
+//          You can provide an optional replacer method. It will be passed the
+//          key and value of each member, with this bound to the containing
+//          object. The value that is returned from your method will be
+//          serialized. If your method returns undefined, then the member will
+//          be excluded from the serialization.
+
+//          If the replacer parameter is an array of strings, then it will be
+//          used to select the members to be serialized. It filters the results
+//          such that only members with keys listed in the replacer array are
+//          stringified.
+
+//          Values that do not have JSON representations, such as undefined or
+//          functions, will not be serialized. Such values in objects will be
+//          dropped; in arrays they will be replaced with null. You can use
+//          a replacer function to replace those with JSON values.
+
+//          JSON.stringify(undefined) returns undefined.
+
+//          The optional space parameter produces a stringification of the
+//          value that is filled with line breaks and indentation to make it
+//          easier to read.
+
+//          If the space parameter is a non-empty string, then that string will
+//          be used for indentation. If the space parameter is a number, then
+//          the indentation will be that many spaces.
+
+//          Example:
+
+//          text = JSON.stringify(["e", {pluribus: "unum"}]);
+//          // text is '["e",{"pluribus":"unum"}]'
+
+//          text = JSON.stringify(["e", {pluribus: "unum"}], null, "\t");
+//          // text is '[\n\t"e",\n\t{\n\t\t"pluribus": "unum"\n\t}\n]'
+
+//          text = JSON.stringify([new Date()], function (key, value) {
+//              return this[key] instanceof Date
+//                  ? "Date(" + this[key] + ")"
+//                  : value;
+//          });
+//          // text is '["Date(---current time---)"]'
+
+//      JSON.parse(text, reviver)
+//          This method parses a JSON text to produce an object or array.
+//          It can throw a SyntaxError exception.
+//          This has been modified to use JSON-js/json_parse_state.js as the
+//          parser instead of the one built around eval found in JSON-js/json2.js
+
+//          The optional reviver parameter is a function that can filter and
+//          transform the results. It receives each of the keys and values,
+//          and its return value is used instead of the original value.
+//          If it returns what it received, then the structure is not modified.
+//          If it returns undefined then the member is deleted.
+
+//          Example:
+
+//          // Parse the text. Values that look like ISO date strings will
+//          // be converted to Date objects.
+
+//          myData = JSON.parse(text, function (key, value) {
+//              var a;
+//              if (typeof value === "string") {
+//                  a =
+//   /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/.exec(value);
+//                  if (a) {
+//                      return new Date(Date.UTC(+a[1], +a[2] - 1, +a[3], +a[4],
+//                          +a[5], +a[6]));
+//                  }
+//              }
+//              return value;
+//          });
+
+//          myData = JSON.parse('["Date(09/09/2001)"]', function (key, value) {
+//              var d;
+//              if (typeof value === "string" &&
+//                      value.slice(0, 5) === "Date(" &&
+//                      value.slice(-1) === ")") {
+//                  d = new Date(value.slice(5, -1));
+//                  if (d) {
+//                      return d;
+//                  }
+//              }
+//              return value;
+//          });
+
+//  This is a reference implementation. You are free to copy, modify, or
+//  redistribute.
+
+/*jslint
+  for, this
+  */
+
+/*property
+  JSON, apply, call, charCodeAt, getUTCDate, getUTCFullYear, getUTCHours,
+  getUTCMinutes, getUTCMonth, getUTCSeconds, hasOwnProperty, join,
+  lastIndex, length, parse, prototype, push, replace, slice, stringify,
+  test, toJSON, toString, valueOf
+  */
+
+var setupCustomJSON = function(JSON) {
+
+  var rx_one = /^[\],:{}\s]*$/;
+  var rx_two = /\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g;
+  var rx_three = /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g;
+  var rx_four = /(?:^|:|,)(?:\s*\[)+/g;
+  var rx_escapable = /[\\"\u0000-\u001f\u007f-\u009f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
+  var rx_dangerous = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
+
+  function f(n) {
+    // Format integers to have at least two digits.
+    return n < 10
+      ? "0" + n
+      : n;
+  }
+
+  function this_value() {
+    return this.valueOf();
+  }
+
+  if (typeof Date.prototype.toJSON !== "function") {
+
+    Date.prototype.toJSON = function () {
+
+      return isFinite(this.valueOf())
+        ? this.getUTCFullYear() + "-" +
+        f(this.getUTCMonth() + 1) + "-" +
+        f(this.getUTCDate()) + "T" +
+        f(this.getUTCHours()) + ":" +
+        f(this.getUTCMinutes()) + ":" +
+        f(this.getUTCSeconds()) + "Z"
+        : null;
+    };
+
+    Boolean.prototype.toJSON = this_value;
+    Number.prototype.toJSON = this_value;
+    String.prototype.toJSON = this_value;
+  }
+
+  var gap;
+  var indent;
+  var meta;
+  var rep;
+
+
+  function quote(string) {
+
+    // If the string contains no control characters, no quote characters, and no
+    // backslash characters, then we can safely slap some quotes around it.
+    // Otherwise we must also replace the offending characters with safe escape
+    // sequences.
+
+    rx_escapable.lastIndex = 0;
+    return rx_escapable.test(string)
+      ? "\"" + string.replace(rx_escapable, function (a) {
+        var c = meta[a];
+        return typeof c === "string"
+          ? c
+          : "\\u" + ("0000" + a.charCodeAt(0).toString(16)).slice(-4);
+      }) + "\""
+    : "\"" + string + "\"";
+  }
+
+
+  function str(key, holder) {
+
+    // Produce a string from holder[key].
+
+    var i;          // The loop counter.
+    var k;          // The member key.
+    var v;          // The member value.
+    var length;
+    var mind = gap;
+    var partial;
+    var value = holder[key];
+
+    // If the value has a toJSON method, call it to obtain a replacement value.
+
+    if (value && typeof value === "object" &&
+        typeof value.toJSON === "function") {
+      value = value.toJSON(key);
+    }
+
+    // If we were called with a replacer function, then call the replacer to
+    // obtain a replacement value.
+
+    if (typeof rep === "function") {
+      value = rep.call(holder, key, value);
+    }
+
+    // What happens next depends on the value's type.
+
+    switch (typeof value) {
+      case "string":
+        return quote(value);
+
+      case "number":
+
+        // JSON numbers must be finite. Encode non-finite numbers as null.
+
+        return isFinite(value)
+          ? String(value)
+          : "null";
+
+      case "boolean":
+      case "null":
+
+        // If the value is a boolean or null, convert it to a string. Note:
+        // typeof null does not produce "null". The case is included here in
+        // the remote chance that this gets fixed someday.
+
+        return String(value);
+
+        // If the type is "object", we might be dealing with an object or an array or
+        // null.
+
+      case "object":
+
+        // Due to a specification blunder in ECMAScript, typeof null is "object",
+        // so watch out for that case.
+
+        if (!value) {
+          return "null";
+        }
+
+        // Make an array to hold the partial results of stringifying this object value.
+
+        gap += indent;
+        partial = [];
+
+        // Is the value an array?
+
+        if (Object.prototype.toString.apply(value) === "[object Array]") {
+
+          // The value is an array. Stringify every element. Use null as a placeholder
+          // for non-JSON values.
+
+          length = value.length;
+          for (i = 0; i < length; i += 1) {
+            partial[i] = str(i, value) || "null";
+          }
+
+          // Join all of the elements together, separated with commas, and wrap them in
+          // brackets.
+
+          v = partial.length === 0
+            ? "[]"
+            : gap
+            ? "[\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "]"
+            : "[" + partial.join(",") + "]";
+          gap = mind;
+          return v;
+        }
+
+        // If the replacer is an array, use it to select the members to be stringified.
+
+        if (rep && typeof rep === "object") {
+          length = rep.length;
+          for (i = 0; i < length; i += 1) {
+            if (typeof rep[i] === "string") {
+              k = rep[i];
+              v = str(k, value);
+              if (v) {
+                partial.push(quote(k) + (
+                      gap
+                      ? ": "
+                      : ":"
+                      ) + v);
+              }
+            }
+          }
+        } else {
+
+          // Otherwise, iterate through all of the keys in the object.
+
+          for (k in value) {
+            if (Object.prototype.hasOwnProperty.call(value, k)) {
+              v = str(k, value);
+              if (v) {
+                partial.push(quote(k) + (
+                      gap
+                      ? ": "
+                      : ":"
+                      ) + v);
+              }
+            }
+          }
+        }
+
+        // Join all of the member texts together, separated with commas,
+        // and wrap them in braces.
+
+        v = partial.length === 0
+          ? "{}"
+          : gap
+          ? "{\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "}"
+          : "{" + partial.join(",") + "}";
+        gap = mind;
+        return v;
+    }
+  }
+
+  // If the JSON object does not yet have a stringify method, give it one.
+
+  if (typeof JSON.stringify !== "function") {
+    meta = {    // table of character substitutions
+      "\b": "\\b",
+      "\t": "\\t",
+      "\n": "\\n",
+      "\f": "\\f",
+      "\r": "\\r",
+      "\"": "\\\"",
+      "\\": "\\\\"
+    };
+    JSON.stringify = function (value, replacer, space) {
+
+      // The stringify method takes a value and an optional replacer, and an optional
+      // space parameter, and returns a JSON text. The replacer can be a function
+      // that can replace values, or an array of strings that will select the keys.
+      // A default replacer method can be provided. Use of the space parameter can
+      // produce text that is more easily readable.
+
+      var i;
+      gap = "";
+      indent = "";
+
+      // If the space parameter is a number, make an indent string containing that
+      // many spaces.
+
+      if (typeof space === "number") {
+        for (i = 0; i < space; i += 1) {
+          indent += " ";
+        }
+
+        // If the space parameter is a string, it will be used as the indent string.
+
+      } else if (typeof space === "string") {
+        indent = space;
+      }
+
+      // If there is a replacer, it must be a function or an array.
+      // Otherwise, throw an error.
+
+      rep = replacer;
+      if (replacer && typeof replacer !== "function" &&
+          (typeof replacer !== "object" ||
+           typeof replacer.length !== "number")) {
+        throw new Error("JSON.stringify");
+      }
+
+      // Make a fake root object containing our value under the key of "".
+      // Return the result of stringifying the value.
+
+      return str("", {"": value});
+    };
+  }
+
+
+  // If the JSON object does not yet have a parse method, give it one.
+
+  if (typeof JSON.parse !== "function") {
+    JSON.parse = (function () {
+
+      // This function creates a JSON parse function that uses a state machine rather
+      // than the dangerous eval function to parse a JSON text.
+
+      var state;      // The state of the parser, one of
+      // 'go'         The starting state
+      // 'ok'         The final, accepting state
+      // 'firstokey'  Ready for the first key of the object or
+      //              the closing of an empty object
+      // 'okey'       Ready for the next key of the object
+      // 'colon'      Ready for the colon
+      // 'ovalue'     Ready for the value half of a key/value pair
+      // 'ocomma'     Ready for a comma or closing }
+      // 'firstavalue' Ready for the first value of an array or
+      //              an empty array
+      // 'avalue'     Ready for the next value of an array
+      // 'acomma'     Ready for a comma or closing ]
+      var stack;      // The stack, for controlling nesting.
+      var container;  // The current container object or array
+      var key;        // The current key
+      var value;      // The current value
+      var escapes = { // Escapement translation table
+        "\\": "\\",
+        "\"": "\"",
+        "/": "/",
+        "t": "\t",
+        "n": "\n",
+        "r": "\r",
+        "f": "\f",
+        "b": "\b"
+      };
+      var string = {   // The actions for string tokens
+        go: function () {
+          state = "ok";
+        },
+        firstokey: function () {
+          key = value;
+          state = "colon";
+        },
+        okey: function () {
+          key = value;
+          state = "colon";
+        },
+        ovalue: function () {
+          state = "ocomma";
+        },
+        firstavalue: function () {
+          state = "acomma";
+        },
+        avalue: function () {
+          state = "acomma";
+        }
+      };
+      var number = {   // The actions for number tokens
+        go: function () {
+          state = "ok";
+        },
+        ovalue: function () {
+          state = "ocomma";
+        },
+        firstavalue: function () {
+          state = "acomma";
+        },
+        avalue: function () {
+          state = "acomma";
+        }
+      };
+      var action = {
+
+        // The action table describes the behavior of the machine. It contains an
+        // object for each token. Each object contains a method that is called when
+        // a token is matched in a state. An object will lack a method for illegal
+        // states.
+
+        "{": {
+          go: function () {
+            stack.push({state: "ok"});
+            container = {};
+            state = "firstokey";
+          },
+          ovalue: function () {
+            stack.push({container: container, state: "ocomma", key: key});
+            container = {};
+            state = "firstokey";
+          },
+          firstavalue: function () {
+            stack.push({container: container, state: "acomma"});
+            container = {};
+            state = "firstokey";
+          },
+          avalue: function () {
+            stack.push({container: container, state: "acomma"});
+            container = {};
+            state = "firstokey";
+          }
+        },
+        "}": {
+          firstokey: function () {
+            var pop = stack.pop();
+            value = container;
+            container = pop.container;
+            key = pop.key;
+            state = pop.state;
+          },
+          ocomma: function () {
+            var pop = stack.pop();
+            container[key] = value;
+            value = container;
+            container = pop.container;
+            key = pop.key;
+            state = pop.state;
+          }
+        },
+        "[": {
+          go: function () {
+            stack.push({state: "ok"});
+            container = [];
+            state = "firstavalue";
+          },
+          ovalue: function () {
+            stack.push({container: container, state: "ocomma", key: key});
+            container = [];
+            state = "firstavalue";
+          },
+          firstavalue: function () {
+            stack.push({container: container, state: "acomma"});
+            container = [];
+            state = "firstavalue";
+          },
+          avalue: function () {
+            stack.push({container: container, state: "acomma"});
+            container = [];
+            state = "firstavalue";
+          }
+        },
+        "]": {
+          firstavalue: function () {
+            var pop = stack.pop();
+            value = container;
+            container = pop.container;
+            key = pop.key;
+            state = pop.state;
+          },
+          acomma: function () {
+            var pop = stack.pop();
+            container.push(value);
+            value = container;
+            container = pop.container;
+            key = pop.key;
+            state = pop.state;
+          }
+        },
+        ":": {
+          colon: function () {
+            if (Object.hasOwnProperty.call(container, key)) {
+              throw new SyntaxError("Duplicate key '" + key + "\"");
+            }
+            state = "ovalue";
+          }
+        },
+        ",": {
+          ocomma: function () {
+            container[key] = value;
+            state = "okey";
+          },
+          acomma: function () {
+            container.push(value);
+            state = "avalue";
+          }
+        },
+        "true": {
+          go: function () {
+            value = true;
+            state = "ok";
+          },
+          ovalue: function () {
+            value = true;
+            state = "ocomma";
+          },
+          firstavalue: function () {
+            value = true;
+            state = "acomma";
+          },
+          avalue: function () {
+            value = true;
+            state = "acomma";
+          }
+        },
+        "false": {
+          go: function () {
+            value = false;
+            state = "ok";
+          },
+          ovalue: function () {
+            value = false;
+            state = "ocomma";
+          },
+          firstavalue: function () {
+            value = false;
+            state = "acomma";
+          },
+          avalue: function () {
+            value = false;
+            state = "acomma";
+          }
+        },
+        "null": {
+          go: function () {
+            value = null;
+            state = "ok";
+          },
+          ovalue: function () {
+            value = null;
+            state = "ocomma";
+          },
+          firstavalue: function () {
+            value = null;
+            state = "acomma";
+          },
+          avalue: function () {
+            value = null;
+            state = "acomma";
+          }
+        }
+      };
+
+      function debackslashify(text) {
+
+        // Remove and replace any backslash escapement.
+
+        return text.replace(/\\(?:u(.{4})|([^u]))/g, function (ignore, b, c) {
+          return b
+            ? String.fromCharCode(parseInt(b, 16))
+            : escapes[c];
+        });
+      }
+
+      return function (source, reviver) {
+
+        // A regular expression is used to extract tokens from the JSON text.
+        // The extraction process is cautious.
+
+        var result;
+        var tx = /^[\u0020\t\n\r]*(?:([,:\[\]{}]|true|false|null)|(-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)|"((?:[^\r\n\t\\\"]|\\(?:["\\\/trnfb]|u[0-9a-fA-F]{4}))*)")/;
+
+        // Set the starting state.
+
+        state = "go";
+
+        // The stack records the container, key, and state for each object or array
+        // that contains another object or array while processing nested structures.
+
+        stack = [];
+
+        // If any error occurs, we will catch it and ultimately throw a syntax error.
+
+        try {
+
+          // For each token...
+
+          while (true) {
+            result = tx.exec(source);
+            if (!result) {
+              break;
+            }
+
+            // result is the result array from matching the tokenizing regular expression.
+            //  result[0] contains everything that matched, including any initial whitespace.
+            //  result[1] contains any punctuation that was matched, or true, false, or null.
+            //  result[2] contains a matched number, still in string form.
+            //  result[3] contains a matched string, without quotes but with escapement.
+
+            if (result[1]) {
+
+              // Token: Execute the action for this state and token.
+
+              action[result[1]][state]();
+
+            } else if (result[2]) {
+
+              // Number token: Convert the number string into a number value and execute
+              // the action for this state and number.
+
+              value = +result[2];
+              number[state]();
+            } else {
+
+              // String token: Replace the escapement sequences and execute the action for
+              // this state and string.
+
+              value = debackslashify(result[3]);
+              string[state]();
+            }
+
+            // Remove the token from the string. The loop will continue as long as there
+            // are tokens. This is a slow process, but it allows the use of ^ matching,
+            // which assures that no illegal tokens slip through.
+
+            source = source.slice(result[0].length);
+          }
+
+          // If we find a state/token combination that is illegal, then the action will
+          // cause an error. We handle the error by simply changing the state.
+
+        } catch (e) {
+          state = e;
+        }
+
+        // The parsing is finished. If we are not in the final "ok" state, or if the
+        // remaining source contains anything except whitespace, then we did not have
+        //a well-formed JSON text.
+
+        if (state !== "ok" || (/[^\u0020\t\n\r]/.test(source))) {
+          throw (state instanceof SyntaxError)
+            ? state
+            : new SyntaxError("JSON");
+        }
+
+        // If there is a reviver function, we recursively walk the new structure,
+        // passing each name/value pair to the reviver function for possible
+        // transformation, starting with a temporary root object that holds the current
+        // value in an empty key. If there is not a reviver function, we simply return
+        // that value.
+
+        return (typeof reviver === "function")
+          ? (function walk(holder, key) {
+            var k;
+            var v;
+            var val = holder[key];
+            if (val && typeof val === "object") {
+              for (k in value) {
+                if (Object.prototype.hasOwnProperty.call(val, k)) {
+                  v = walk(val, k);
+                  if (v !== undefined) {
+                    val[k] = v;
+                  } else {
+                    delete val[k];
+                  }
+                }
+              }
+            }
+            return reviver.call(holder, key, val);
+          }({"": value}, ""))
+        : value;
+      };
+    }());
+  }
+}
+
+module.exports = setupCustomJSON;
 
 
 /***/ }),
 /* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	'use strict';
-	
-	var _ = __webpack_require__(4);
-	
-	function buildPayload(accessToken, data, jsonBackup) {
-	  if (!_.isType(data.context, 'string')) {
-	    var contextResult = _.stringify(data.context, jsonBackup);
-	    if (contextResult.error) {
-	      data.context = 'Error: could not serialize \'context\'';
-	    } else {
-	      data.context = contextResult.value || '';
-	    }
-	    if (data.context.length > 255) {
-	      data.context = data.context.substr(0, 255);
-	    }
-	  }
-	  return {
-	    access_token: accessToken,
-	    data: data
-	  };
-	}
-	
-	function getTransportFromOptions(options, defaults, url) {
-	  var hostname = defaults.hostname;
-	  var protocol = defaults.protocol;
-	  var port = defaults.port;
-	  var path = defaults.path;
-	  var search = defaults.search;
-	
-	  var proxy = options.proxy;
-	  if (options.endpoint) {
-	    var opts = url.parse(options.endpoint);
-	    hostname = opts.hostname;
-	    protocol = opts.protocol;
-	    port = opts.port;
-	    path = opts.pathname;
-	    search = opts.search;
-	  }
-	  return {
-	    hostname: hostname,
-	    protocol: protocol,
-	    port: port,
-	    path: path,
-	    search: search,
-	    proxy: proxy
-	  };
-	}
-	
-	function transportOptions(transport, method) {
-	  var protocol = transport.protocol || 'https:';
-	  var port = transport.port || (protocol === 'http:' ? 80 : protocol === 'https:' ? 443 : undefined);
-	  var hostname = transport.hostname;
-	  var path = transport.path;
-	  if (transport.search) {
-	    path = path + transport.search;
-	  }
-	  if (transport.proxy) {
-	    path = protocol + '//' + hostname + path;
-	    hostname = transport.proxy.host || transport.proxy.hostname;
-	    port = transport.proxy.port;
-	    protocol = transport.proxy.protocol || protocol;
-	  }
-	  return {
-	    protocol: protocol,
-	    hostname: hostname,
-	    path: path,
-	    port: port,
-	    method: method
-	  };
-	}
-	
-	function appendPathToPath(base, path) {
-	  var baseTrailingSlash = /\/$/.test(base);
-	  var pathBeginningSlash = /^\//.test(path);
-	
-	  if (baseTrailingSlash && pathBeginningSlash) {
-	    path = path.substring(1);
-	  } else if (!baseTrailingSlash && !pathBeginningSlash) {
-	    path = '/' + path;
-	  }
-	
-	  return base + path;
-	}
-	
-	module.exports = {
-	  buildPayload: buildPayload,
-	  getTransportFromOptions: getTransportFromOptions,
-	  transportOptions: transportOptions,
-	  appendPathToPath: appendPathToPath
-	};
+var _ = __webpack_require__(0);
+
+/*
+ * Queue - an object which handles which handles a queue of items to be sent to Rollbar.
+ *   This object handles rate limiting via a passed in rate limiter, retries based on connection
+ *   errors, and filtering of items based on a set of configurable predicates. The communication to
+ *   the backend is performed via a given API object.
+ *
+ * @param rateLimiter - An object which conforms to the interface
+ *    rateLimiter.shouldSend(item) -> bool
+ * @param api - An object which conforms to the interface
+ *    api.postItem(payload, function(err, response))
+ * @param logger - An object used to log verbose messages if desired
+ * @param options - see Queue.prototype.configure
+ */
+function Queue(rateLimiter, api, logger, options) {
+  this.rateLimiter = rateLimiter;
+  this.api = api;
+  this.logger = logger;
+  this.options = options;
+  this.predicates = [];
+  this.pendingItems = [];
+  this.pendingRequests = [];
+  this.retryQueue = [];
+  this.retryHandle = null;
+  this.waitCallback = null;
+  this.waitIntervalID = null;
+}
+
+/*
+ * configure - updates the options this queue uses
+ *
+ * @param options
+ */
+Queue.prototype.configure = function(options) {
+  this.api && this.api.configure(options);
+  var oldOptions = this.options;
+  this.options = _.merge(oldOptions, options);
+  return this;
+};
+
+/*
+ * addPredicate - adds a predicate to the end of the list of predicates for this queue
+ *
+ * @param predicate - function(item, options) -> (bool|{err: Error})
+ *  Returning true means that this predicate passes and the item is okay to go on the queue
+ *  Returning false means do not add the item to the queue, but it is not an error
+ *  Returning {err: Error} means do not add the item to the queue, and the given error explains why
+ *  Returning {err: undefined} is equivalent to returning true but don't do that
+ */
+Queue.prototype.addPredicate = function(predicate) {
+  if (_.isFunction(predicate)) {
+    this.predicates.push(predicate);
+  }
+  return this;
+};
+
+Queue.prototype.addPendingItem = function(item) {
+  this.pendingItems.push(item);
+};
+
+Queue.prototype.removePendingItem = function(item) {
+  var idx = this.pendingItems.indexOf(item);
+  if (idx !== -1) {
+    this.pendingItems.splice(idx, 1);
+  }
+};
+
+/*
+ * addItem - Send an item to the Rollbar API if all of the predicates are satisfied
+ *
+ * @param item - The payload to send to the backend
+ * @param callback - function(error, repsonse) which will be called with the response from the API
+ *  in the case of a success, otherwise response will be null and error will have a value. If both
+ *  error and response are null then the item was stopped by a predicate which did not consider this
+ *  to be an error condition, but nonetheless did not send the item to the API.
+ *  @param originalError - The original error before any transformations that is to be logged if any
+ */
+Queue.prototype.addItem = function(item, callback, originalError, originalItem) {
+  if (!callback || !_.isFunction(callback)) {
+    callback = function() { return; };
+  }
+  var predicateResult = this._applyPredicates(item);
+  if (predicateResult.stop) {
+    this.removePendingItem(originalItem);
+    callback(predicateResult.err);
+    return;
+  }
+  this._maybeLog(item, originalError);
+  this.removePendingItem(originalItem);
+  this.pendingRequests.push(item);
+  try {
+    this._makeApiRequest(item, function(err, resp) {
+      this._dequeuePendingRequest(item);
+      callback(err, resp);
+    }.bind(this));
+  } catch (e) {
+    this._dequeuePendingRequest(item);
+    callback(e);
+  }
+};
+
+/*
+ * wait - Stop any further errors from being added to the queue, and get called back when all items
+ *   currently processing have finished sending to the backend.
+ *
+ * @param callback - function() called when all pending items have been sent
+ */
+Queue.prototype.wait = function(callback) {
+  if (!_.isFunction(callback)) {
+    return;
+  }
+  this.waitCallback = callback;
+  if (this._maybeCallWait()) {
+    return;
+  }
+  if (this.waitIntervalID) {
+    this.waitIntervalID = clearInterval(this.waitIntervalID);
+  }
+  this.waitIntervalID = setInterval(function() {
+    this._maybeCallWait();
+  }.bind(this), 500);
+};
+
+/* _applyPredicates - Sequentially applies the predicates that have been added to the queue to the
+ *   given item with the currently configured options.
+ *
+ * @param item - An item in the queue
+ * @returns {stop: bool, err: (Error|null)} - stop being true means do not add item to the queue,
+ *   the error value should be passed up to a callbak if we are stopping.
+ */
+Queue.prototype._applyPredicates = function(item) {
+  var p = null;
+  for (var i = 0, len = this.predicates.length; i < len; i++) {
+    p = this.predicates[i](item, this.options);
+    if (!p || p.err !== undefined) {
+      return {stop: true, err: p.err};
+    }
+  }
+  return {stop: false, err: null};
+};
+
+/*
+ * _makeApiRequest - Send an item to Rollbar, callback when done, if there is an error make an
+ *   effort to retry if we are configured to do so.
+ *
+ * @param item - an item ready to send to the backend
+ * @param callback - function(err, response)
+ */
+Queue.prototype._makeApiRequest = function(item, callback) {
+  var rateLimitResponse = this.rateLimiter.shouldSend(item);
+  if (rateLimitResponse.shouldSend) {
+    this.api.postItem(item, function(err, resp) {
+      if (err) {
+        this._maybeRetry(err, item, callback);
+      } else {
+        callback(err, resp);
+      }
+    }.bind(this));
+  } else if (rateLimitResponse.error) {
+    callback(rateLimitResponse.error);
+  } else {
+    this.api.postItem(rateLimitResponse.payload, callback);
+  }
+};
+
+// These are errors basically mean there is no internet connection
+var RETRIABLE_ERRORS = ['ECONNRESET', 'ENOTFOUND', 'ESOCKETTIMEDOUT', 'ETIMEDOUT', 'ECONNREFUSED', 'EHOSTUNREACH', 'EPIPE', 'EAI_AGAIN'];
+
+/*
+ * _maybeRetry - Given the error returned by the API, decide if we should retry or just callback
+ *   with the error.
+ *
+ * @param err - an error returned by the API transport
+ * @param item - the item that was trying to be sent when this error occured
+ * @param callback - function(err, response)
+ */
+Queue.prototype._maybeRetry = function(err, item, callback) {
+  var shouldRetry = false;
+  if (this.options.retryInterval) {
+    for (var i = 0, len = RETRIABLE_ERRORS.length; i < len; i++) {
+      if (err.code === RETRIABLE_ERRORS[i]) {
+        shouldRetry = true;
+        break;
+      }
+    }
+  }
+  if (shouldRetry) {
+    this._retryApiRequest(item, callback);
+  } else {
+    callback(err);
+  }
+};
+
+/*
+ * _retryApiRequest - Add an item and a callback to a queue and possibly start a timer to process
+ *   that queue based on the retryInterval in the options for this queue.
+ *
+ * @param item - an item that failed to send due to an error we deem retriable
+ * @param callback - function(err, response)
+ */
+Queue.prototype._retryApiRequest = function(item, callback) {
+  this.retryQueue.push({item: item, callback: callback});
+
+  if (!this.retryHandle) {
+    this.retryHandle = setInterval(function() {
+      while (this.retryQueue.length) {
+        var retryObject = this.retryQueue.shift();
+        this._makeApiRequest(retryObject.item, retryObject.callback);
+      }
+    }.bind(this), this.options.retryInterval);
+  }
+};
+
+/*
+ * _dequeuePendingRequest - Removes the item from the pending request queue, this queue is used to
+ *   enable to functionality of providing a callback that clients can pass to `wait` to be notified
+ *   when the pending request queue has been emptied. This must be called when the API finishes
+ *   processing this item. If a `wait` callback is configured, it is called by this function.
+ *
+ * @param item - the item previously added to the pending request queue
+ */
+Queue.prototype._dequeuePendingRequest = function(item) {
+  var idx = this.pendingRequests.indexOf(item);
+  if (idx !== -1) {
+    this.pendingRequests.splice(idx, 1);
+    this._maybeCallWait();
+  }
+};
+
+Queue.prototype._maybeLog = function(data, originalError) {
+  if (this.logger && this.options.verbose) {
+    var message = originalError;
+    message = message || _.get(data, 'body.trace.exception.message');
+    message = message || _.get(data, 'body.trace_chain.0.exception.message');
+    if (message) {
+      this.logger.error(message);
+      return;
+    }
+    message = _.get(data, 'body.message.body');
+    if (message) {
+      this.logger.log(message);
+    }
+  }
+};
+
+Queue.prototype._maybeCallWait = function() {
+  if (_.isFunction(this.waitCallback) && this.pendingItems.length === 0 && this.pendingRequests.length === 0) {
+    if (this.waitIntervalID) {
+      this.waitIntervalID = clearInterval(this.waitIntervalID);
+    }
+    this.waitCallback();
+    return true;
+  }
+  return false;
+};
+
+module.exports = Queue;
 
 
 /***/ }),
 /* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	'use strict';
-	
-	var _ = __webpack_require__(4);
-	
-	function raw(payload, jsonBackup) {
-	  return [payload, _.stringify(payload, jsonBackup)];
-	}
-	
-	function selectFrames(frames, range) {
-	  var len = frames.length;
-	  if (len > range * 2) {
-	    return frames.slice(0, range).concat(frames.slice(len - range));
-	  }
-	  return frames;
-	}
-	
-	function truncateFrames(payload, jsonBackup, range) {
-	  range = (typeof range === 'undefined') ? 30 : range;
-	  var body = payload.data.body;
-	  var frames;
-	  if (body.trace_chain) {
-	    var chain = body.trace_chain;
-	    for (var i = 0; i < chain.length; i++) {
-	      frames = chain[i].frames;
-	      frames = selectFrames(frames, range);
-	      chain[i].frames = frames;
-	    }
-	  } else if (body.trace) {
-	    frames = body.trace.frames;
-	    frames = selectFrames(frames, range);
-	    body.trace.frames = frames;
-	  }
-	  return [payload, _.stringify(payload, jsonBackup)];
-	}
-	
-	function maybeTruncateValue(len, val) {
-	  if (!val) {
-	    return val;
-	  }
-	  if (val.length > len) {
-	    return val.slice(0, len - 3).concat('...');
-	  }
-	  return val;
-	}
-	
-	function truncateStrings(len, payload, jsonBackup) {
-	  function truncator(k, v, seen) {
-	    switch (_.typeName(v)) {
-	      case 'string':
-	        return maybeTruncateValue(len, v);
-	      case 'object':
-	      case 'array':
-	        return _.traverse(v, truncator, seen);
-	      default:
-	        return v;
-	    }
-	  }
-	  payload = _.traverse(payload, truncator, []);
-	  return [payload, _.stringify(payload, jsonBackup)];
-	}
-	
-	function truncateTraceData(traceData) {
-	  if (traceData.exception) {
-	    delete traceData.exception.description;
-	    traceData.exception.message = maybeTruncateValue(255, traceData.exception.message);
-	  }
-	  traceData.frames = selectFrames(traceData.frames, 1);
-	  return traceData;
-	}
-	
-	function minBody(payload, jsonBackup) {
-	  var body = payload.data.body;
-	  if (body.trace_chain) {
-	    var chain = body.trace_chain;
-	    for (var i = 0; i < chain.length; i++) {
-	      chain[i] = truncateTraceData(chain[i]);
-	    }
-	  } else if (body.trace) {
-	    body.trace = truncateTraceData(body.trace);
-	  }
-	  return [payload, _.stringify(payload, jsonBackup)];
-	}
-	
-	function needsTruncation(payload, maxSize) {
-	  return payload.length > maxSize;
-	}
-	
-	function truncate(payload, jsonBackup, maxSize) {
-	  maxSize = (typeof maxSize === 'undefined') ? (512 * 1024) : maxSize;
-	  var strategies = [
-	    raw,
-	    truncateFrames,
-	    truncateStrings.bind(null, 1024),
-	    truncateStrings.bind(null, 512),
-	    truncateStrings.bind(null, 256),
-	    minBody
-	  ];
-	  var strategy, results, result;
-	
-	  while ((strategy = strategies.shift())) {
-	    results = strategy(payload, jsonBackup);
-	    payload = results[0];
-	    result = results[1];
-	    if (result.error || !needsTruncation(result.value, maxSize)) {
-	      return result;
-	    }
-	  }
-	  return result;
-	}
-	
-	module.exports = {
-	  truncate: truncate,
-	
-	  /* for testing */
-	  raw: raw,
-	  truncateFrames: truncateFrames,
-	  truncateStrings: truncateStrings,
-	  maybeTruncateValue: maybeTruncateValue
-	};
+var _ = __webpack_require__(0);
+
+/*
+ * Notifier - the internal object responsible for delegating between the client exposed API, the
+ * chain of transforms necessary to turn an item into something that can be sent to Rollbar, and the
+ * queue which handles the communcation with the Rollbar API servers.
+ *
+ * @param queue - an object that conforms to the interface: addItem(item, callback)
+ * @param options - an object representing the options to be set for this notifier, this should have
+ * any defaults already set by the caller
+ */
+function Notifier(queue, options) {
+  this.queue = queue;
+  this.options = options;
+  this.transforms = [];
+}
+
+/*
+ * configure - updates the options for this notifier with the passed in object
+ *
+ * @param options - an object which gets merged with the current options set on this notifier
+ * @returns this
+ */
+Notifier.prototype.configure = function(options) {
+  this.queue && this.queue.configure(options);
+  var oldOptions = this.options;
+  this.options = _.merge(oldOptions, options);
+  return this;
+};
+
+/*
+ * addTransform - adds a transform onto the end of the queue of transforms for this notifier
+ *
+ * @param transform - a function which takes three arguments:
+ *    * item: An Object representing the data to eventually be sent to Rollbar
+ *    * options: The current value of the options for this notifier
+ *    * callback: function(err: (Null|Error), item: (Null|Object)) the transform must call this
+ *    callback with a null value for error if it wants the processing chain to continue, otherwise
+ *    with an error to terminate the processing. The item should be the updated item after this
+ *    transform is finished modifying it.
+ */
+Notifier.prototype.addTransform = function(transform) {
+  if (_.isFunction(transform)) {
+    this.transforms.push(transform);
+  }
+  return this;
+};
+
+/*
+ * log - the internal log function which applies the configured transforms and then pushes onto the
+ * queue to be sent to the backend.
+ *
+ * @param item - An object with the following structure:
+ *    message [String] - An optional string to be sent to rollbar
+ *    error [Error] - An optional error
+ *
+ * @param callback - A function of type function(err, resp) which will be called with exactly one
+ * null argument and one non-null argument. The callback will be called once, either during the
+ * transform stage if an error occurs inside a transform, or in response to the communication with
+ * the backend. The second argument will be the response from the backend in case of success.
+ */
+Notifier.prototype.log = function(item, callback) {
+  if (!callback || !_.isFunction(callback)) {
+    callback = function() {};
+  }
+
+  if (!this.options.enabled) {
+    return callback(new Error('Rollbar is not enabled'));
+  }
+
+  this.queue.addPendingItem(item);
+  var originalError = item.err;
+  this._applyTransforms(item, function(err, i) {
+    if (err) {
+      this.queue.removePendingItem(item);
+      return callback(err, null);
+    }
+    this.queue.addItem(i, callback, originalError, item);
+  }.bind(this));
+};
+
+/* Internal */
+
+/*
+ * _applyTransforms - Applies the transforms that have been added to this notifier sequentially. See
+ * `addTransform` for more information.
+ *
+ * @param item - An item to be transformed
+ * @param callback - A function of type function(err, item) which will be called with a non-null
+ * error and a null item in the case of a transform failure, or a null error and non-null item after
+ * all transforms have been applied.
+ */
+Notifier.prototype._applyTransforms = function(item, callback) {
+  var transformIndex = -1;
+  var transformsLength = this.transforms.length;
+  var transforms = this.transforms;
+  var options = this.options;
+
+  var cb = function(err, i) {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+
+    transformIndex++;
+
+    if (transformIndex === transformsLength) {
+      callback(null, i);
+      return;
+    }
+
+    transforms[transformIndex](i, options, cb);
+  };
+
+  cb(null, item);
+};
+
+module.exports = Notifier;
 
 
 /***/ }),
 /* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	'use strict';
-	
-	/* eslint-disable no-console */
-	__webpack_require__(14);
-	var detection = __webpack_require__(15);
-	var _ = __webpack_require__(4);
-	
-	function error() {
-	  var args = Array.prototype.slice.call(arguments, 0);
-	  args.unshift('Rollbar:');
-	  if (detection.ieVersion() <= 8) {
-	    console.error(_.formatArgsAsString(args));
-	  } else {
-	    console.error.apply(console, args);
-	  }
-	}
-	
-	function info() {
-	  var args = Array.prototype.slice.call(arguments, 0);
-	  args.unshift('Rollbar:');
-	  if (detection.ieVersion() <= 8) {
-	    console.info(_.formatArgsAsString(args));
-	  } else {
-	    console.info.apply(console, args);
-	  }
-	}
-	
-	function log() {
-	  var args = Array.prototype.slice.call(arguments, 0);
-	  args.unshift('Rollbar:');
-	  if (detection.ieVersion() <= 8) {
-	    console.log(_.formatArgsAsString(args));
-	  } else {
-	    console.log.apply(console, args);
-	  }
-	}
-	
-	/* eslint-enable no-console */
-	
-	module.exports = {
-	  error: error,
-	  info: info,
-	  log: log
-	};
+var _ = __webpack_require__(0);
+
+var MAX_EVENTS = 100;
+
+function Telemeter(options) {
+  this.queue = [];
+  this.options = _.merge(options);
+  var maxTelemetryEvents = this.options.maxTelemetryEvents || MAX_EVENTS;
+  this.maxQueueSize = Math.max(0, Math.min(maxTelemetryEvents, MAX_EVENTS));
+}
+
+Telemeter.prototype.configure = function(options) {
+  var oldOptions = this.options;
+  this.options = _.merge(oldOptions, options);
+  var maxTelemetryEvents = this.options.maxTelemetryEvents || MAX_EVENTS;
+  var newMaxEvents = Math.max(0, Math.min(maxTelemetryEvents, MAX_EVENTS));
+  var deleteCount = 0;
+  if (this.maxQueueSize > newMaxEvents) {
+    deleteCount = this.maxQueueSize - newMaxEvents;
+  }
+  this.maxQueueSize = newMaxEvents;
+  this.queue.splice(0, deleteCount);
+};
+
+Telemeter.prototype.copyEvents = function() {
+  var events = Array.prototype.slice.call(this.queue, 0);
+  if (_.isFunction(this.options.filterTelemetry)) {
+    try {
+      var i = events.length;
+      while (i--) {
+        if (this.options.filterTelemetry(events[i])) {
+          events.splice(i, 1);
+        }
+      }
+    } catch (e) {
+      this.options.filterTelemetry = null;
+    }
+  }
+  return events;
+};
+
+Telemeter.prototype.capture = function(type, metadata, level, rollbarUUID, timestamp) {
+  var e = {
+    level: getLevel(type, level),
+    type: type,
+    timestamp_ms: timestamp || _.now(),
+    body: metadata,
+    source: 'client'
+  };
+  if (rollbarUUID) {
+    e.uuid = rollbarUUID;
+  }
+
+  try {
+    if (_.isFunction(this.options.filterTelemetry) && this.options.filterTelemetry(e)) {
+      return false;
+    }
+  } catch (exc) {
+    this.options.filterTelemetry = null;
+  }
+
+  this.push(e);
+  return e;
+};
+
+Telemeter.prototype.captureEvent = function(type, metadata, level, rollbarUUID) {
+  return this.capture(type, metadata, level, rollbarUUID);
+};
+
+Telemeter.prototype.captureError = function(err, level, rollbarUUID, timestamp) {
+  var metadata = {
+    message: err.message || String(err)
+  };
+  if (err.stack) {
+    metadata.stack = err.stack;
+  }
+  return this.capture('error', metadata, level, rollbarUUID, timestamp);
+};
+
+Telemeter.prototype.captureLog = function(message, level, rollbarUUID, timestamp) {
+  return this.capture('log', {
+    message: message
+  }, level, rollbarUUID, timestamp);
+};
+
+Telemeter.prototype.captureNetwork = function(metadata, subtype, rollbarUUID, requestData) {
+  subtype = subtype || 'xhr';
+  metadata.subtype = metadata.subtype || subtype;
+  if (requestData) {
+    metadata.request = requestData;
+  }
+  var level = this.levelFromStatus(metadata.status_code);
+  return this.capture('network', metadata, level, rollbarUUID);
+};
+
+Telemeter.prototype.levelFromStatus = function(statusCode) {
+  if (statusCode >= 200 && statusCode < 400) {
+    return 'info';
+  }
+  if (statusCode === 0 || statusCode >= 400) {
+    return 'error';
+  }
+  return 'info';
+};
+
+Telemeter.prototype.captureDom = function(subtype, element, value, checked, rollbarUUID) {
+  var metadata = {
+    subtype: subtype,
+    element: element
+  };
+  if (value !== undefined) {
+    metadata.value = value;
+  }
+  if (checked !== undefined) {
+    metadata.checked = checked;
+  }
+  return this.capture('dom', metadata, 'info', rollbarUUID);
+};
+
+Telemeter.prototype.captureNavigation = function(from, to, rollbarUUID) {
+  return this.capture('navigation', {from: from, to: to}, 'info', rollbarUUID);
+};
+
+Telemeter.prototype.captureDomContentLoaded = function(ts) {
+  return this.capture('navigation', {subtype: 'DOMContentLoaded'}, 'info', undefined, ts && ts.getTime());
+  /**
+   * If we decide to make this a dom event instead, then use the line below:
+  return this.capture('dom', {subtype: 'DOMContentLoaded'}, 'info', undefined, ts && ts.getTime());
+  */
+};
+Telemeter.prototype.captureLoad = function(ts) {
+  return this.capture('navigation', {subtype: 'load'}, 'info', undefined, ts && ts.getTime());
+  /**
+   * If we decide to make this a dom event instead, then use the line below:
+  return this.capture('dom', {subtype: 'load'}, 'info', undefined, ts && ts.getTime());
+  */
+};
+
+Telemeter.prototype.captureConnectivityChange = function(type, rollbarUUID) {
+  return this.captureNetwork({change: type}, 'connectivity', rollbarUUID);
+};
+
+// Only intended to be used internally by the notifier
+Telemeter.prototype._captureRollbarItem = function(item) {
+  if (!this.options.includeItemsInTelemetry) {
+    return;
+  }
+  if (item.err) {
+    return this.captureError(item.err, item.level, item.uuid, item.timestamp);
+  }
+  if (item.message) {
+    return this.captureLog(item.message, item.level, item.uuid, item.timestamp);
+  }
+  if (item.custom) {
+    return this.capture('log', item.custom, item.level, item.uuid, item.timestamp);
+  }
+};
+
+Telemeter.prototype.push = function(e) {
+  this.queue.push(e);
+  if (this.queue.length > this.maxQueueSize) {
+    this.queue.shift();
+  }
+};
+
+function getLevel(type, level) {
+  if (level) {
+    return level;
+  }
+  var defaultLevel = {
+    error: 'error',
+    manual: 'info'
+  };
+  return defaultLevel[type] || 'info';
+}
+
+module.exports = Telemeter;
 
 
 /***/ }),
 /* 14 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-	// Console-polyfill. MIT license.
-	// https://github.com/paulmillr/console-polyfill
-	// Make it safe to do console.log() always.
-	(function(global) {
-	  'use strict';
-	  if (!global.console) {
-	    global.console = {};
-	  }
-	  var con = global.console;
-	  var prop, method;
-	  var dummy = function() {};
-	  var properties = ['memory'];
-	  var methods = ('assert,clear,count,debug,dir,dirxml,error,exception,group,' +
-	     'groupCollapsed,groupEnd,info,log,markTimeline,profile,profiles,profileEnd,' +
-	     'show,table,time,timeEnd,timeline,timelineEnd,timeStamp,trace,warn').split(',');
-	  while (prop = properties.pop()) if (!con[prop]) con[prop] = {};
-	  while (method = methods.pop()) if (!con[method]) con[method] = dummy;
-	  // Using `this` for web workers & supports Browserify / Webpack.
-	})(typeof window === 'undefined' ? this : window);
+var _ = __webpack_require__(0);
+var helpers = __webpack_require__(15);
+var truncation = __webpack_require__(2);
+
+var defaultOptions = {
+  hostname: 'api.rollbar.com',
+  path: '/api/1/item/',
+  search: null,
+  version: '1',
+  protocol: 'https:',
+  port: 443
+};
+
+/**
+ * Api is an object that encapsulates methods of communicating with
+ * the Rollbar API.  It is a standard interface with some parts implemented
+ * differently for server or browser contexts.  It is an object that should
+ * be instantiated when used so it can contain non-global options that may
+ * be different for another instance of RollbarApi.
+ *
+ * @param options {
+ *    accessToken: the accessToken to use for posting items to rollbar
+ *    endpoint: an alternative endpoint to send errors to
+ *        must be a valid, fully qualified URL.
+ *        The default is: https://api.rollbar.com/api/1/item
+ *    proxy: if you wish to proxy requests provide an object
+ *        with the following keys:
+ *          host or hostname (required): foo.example.com
+ *          port (optional): 123
+ *          protocol (optional): https
+ * }
+ */
+function Api(options, t, u, j) {
+  this.options = options;
+  this.transport = t;
+  this.url = u;
+  this.jsonBackup = j;
+  this.accessToken = options.accessToken;
+  this.transportOptions = _getTransport(options, u);
+}
+
+/**
+ *
+ * @param data
+ * @param callback
+ */
+Api.prototype.postItem = function(data, callback) {
+  var transportOptions = helpers.transportOptions(this.transportOptions, 'POST');
+  var payload = helpers.buildPayload(this.accessToken, data, this.jsonBackup);
+  this.transport.post(this.accessToken, transportOptions, payload, callback);
+};
+
+/**
+ *
+ * @param data
+ * @param callback
+ */
+Api.prototype.buildJsonPayload = function(data, callback) {
+  var payload = helpers.buildPayload(this.accessToken, data, this.jsonBackup);
+
+  var stringifyResult = truncation.truncate(payload);
+  if (stringifyResult.error) {
+    if (callback) {
+      callback(stringifyResult.error);
+    }
+    return null;
+  }
+
+  return stringifyResult.value;
+};
+
+/**
+ *
+ * @param jsonPayload
+ * @param callback
+ */
+Api.prototype.postJsonPayload = function(jsonPayload, callback) {
+  var transportOptions = helpers.transportOptions(this.transportOptions, 'POST');
+  this.transport.postJsonPayload(this.accessToken, transportOptions, jsonPayload, callback);
+};
+
+Api.prototype.configure = function(options) {
+  var oldOptions = this.oldOptions;
+  this.options = _.merge(oldOptions, options);
+  this.transportOptions = _getTransport(this.options, this.url);
+  if (this.options.accessToken !== undefined) {
+    this.accessToken = this.options.accessToken;
+  }
+  return this;
+};
+
+function _getTransport(options, url) {
+  return helpers.getTransportFromOptions(options, defaultOptions, url);
+}
+
+module.exports = Api;
 
 
 /***/ }),
 /* 15 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-	'use strict';
-	
-	// This detection.js module is used to encapsulate any ugly browser/feature
-	// detection we may need to do.
-	
-	// Figure out which version of IE we're using, if any.
-	// This is gleaned from http://stackoverflow.com/questions/5574842/best-way-to-check-for-ie-less-than-9-in-javascript-without-library
-	// Will return an integer on IE (i.e. 8)
-	// Will return undefined otherwise
-	function getIEVersion() {
-		var undef;
-		if (!document) {
-			return undef;
-		}
-	
-	  var v = 3,
-	    div = document.createElement('div'),
-	    all = div.getElementsByTagName('i');
-	
-	  while (
-	    div.innerHTML = '<!--[if gt IE ' + (++v) + ']><i></i><![endif]-->',
-	      all[0]
-	    );
-	
-	  return v > 4 ? v : undef;
-	}
-	
-	var Detection = {
-	  ieVersion: getIEVersion
-	};
-	
-	module.exports = Detection;
+var _ = __webpack_require__(0);
+
+function buildPayload(accessToken, data, jsonBackup) {
+  if (!_.isType(data.context, 'string')) {
+    var contextResult = _.stringify(data.context, jsonBackup);
+    if (contextResult.error) {
+      data.context = 'Error: could not serialize \'context\'';
+    } else {
+      data.context = contextResult.value || '';
+    }
+    if (data.context.length > 255) {
+      data.context = data.context.substr(0, 255);
+    }
+  }
+  return {
+    access_token: accessToken,
+    data: data
+  };
+}
+
+function getTransportFromOptions(options, defaults, url) {
+  var hostname = defaults.hostname;
+  var protocol = defaults.protocol;
+  var port = defaults.port;
+  var path = defaults.path;
+  var search = defaults.search;
+
+  var proxy = options.proxy;
+  if (options.endpoint) {
+    var opts = url.parse(options.endpoint);
+    hostname = opts.hostname;
+    protocol = opts.protocol;
+    port = opts.port;
+    path = opts.pathname;
+    search = opts.search;
+  }
+  return {
+    hostname: hostname,
+    protocol: protocol,
+    port: port,
+    path: path,
+    search: search,
+    proxy: proxy
+  };
+}
+
+function transportOptions(transport, method) {
+  var protocol = transport.protocol || 'https:';
+  var port = transport.port || (protocol === 'http:' ? 80 : protocol === 'https:' ? 443 : undefined);
+  var hostname = transport.hostname;
+  var path = transport.path;
+  if (transport.search) {
+    path = path + transport.search;
+  }
+  if (transport.proxy) {
+    path = protocol + '//' + hostname + path;
+    hostname = transport.proxy.host || transport.proxy.hostname;
+    port = transport.proxy.port;
+    protocol = transport.proxy.protocol || protocol;
+  }
+  return {
+    protocol: protocol,
+    hostname: hostname,
+    path: path,
+    port: port,
+    method: method
+  };
+}
+
+function appendPathToPath(base, path) {
+  var baseTrailingSlash = /\/$/.test(base);
+  var pathBeginningSlash = /^\//.test(path);
+
+  if (baseTrailingSlash && pathBeginningSlash) {
+    path = path.substring(1);
+  } else if (!baseTrailingSlash && !pathBeginningSlash) {
+    path = '/' + path;
+  }
+
+  return base + path;
+}
+
+module.exports = {
+  buildPayload: buildPayload,
+  getTransportFromOptions: getTransportFromOptions,
+  transportOptions: transportOptions,
+  appendPathToPath: appendPathToPath
+};
 
 
 /***/ }),
 /* 16 */
 /***/ (function(module, exports) {
 
-	'use strict';
-	
-	function captureUncaughtExceptions(window, handler, shim) {
-	  if (!window) { return; }
-	  var oldOnError;
-	
-	  if (typeof handler._rollbarOldOnError === 'function') {
-	    oldOnError = handler._rollbarOldOnError;
-	  } else if (window.onerror) {
-	    oldOnError = window.onerror;
-	    while (oldOnError._rollbarOldOnError) {
-	      oldOnError = oldOnError._rollbarOldOnError;
-	    }
-	    handler._rollbarOldOnError = oldOnError;
-	  }
-	
-	  var fn = function() {
-	    var args = Array.prototype.slice.call(arguments, 0);
-	    _rollbarWindowOnError(window, handler, oldOnError, args);
-	  };
-	  if (shim) {
-	    fn._rollbarOldOnError = oldOnError;
-	  }
-	  window.onerror = fn;
-	}
-	
-	function _rollbarWindowOnError(window, r, old, args) {
-	  if (window._rollbarWrappedError) {
-	    if (!args[4]) {
-	      args[4] = window._rollbarWrappedError;
-	    }
-	    if (!args[5]) {
-	      args[5] = window._rollbarWrappedError._rollbarContext;
-	    }
-	    window._rollbarWrappedError = null;
-	  }
-	
-	  r.handleUncaughtException.apply(r, args);
-	  if (old) {
-	    old.apply(window, args);
-	  }
-	}
-	
-	function captureUnhandledRejections(window, handler, shim) {
-	  if (!window) { return; }
-	
-	  if (typeof window._rollbarURH === 'function' && window._rollbarURH.belongsToShim) {
-	    window.removeEventListener('unhandledrejection', window._rollbarURH);
-	  }
-	
-	  var rejectionHandler = function (evt) {
-	    var reason, promise, detail;
-	    try {
-	      reason = evt.reason;
-	    } catch (e) {
-	      reason = undefined;
-	    }
-	    try {
-	      promise = evt.promise;
-	    } catch (e) {
-	      promise = '[unhandledrejection] error getting `promise` from event';
-	    }
-	    try {
-	      detail = evt.detail;
-	      if (!reason && detail) {
-	        reason = detail.reason;
-	        promise = detail.promise;
-	      }
-	    } catch (e) {
-	      // Ignore
-	    }
-	    if (!reason) {
-	      reason = '[unhandledrejection] error getting `reason` from event';
-	    }
-	
-	    if (handler && handler.handleUnhandledRejection) {
-	      handler.handleUnhandledRejection(reason, promise);
-	    }
-	  };
-	  rejectionHandler.belongsToShim = shim;
-	  window._rollbarURH = rejectionHandler;
-	  window.addEventListener('unhandledrejection', rejectionHandler);
-	}
-	
-	function wrapGlobals(window, handler, shim) {
-	  if (!window) { return; }
-	  // Adapted from https://github.com/bugsnag/bugsnag-js
-	  var globals = 'EventTarget,Window,Node,ApplicationCache,AudioTrackList,ChannelMergerNode,CryptoOperation,EventSource,FileReader,HTMLUnknownElement,IDBDatabase,IDBRequest,IDBTransaction,KeyOperation,MediaController,MessagePort,ModalWindow,Notification,SVGElementInstance,Screen,TextTrack,TextTrackCue,TextTrackList,WebSocket,WebSocketWorker,Worker,XMLHttpRequest,XMLHttpRequestEventTarget,XMLHttpRequestUpload'.split(',');
-	  var i, global;
-	  for (i = 0; i < globals.length; ++i) {
-	    global = globals[i];
-	
-	    if (window[global] && window[global].prototype) {
-	      _extendListenerPrototype(handler, window[global].prototype, shim);
-	    }
-	  }
-	}
-	
-	function _extendListenerPrototype(handler, prototype, shim) {
-	  if (prototype.hasOwnProperty && prototype.hasOwnProperty('addEventListener')) {
-	    var oldAddEventListener = prototype.addEventListener;
-	    while (oldAddEventListener._rollbarOldAdd && oldAddEventListener.belongsToShim) {
-	      oldAddEventListener = oldAddEventListener._rollbarOldAdd;
-	    }
-	    var addFn = function(event, callback, bubble) {
-	      oldAddEventListener.call(this, event, handler.wrap(callback), bubble);
-	    };
-	    addFn._rollbarOldAdd = oldAddEventListener;
-	    addFn.belongsToShim = shim;
-	    prototype.addEventListener = addFn;
-	
-	    var oldRemoveEventListener = prototype.removeEventListener;
-	    while (oldRemoveEventListener._rollbarOldRemove && oldRemoveEventListener.belongsToShim) {
-	      oldRemoveEventListener = oldRemoveEventListener._rollbarOldRemove;
-	    }
-	    var removeFn = function(event, callback, bubble) {
-	      oldRemoveEventListener.call(this, event, callback && callback._rollbar_wrapped || callback, bubble);
-	    };
-	    removeFn._rollbarOldRemove = oldRemoveEventListener;
-	    removeFn.belongsToShim = shim;
-	    prototype.removeEventListener = removeFn;
-	  }
-	}
-	
-	module.exports = {
-	  captureUncaughtExceptions: captureUncaughtExceptions,
-	  captureUnhandledRejections: captureUnhandledRejections,
-	  wrapGlobals: wrapGlobals
-	};
+// Console-polyfill. MIT license.
+// https://github.com/paulmillr/console-polyfill
+// Make it safe to do console.log() always.
+(function(global) {
+  'use strict';
+  if (!global.console) {
+    global.console = {};
+  }
+  var con = global.console;
+  var prop, method;
+  var dummy = function() {};
+  var properties = ['memory'];
+  var methods = ('assert,clear,count,debug,dir,dirxml,error,exception,group,' +
+     'groupCollapsed,groupEnd,info,log,markTimeline,profile,profiles,profileEnd,' +
+     'show,table,time,timeEnd,timeline,timelineEnd,timeStamp,trace,warn').split(',');
+  while (prop = properties.pop()) if (!con[prop]) con[prop] = {};
+  while (method = methods.pop()) if (!con[method]) con[method] = dummy;
+  // Using `this` for web workers & supports Browserify / Webpack.
+})(typeof window === 'undefined' ? this : window);
 
 
 /***/ }),
 /* 17 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, exports) {
 
-	'use strict';
-	
-	/*global XDomainRequest*/
-	
-	var _ = __webpack_require__(4);
-	var truncation = __webpack_require__(12);
-	var logger = __webpack_require__(13);
-	
-	/*
-	 * accessToken may be embedded in payload but that should not
-	 *   be assumed
-	 *
-	 * options: {
-	 *   hostname
-	 *   protocol
-	 *   path
-	 *   port
-	 *   method
-	 * }
-	 *
-	 *  params is an object containing key/value pairs. These
-	 *    will be appended to the path as 'key=value&key=value'
-	 *
-	 * payload is an unserialized object
-	 */
-	
-	function get(accessToken, options, params, callback, requestFactory) {
-	  if (!callback || !_.isFunction(callback)) {
-	    callback = function() {};
-	  }
-	  _.addParamsAndAccessTokenToPath(accessToken, options, params);
-	
-	  var method = 'GET';
-	  var url = _.formatUrl(options);
-	  _makeZoneRequest(accessToken, url, method, null, callback, requestFactory);
+// This detection.js module is used to encapsulate any ugly browser/feature
+// detection we may need to do.
+
+// Figure out which version of IE we're using, if any.
+// This is gleaned from http://stackoverflow.com/questions/5574842/best-way-to-check-for-ie-less-than-9-in-javascript-without-library
+// Will return an integer on IE (i.e. 8)
+// Will return undefined otherwise
+function getIEVersion() {
+	var undef;
+	if (!document) {
+		return undef;
 	}
-	
-	function post(accessToken, options, payload, callback, requestFactory) {
-	  if (!callback || !_.isFunction(callback)) {
-	    callback = function() {};
-	  }
-	
-	  if (!payload) {
-	    return callback(new Error('Cannot send empty request'));
-	  }
-	
-	  var stringifyResult = truncation.truncate(payload);
-	  if (stringifyResult.error) {
-	    return callback(stringifyResult.error);
-	  }
-	
-	  var writeData = stringifyResult.value;
-	  var method = 'POST';
-	  var url = _.formatUrl(options);
-	  _makeZoneRequest(accessToken, url, method, writeData, callback, requestFactory);
-	}
-	
-	function postJsonPayload(accessToken, options, jsonPayload, callback, requestFactory) {
-	  if (!callback || !_.isFunction(callback)) {
-	    callback = function() {};
-	  }
-	
-	  var method = 'POST';
-	  var url = _.formatUrl(options);
-	  _makeZoneRequest(accessToken, url, method, jsonPayload, callback, requestFactory);
-	}
-	
-	// Wraps _makeRequest and if Angular 2+ Zone.js is detected, changes scope
-	// so Angular change detection isn't triggered on each API call.
-	// This is the equivalent of runOutsideAngular().
-	//
-	function _makeZoneRequest(accessToken, url, method, data, callback, requestFactory) {
-	  var gWindow = ((typeof window != 'undefined') && window) || ((typeof self != 'undefined') && self);
-	  var currentZone = gWindow && gWindow.Zone && gWindow.Zone.current;
-	
-	  if (currentZone && currentZone._name === 'angular') {
-	    var rootZone = currentZone._parent;
-	    rootZone.run(function () {
-	      _makeRequest(accessToken, url, method, data, callback, requestFactory);
-	    });
-	  } else {
-	    _makeRequest(accessToken, url, method, data, callback, requestFactory);
-	  }
-	}
-	
-	/* global RollbarProxy */
-	function _proxyRequest(json, callback) {
-	  var rollbarProxy = new RollbarProxy();
-	  rollbarProxy.sendJsonPayload(
-	    json,
-	    function(_msg) { /* do nothing */ }, // eslint-disable-line no-unused-vars
-	    function(err) {
-	      callback(new Error(err));
-	    }
-	  );
-	}
-	
-	function _makeRequest(accessToken, url, method, data, callback, requestFactory) {
-	  if (typeof RollbarProxy !== 'undefined') {
-	    return _proxyRequest(data, callback);
-	  }
-	
-	  var request;
-	  if (requestFactory) {
-	    request = requestFactory();
-	  } else {
-	    request = _createXMLHTTPObject();
-	  }
-	  if (!request) {
-	    // Give up, no way to send requests
-	    return callback(new Error('No way to send a request'));
-	  }
-	  try {
-	    try {
-	      var onreadystatechange = function() {
-	        try {
-	          if (onreadystatechange && request.readyState === 4) {
-	            onreadystatechange = undefined;
-	
-	            var parseResponse = _.jsonParse(request.responseText);
-	            if (_isSuccess(request)) {
-	              callback(parseResponse.error, parseResponse.value);
-	              return;
-	            } else if (_isNormalFailure(request)) {
-	              if (request.status === 403) {
-	                // likely caused by using a server access token
-	                var message = parseResponse.value && parseResponse.value.message;
-	                logger.error(message);
-	              }
-	              // return valid http status codes
-	              callback(new Error(String(request.status)));
-	            } else {
-	              // IE will return a status 12000+ on some sort of connection failure,
-	              // so we return a blank error
-	              // http://msdn.microsoft.com/en-us/library/aa383770%28VS.85%29.aspx
-	              var msg = 'XHR response had no status code (likely connection failure)';
-	              callback(_newRetriableError(msg));
-	            }
-	          }
-	        } catch (ex) {
-	          //jquery source mentions firefox may error out while accessing the
-	          //request members if there is a network error
-	          //https://github.com/jquery/jquery/blob/a938d7b1282fc0e5c52502c225ae8f0cef219f0a/src/ajax/xhr.js#L111
-	          var exc;
-	          if (ex && ex.stack) {
-	            exc = ex;
-	          } else {
-	            exc = new Error(ex);
-	          }
-	          callback(exc);
-	        }
-	      };
-	
-	      request.open(method, url, true);
-	      if (request.setRequestHeader) {
-	        request.setRequestHeader('Content-Type', 'application/json');
-	        request.setRequestHeader('X-Rollbar-Access-Token', accessToken);
-	      }
-	      request.onreadystatechange = onreadystatechange;
-	      request.send(data);
-	    } catch (e1) {
-	      // Sending using the normal xmlhttprequest object didn't work, try XDomainRequest
-	      if (typeof XDomainRequest !== 'undefined') {
-	
-	        // Assume we are in a really old browser which has a bunch of limitations:
-	        // http://blogs.msdn.com/b/ieinternals/archive/2010/05/13/xdomainrequest-restrictions-limitations-and-workarounds.aspx
-	
-	        // Extreme paranoia: if we have XDomainRequest then we have a window, but just in case
-	        if (!window || !window.location) {
-	          return callback(new Error('No window available during request, unknown environment'));
-	        }
-	
-	        // If the current page is http, try and send over http
-	        if (window.location.href.substring(0, 5) === 'http:' && url.substring(0, 5) === 'https') {
-	          url = 'http' + url.substring(5);
-	        }
-	
-	        var xdomainrequest = new XDomainRequest();
-	        xdomainrequest.onprogress = function() {};
-	        xdomainrequest.ontimeout = function() {
-	          var msg = 'Request timed out';
-	          var code = 'ETIMEDOUT';
-	          callback(_newRetriableError(msg, code));
-	        };
-	        xdomainrequest.onerror = function() {
-	          callback(new Error('Error during request'));
-	        };
-	        xdomainrequest.onload = function() {
-	          var parseResponse = _.jsonParse(xdomainrequest.responseText);
-	          callback(parseResponse.error, parseResponse.value);
-	        };
-	        xdomainrequest.open(method, url, true);
-	        xdomainrequest.send(data);
-	      } else {
-	        callback(new Error('Cannot find a method to transport a request'));
-	      }
-	    }
-	  } catch (e2) {
-	    callback(e2);
-	  }
-	}
-	
-	function _createXMLHTTPObject() {
-	  /* global ActiveXObject:false */
-	
-	  var factories = [
-	    function () {
-	      return new XMLHttpRequest();
-	    },
-	    function () {
-	      return new ActiveXObject('Msxml2.XMLHTTP');
-	    },
-	    function () {
-	      return new ActiveXObject('Msxml3.XMLHTTP');
-	    },
-	    function () {
-	      return new ActiveXObject('Microsoft.XMLHTTP');
-	    }
-	  ];
-	  var xmlhttp;
-	  var i;
-	  var numFactories = factories.length;
-	  for (i = 0; i < numFactories; i++) {
-	    /* eslint-disable no-empty */
-	    try {
-	      xmlhttp = factories[i]();
-	      break;
-	    } catch (e) {
-	      // pass
-	    }
-	    /* eslint-enable no-empty */
-	  }
-	  return xmlhttp;
-	}
-	
-	function _isSuccess(r) {
-	  return r && r.status && r.status === 200;
-	}
-	
-	function _isNormalFailure(r) {
-	  return r && _.isType(r.status, 'number') && r.status >= 400 && r.status < 600;
-	}
-	
-	function _newRetriableError(message, code) {
-	  var err = new Error(message);
-	  err.code = code || 'ENOTFOUND';
-	  return err;
-	}
-	
-	module.exports = {
-	  get: get,
-	  post: post,
-	  postJsonPayload: postJsonPayload
-	};
+
+  var v = 3,
+    div = document.createElement('div'),
+    all = div.getElementsByTagName('i');
+
+  while (
+    div.innerHTML = '<!--[if gt IE ' + (++v) + ']><i></i><![endif]-->',
+      all[0]
+    );
+
+  return v > 4 ? v : undef;
+}
+
+var Detection = {
+  ieVersion: getIEVersion
+};
+
+module.exports = Detection;
 
 
 /***/ }),
 /* 18 */
 /***/ (function(module, exports) {
 
-	'use strict';
-	
-	// See https://nodejs.org/docs/latest/api/url.html
-	function parse(url) {
-	  var result = {
-	    protocol: null, auth: null, host: null, path: null,
-	    hash: null, href: url, hostname: null, port: null,
-	    pathname: null, search: null, query: null
-	  };
-	
-	  var i, last;
-	  i = url.indexOf('//');
-	  if (i !== -1) {
-	    result.protocol = url.substring(0,i);
-	    last = i+2;
-	  } else {
-	    last = 0;
-	  }
-	  
-	  i = url.indexOf('@', last);
-	  if (i !== -1) {
-	    result.auth = url.substring(last, i);
-	    last = i+1;
-	  }
-	
-	  i = url.indexOf('/', last);
-	  if (i === -1) {
-	    i = url.indexOf('?', last);
-	    if (i === -1) {
-	      i = url.indexOf('#', last);
-	      if (i === -1) {
-	        result.host = url.substring(last);
-	      } else {
-	        result.host = url.substring(last, i);
-	        result.hash = url.substring(i);
-	      }
-	      result.hostname = result.host.split(':')[0];
-	      result.port = result.host.split(':')[1];
-	      if (result.port) {
-	        result.port = parseInt(result.port, 10);
-	      }
-	      return result;
-	    } else {
-	      result.host = url.substring(last, i);
-	      result.hostname = result.host.split(':')[0];
-	      result.port = result.host.split(':')[1];
-	      if (result.port) {
-	        result.port = parseInt(result.port, 10);
-	      }
-	      last = i;
-	    }
-	  } else {
-	    result.host = url.substring(last, i);
-	    result.hostname = result.host.split(':')[0];
-	    result.port = result.host.split(':')[1];
-	    if (result.port) {
-	      result.port = parseInt(result.port, 10);
-	    }
-	    last = i;
-	  }
-	
-	  i = url.indexOf('#', last);
-	  if (i === -1) {
-	    result.path = url.substring(last);
-	  } else {
-	    result.path = url.substring(last, i);
-	    result.hash = url.substring(i);
-	  }
-	
-	  if (result.path) {
-	    var pathParts = result.path.split('?');
-	    result.pathname = pathParts[0];
-	    result.query = pathParts[1];
-	    result.search = result.query ? '?' + result.query : null;
-	  }
-	  return result;
-	}
-	
-	module.exports = {
-	  parse: parse
-	};
+function captureUncaughtExceptions(window, handler, shim) {
+  if (!window) { return; }
+  var oldOnError;
+
+  if (typeof handler._rollbarOldOnError === 'function') {
+    oldOnError = handler._rollbarOldOnError;
+  } else if (window.onerror) {
+    oldOnError = window.onerror;
+    while (oldOnError._rollbarOldOnError) {
+      oldOnError = oldOnError._rollbarOldOnError;
+    }
+    handler._rollbarOldOnError = oldOnError;
+  }
+
+  var fn = function() {
+    var args = Array.prototype.slice.call(arguments, 0);
+    _rollbarWindowOnError(window, handler, oldOnError, args);
+  };
+  if (shim) {
+    fn._rollbarOldOnError = oldOnError;
+  }
+  window.onerror = fn;
+}
+
+function _rollbarWindowOnError(window, r, old, args) {
+  if (window._rollbarWrappedError) {
+    if (!args[4]) {
+      args[4] = window._rollbarWrappedError;
+    }
+    if (!args[5]) {
+      args[5] = window._rollbarWrappedError._rollbarContext;
+    }
+    window._rollbarWrappedError = null;
+  }
+
+  r.handleUncaughtException.apply(r, args);
+  if (old) {
+    old.apply(window, args);
+  }
+}
+
+function captureUnhandledRejections(window, handler, shim) {
+  if (!window) { return; }
+
+  if (typeof window._rollbarURH === 'function' && window._rollbarURH.belongsToShim) {
+    window.removeEventListener('unhandledrejection', window._rollbarURH);
+  }
+
+  var rejectionHandler = function (evt) {
+    var reason, promise, detail;
+    try {
+      reason = evt.reason;
+    } catch (e) {
+      reason = undefined;
+    }
+    try {
+      promise = evt.promise;
+    } catch (e) {
+      promise = '[unhandledrejection] error getting `promise` from event';
+    }
+    try {
+      detail = evt.detail;
+      if (!reason && detail) {
+        reason = detail.reason;
+        promise = detail.promise;
+      }
+    } catch (e) {
+      // Ignore
+    }
+    if (!reason) {
+      reason = '[unhandledrejection] error getting `reason` from event';
+    }
+
+    if (handler && handler.handleUnhandledRejection) {
+      handler.handleUnhandledRejection(reason, promise);
+    }
+  };
+  rejectionHandler.belongsToShim = shim;
+  window._rollbarURH = rejectionHandler;
+  window.addEventListener('unhandledrejection', rejectionHandler);
+}
+
+function wrapGlobals(window, handler, shim) {
+  if (!window) { return; }
+  // Adapted from https://github.com/bugsnag/bugsnag-js
+  var globals = 'EventTarget,Window,Node,ApplicationCache,AudioTrackList,ChannelMergerNode,CryptoOperation,EventSource,FileReader,HTMLUnknownElement,IDBDatabase,IDBRequest,IDBTransaction,KeyOperation,MediaController,MessagePort,ModalWindow,Notification,SVGElementInstance,Screen,TextTrack,TextTrackCue,TextTrackList,WebSocket,WebSocketWorker,Worker,XMLHttpRequest,XMLHttpRequestEventTarget,XMLHttpRequestUpload'.split(',');
+  var i, global;
+  for (i = 0; i < globals.length; ++i) {
+    global = globals[i];
+
+    if (window[global] && window[global].prototype) {
+      _extendListenerPrototype(handler, window[global].prototype, shim);
+    }
+  }
+}
+
+function _extendListenerPrototype(handler, prototype, shim) {
+  if (prototype.hasOwnProperty && prototype.hasOwnProperty('addEventListener')) {
+    var oldAddEventListener = prototype.addEventListener;
+    while (oldAddEventListener._rollbarOldAdd && oldAddEventListener.belongsToShim) {
+      oldAddEventListener = oldAddEventListener._rollbarOldAdd;
+    }
+    var addFn = function(event, callback, bubble) {
+      oldAddEventListener.call(this, event, handler.wrap(callback), bubble);
+    };
+    addFn._rollbarOldAdd = oldAddEventListener;
+    addFn.belongsToShim = shim;
+    prototype.addEventListener = addFn;
+
+    var oldRemoveEventListener = prototype.removeEventListener;
+    while (oldRemoveEventListener._rollbarOldRemove && oldRemoveEventListener.belongsToShim) {
+      oldRemoveEventListener = oldRemoveEventListener._rollbarOldRemove;
+    }
+    var removeFn = function(event, callback, bubble) {
+      oldRemoveEventListener.call(this, event, callback && callback._rollbar_wrapped || callback, bubble);
+    };
+    removeFn._rollbarOldRemove = oldRemoveEventListener;
+    removeFn.belongsToShim = shim;
+    prototype.removeEventListener = removeFn;
+  }
+}
+
+module.exports = {
+  captureUncaughtExceptions: captureUncaughtExceptions,
+  captureUnhandledRejections: captureUnhandledRejections,
+  wrapGlobals: wrapGlobals
+};
 
 
 /***/ }),
 /* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	'use strict';
-	
-	var _ = __webpack_require__(4);
-	var errorParser = __webpack_require__(20);
-	var logger = __webpack_require__(13);
-	
-	function handleItemWithError(item, options, callback) {
-	  item.data = item.data || {};
-	  if (item.err) {
-	    try {
-	      item.stackInfo = item.err._savedStackTrace || errorParser.parse(item.err);
-	    } catch (e) {
-	      logger.error('Error while parsing the error object.', e);
-	      try {
-	        item.message = item.err.message || item.err.description || item.message || String(item.err);
-	      } catch (e2) {
-	        item.message = String(item.err) || String(e2);
-	      }
-	      delete item.err;
-	    }
-	  }
-	  callback(null, item);
-	}
-	
-	function ensureItemHasSomethingToSay(item, options, callback) {
-	  if (!item.message && !item.stackInfo && !item.custom) {
-	    callback(new Error('No message, stack info, or custom data'), null);
-	  }
-	  callback(null, item);
-	}
-	
-	function addBaseInfo(item, options, callback) {
-	  var environment = (options.payload && options.payload.environment) || options.environment;
-	  item.data = _.merge(item.data, {
-	    environment: environment,
-	    level: item.level,
-	    endpoint: options.endpoint,
-	    platform: 'browser',
-	    framework: 'browser-js',
-	    language: 'javascript',
-	    server: {},
-	    uuid: item.uuid,
-	    notifier: {
-	      name: 'rollbar-browser-js',
-	      version: options.version
-	    }
-	  });
-	  callback(null, item);
-	}
-	
-	function addRequestInfo(window) {
-	  return function(item, options, callback) {
-	    if (!window || !window.location) {
-	      return callback(null, item);
-	    }
-	    var remoteString = '$remote_ip';
-	    if (!options.captureIp) {
-	      remoteString = null;
-	    } else if (options.captureIp !== true) {
-	      remoteString += '_anonymize';
-	    }
-	    _.set(item, 'data.request', {
-	      url: window.location.href,
-	      query_string: window.location.search,
-	      user_ip: remoteString
-	    });
-	    callback(null, item);
-	  };
-	}
-	
-	function addClientInfo(window) {
-	  return function(item, options, callback) {
-	    if (!window) {
-	      return callback(null, item);
-	    }
-	    var nav = window.navigator || {};
-	    var scr = window.screen || {};
-	    _.set(item, 'data.client', {
-	      runtime_ms: item.timestamp - window._rollbarStartTime,
-	      timestamp: Math.round(item.timestamp / 1000),
-	      javascript: {
-	        browser: nav.userAgent,
-	        language: nav.language,
-	        cookie_enabled: nav.cookieEnabled,
-	        screen: {
-	          width: scr.width,
-	          height: scr.height
-	        }
-	      }
-	    });
-	    callback(null, item);
-	  };
-	}
-	
-	function addPluginInfo(window) {
-	  return function(item, options, callback) {
-	    if (!window || !window.navigator) {
-	      return callback(null, item);
-	    }
-	    var plugins = [];
-	    var navPlugins = window.navigator.plugins || [];
-	    var cur;
-	    for (var i=0, l=navPlugins.length; i < l; ++i) {
-	      cur = navPlugins[i];
-	      plugins.push({name: cur.name, description: cur.description});
-	    }
-	    _.set(item, 'data.client.javascript.plugins', plugins);
-	    callback(null, item);
-	  };
-	}
-	
-	function addBody(item, options, callback) {
-	  if (item.stackInfo) {
-	    addBodyTrace(item, options, callback);
-	  } else {
-	    addBodyMessage(item, options, callback);
-	  }
-	}
-	
-	function addBodyMessage(item, options, callback) {
-	  var message = item.message;
-	  var custom = item.custom;
-	
-	  if (!message) {
-	    if (custom) {
-	      var scrubFields = options.scrubFields;
-	      var messageResult = _.stringify(_.scrub(custom, scrubFields));
-	      message = messageResult.error || messageResult.value || '';
-	    } else {
-	      message = '';
-	    }
-	  }
-	  var result = {
-	    body: message
-	  };
-	
-	  if (custom) {
-	    result.extra = _.merge(custom);
-	  }
-	
-	  _.set(item, 'data.body', {message: result});
-	  callback(null, item);
-	}
-	
-	
-	function addBodyTrace(item, options, callback) {
-	  var description = item.data.description;
-	  var stackInfo = item.stackInfo;
-	  var custom = item.custom;
-	
-	  var guess = errorParser.guessErrorClass(stackInfo.message);
-	  var className = stackInfo.name || guess[0];
-	  var message = guess[1];
-	  var trace = {
-	    exception: {
-	      'class': className,
-	      message: message
-	    }
-	  };
-	
-	  if (description) {
-	    trace.exception.description = description;
-	  }
-	
-	  // Transform a TraceKit stackInfo object into a Rollbar trace
-	  var stack = stackInfo.stack;
-	  if (stack && stack.length === 0 && item._unhandledStackInfo && item._unhandledStackInfo.stack) {
-	    stack = item._unhandledStackInfo.stack;
-	  }
-	  if (stack) {
-	    if (stack.length === 0) {
-	      trace.exception.stack = stackInfo.rawStack;
-	      trace.exception.raw = String(stackInfo.rawException);
-	    }
-	    var stackFrame;
-	    var frame;
-	    var code;
-	    var pre;
-	    var post;
-	    var contextLength;
-	    var i, mid;
-	
-	    trace.frames = [];
-	    for (i = 0; i < stack.length; ++i) {
-	      stackFrame = stack[i];
-	      frame = {
-	        filename: stackFrame.url ? _.sanitizeUrl(stackFrame.url) : '(unknown)',
-	        lineno: stackFrame.line || null,
-	        method: (!stackFrame.func || stackFrame.func === '?') ? '[anonymous]' : stackFrame.func,
-	        colno: stackFrame.column
-	      };
-	      if (options.sendFrameUrl) {
-	        frame.url = stackFrame.url;
-	      }
-	      if (frame.method && frame.method.endsWith && frame.method.endsWith('_rollbar_wrapped')) {
-	        continue;
-	      }
-	
-	      code = pre = post = null;
-	      contextLength = stackFrame.context ? stackFrame.context.length : 0;
-	      if (contextLength) {
-	        mid = Math.floor(contextLength / 2);
-	        pre = stackFrame.context.slice(0, mid);
-	        code = stackFrame.context[mid];
-	        post = stackFrame.context.slice(mid);
-	      }
-	
-	      if (code) {
-	        frame.code = code;
-	      }
-	
-	      if (pre || post) {
-	        frame.context = {};
-	        if (pre && pre.length) {
-	          frame.context.pre = pre;
-	        }
-	        if (post && post.length) {
-	          frame.context.post = post;
-	        }
-	      }
-	
-	      if (stackFrame.args) {
-	        frame.args = stackFrame.args;
-	      }
-	
-	      trace.frames.push(frame);
-	    }
-	
-	    // NOTE(cory): reverse the frames since rollbar.com expects the most recent call last
-	    trace.frames.reverse();
-	
-	    if (custom) {
-	      trace.extra = _.merge(custom);
-	    }
-	    _.set(item, 'data.body', {trace: trace});
-	    callback(null, item);
-	  } else {
-	    item.message = className + ': ' + message;
-	    addBodyMessage(item, options, callback);
-	  }
-	}
-	
-	function scrubPayload(item, options, callback) {
-	  var scrubFields = options.scrubFields;
-	  item.data = _.scrub(item.data, scrubFields);
-	  callback(null, item);
-	}
-	
-	module.exports = {
-	  handleItemWithError: handleItemWithError,
-	  ensureItemHasSomethingToSay: ensureItemHasSomethingToSay,
-	  addBaseInfo: addBaseInfo,
-	  addRequestInfo: addRequestInfo,
-	  addClientInfo: addClientInfo,
-	  addPluginInfo: addPluginInfo,
-	  addBody: addBody,
-	  scrubPayload: scrubPayload
-	};
+/*global XDomainRequest*/
+
+var _ = __webpack_require__(0);
+var truncation = __webpack_require__(2);
+var logger = __webpack_require__(1);
+
+/*
+ * accessToken may be embedded in payload but that should not
+ *   be assumed
+ *
+ * options: {
+ *   hostname
+ *   protocol
+ *   path
+ *   port
+ *   method
+ * }
+ *
+ *  params is an object containing key/value pairs. These
+ *    will be appended to the path as 'key=value&key=value'
+ *
+ * payload is an unserialized object
+ */
+
+function get(accessToken, options, params, callback, requestFactory) {
+  if (!callback || !_.isFunction(callback)) {
+    callback = function() {};
+  }
+  _.addParamsAndAccessTokenToPath(accessToken, options, params);
+
+  var method = 'GET';
+  var url = _.formatUrl(options);
+  _makeZoneRequest(accessToken, url, method, null, callback, requestFactory);
+}
+
+function post(accessToken, options, payload, callback, requestFactory) {
+  if (!callback || !_.isFunction(callback)) {
+    callback = function() {};
+  }
+
+  if (!payload) {
+    return callback(new Error('Cannot send empty request'));
+  }
+
+  var stringifyResult = truncation.truncate(payload);
+  if (stringifyResult.error) {
+    return callback(stringifyResult.error);
+  }
+
+  var writeData = stringifyResult.value;
+  var method = 'POST';
+  var url = _.formatUrl(options);
+  _makeZoneRequest(accessToken, url, method, writeData, callback, requestFactory);
+}
+
+function postJsonPayload(accessToken, options, jsonPayload, callback, requestFactory) {
+  if (!callback || !_.isFunction(callback)) {
+    callback = function() {};
+  }
+
+  var method = 'POST';
+  var url = _.formatUrl(options);
+  _makeZoneRequest(accessToken, url, method, jsonPayload, callback, requestFactory);
+}
+
+// Wraps _makeRequest and if Angular 2+ Zone.js is detected, changes scope
+// so Angular change detection isn't triggered on each API call.
+// This is the equivalent of runOutsideAngular().
+//
+function _makeZoneRequest(accessToken, url, method, data, callback, requestFactory) {
+  var gWindow = ((typeof window != 'undefined') && window) || ((typeof self != 'undefined') && self);
+  var currentZone = gWindow && gWindow.Zone && gWindow.Zone.current;
+
+  if (currentZone && currentZone._name === 'angular') {
+    var rootZone = currentZone._parent;
+    rootZone.run(function () {
+      _makeRequest(accessToken, url, method, data, callback, requestFactory);
+    });
+  } else {
+    _makeRequest(accessToken, url, method, data, callback, requestFactory);
+  }
+}
+
+/* global RollbarProxy */
+function _proxyRequest(json, callback) {
+  var rollbarProxy = new RollbarProxy();
+  rollbarProxy.sendJsonPayload(
+    json,
+    function(_msg) { /* do nothing */ }, // eslint-disable-line no-unused-vars
+    function(err) {
+      callback(new Error(err));
+    }
+  );
+}
+
+function _makeRequest(accessToken, url, method, data, callback, requestFactory) {
+  if (typeof RollbarProxy !== 'undefined') {
+    return _proxyRequest(data, callback);
+  }
+
+  var request;
+  if (requestFactory) {
+    request = requestFactory();
+  } else {
+    request = _createXMLHTTPObject();
+  }
+  if (!request) {
+    // Give up, no way to send requests
+    return callback(new Error('No way to send a request'));
+  }
+  try {
+    try {
+      var onreadystatechange = function() {
+        try {
+          if (onreadystatechange && request.readyState === 4) {
+            onreadystatechange = undefined;
+
+            var parseResponse = _.jsonParse(request.responseText);
+            if (_isSuccess(request)) {
+              callback(parseResponse.error, parseResponse.value);
+              return;
+            } else if (_isNormalFailure(request)) {
+              if (request.status === 403) {
+                // likely caused by using a server access token
+                var message = parseResponse.value && parseResponse.value.message;
+                logger.error(message);
+              }
+              // return valid http status codes
+              callback(new Error(String(request.status)));
+            } else {
+              // IE will return a status 12000+ on some sort of connection failure,
+              // so we return a blank error
+              // http://msdn.microsoft.com/en-us/library/aa383770%28VS.85%29.aspx
+              var msg = 'XHR response had no status code (likely connection failure)';
+              callback(_newRetriableError(msg));
+            }
+          }
+        } catch (ex) {
+          //jquery source mentions firefox may error out while accessing the
+          //request members if there is a network error
+          //https://github.com/jquery/jquery/blob/a938d7b1282fc0e5c52502c225ae8f0cef219f0a/src/ajax/xhr.js#L111
+          var exc;
+          if (ex && ex.stack) {
+            exc = ex;
+          } else {
+            exc = new Error(ex);
+          }
+          callback(exc);
+        }
+      };
+
+      request.open(method, url, true);
+      if (request.setRequestHeader) {
+        request.setRequestHeader('Content-Type', 'application/json');
+        request.setRequestHeader('X-Rollbar-Access-Token', accessToken);
+      }
+      request.onreadystatechange = onreadystatechange;
+      request.send(data);
+    } catch (e1) {
+      // Sending using the normal xmlhttprequest object didn't work, try XDomainRequest
+      if (typeof XDomainRequest !== 'undefined') {
+
+        // Assume we are in a really old browser which has a bunch of limitations:
+        // http://blogs.msdn.com/b/ieinternals/archive/2010/05/13/xdomainrequest-restrictions-limitations-and-workarounds.aspx
+
+        // Extreme paranoia: if we have XDomainRequest then we have a window, but just in case
+        if (!window || !window.location) {
+          return callback(new Error('No window available during request, unknown environment'));
+        }
+
+        // If the current page is http, try and send over http
+        if (window.location.href.substring(0, 5) === 'http:' && url.substring(0, 5) === 'https') {
+          url = 'http' + url.substring(5);
+        }
+
+        var xdomainrequest = new XDomainRequest();
+        xdomainrequest.onprogress = function() {};
+        xdomainrequest.ontimeout = function() {
+          var msg = 'Request timed out';
+          var code = 'ETIMEDOUT';
+          callback(_newRetriableError(msg, code));
+        };
+        xdomainrequest.onerror = function() {
+          callback(new Error('Error during request'));
+        };
+        xdomainrequest.onload = function() {
+          var parseResponse = _.jsonParse(xdomainrequest.responseText);
+          callback(parseResponse.error, parseResponse.value);
+        };
+        xdomainrequest.open(method, url, true);
+        xdomainrequest.send(data);
+      } else {
+        callback(new Error('Cannot find a method to transport a request'));
+      }
+    }
+  } catch (e2) {
+    callback(e2);
+  }
+}
+
+function _createXMLHTTPObject() {
+  /* global ActiveXObject:false */
+
+  var factories = [
+    function () {
+      return new XMLHttpRequest();
+    },
+    function () {
+      return new ActiveXObject('Msxml2.XMLHTTP');
+    },
+    function () {
+      return new ActiveXObject('Msxml3.XMLHTTP');
+    },
+    function () {
+      return new ActiveXObject('Microsoft.XMLHTTP');
+    }
+  ];
+  var xmlhttp;
+  var i;
+  var numFactories = factories.length;
+  for (i = 0; i < numFactories; i++) {
+    /* eslint-disable no-empty */
+    try {
+      xmlhttp = factories[i]();
+      break;
+    } catch (e) {
+      // pass
+    }
+    /* eslint-enable no-empty */
+  }
+  return xmlhttp;
+}
+
+function _isSuccess(r) {
+  return r && r.status && r.status === 200;
+}
+
+function _isNormalFailure(r) {
+  return r && _.isType(r.status, 'number') && r.status >= 400 && r.status < 600;
+}
+
+function _newRetriableError(message, code) {
+  var err = new Error(message);
+  err.code = code || 'ENOTFOUND';
+  return err;
+}
+
+module.exports = {
+  get: get,
+  post: post,
+  postJsonPayload: postJsonPayload
+};
 
 
 /***/ }),
 /* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	'use strict';
-	
-	var ErrorStackParser = __webpack_require__(21);
-	
-	var UNKNOWN_FUNCTION = '?';
-	var ERR_CLASS_REGEXP = new RegExp('^(([a-zA-Z0-9-_$ ]*): *)?(Uncaught )?([a-zA-Z0-9-_$ ]*): ');
-	
-	function guessFunctionName() {
-	  return UNKNOWN_FUNCTION;
-	}
-	
-	
-	function gatherContext() {
-	  return null;
-	}
-	
-	
-	function Frame(stackFrame) {
-	  var data = {};
-	
-	  data._stackFrame = stackFrame;
-	
-	  data.url = stackFrame.fileName;
-	  data.line = stackFrame.lineNumber;
-	  data.func = stackFrame.functionName;
-	  data.column = stackFrame.columnNumber;
-	  data.args = stackFrame.args;
-	
-	  data.context = gatherContext();
-	
-	  return data;
-	}
-	
-	
-	function Stack(exception) {
-	  function getStack() {
-	    var parserStack = [];
-	    var exc;
-	
-	    if (!exception.stack) {
-	      try {
-	        throw exception;
-	      } catch (e) {
-	        exc = e;
-	      }
-	    } else {
-	      exc = exception;
-	    }
-	
-	    try {
-	      parserStack = ErrorStackParser.parse(exc);
-	    } catch(e) {
-	      parserStack = [];
-	    }
-	
-	    var stack = [];
-	
-	    for (var i = 0; i < parserStack.length; i++) {
-	      stack.push(new Frame(parserStack[i]));
-	    }
-	
-	    return stack;
-	  }
-	
-	  var name = exception.constructor && exception.constructor.name;
-	  if (!name || !name.length || name.length < 3) {
-	    name = exception.name;
-	  }
-	
-	  return {
-	    stack: getStack(),
-	    message: exception.message,
-	    name: name,
-	    rawStack: exception.stack,
-	    rawException: exception
-	  };
-	}
-	
-	
-	function parse(e) {
-	  return new Stack(e);
-	}
-	
-	
-	function guessErrorClass(errMsg) {
-	  if (!errMsg || !errMsg.match) {
-	    return ['Unknown error. There was no error message to display.', ''];
-	  }
-	  var errClassMatch = errMsg.match(ERR_CLASS_REGEXP);
-	  var errClass = '(unknown)';
-	
-	  if (errClassMatch) {
-	    errClass = errClassMatch[errClassMatch.length - 1];
-	    errMsg = errMsg.replace((errClassMatch[errClassMatch.length - 2] || '') + errClass + ':', '');
-	    errMsg = errMsg.replace(/(^[\s]+|[\s]+$)/g, '');
-	  }
-	  return [errClass, errMsg];
-	}
-	
-	
-	module.exports = {
-	  guessFunctionName: guessFunctionName,
-	  guessErrorClass: guessErrorClass,
-	  gatherContext: gatherContext,
-	  parse: parse,
-	  Stack: Stack,
-	  Frame: Frame
-	};
+var _ = __webpack_require__(0);
+var errorParser = __webpack_require__(4);
+var logger = __webpack_require__(1);
+
+function handleItemWithError(item, options, callback) {
+  item.data = item.data || {};
+  if (item.err) {
+    try {
+      item.stackInfo = item.err._savedStackTrace || errorParser.parse(item.err);
+    } catch (e) {
+      logger.error('Error while parsing the error object.', e);
+      try {
+        item.message = item.err.message || item.err.description || item.message || String(item.err);
+      } catch (e2) {
+        item.message = String(item.err) || String(e2);
+      }
+      delete item.err;
+    }
+  }
+  callback(null, item);
+}
+
+function ensureItemHasSomethingToSay(item, options, callback) {
+  if (!item.message && !item.stackInfo && !item.custom) {
+    callback(new Error('No message, stack info, or custom data'), null);
+  }
+  callback(null, item);
+}
+
+function addBaseInfo(item, options, callback) {
+  var environment = (options.payload && options.payload.environment) || options.environment;
+  item.data = _.merge(item.data, {
+    environment: environment,
+    level: item.level,
+    endpoint: options.endpoint,
+    platform: 'browser',
+    framework: 'browser-js',
+    language: 'javascript',
+    server: {},
+    uuid: item.uuid,
+    notifier: {
+      name: 'rollbar-browser-js',
+      version: options.version
+    }
+  });
+  callback(null, item);
+}
+
+function addRequestInfo(window) {
+  return function(item, options, callback) {
+    if (!window || !window.location) {
+      return callback(null, item);
+    }
+    var remoteString = '$remote_ip';
+    if (!options.captureIp) {
+      remoteString = null;
+    } else if (options.captureIp !== true) {
+      remoteString += '_anonymize';
+    }
+    _.set(item, 'data.request', {
+      url: window.location.href,
+      query_string: window.location.search,
+      user_ip: remoteString
+    });
+    callback(null, item);
+  };
+}
+
+function addClientInfo(window) {
+  return function(item, options, callback) {
+    if (!window) {
+      return callback(null, item);
+    }
+    var nav = window.navigator || {};
+    var scr = window.screen || {};
+    _.set(item, 'data.client', {
+      runtime_ms: item.timestamp - window._rollbarStartTime,
+      timestamp: Math.round(item.timestamp / 1000),
+      javascript: {
+        browser: nav.userAgent,
+        language: nav.language,
+        cookie_enabled: nav.cookieEnabled,
+        screen: {
+          width: scr.width,
+          height: scr.height
+        }
+      }
+    });
+    callback(null, item);
+  };
+}
+
+function addPluginInfo(window) {
+  return function(item, options, callback) {
+    if (!window || !window.navigator) {
+      return callback(null, item);
+    }
+    var plugins = [];
+    var navPlugins = window.navigator.plugins || [];
+    var cur;
+    for (var i=0, l=navPlugins.length; i < l; ++i) {
+      cur = navPlugins[i];
+      plugins.push({name: cur.name, description: cur.description});
+    }
+    _.set(item, 'data.client.javascript.plugins', plugins);
+    callback(null, item);
+  };
+}
+
+function addBody(item, options, callback) {
+  if (item.stackInfo) {
+    addBodyTrace(item, options, callback);
+  } else {
+    addBodyMessage(item, options, callback);
+  }
+}
+
+function addBodyMessage(item, options, callback) {
+  var message = item.message;
+  var custom = item.custom;
+
+  if (!message) {
+    if (custom) {
+      var scrubFields = options.scrubFields;
+      var messageResult = _.stringify(_.scrub(custom, scrubFields));
+      message = messageResult.error || messageResult.value || '';
+    } else {
+      message = '';
+    }
+  }
+  var result = {
+    body: message
+  };
+
+  if (custom) {
+    result.extra = _.merge(custom);
+  }
+
+  _.set(item, 'data.body', {message: result});
+  callback(null, item);
+}
+
+
+function addBodyTrace(item, options, callback) {
+  var description = item.data.description;
+  var stackInfo = item.stackInfo;
+  var custom = item.custom;
+
+  var guess = errorParser.guessErrorClass(stackInfo.message);
+  var className = stackInfo.name || guess[0];
+  var message = guess[1];
+  var trace = {
+    exception: {
+      'class': className,
+      message: message
+    }
+  };
+
+  if (description) {
+    trace.exception.description = description;
+  }
+
+  // Transform a TraceKit stackInfo object into a Rollbar trace
+  var stack = stackInfo.stack;
+  if (stack && stack.length === 0 && item._unhandledStackInfo && item._unhandledStackInfo.stack) {
+    stack = item._unhandledStackInfo.stack;
+  }
+  if (stack) {
+    if (stack.length === 0) {
+      trace.exception.stack = stackInfo.rawStack;
+      trace.exception.raw = String(stackInfo.rawException);
+    }
+    var stackFrame;
+    var frame;
+    var code;
+    var pre;
+    var post;
+    var contextLength;
+    var i, mid;
+
+    trace.frames = [];
+    for (i = 0; i < stack.length; ++i) {
+      stackFrame = stack[i];
+      frame = {
+        filename: stackFrame.url ? _.sanitizeUrl(stackFrame.url) : '(unknown)',
+        lineno: stackFrame.line || null,
+        method: (!stackFrame.func || stackFrame.func === '?') ? '[anonymous]' : stackFrame.func,
+        colno: stackFrame.column
+      };
+      if (options.sendFrameUrl) {
+        frame.url = stackFrame.url;
+      }
+      if (frame.method && frame.method.endsWith && frame.method.endsWith('_rollbar_wrapped')) {
+        continue;
+      }
+
+      code = pre = post = null;
+      contextLength = stackFrame.context ? stackFrame.context.length : 0;
+      if (contextLength) {
+        mid = Math.floor(contextLength / 2);
+        pre = stackFrame.context.slice(0, mid);
+        code = stackFrame.context[mid];
+        post = stackFrame.context.slice(mid);
+      }
+
+      if (code) {
+        frame.code = code;
+      }
+
+      if (pre || post) {
+        frame.context = {};
+        if (pre && pre.length) {
+          frame.context.pre = pre;
+        }
+        if (post && post.length) {
+          frame.context.post = post;
+        }
+      }
+
+      if (stackFrame.args) {
+        frame.args = stackFrame.args;
+      }
+
+      trace.frames.push(frame);
+    }
+
+    // NOTE(cory): reverse the frames since rollbar.com expects the most recent call last
+    trace.frames.reverse();
+
+    if (custom) {
+      trace.extra = _.merge(custom);
+    }
+    _.set(item, 'data.body', {trace: trace});
+    callback(null, item);
+  } else {
+    item.message = className + ': ' + message;
+    addBodyMessage(item, options, callback);
+  }
+}
+
+function scrubPayload(item, options, callback) {
+  var scrubFields = options.scrubFields;
+  item.data = _.scrub(item.data, scrubFields);
+  callback(null, item);
+}
+
+module.exports = {
+  handleItemWithError: handleItemWithError,
+  ensureItemHasSomethingToSay: ensureItemHasSomethingToSay,
+  addBaseInfo: addBaseInfo,
+  addRequestInfo: addRequestInfo,
+  addClientInfo: addClientInfo,
+  addPluginInfo: addPluginInfo,
+  addBody: addBody,
+  scrubPayload: scrubPayload
+};
 
 
 /***/ }),
 /* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function (root, factory) {
-	    'use strict';
-	    // Universal Module Definition (UMD) to support AMD, CommonJS/Node.js, Rhino, and browsers.
-	
-	    /* istanbul ignore next */
-	    if (true) {
-	        !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(22)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	    } else {}
-	}(this, function ErrorStackParser(StackFrame) {
-	    'use strict';
-	
-	    var FIREFOX_SAFARI_STACK_REGEXP = /(^|@)\S+\:\d+/;
-	    var CHROME_IE_STACK_REGEXP = /^\s*at .*(\S+\:\d+|\(native\))/m;
-	    var SAFARI_NATIVE_CODE_REGEXP = /^(eval@)?(\[native code\])?$/;
-	
-	    function _map(array, fn, thisArg) {
-	        if (typeof Array.prototype.map === 'function') {
-	            return array.map(fn, thisArg);
-	        } else {
-	            var output = new Array(array.length);
-	            for (var i = 0; i < array.length; i++) {
-	                output[i] = fn.call(thisArg, array[i]);
-	            }
-	            return output;
-	        }
-	    }
-	
-	    function _filter(array, fn, thisArg) {
-	        if (typeof Array.prototype.filter === 'function') {
-	            return array.filter(fn, thisArg);
-	        } else {
-	            var output = [];
-	            for (var i = 0; i < array.length; i++) {
-	                if (fn.call(thisArg, array[i])) {
-	                    output.push(array[i]);
-	                }
-	            }
-	            return output;
-	        }
-	    }
-	
-	    return {
-	        /**
-	         * Given an Error object, extract the most information from it.
-	         * @param error {Error}
-	         * @return Array[StackFrame]
-	         */
-	        parse: function ErrorStackParser$$parse(error) {
-	            if (typeof error.stacktrace !== 'undefined' || typeof error['opera#sourceloc'] !== 'undefined') {
-	                return this.parseOpera(error);
-	            } else if (error.stack && error.stack.match(CHROME_IE_STACK_REGEXP)) {
-	                return this.parseV8OrIE(error);
-	            } else if (error.stack) {
-	                return this.parseFFOrSafari(error);
-	            } else {
-	                throw new Error('Cannot parse given Error object');
-	            }
-	        },
-	
-	        /**
-	         * Separate line and column numbers from a URL-like string.
-	         * @param urlLike String
-	         * @return Array[String]
-	         */
-	        extractLocation: function ErrorStackParser$$extractLocation(urlLike) {
-	            // Fail-fast but return locations like "(native)"
-	            if (urlLike.indexOf(':') === -1) {
-	                return [urlLike];
-	            }
-	
-	            var locationParts = urlLike.replace(/[\(\)\s]/g, '').split(':');
-	            var lastNumber = locationParts.pop();
-	            var possibleNumber = locationParts[locationParts.length - 1];
-	            if (!isNaN(parseFloat(possibleNumber)) && isFinite(possibleNumber)) {
-	                var lineNumber = locationParts.pop();
-	                return [locationParts.join(':'), lineNumber, lastNumber];
-	            } else {
-	                return [locationParts.join(':'), lastNumber, undefined];
-	            }
-	        },
-	
-	        parseV8OrIE: function ErrorStackParser$$parseV8OrIE(error) {
-	            var filtered = _filter(error.stack.split('\n'), function (line) {
-	                return !!line.match(CHROME_IE_STACK_REGEXP);
-	            }, this);
-	
-	            return _map(filtered, function (line) {
-	                if (line.indexOf('(eval ') > -1) {
-	                    // Throw away eval information until we implement stacktrace.js/stackframe#8
-	                    line = line.replace(/eval code/g, 'eval').replace(/(\(eval at [^\()]*)|(\)\,.*$)/g, '');
-	                }
-	                var tokens = line.replace(/^\s+/, '').replace(/\(eval code/g, '(').split(/\s+/).slice(1);
-	                var locationParts = this.extractLocation(tokens.pop());
-	                var functionName = tokens.join(' ') || undefined;
-	                var fileName = locationParts[0] === 'eval' ? undefined : locationParts[0];
-	
-	                return new StackFrame(functionName, undefined, fileName, locationParts[1], locationParts[2], line);
-	            }, this);
-	        },
-	
-	        parseFFOrSafari: function ErrorStackParser$$parseFFOrSafari(error) {
-	            var filtered = _filter(error.stack.split('\n'), function (line) {
-	                return !line.match(SAFARI_NATIVE_CODE_REGEXP);
-	            }, this);
-	
-	            return _map(filtered, function (line) {
-	                // Throw away eval information until we implement stacktrace.js/stackframe#8
-	                if (line.indexOf(' > eval') > -1) {
-	                    line = line.replace(/ line (\d+)(?: > eval line \d+)* > eval\:\d+\:\d+/g, ':$1');
-	                }
-	
-	                if (line.indexOf('@') === -1 && line.indexOf(':') === -1) {
-	                    // Safari eval frames only have function names and nothing else
-	                    return new StackFrame(line);
-	                } else {
-	                    var tokens = line.split('@');
-	                    var locationParts = this.extractLocation(tokens.pop());
-	                    var functionName = tokens.shift() || undefined;
-	                    return new StackFrame(functionName, undefined, locationParts[0], locationParts[1], locationParts[2], line);
-	                }
-	            }, this);
-	        },
-	
-	        parseOpera: function ErrorStackParser$$parseOpera(e) {
-	            if (!e.stacktrace || (e.message.indexOf('\n') > -1 &&
-	                e.message.split('\n').length > e.stacktrace.split('\n').length)) {
-	                return this.parseOpera9(e);
-	            } else if (!e.stack) {
-	                return this.parseOpera10(e);
-	            } else {
-	                return this.parseOpera11(e);
-	            }
-	        },
-	
-	        parseOpera9: function ErrorStackParser$$parseOpera9(e) {
-	            var lineRE = /Line (\d+).*script (?:in )?(\S+)/i;
-	            var lines = e.message.split('\n');
-	            var result = [];
-	
-	            for (var i = 2, len = lines.length; i < len; i += 2) {
-	                var match = lineRE.exec(lines[i]);
-	                if (match) {
-	                    result.push(new StackFrame(undefined, undefined, match[2], match[1], undefined, lines[i]));
-	                }
-	            }
-	
-	            return result;
-	        },
-	
-	        parseOpera10: function ErrorStackParser$$parseOpera10(e) {
-	            var lineRE = /Line (\d+).*script (?:in )?(\S+)(?:: In function (\S+))?$/i;
-	            var lines = e.stacktrace.split('\n');
-	            var result = [];
-	
-	            for (var i = 0, len = lines.length; i < len; i += 2) {
-	                var match = lineRE.exec(lines[i]);
-	                if (match) {
-	                    result.push(new StackFrame(match[3] || undefined, undefined, match[2], match[1], undefined, lines[i]));
-	                }
-	            }
-	
-	            return result;
-	        },
-	
-	        // Opera 10.65+ Error.stack very similar to FF/Safari
-	        parseOpera11: function ErrorStackParser$$parseOpera11(error) {
-	            var filtered = _filter(error.stack.split('\n'), function (line) {
-	                return !!line.match(FIREFOX_SAFARI_STACK_REGEXP) &&
-	                    !line.match(/^Error created at/);
-	            }, this);
-	
-	            return _map(filtered, function (line) {
-	                var tokens = line.split('@');
-	                var locationParts = this.extractLocation(tokens.pop());
-	                var functionCall = (tokens.shift() || '');
-	                var functionName = functionCall
-	                        .replace(/<anonymous function(: (\w+))?>/, '$2')
-	                        .replace(/\([^\)]*\)/g, '') || undefined;
-	                var argsRaw;
-	                if (functionCall.match(/\(([^\)]*)\)/)) {
-	                    argsRaw = functionCall.replace(/^[^\(]+\(([^\)]*)\)$/, '$1');
-	                }
-	                var args = (argsRaw === undefined || argsRaw === '[arguments not available]') ? undefined : argsRaw.split(',');
-	                return new StackFrame(functionName, args, locationParts[0], locationParts[1], locationParts[2], line);
-	            }, this);
-	        }
-	    };
-	}));
-	
+var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function (root, factory) {
+    'use strict';
+    // Universal Module Definition (UMD) to support AMD, CommonJS/Node.js, Rhino, and browsers.
+
+    /* istanbul ignore next */
+    if (true) {
+        !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(22)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory),
+				__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
+				(__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+    } else {}
+}(this, function ErrorStackParser(StackFrame) {
+    'use strict';
+
+    var FIREFOX_SAFARI_STACK_REGEXP = /(^|@)\S+\:\d+/;
+    var CHROME_IE_STACK_REGEXP = /^\s*at .*(\S+\:\d+|\(native\))/m;
+    var SAFARI_NATIVE_CODE_REGEXP = /^(eval@)?(\[native code\])?$/;
+
+    function _map(array, fn, thisArg) {
+        if (typeof Array.prototype.map === 'function') {
+            return array.map(fn, thisArg);
+        } else {
+            var output = new Array(array.length);
+            for (var i = 0; i < array.length; i++) {
+                output[i] = fn.call(thisArg, array[i]);
+            }
+            return output;
+        }
+    }
+
+    function _filter(array, fn, thisArg) {
+        if (typeof Array.prototype.filter === 'function') {
+            return array.filter(fn, thisArg);
+        } else {
+            var output = [];
+            for (var i = 0; i < array.length; i++) {
+                if (fn.call(thisArg, array[i])) {
+                    output.push(array[i]);
+                }
+            }
+            return output;
+        }
+    }
+
+    return {
+        /**
+         * Given an Error object, extract the most information from it.
+         * @param error {Error}
+         * @return Array[StackFrame]
+         */
+        parse: function ErrorStackParser$$parse(error) {
+            if (typeof error.stacktrace !== 'undefined' || typeof error['opera#sourceloc'] !== 'undefined') {
+                return this.parseOpera(error);
+            } else if (error.stack && error.stack.match(CHROME_IE_STACK_REGEXP)) {
+                return this.parseV8OrIE(error);
+            } else if (error.stack) {
+                return this.parseFFOrSafari(error);
+            } else {
+                throw new Error('Cannot parse given Error object');
+            }
+        },
+
+        /**
+         * Separate line and column numbers from a URL-like string.
+         * @param urlLike String
+         * @return Array[String]
+         */
+        extractLocation: function ErrorStackParser$$extractLocation(urlLike) {
+            // Fail-fast but return locations like "(native)"
+            if (urlLike.indexOf(':') === -1) {
+                return [urlLike];
+            }
+
+            var locationParts = urlLike.replace(/[\(\)\s]/g, '').split(':');
+            var lastNumber = locationParts.pop();
+            var possibleNumber = locationParts[locationParts.length - 1];
+            if (!isNaN(parseFloat(possibleNumber)) && isFinite(possibleNumber)) {
+                var lineNumber = locationParts.pop();
+                return [locationParts.join(':'), lineNumber, lastNumber];
+            } else {
+                return [locationParts.join(':'), lastNumber, undefined];
+            }
+        },
+
+        parseV8OrIE: function ErrorStackParser$$parseV8OrIE(error) {
+            var filtered = _filter(error.stack.split('\n'), function (line) {
+                return !!line.match(CHROME_IE_STACK_REGEXP);
+            }, this);
+
+            return _map(filtered, function (line) {
+                if (line.indexOf('(eval ') > -1) {
+                    // Throw away eval information until we implement stacktrace.js/stackframe#8
+                    line = line.replace(/eval code/g, 'eval').replace(/(\(eval at [^\()]*)|(\)\,.*$)/g, '');
+                }
+                var tokens = line.replace(/^\s+/, '').replace(/\(eval code/g, '(').split(/\s+/).slice(1);
+                var locationParts = this.extractLocation(tokens.pop());
+                var functionName = tokens.join(' ') || undefined;
+                var fileName = locationParts[0] === 'eval' ? undefined : locationParts[0];
+
+                return new StackFrame(functionName, undefined, fileName, locationParts[1], locationParts[2], line);
+            }, this);
+        },
+
+        parseFFOrSafari: function ErrorStackParser$$parseFFOrSafari(error) {
+            var filtered = _filter(error.stack.split('\n'), function (line) {
+                return !line.match(SAFARI_NATIVE_CODE_REGEXP);
+            }, this);
+
+            return _map(filtered, function (line) {
+                // Throw away eval information until we implement stacktrace.js/stackframe#8
+                if (line.indexOf(' > eval') > -1) {
+                    line = line.replace(/ line (\d+)(?: > eval line \d+)* > eval\:\d+\:\d+/g, ':$1');
+                }
+
+                if (line.indexOf('@') === -1 && line.indexOf(':') === -1) {
+                    // Safari eval frames only have function names and nothing else
+                    return new StackFrame(line);
+                } else {
+                    var tokens = line.split('@');
+                    var locationParts = this.extractLocation(tokens.pop());
+                    var functionName = tokens.shift() || undefined;
+                    return new StackFrame(functionName, undefined, locationParts[0], locationParts[1], locationParts[2], line);
+                }
+            }, this);
+        },
+
+        parseOpera: function ErrorStackParser$$parseOpera(e) {
+            if (!e.stacktrace || (e.message.indexOf('\n') > -1 &&
+                e.message.split('\n').length > e.stacktrace.split('\n').length)) {
+                return this.parseOpera9(e);
+            } else if (!e.stack) {
+                return this.parseOpera10(e);
+            } else {
+                return this.parseOpera11(e);
+            }
+        },
+
+        parseOpera9: function ErrorStackParser$$parseOpera9(e) {
+            var lineRE = /Line (\d+).*script (?:in )?(\S+)/i;
+            var lines = e.message.split('\n');
+            var result = [];
+
+            for (var i = 2, len = lines.length; i < len; i += 2) {
+                var match = lineRE.exec(lines[i]);
+                if (match) {
+                    result.push(new StackFrame(undefined, undefined, match[2], match[1], undefined, lines[i]));
+                }
+            }
+
+            return result;
+        },
+
+        parseOpera10: function ErrorStackParser$$parseOpera10(e) {
+            var lineRE = /Line (\d+).*script (?:in )?(\S+)(?:: In function (\S+))?$/i;
+            var lines = e.stacktrace.split('\n');
+            var result = [];
+
+            for (var i = 0, len = lines.length; i < len; i += 2) {
+                var match = lineRE.exec(lines[i]);
+                if (match) {
+                    result.push(new StackFrame(match[3] || undefined, undefined, match[2], match[1], undefined, lines[i]));
+                }
+            }
+
+            return result;
+        },
+
+        // Opera 10.65+ Error.stack very similar to FF/Safari
+        parseOpera11: function ErrorStackParser$$parseOpera11(error) {
+            var filtered = _filter(error.stack.split('\n'), function (line) {
+                return !!line.match(FIREFOX_SAFARI_STACK_REGEXP) &&
+                    !line.match(/^Error created at/);
+            }, this);
+
+            return _map(filtered, function (line) {
+                var tokens = line.split('@');
+                var locationParts = this.extractLocation(tokens.pop());
+                var functionCall = (tokens.shift() || '');
+                var functionName = functionCall
+                        .replace(/<anonymous function(: (\w+))?>/, '$2')
+                        .replace(/\([^\)]*\)/g, '') || undefined;
+                var argsRaw;
+                if (functionCall.match(/\(([^\)]*)\)/)) {
+                    argsRaw = functionCall.replace(/^[^\(]+\(([^\)]*)\)$/, '$1');
+                }
+                var args = (argsRaw === undefined || argsRaw === '[arguments not available]') ? undefined : argsRaw.split(',');
+                return new StackFrame(functionName, args, locationParts[0], locationParts[1], locationParts[2], line);
+            }, this);
+        }
+    };
+}));
+
 
 
 /***/ }),
 /* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function (root, factory) {
-	    'use strict';
-	    // Universal Module Definition (UMD) to support AMD, CommonJS/Node.js, Rhino, and browsers.
-	
-	    /* istanbul ignore next */
-	    if (true) {
-	        !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	    } else {}
-	}(this, function () {
-	    'use strict';
-	    function _isNumber(n) {
-	        return !isNaN(parseFloat(n)) && isFinite(n);
-	    }
-	
-	    function StackFrame(functionName, args, fileName, lineNumber, columnNumber, source) {
-	        if (functionName !== undefined) {
-	            this.setFunctionName(functionName);
-	        }
-	        if (args !== undefined) {
-	            this.setArgs(args);
-	        }
-	        if (fileName !== undefined) {
-	            this.setFileName(fileName);
-	        }
-	        if (lineNumber !== undefined) {
-	            this.setLineNumber(lineNumber);
-	        }
-	        if (columnNumber !== undefined) {
-	            this.setColumnNumber(columnNumber);
-	        }
-	        if (source !== undefined) {
-	            this.setSource(source);
-	        }
-	    }
-	
-	    StackFrame.prototype = {
-	        getFunctionName: function () {
-	            return this.functionName;
-	        },
-	        setFunctionName: function (v) {
-	            this.functionName = String(v);
-	        },
-	
-	        getArgs: function () {
-	            return this.args;
-	        },
-	        setArgs: function (v) {
-	            if (Object.prototype.toString.call(v) !== '[object Array]') {
-	                throw new TypeError('Args must be an Array');
-	            }
-	            this.args = v;
-	        },
-	
-	        // NOTE: Property name may be misleading as it includes the path,
-	        // but it somewhat mirrors V8's JavaScriptStackTraceApi
-	        // https://code.google.com/p/v8/wiki/JavaScriptStackTraceApi and Gecko's
-	        // http://mxr.mozilla.org/mozilla-central/source/xpcom/base/nsIException.idl#14
-	        getFileName: function () {
-	            return this.fileName;
-	        },
-	        setFileName: function (v) {
-	            this.fileName = String(v);
-	        },
-	
-	        getLineNumber: function () {
-	            return this.lineNumber;
-	        },
-	        setLineNumber: function (v) {
-	            if (!_isNumber(v)) {
-	                throw new TypeError('Line Number must be a Number');
-	            }
-	            this.lineNumber = Number(v);
-	        },
-	
-	        getColumnNumber: function () {
-	            return this.columnNumber;
-	        },
-	        setColumnNumber: function (v) {
-	            if (!_isNumber(v)) {
-	                throw new TypeError('Column Number must be a Number');
-	            }
-	            this.columnNumber = Number(v);
-	        },
-	
-	        getSource: function () {
-	            return this.source;
-	        },
-	        setSource: function (v) {
-	            this.source = String(v);
-	        },
-	
-	        toString: function() {
-	            var functionName = this.getFunctionName() || '{anonymous}';
-	            var args = '(' + (this.getArgs() || []).join(',') + ')';
-	            var fileName = this.getFileName() ? ('@' + this.getFileName()) : '';
-	            var lineNumber = _isNumber(this.getLineNumber()) ? (':' + this.getLineNumber()) : '';
-	            var columnNumber = _isNumber(this.getColumnNumber()) ? (':' + this.getColumnNumber()) : '';
-	            return functionName + args + fileName + lineNumber + columnNumber;
-	        }
-	    };
-	
-	    return StackFrame;
-	}));
+var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function (root, factory) {
+    'use strict';
+    // Universal Module Definition (UMD) to support AMD, CommonJS/Node.js, Rhino, and browsers.
+
+    /* istanbul ignore next */
+    if (true) {
+        !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory),
+				__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
+				(__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+    } else {}
+}(this, function () {
+    'use strict';
+    function _isNumber(n) {
+        return !isNaN(parseFloat(n)) && isFinite(n);
+    }
+
+    function StackFrame(functionName, args, fileName, lineNumber, columnNumber, source) {
+        if (functionName !== undefined) {
+            this.setFunctionName(functionName);
+        }
+        if (args !== undefined) {
+            this.setArgs(args);
+        }
+        if (fileName !== undefined) {
+            this.setFileName(fileName);
+        }
+        if (lineNumber !== undefined) {
+            this.setLineNumber(lineNumber);
+        }
+        if (columnNumber !== undefined) {
+            this.setColumnNumber(columnNumber);
+        }
+        if (source !== undefined) {
+            this.setSource(source);
+        }
+    }
+
+    StackFrame.prototype = {
+        getFunctionName: function () {
+            return this.functionName;
+        },
+        setFunctionName: function (v) {
+            this.functionName = String(v);
+        },
+
+        getArgs: function () {
+            return this.args;
+        },
+        setArgs: function (v) {
+            if (Object.prototype.toString.call(v) !== '[object Array]') {
+                throw new TypeError('Args must be an Array');
+            }
+            this.args = v;
+        },
+
+        // NOTE: Property name may be misleading as it includes the path,
+        // but it somewhat mirrors V8's JavaScriptStackTraceApi
+        // https://code.google.com/p/v8/wiki/JavaScriptStackTraceApi and Gecko's
+        // http://mxr.mozilla.org/mozilla-central/source/xpcom/base/nsIException.idl#14
+        getFileName: function () {
+            return this.fileName;
+        },
+        setFileName: function (v) {
+            this.fileName = String(v);
+        },
+
+        getLineNumber: function () {
+            return this.lineNumber;
+        },
+        setLineNumber: function (v) {
+            if (!_isNumber(v)) {
+                throw new TypeError('Line Number must be a Number');
+            }
+            this.lineNumber = Number(v);
+        },
+
+        getColumnNumber: function () {
+            return this.columnNumber;
+        },
+        setColumnNumber: function (v) {
+            if (!_isNumber(v)) {
+                throw new TypeError('Column Number must be a Number');
+            }
+            this.columnNumber = Number(v);
+        },
+
+        getSource: function () {
+            return this.source;
+        },
+        setSource: function (v) {
+            this.source = String(v);
+        },
+
+        toString: function() {
+            var functionName = this.getFunctionName() || '{anonymous}';
+            var args = '(' + (this.getArgs() || []).join(',') + ')';
+            var fileName = this.getFileName() ? ('@' + this.getFileName()) : '';
+            var lineNumber = _isNumber(this.getLineNumber()) ? (':' + this.getLineNumber()) : '';
+            var columnNumber = _isNumber(this.getColumnNumber()) ? (':' + this.getColumnNumber()) : '';
+            return functionName + args + fileName + lineNumber + columnNumber;
+        }
+    };
+
+    return StackFrame;
+}));
 
 
 /***/ }),
 /* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	'use strict';
-	
-	var _ = __webpack_require__(4);
-	
-	function itemToPayload(item, options, callback) {
-	  var payloadOptions = options.payload || {};
-	  if (payloadOptions.body) {
-	    delete payloadOptions.body;
-	  }
-	
-	  var data = _.merge(item.data, payloadOptions);
-	  if (item._isUncaught) {
-	    data._isUncaught = true;
-	  }
-	  if (item._originalArgs) {
-	    data._originalArgs = item._originalArgs;
-	  }
-	  callback(null, data);
-	}
-	
-	function addTelemetryData(item, options, callback) {
-	  if (item.telemetryEvents) {
-	    _.set(item, 'data.body.telemetry', item.telemetryEvents);
-	  }
-	  callback(null, item);
-	}
-	
-	function addMessageWithError(item, options, callback) {
-	  if (!item.message) {
-	    callback(null, item);
-	    return;
-	  }
-	  var tracePath = 'data.body.trace_chain.0';
-	  var trace = _.get(item, tracePath);
-	  if (!trace) {
-	    tracePath = 'data.body.trace';
-	    trace = _.get(item, tracePath);
-	  }
-	  if (trace) {
-	    if (!(trace.exception && trace.exception.description)) {
-	      _.set(item, tracePath+'.exception.description', item.message);
-	      callback(null, item);
-	      return;
-	    }
-	    var extra = _.get(item, tracePath+'.extra') || {};
-	    var newExtra =  _.merge(extra, {message: item.message});
-	    _.set(item, tracePath+'.extra', newExtra);
-	  }
-	  callback(null, item);
-	}
-	
-	function userTransform(logger) {
-	  return function(item, options, callback) {
-	    var newItem = _.merge(item);
-	    try {
-	      if (_.isFunction(options.transform)) {
-	        options.transform(newItem.data, item);
-	      }
-	    } catch (e) {
-	      options.transform = null;
-	      logger.error('Error while calling custom transform() function. Removing custom transform().', e);
-	      callback(null, item);
-	      return;
-	    }
-	    callback(null, newItem);
-	  }
-	}
-	
-	function addConfigToPayload(item, options, callback) {
-	  if (!options.sendConfig) {
-	    return callback(null, item);
-	  }
-	  var configKey = '_rollbarConfig';
-	  var custom = _.get(item, 'data.custom') || {};
-	  custom[configKey] = options;
-	  item.data.custom = custom;
-	  callback(null, item);
-	}
-	
-	module.exports = {
-	  itemToPayload: itemToPayload,
-	  addTelemetryData: addTelemetryData,
-	  addMessageWithError: addMessageWithError,
-	  userTransform: userTransform,
-	  addConfigToPayload: addConfigToPayload
-	};
+var _ = __webpack_require__(0);
+
+function itemToPayload(item, options, callback) {
+  var payloadOptions = options.payload || {};
+  if (payloadOptions.body) {
+    delete payloadOptions.body;
+  }
+
+  var data = _.merge(item.data, payloadOptions);
+  if (item._isUncaught) {
+    data._isUncaught = true;
+  }
+  if (item._originalArgs) {
+    data._originalArgs = item._originalArgs;
+  }
+  callback(null, data);
+}
+
+function addTelemetryData(item, options, callback) {
+  if (item.telemetryEvents) {
+    _.set(item, 'data.body.telemetry', item.telemetryEvents);
+  }
+  callback(null, item);
+}
+
+function addMessageWithError(item, options, callback) {
+  if (!item.message) {
+    callback(null, item);
+    return;
+  }
+  var tracePath = 'data.body.trace_chain.0';
+  var trace = _.get(item, tracePath);
+  if (!trace) {
+    tracePath = 'data.body.trace';
+    trace = _.get(item, tracePath);
+  }
+  if (trace) {
+    if (!(trace.exception && trace.exception.description)) {
+      _.set(item, tracePath+'.exception.description', item.message);
+      callback(null, item);
+      return;
+    }
+    var extra = _.get(item, tracePath+'.extra') || {};
+    var newExtra =  _.merge(extra, {message: item.message});
+    _.set(item, tracePath+'.extra', newExtra);
+  }
+  callback(null, item);
+}
+
+function userTransform(logger) {
+  return function(item, options, callback) {
+    var newItem = _.merge(item);
+    try {
+      if (_.isFunction(options.transform)) {
+        options.transform(newItem.data, item);
+      }
+    } catch (e) {
+      options.transform = null;
+      logger.error('Error while calling custom transform() function. Removing custom transform().', e);
+      callback(null, item);
+      return;
+    }
+    callback(null, newItem);
+  }
+}
+
+function addConfigToPayload(item, options, callback) {
+  if (!options.sendConfig) {
+    return callback(null, item);
+  }
+  var configKey = '_rollbarConfig';
+  var custom = _.get(item, 'data.custom') || {};
+  custom[configKey] = options;
+  item.data.custom = custom;
+  callback(null, item);
+}
+
+module.exports = {
+  itemToPayload: itemToPayload,
+  addTelemetryData: addTelemetryData,
+  addMessageWithError: addMessageWithError,
+  userTransform: userTransform,
+  addConfigToPayload: addConfigToPayload
+};
 
 
 /***/ }),
 /* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	'use strict';
-	
-	var _ = __webpack_require__(4);
-	
-	function checkIgnore(item, settings) {
-	  if (_.get(settings, 'plugins.jquery.ignoreAjaxErrors')) {
-	    return !_.get(item, 'body.message.extra.isAjax');
-	  }
-	  return true;
-	}
-	
-	module.exports = {
-	  checkIgnore: checkIgnore
-	};
+var _ = __webpack_require__(0);
+
+function checkIgnore(item, settings) {
+  if (_.get(settings, 'plugins.jquery.ignoreAjaxErrors')) {
+    return !_.get(item, 'body.message.extra.isAjax');
+  }
+  return true;
+}
+
+module.exports = {
+  checkIgnore: checkIgnore
+};
 
 
 /***/ }),
 /* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	'use strict';
-	
-	var _ = __webpack_require__(4);
-	
-	function checkLevel(item, settings) {
-	  var level = item.level;
-	  var levelVal = _.LEVELS[level] || 0;
-	  var reportLevel = settings.reportLevel;
-	  var reportLevelVal = _.LEVELS[reportLevel] || 0;
-	
-	  if (levelVal < reportLevelVal) {
-	    return false;
-	  }
-	  return true;
-	}
-	
-	function userCheckIgnore(logger) {
-	  return function(item, settings) {
-	    var isUncaught = !!item._isUncaught;
-	    delete item._isUncaught;
-	    var args = item._originalArgs;
-	    delete item._originalArgs;
-	    try {
-	      if (_.isFunction(settings.onSendCallback)) {
-	        settings.onSendCallback(isUncaught, args, item);
-	      }
-	    } catch (e) {
-	      settings.onSendCallback = null;
-	      logger.error('Error while calling onSendCallback, removing', e);
-	    }
-	    try {
-	      if (_.isFunction(settings.checkIgnore) && settings.checkIgnore(isUncaught, args, item)) {
-	        return false;
-	      }
-	    } catch (e) {
-	      settings.checkIgnore = null;
-	      logger.error('Error while calling custom checkIgnore(), removing', e);
-	    }
-	    return true;
-	  }
-	}
-	
-	function urlIsNotBlacklisted(logger) {
-	  return function(item, settings) {
-	    return !urlIsOnAList(item, settings, 'blacklist', logger);
-	  }
-	}
-	
-	function urlIsWhitelisted(logger) {
-	  return function(item, settings) {
-	    return urlIsOnAList(item, settings, 'whitelist', logger);
-	  }
-	}
-	
-	function urlIsOnAList(item, settings, whiteOrBlack, logger) {
-	  // whitelist is the default
-	  var black = false;
-	  if (whiteOrBlack === 'blacklist') {
-	    black = true;
-	  }
-	  var list, trace, frame, filename, frameLength, url, listLength, urlRegex;
-	  var i, j;
-	
-	  try {
-	    list = black ? settings.hostBlackList : settings.hostWhiteList;
-	    listLength = list && list.length;
-	    trace = _.get(item, 'body.trace');
-	
-	    // These two checks are important to come first as they are defaults
-	    // in case the list is missing or the trace is missing or not well-formed
-	    if (!list || listLength === 0) {
-	      return !black;
-	    }
-	    if (!trace || !trace.frames || trace.frames.length === 0) {
-	      return !black;
-	    }
-	
-	    frameLength = trace.frames.length;
-	    for (i = 0; i < frameLength; i++) {
-	      frame = trace.frames[i];
-	      filename = frame.filename;
-	
-	      if (!_.isType(filename, 'string')) {
-	        return !black;
-	      }
-	
-	      for (j = 0; j < listLength; j++) {
-	        url = list[j];
-	        urlRegex = new RegExp(url);
-	
-	        if (urlRegex.test(filename)) {
-	          return true;
-	        }
-	      }
-	    }
-	  } catch (e)
-	  /* istanbul ignore next */
-	  {
-	    if (black) {
-	      settings.hostBlackList = null;
-	    } else {
-	      settings.hostWhiteList = null;
-	    }
-	    var listName = black ? 'hostBlackList' : 'hostWhiteList';
-	    logger.error('Error while reading your configuration\'s ' + listName + ' option. Removing custom ' + listName + '.', e);
-	    return !black;
-	  }
-	  return false;
-	}
-	
-	function messageIsIgnored(logger) {
-	  return function(item, settings) {
-	    var exceptionMessage, i, ignoredMessages,
-	        len, messageIsIgnored, rIgnoredMessage,
-	        body, traceMessage, bodyMessage;
-	
-	    try {
-	      messageIsIgnored = false;
-	      ignoredMessages = settings.ignoredMessages;
-	
-	      if (!ignoredMessages || ignoredMessages.length === 0) {
-	        return true;
-	      }
-	
-	      body = item.body;
-	      traceMessage = _.get(body, 'trace.exception.message');
-	      bodyMessage = _.get(body, 'message.body');
-	
-	      exceptionMessage = traceMessage || bodyMessage;
-	
-	      if (!exceptionMessage){
-	        return true;
-	      }
-	
-	      len = ignoredMessages.length;
-	      for (i = 0; i < len; i++) {
-	        rIgnoredMessage = new RegExp(ignoredMessages[i], 'gi');
-	        messageIsIgnored = rIgnoredMessage.test(exceptionMessage);
-	
-	        if (messageIsIgnored) {
-	          break;
-	        }
-	      }
-	    } catch(e)
-	    /* istanbul ignore next */
-	    {
-	      settings.ignoredMessages = null;
-	      logger.error('Error while reading your configuration\'s ignoredMessages option. Removing custom ignoredMessages.');
-	    }
-	
-	    return !messageIsIgnored;
-	  }
-	}
-	
-	module.exports = {
-	  checkLevel: checkLevel,
-	  userCheckIgnore: userCheckIgnore,
-	  urlIsNotBlacklisted: urlIsNotBlacklisted,
-	  urlIsWhitelisted: urlIsWhitelisted,
-	  messageIsIgnored: messageIsIgnored
-	};
+var _ = __webpack_require__(0);
+
+function checkLevel(item, settings) {
+  var level = item.level;
+  var levelVal = _.LEVELS[level] || 0;
+  var reportLevel = settings.reportLevel;
+  var reportLevelVal = _.LEVELS[reportLevel] || 0;
+
+  if (levelVal < reportLevelVal) {
+    return false;
+  }
+  return true;
+}
+
+function userCheckIgnore(logger) {
+  return function(item, settings) {
+    var isUncaught = !!item._isUncaught;
+    delete item._isUncaught;
+    var args = item._originalArgs;
+    delete item._originalArgs;
+    try {
+      if (_.isFunction(settings.onSendCallback)) {
+        settings.onSendCallback(isUncaught, args, item);
+      }
+    } catch (e) {
+      settings.onSendCallback = null;
+      logger.error('Error while calling onSendCallback, removing', e);
+    }
+    try {
+      if (_.isFunction(settings.checkIgnore) && settings.checkIgnore(isUncaught, args, item)) {
+        return false;
+      }
+    } catch (e) {
+      settings.checkIgnore = null;
+      logger.error('Error while calling custom checkIgnore(), removing', e);
+    }
+    return true;
+  }
+}
+
+function urlIsNotBlacklisted(logger) {
+  return function(item, settings) {
+    return !urlIsOnAList(item, settings, 'blacklist', logger);
+  }
+}
+
+function urlIsWhitelisted(logger) {
+  return function(item, settings) {
+    return urlIsOnAList(item, settings, 'whitelist', logger);
+  }
+}
+
+function urlIsOnAList(item, settings, whiteOrBlack, logger) {
+  // whitelist is the default
+  var black = false;
+  if (whiteOrBlack === 'blacklist') {
+    black = true;
+  }
+  var list, trace, frame, filename, frameLength, url, listLength, urlRegex;
+  var i, j;
+
+  try {
+    list = black ? settings.hostBlackList : settings.hostWhiteList;
+    listLength = list && list.length;
+    trace = _.get(item, 'body.trace');
+
+    // These two checks are important to come first as they are defaults
+    // in case the list is missing or the trace is missing or not well-formed
+    if (!list || listLength === 0) {
+      return !black;
+    }
+    if (!trace || !trace.frames || trace.frames.length === 0) {
+      return !black;
+    }
+
+    frameLength = trace.frames.length;
+    for (i = 0; i < frameLength; i++) {
+      frame = trace.frames[i];
+      filename = frame.filename;
+
+      if (!_.isType(filename, 'string')) {
+        return !black;
+      }
+
+      for (j = 0; j < listLength; j++) {
+        url = list[j];
+        urlRegex = new RegExp(url);
+
+        if (urlRegex.test(filename)) {
+          return true;
+        }
+      }
+    }
+  } catch (e)
+  /* istanbul ignore next */
+  {
+    if (black) {
+      settings.hostBlackList = null;
+    } else {
+      settings.hostWhiteList = null;
+    }
+    var listName = black ? 'hostBlackList' : 'hostWhiteList';
+    logger.error('Error while reading your configuration\'s ' + listName + ' option. Removing custom ' + listName + '.', e);
+    return !black;
+  }
+  return false;
+}
+
+function messageIsIgnored(logger) {
+  return function(item, settings) {
+    var exceptionMessage, i, ignoredMessages,
+        len, messageIsIgnored, rIgnoredMessage,
+        body, traceMessage, bodyMessage;
+
+    try {
+      messageIsIgnored = false;
+      ignoredMessages = settings.ignoredMessages;
+
+      if (!ignoredMessages || ignoredMessages.length === 0) {
+        return true;
+      }
+
+      body = item.body;
+      traceMessage = _.get(body, 'trace.exception.message');
+      bodyMessage = _.get(body, 'message.body');
+
+      exceptionMessage = traceMessage || bodyMessage;
+
+      if (!exceptionMessage){
+        return true;
+      }
+
+      len = ignoredMessages.length;
+      for (i = 0; i < len; i++) {
+        rIgnoredMessage = new RegExp(ignoredMessages[i], 'gi');
+        messageIsIgnored = rIgnoredMessage.test(exceptionMessage);
+
+        if (messageIsIgnored) {
+          break;
+        }
+      }
+    } catch(e)
+    /* istanbul ignore next */
+    {
+      settings.ignoredMessages = null;
+      logger.error('Error while reading your configuration\'s ignoredMessages option. Removing custom ignoredMessages.');
+    }
+
+    return !messageIsIgnored;
+  }
+}
+
+module.exports = {
+  checkLevel: checkLevel,
+  userCheckIgnore: userCheckIgnore,
+  urlIsNotBlacklisted: urlIsNotBlacklisted,
+  urlIsWhitelisted: urlIsWhitelisted,
+  messageIsIgnored: messageIsIgnored
+};
 
 
 /***/ }),
 /* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	'use strict';
-	
-	var _ = __webpack_require__(4);
-	var urlparser = __webpack_require__(18);
-	var domUtil = __webpack_require__(27);
-	
-	var defaults = {
-	  network: true,
-	  networkResponseHeaders: false,
-	  networkResponseBody: false,
-	  networkRequestBody: false,
-	  log: true,
-	  dom: true,
-	  navigation: true,
-	  connectivity: true
-	};
-	
-	function replace(obj, name, replacement, replacements, type) {
-	  var orig = obj[name];
-	  obj[name] = replacement(orig);
-	  if (replacements) {
-	    replacements[type].push([obj, name, orig]);
-	  }
-	}
-	
-	function restore(replacements, type) {
-	  var b;
-	  while (replacements[type].length) {
-	    b = replacements[type].shift();
-	    b[0][b[1]] = b[2];
-	  }
-	}
-	
-	function nameFromDescription(description) {
-	  if (!description || !description.attributes) { return null; }
-	  var attrs = description.attributes;
-	  for (var a = 0; a < attrs.length; ++a) {
-	    if (attrs[a].key === 'name') {
-	      return attrs[a].value;
-	    }
-	  }
-	  return null;
-	}
-	
-	function defaultValueScrubber(scrubFields) {
-	  var patterns = [];
-	  for (var i = 0; i < scrubFields.length; ++i) {
-	    patterns.push(new RegExp(scrubFields[i], 'i'));
-	  }
-	  return function(description) {
-	    var name = nameFromDescription(description);
-	    if (!name) { return false; }
-	    for (var i = 0; i < patterns.length; ++i) {
-	      if (patterns[i].test(name)) {
-	        return true;
-	      }
-	    }
-	    return false;
-	  };
-	}
-	
-	function Instrumenter(options, telemeter, rollbar, _window, _document) {
-	  var autoInstrument = options.autoInstrument;
-	  if (options.enabled === false || autoInstrument === false) {
-	    this.autoInstrument = {};
-	  } else {
-	    if (!_.isType(autoInstrument, 'object')) {
-	      autoInstrument = defaults;
-	    }
-	    this.autoInstrument = _.merge(defaults, autoInstrument);
-	  }
-	  this.scrubTelemetryInputs = !!options.scrubTelemetryInputs;
-	  this.telemetryScrubber = options.telemetryScrubber;
-	  this.defaultValueScrubber = defaultValueScrubber(options.scrubFields);
-	  this.telemeter = telemeter;
-	  this.rollbar = rollbar;
-	  this._window = _window || {};
-	  this._document = _document || {};
-	  this.replacements = {
-	    network: [],
-	    log: [],
-	    navigation: [],
-	    connectivity: []
-	  };
-	  this.eventRemovers = {
-	    dom: [],
-	    connectivity: []
-	  };
-	
-	  this._location = this._window.location;
-	  this._lastHref = this._location && this._location.href;
-	}
-	
-	Instrumenter.prototype.configure = function(options) {
-	  var autoInstrument = options.autoInstrument;
-	  var oldSettings = _.merge(this.autoInstrument);
-	  if (options.enabled === false || autoInstrument === false) {
-	    this.autoInstrument = {};
-	  } else {
-	    if (!_.isType(autoInstrument, 'object')) {
-	      autoInstrument = defaults;
-	    }
-	    this.autoInstrument = _.merge(defaults, autoInstrument);
-	  }
-	  this.instrument(oldSettings);
-	  if (options.scrubTelemetryInputs !== undefined) {
-	    this.scrubTelemetryInputs = !!options.scrubTelemetryInputs;
-	  }
-	  if (options.telemetryScrubber !== undefined) {
-	    this.telemetryScrubber = options.telemetryScrubber;
-	  }
-	};
-	
-	Instrumenter.prototype.instrument = function(oldSettings) {
-	  if (this.autoInstrument.network && !(oldSettings && oldSettings.network)) {
-	    this.instrumentNetwork();
-	  } else if (!this.autoInstrument.network && oldSettings && oldSettings.network) {
-	    this.deinstrumentNetwork();
-	  }
-	
-	  if (this.autoInstrument.log && !(oldSettings && oldSettings.log)) {
-	    this.instrumentConsole();
-	  } else if (!this.autoInstrument.log && oldSettings && oldSettings.log) {
-	    this.deinstrumentConsole();
-	  }
-	
-	  if (this.autoInstrument.dom && !(oldSettings && oldSettings.dom)) {
-	    this.instrumentDom();
-	  } else if (!this.autoInstrument.dom && oldSettings && oldSettings.dom) {
-	    this.deinstrumentDom();
-	  }
-	
-	  if (this.autoInstrument.navigation && !(oldSettings && oldSettings.navigation)) {
-	    this.instrumentNavigation();
-	  } else if (!this.autoInstrument.navigation && oldSettings && oldSettings.navigation) {
-	    this.deinstrumentNavigation();
-	  }
-	
-	  if (this.autoInstrument.connectivity && !(oldSettings && oldSettings.connectivity)) {
-	    this.instrumentConnectivity();
-	  } else if (!this.autoInstrument.connectivity && oldSettings && oldSettings.connectivity) {
-	    this.deinstrumentConnectivity();
-	  }
-	};
-	
-	Instrumenter.prototype.deinstrumentNetwork = function() {
-	  restore(this.replacements, 'network');
-	};
-	
-	Instrumenter.prototype.instrumentNetwork = function() {
-	  var self = this;
-	
-	  function wrapProp(prop, xhr) {
-	    if (prop in xhr && _.isFunction(xhr[prop])) {
-	      replace(xhr, prop, function(orig) {
-	        return self.rollbar.wrap(orig);
-	      });
-	    }
-	  }
-	
-	  if ('XMLHttpRequest' in this._window) {
-	    var xhrp = this._window.XMLHttpRequest.prototype;
-	    replace(xhrp, 'open', function(orig) {
-	      return function(method, url) {
-	        if (_.isType(url, 'string')) {
-	          this.__rollbar_xhr = {
-	            method: method,
-	            url: url,
-	            status_code: null,
-	            start_time_ms: _.now(),
-	            end_time_ms: null
-	          };
-	        }
-	        return orig.apply(this, arguments);
-	      };
-	    }, this.replacements, 'network');
-	
-	    replace(xhrp, 'send', function(orig) {
-	      /* eslint-disable no-unused-vars */
-	      return function(data) {
-	      /* eslint-enable no-unused-vars */
-	        var xhr = this;
-	
-	        function onreadystatechangeHandler() {
-	          if (xhr.__rollbar_xhr) {
-	            if (xhr.__rollbar_xhr.status_code === null) {
-	              xhr.__rollbar_xhr.status_code = 0;
-	              var requestData = null;
-	              if (self.autoInstrument.networkRequestBody) {
-	                requestData = data;
-	              }
-	              xhr.__rollbar_event = self.telemeter.captureNetwork(xhr.__rollbar_xhr, 'xhr', undefined, requestData);
-	            }
-	            if (xhr.readyState < 2) {
-	              xhr.__rollbar_xhr.start_time_ms = _.now();
-	            }
-	            if (xhr.readyState > 3) {
-	              xhr.__rollbar_xhr.end_time_ms = _.now();
-	
-	              var headers = null;
-	              if (self.autoInstrument.networkResponseHeaders) {
-	                var headersConfig = self.autoInstrument.networkResponseHeaders;
-	                headers = {};
-	                try {
-	                  var header, i;
-	                  if (headersConfig === true) {
-	                    var allHeaders = xhr.getAllResponseHeaders();
-	                    if (allHeaders) {
-	                      var arr = allHeaders.trim().split(/[\r\n]+/);
-	                      var parts, value;
-	                      for (i=0; i < arr.length; i++) {
-	                        parts = arr[i].split(': ');
-	                        header = parts.shift();
-	                        value = parts.join(': ');
-	                        headers[header] = value;
-	                      }
-	                    }
-	                  } else {
-	                    for (i=0; i < headersConfig.length; i++) {
-	                      header = headersConfig[i];
-	                      headers[header] = xhr.getResponseHeader(header);
-	                    }
-	                  }
-	                } catch (e) {
-	                  /* we ignore the errors here that could come from different
-	                   * browser issues with the xhr methods */
-	                }
-	              }
-	              var body = null;
-	              if (self.autoInstrument.networkResponseBody) {
-	                try {
-	                  body = xhr.responseText;
-	                } catch (e) {
-	                  /* ignore errors from reading responseText */
-	                }
-	              }
-	              var response = null;
-	              if (body || headers) {
-	                response = {};
-	                if (body) {
-	                  response.body = body;
-	                }
-	                if (headers) {
-	                  response.headers = headers;
-	                }
-	              }
-	              if (response) {
-	                xhr.__rollbar_xhr.response = response;
-	              }
-	              try {
-	                var code = xhr.status;
-	                code = code === 1223 ? 204 : code;
-	                xhr.__rollbar_xhr.status_code = code;
-	                xhr.__rollbar_event.level = self.telemeter.levelFromStatus(code);
-	              } catch (e) {
-	                /* ignore possible exception from xhr.status */
-	              }
-	            }
-	          }
-	        }
-	
-	        wrapProp('onload', xhr);
-	        wrapProp('onerror', xhr);
-	        wrapProp('onprogress', xhr);
-	
-	        if ('onreadystatechange' in xhr && _.isFunction(xhr.onreadystatechange)) {
-	          replace(xhr, 'onreadystatechange', function(orig) {
-	            return self.rollbar.wrap(orig, undefined, onreadystatechangeHandler);
-	          });
-	        } else {
-	          xhr.onreadystatechange = onreadystatechangeHandler;
-	        }
-	        return orig.apply(this, arguments);
-	      }
-	    }, this.replacements, 'network');
-	  }
-	
-	  if ('fetch' in this._window) {
-	    replace(this._window, 'fetch', function(orig) {
-	      /* eslint-disable no-unused-vars */
-	      return function(fn, t) {
-	      /* eslint-enable no-unused-vars */
-	        var args = new Array(arguments.length);
-	        for (var i=0, len=args.length; i < len; i++) {
-	          args[i] = arguments[i];
-	        }
-	        var input = args[0];
-	        var method = 'GET';
-	        var url;
-	        if (_.isType(input, 'string')) {
-	          url = input;
-	        } else if (input) {
-	          url = input.url;
-	          if (input.method) {
-	            method = input.method;
-	          }
-	        }
-	        if (args[1] && args[1].method) {
-	          method = args[1].method;
-	        }
-	        var metadata = {
-	          method: method,
-	          url: url,
-	          status_code: null,
-	          start_time_ms: _.now(),
-	          end_time_ms: null
-	        };
-	        var requestData = null;
-	        if (self.autoInstrument.networkRequestBody) {
-	          if (args[1] && args[1].body) {
-	            requestData = args[1].body;
-	          } else if (args[0] && !_.isType(args[0], 'string') && args[0].body) {
-	            requestData = args[0].body;
-	          }
-	        }
-	        self.telemeter.captureNetwork(metadata, 'fetch', undefined, requestData);
-	        return orig.apply(this, args).then(function (resp) {
-	          metadata.end_time_ms = _.now();
-	          metadata.status_code = resp.status;
-	          var headers = null;
-	          if (self.autoInstrument.networkResponseHeaders) {
-	            var headersConfig = self.autoInstrument.networkResponseHeaders;
-	            headers = {};
-	            try {
-	              if (headersConfig === true) {
-	                // This is unsupported in IE so we can't do it
-	                /*
-	                var allHeaders = resp.headers.entries();
-	                for (var pair of allHeaders) {
-	                  headers[pair[0]] = pair[1];
-	                }
-	                */
-	              } else {
-	                for (var i=0; i < headersConfig.length; i++) {
-	                  var header = headersConfig[i];
-	                  headers[header] = resp.headers.get(header);
-	                }
-	              }
-	            } catch (e) {
-	              /* ignore probable IE errors */
-	            }
-	          }
-	          var response = null;
-	          if (headers) {
-	            response = {
-	              headers: headers
-	            };
-	          }
-	          if (response) {
-	            metadata.response = response;
-	          }
-	          return resp;
-	        });
-	      };
-	    }, this.replacements, 'network');
-	  }
-	};
-	
-	Instrumenter.prototype.deinstrumentConsole = function() {
-	  if (!('console' in this._window && this._window.console.log)) {
-	    return;
-	  }
-	  var b;
-	  while (this.replacements['log'].length) {
-	    b = this.replacements['log'].shift();
-	    this._window.console[b[0]] = b[1];
-	  }
-	};
-	
-	Instrumenter.prototype.instrumentConsole = function() {
-	  if (!('console' in this._window && this._window.console.log)) {
-	    return;
-	  }
-	
-	  var self = this;
-	  var c = this._window.console;
-	
-	  function wrapConsole(method) {
-	    var orig = c[method];
-	    var origConsole = c;
-	    var level = method === 'warn' ? 'warning' : method;
-	    c[method] = function() {
-	      var args = Array.prototype.slice.call(arguments);
-	      var message = _.formatArgsAsString(args);
-	      self.telemeter.captureLog(message, level);
-	      if (orig) {
-	        Function.prototype.apply.call(orig, origConsole, args);
-	      }
-	    };
-	    self.replacements['log'].push([method, orig]);
-	  }
-	  var methods = ['debug','info','warn','error','log'];
-	  for (var i=0, len=methods.length; i < len; i++) {
-	    wrapConsole(methods[i]);
-	  }
-	};
-	
-	Instrumenter.prototype.deinstrumentDom = function() {
-	  if (!('addEventListener' in this._window || 'attachEvent' in this._window)) {
-	    return;
-	  }
-	  this.removeListeners('dom');
-	};
-	
-	Instrumenter.prototype.instrumentDom = function() {
-	  if (!('addEventListener' in this._window || 'attachEvent' in this._window)) {
-	    return;
-	  }
-	  var clickHandler = this.handleClick.bind(this);
-	  var blurHandler = this.handleBlur.bind(this);
-	  this.addListener('dom', this._window, 'click', 'onclick', clickHandler, true);
-	  this.addListener('dom', this._window, 'blur', 'onfocusout', blurHandler, true);
-	};
-	
-	Instrumenter.prototype.handleClick = function(evt) {
-	  try {
-	    var e = domUtil.getElementFromEvent(evt, this._document);
-	    var hasTag = e && e.tagName;
-	    var anchorOrButton = domUtil.isDescribedElement(e, 'a') || domUtil.isDescribedElement(e, 'button');
-	    if (hasTag && (anchorOrButton || domUtil.isDescribedElement(e, 'input', ['button', 'submit']))) {
-	        this.captureDomEvent('click', e);
-	    } else if (domUtil.isDescribedElement(e, 'input', ['checkbox', 'radio'])) {
-	      this.captureDomEvent('input', e, e.value, e.checked);
-	    }
-	  } catch (exc) {
-	    // TODO: Not sure what to do here
-	  }
-	};
-	
-	Instrumenter.prototype.handleBlur = function(evt) {
-	  try {
-	    var e = domUtil.getElementFromEvent(evt, this._document);
-	    if (e && e.tagName) {
-	      if (domUtil.isDescribedElement(e, 'textarea')) {
-	        this.captureDomEvent('input', e, e.value);
-	      } else if (domUtil.isDescribedElement(e, 'select') && e.options && e.options.length) {
-	        this.handleSelectInputChanged(e);
-	      } else if (domUtil.isDescribedElement(e, 'input') && !domUtil.isDescribedElement(e, 'input', ['button', 'submit', 'hidden', 'checkbox', 'radio'])) {
-	        this.captureDomEvent('input', e, e.value);
-	      }
-	    }
-	  } catch (exc) {
-	    // TODO: Not sure what to do here
-	  }
-	};
-	
-	Instrumenter.prototype.handleSelectInputChanged = function(elem) {
-	  if (elem.multiple) {
-	    for (var i = 0; i < elem.options.length; i++) {
-	      if (elem.options[i].selected) {
-	        this.captureDomEvent('input', elem, elem.options[i].value);
-	      }
-	    }
-	  } else if (elem.selectedIndex >= 0 && elem.options[elem.selectedIndex]) {
-	    this.captureDomEvent('input', elem, elem.options[elem.selectedIndex].value);
-	  }
-	};
-	
-	Instrumenter.prototype.captureDomEvent = function(subtype, element, value, isChecked) {
-	  if (value !== undefined) {
-	    if (this.scrubTelemetryInputs || (domUtil.getElementType(element) === 'password')) {
-	      value = '[scrubbed]';
-	    } else {
-	      var description = domUtil.describeElement(element);
-	      if (this.telemetryScrubber) {
-	        if (this.telemetryScrubber(description)) {
-	          value = '[scrubbed]';
-	        }
-	      } else if (this.defaultValueScrubber(description)) {
-	        value = '[scrubbed]';
-	      }
-	    }
-	  }
-	  var elementString = domUtil.elementArrayToString(domUtil.treeToArray(element));
-	  this.telemeter.captureDom(subtype, elementString, value, isChecked);
-	};
-	
-	Instrumenter.prototype.deinstrumentNavigation = function() {
-	  var chrome = this._window.chrome;
-	  var chromePackagedApp = chrome && chrome.app && chrome.app.runtime;
-	  // See https://github.com/angular/angular.js/pull/13945/files
-	  var hasPushState = !chromePackagedApp && this._window.history && this._window.history.pushState;
-	  if (!hasPushState) {
-	    return;
-	  }
-	  restore(this.replacements, 'navigation');
-	};
-	
-	Instrumenter.prototype.instrumentNavigation = function() {
-	  var chrome = this._window.chrome;
-	  var chromePackagedApp = chrome && chrome.app && chrome.app.runtime;
-	  // See https://github.com/angular/angular.js/pull/13945/files
-	  var hasPushState = !chromePackagedApp && this._window.history && this._window.history.pushState;
-	  if (!hasPushState) {
-	    return;
-	  }
-	  var self = this;
-	  replace(this._window, 'onpopstate', function(orig) {
-	    return function() {
-	      var current = self._location.href;
-	      self.handleUrlChange(self._lastHref, current);
-	      if (orig) {
-	        orig.apply(this, arguments);
-	      }
-	    };
-	  }, this.replacements, 'navigation');
-	
-	  replace(this._window.history, 'pushState', function(orig) {
-	    return function() {
-	      var url = arguments.length > 2 ? arguments[2] : undefined;
-	      if (url) {
-	        self.handleUrlChange(self._lastHref, url + '');
-	      }
-	      return orig.apply(this, arguments);
-	    };
-	  }, this.replacements, 'navigation');
-	};
-	
-	Instrumenter.prototype.handleUrlChange = function(from, to) {
-	  var parsedHref = urlparser.parse(this._location.href);
-	  var parsedTo = urlparser.parse(to);
-	  var parsedFrom = urlparser.parse(from);
-	  this._lastHref = to;
-	  if (parsedHref.protocol === parsedTo.protocol && parsedHref.host === parsedTo.host) {
-	    to = parsedTo.path + (parsedTo.hash || '');
-	  }
-	  if (parsedHref.protocol === parsedFrom.protocol && parsedHref.host === parsedFrom.host) {
-	    from = parsedFrom.path + (parsedFrom.hash || '');
-	  }
-	  this.telemeter.captureNavigation(from, to);
-	};
-	
-	Instrumenter.prototype.deinstrumentConnectivity = function() {
-	  if (!('addEventListener' in this._window || 'body' in this._document)) {
-	    return;
-	  }
-	  if (this._window.addEventListener) {
-	    this.removeListeners('connectivity');
-	  } else {
-	    restore(this.replacements, 'connectivity');
-	  }
-	};
-	
-	Instrumenter.prototype.instrumentConnectivity = function() {
-	  if (!('addEventListener' in this._window || 'body' in this._document)) {
-	    return;
-	  }
-	  if (this._window.addEventListener) {
-	    this.addListener('connectivity', this._window, 'online', undefined, function() {
-	      this.telemeter.captureConnectivityChange('online');
-	    }.bind(this), true);
-	    this.addListener('connectivity', this._window, 'offline', undefined, function() {
-	      this.telemeter.captureConnectivityChange('offline');
-	    }.bind(this), true);
-	  } else {
-	    var self = this;
-	    replace(this._document.body, 'ononline', function(orig) {
-	      return function() {
-	        self.telemeter.captureConnectivityChange('online');
-	        if (orig) {
-	          orig.apply(this, arguments);
-	        }
-	      }
-	    }, this.replacements, 'connectivity');
-	    replace(this._document.body, 'onoffline', function(orig) {
-	      return function() {
-	        self.telemeter.captureConnectivityChange('offline');
-	        if (orig) {
-	          orig.apply(this, arguments);
-	        }
-	      }
-	    }, this.replacements, 'connectivity');
-	  }
-	};
-	
-	Instrumenter.prototype.addListener = function(section, obj, type, altType, handler, capture) {
-	  if (obj.addEventListener) {
-	    obj.addEventListener(type, handler, capture);
-	    this.eventRemovers[section].push(function() {
-	      obj.removeEventListener(type, handler, capture);
-	    });
-	  } else if (altType) {
-	    obj.attachEvent(altType, handler);
-	    this.eventRemovers[section].push(function() {
-	      obj.detachEvent(altType, handler);
-	    });
-	  }
-	};
-	
-	Instrumenter.prototype.removeListeners = function(section) {
-	  var r;
-	  while (this.eventRemovers[section].length) {
-	    r = this.eventRemovers[section].shift();
-	    r();
-	  }
-	};
-	
-	module.exports = Instrumenter;
+var _ = __webpack_require__(0);
+var urlparser = __webpack_require__(3);
+var domUtil = __webpack_require__(27);
+
+var defaults = {
+  network: true,
+  networkResponseHeaders: false,
+  networkResponseBody: false,
+  networkRequestBody: false,
+  log: true,
+  dom: true,
+  navigation: true,
+  connectivity: true
+};
+
+function replace(obj, name, replacement, replacements, type) {
+  var orig = obj[name];
+  obj[name] = replacement(orig);
+  if (replacements) {
+    replacements[type].push([obj, name, orig]);
+  }
+}
+
+function restore(replacements, type) {
+  var b;
+  while (replacements[type].length) {
+    b = replacements[type].shift();
+    b[0][b[1]] = b[2];
+  }
+}
+
+function nameFromDescription(description) {
+  if (!description || !description.attributes) { return null; }
+  var attrs = description.attributes;
+  for (var a = 0; a < attrs.length; ++a) {
+    if (attrs[a].key === 'name') {
+      return attrs[a].value;
+    }
+  }
+  return null;
+}
+
+function defaultValueScrubber(scrubFields) {
+  var patterns = [];
+  for (var i = 0; i < scrubFields.length; ++i) {
+    patterns.push(new RegExp(scrubFields[i], 'i'));
+  }
+  return function(description) {
+    var name = nameFromDescription(description);
+    if (!name) { return false; }
+    for (var i = 0; i < patterns.length; ++i) {
+      if (patterns[i].test(name)) {
+        return true;
+      }
+    }
+    return false;
+  };
+}
+
+function Instrumenter(options, telemeter, rollbar, _window, _document) {
+  var autoInstrument = options.autoInstrument;
+  if (options.enabled === false || autoInstrument === false) {
+    this.autoInstrument = {};
+  } else {
+    if (!_.isType(autoInstrument, 'object')) {
+      autoInstrument = defaults;
+    }
+    this.autoInstrument = _.merge(defaults, autoInstrument);
+  }
+  this.scrubTelemetryInputs = !!options.scrubTelemetryInputs;
+  this.telemetryScrubber = options.telemetryScrubber;
+  this.defaultValueScrubber = defaultValueScrubber(options.scrubFields);
+  this.telemeter = telemeter;
+  this.rollbar = rollbar;
+  this._window = _window || {};
+  this._document = _document || {};
+  this.replacements = {
+    network: [],
+    log: [],
+    navigation: [],
+    connectivity: []
+  };
+  this.eventRemovers = {
+    dom: [],
+    connectivity: []
+  };
+
+  this._location = this._window.location;
+  this._lastHref = this._location && this._location.href;
+}
+
+Instrumenter.prototype.configure = function(options) {
+  var autoInstrument = options.autoInstrument;
+  var oldSettings = _.merge(this.autoInstrument);
+  if (options.enabled === false || autoInstrument === false) {
+    this.autoInstrument = {};
+  } else {
+    if (!_.isType(autoInstrument, 'object')) {
+      autoInstrument = defaults;
+    }
+    this.autoInstrument = _.merge(defaults, autoInstrument);
+  }
+  this.instrument(oldSettings);
+  if (options.scrubTelemetryInputs !== undefined) {
+    this.scrubTelemetryInputs = !!options.scrubTelemetryInputs;
+  }
+  if (options.telemetryScrubber !== undefined) {
+    this.telemetryScrubber = options.telemetryScrubber;
+  }
+};
+
+Instrumenter.prototype.instrument = function(oldSettings) {
+  if (this.autoInstrument.network && !(oldSettings && oldSettings.network)) {
+    this.instrumentNetwork();
+  } else if (!this.autoInstrument.network && oldSettings && oldSettings.network) {
+    this.deinstrumentNetwork();
+  }
+
+  if (this.autoInstrument.log && !(oldSettings && oldSettings.log)) {
+    this.instrumentConsole();
+  } else if (!this.autoInstrument.log && oldSettings && oldSettings.log) {
+    this.deinstrumentConsole();
+  }
+
+  if (this.autoInstrument.dom && !(oldSettings && oldSettings.dom)) {
+    this.instrumentDom();
+  } else if (!this.autoInstrument.dom && oldSettings && oldSettings.dom) {
+    this.deinstrumentDom();
+  }
+
+  if (this.autoInstrument.navigation && !(oldSettings && oldSettings.navigation)) {
+    this.instrumentNavigation();
+  } else if (!this.autoInstrument.navigation && oldSettings && oldSettings.navigation) {
+    this.deinstrumentNavigation();
+  }
+
+  if (this.autoInstrument.connectivity && !(oldSettings && oldSettings.connectivity)) {
+    this.instrumentConnectivity();
+  } else if (!this.autoInstrument.connectivity && oldSettings && oldSettings.connectivity) {
+    this.deinstrumentConnectivity();
+  }
+};
+
+Instrumenter.prototype.deinstrumentNetwork = function() {
+  restore(this.replacements, 'network');
+};
+
+Instrumenter.prototype.instrumentNetwork = function() {
+  var self = this;
+
+  function wrapProp(prop, xhr) {
+    if (prop in xhr && _.isFunction(xhr[prop])) {
+      replace(xhr, prop, function(orig) {
+        return self.rollbar.wrap(orig);
+      });
+    }
+  }
+
+  if ('XMLHttpRequest' in this._window) {
+    var xhrp = this._window.XMLHttpRequest.prototype;
+    replace(xhrp, 'open', function(orig) {
+      return function(method, url) {
+        if (_.isType(url, 'string')) {
+          this.__rollbar_xhr = {
+            method: method,
+            url: url,
+            status_code: null,
+            start_time_ms: _.now(),
+            end_time_ms: null
+          };
+        }
+        return orig.apply(this, arguments);
+      };
+    }, this.replacements, 'network');
+
+    replace(xhrp, 'send', function(orig) {
+      /* eslint-disable no-unused-vars */
+      return function(data) {
+      /* eslint-enable no-unused-vars */
+        var xhr = this;
+
+        function onreadystatechangeHandler() {
+          if (xhr.__rollbar_xhr) {
+            if (xhr.__rollbar_xhr.status_code === null) {
+              xhr.__rollbar_xhr.status_code = 0;
+              var requestData = null;
+              if (self.autoInstrument.networkRequestBody) {
+                requestData = data;
+              }
+              xhr.__rollbar_event = self.telemeter.captureNetwork(xhr.__rollbar_xhr, 'xhr', undefined, requestData);
+            }
+            if (xhr.readyState < 2) {
+              xhr.__rollbar_xhr.start_time_ms = _.now();
+            }
+            if (xhr.readyState > 3) {
+              xhr.__rollbar_xhr.end_time_ms = _.now();
+
+              var headers = null;
+              if (self.autoInstrument.networkResponseHeaders) {
+                var headersConfig = self.autoInstrument.networkResponseHeaders;
+                headers = {};
+                try {
+                  var header, i;
+                  if (headersConfig === true) {
+                    var allHeaders = xhr.getAllResponseHeaders();
+                    if (allHeaders) {
+                      var arr = allHeaders.trim().split(/[\r\n]+/);
+                      var parts, value;
+                      for (i=0; i < arr.length; i++) {
+                        parts = arr[i].split(': ');
+                        header = parts.shift();
+                        value = parts.join(': ');
+                        headers[header] = value;
+                      }
+                    }
+                  } else {
+                    for (i=0; i < headersConfig.length; i++) {
+                      header = headersConfig[i];
+                      headers[header] = xhr.getResponseHeader(header);
+                    }
+                  }
+                } catch (e) {
+                  /* we ignore the errors here that could come from different
+                   * browser issues with the xhr methods */
+                }
+              }
+              var body = null;
+              if (self.autoInstrument.networkResponseBody) {
+                try {
+                  body = xhr.responseText;
+                } catch (e) {
+                  /* ignore errors from reading responseText */
+                }
+              }
+              var response = null;
+              if (body || headers) {
+                response = {};
+                if (body) {
+                  response.body = body;
+                }
+                if (headers) {
+                  response.headers = headers;
+                }
+              }
+              if (response) {
+                xhr.__rollbar_xhr.response = response;
+              }
+              try {
+                var code = xhr.status;
+                code = code === 1223 ? 204 : code;
+                xhr.__rollbar_xhr.status_code = code;
+                xhr.__rollbar_event.level = self.telemeter.levelFromStatus(code);
+              } catch (e) {
+                /* ignore possible exception from xhr.status */
+              }
+            }
+          }
+        }
+
+        wrapProp('onload', xhr);
+        wrapProp('onerror', xhr);
+        wrapProp('onprogress', xhr);
+
+        if ('onreadystatechange' in xhr && _.isFunction(xhr.onreadystatechange)) {
+          replace(xhr, 'onreadystatechange', function(orig) {
+            return self.rollbar.wrap(orig, undefined, onreadystatechangeHandler);
+          });
+        } else {
+          xhr.onreadystatechange = onreadystatechangeHandler;
+        }
+        return orig.apply(this, arguments);
+      }
+    }, this.replacements, 'network');
+  }
+
+  if ('fetch' in this._window) {
+    replace(this._window, 'fetch', function(orig) {
+      /* eslint-disable no-unused-vars */
+      return function(fn, t) {
+      /* eslint-enable no-unused-vars */
+        var args = new Array(arguments.length);
+        for (var i=0, len=args.length; i < len; i++) {
+          args[i] = arguments[i];
+        }
+        var input = args[0];
+        var method = 'GET';
+        var url;
+        if (_.isType(input, 'string')) {
+          url = input;
+        } else if (input) {
+          url = input.url;
+          if (input.method) {
+            method = input.method;
+          }
+        }
+        if (args[1] && args[1].method) {
+          method = args[1].method;
+        }
+        var metadata = {
+          method: method,
+          url: url,
+          status_code: null,
+          start_time_ms: _.now(),
+          end_time_ms: null
+        };
+        var requestData = null;
+        if (self.autoInstrument.networkRequestBody) {
+          if (args[1] && args[1].body) {
+            requestData = args[1].body;
+          } else if (args[0] && !_.isType(args[0], 'string') && args[0].body) {
+            requestData = args[0].body;
+          }
+        }
+        self.telemeter.captureNetwork(metadata, 'fetch', undefined, requestData);
+        return orig.apply(this, args).then(function (resp) {
+          metadata.end_time_ms = _.now();
+          metadata.status_code = resp.status;
+          var headers = null;
+          if (self.autoInstrument.networkResponseHeaders) {
+            var headersConfig = self.autoInstrument.networkResponseHeaders;
+            headers = {};
+            try {
+              if (headersConfig === true) {
+                // This is unsupported in IE so we can't do it
+                /*
+                var allHeaders = resp.headers.entries();
+                for (var pair of allHeaders) {
+                  headers[pair[0]] = pair[1];
+                }
+                */
+              } else {
+                for (var i=0; i < headersConfig.length; i++) {
+                  var header = headersConfig[i];
+                  headers[header] = resp.headers.get(header);
+                }
+              }
+            } catch (e) {
+              /* ignore probable IE errors */
+            }
+          }
+          var response = null;
+          if (headers) {
+            response = {
+              headers: headers
+            };
+          }
+          if (response) {
+            metadata.response = response;
+          }
+          return resp;
+        });
+      };
+    }, this.replacements, 'network');
+  }
+};
+
+Instrumenter.prototype.deinstrumentConsole = function() {
+  if (!('console' in this._window && this._window.console.log)) {
+    return;
+  }
+  var b;
+  while (this.replacements['log'].length) {
+    b = this.replacements['log'].shift();
+    this._window.console[b[0]] = b[1];
+  }
+};
+
+Instrumenter.prototype.instrumentConsole = function() {
+  if (!('console' in this._window && this._window.console.log)) {
+    return;
+  }
+
+  var self = this;
+  var c = this._window.console;
+
+  function wrapConsole(method) {
+    var orig = c[method];
+    var origConsole = c;
+    var level = method === 'warn' ? 'warning' : method;
+    c[method] = function() {
+      var args = Array.prototype.slice.call(arguments);
+      var message = _.formatArgsAsString(args);
+      self.telemeter.captureLog(message, level);
+      if (orig) {
+        Function.prototype.apply.call(orig, origConsole, args);
+      }
+    };
+    self.replacements['log'].push([method, orig]);
+  }
+  var methods = ['debug','info','warn','error','log'];
+  for (var i=0, len=methods.length; i < len; i++) {
+    wrapConsole(methods[i]);
+  }
+};
+
+Instrumenter.prototype.deinstrumentDom = function() {
+  if (!('addEventListener' in this._window || 'attachEvent' in this._window)) {
+    return;
+  }
+  this.removeListeners('dom');
+};
+
+Instrumenter.prototype.instrumentDom = function() {
+  if (!('addEventListener' in this._window || 'attachEvent' in this._window)) {
+    return;
+  }
+  var clickHandler = this.handleClick.bind(this);
+  var blurHandler = this.handleBlur.bind(this);
+  this.addListener('dom', this._window, 'click', 'onclick', clickHandler, true);
+  this.addListener('dom', this._window, 'blur', 'onfocusout', blurHandler, true);
+};
+
+Instrumenter.prototype.handleClick = function(evt) {
+  try {
+    var e = domUtil.getElementFromEvent(evt, this._document);
+    var hasTag = e && e.tagName;
+    var anchorOrButton = domUtil.isDescribedElement(e, 'a') || domUtil.isDescribedElement(e, 'button');
+    if (hasTag && (anchorOrButton || domUtil.isDescribedElement(e, 'input', ['button', 'submit']))) {
+        this.captureDomEvent('click', e);
+    } else if (domUtil.isDescribedElement(e, 'input', ['checkbox', 'radio'])) {
+      this.captureDomEvent('input', e, e.value, e.checked);
+    }
+  } catch (exc) {
+    // TODO: Not sure what to do here
+  }
+};
+
+Instrumenter.prototype.handleBlur = function(evt) {
+  try {
+    var e = domUtil.getElementFromEvent(evt, this._document);
+    if (e && e.tagName) {
+      if (domUtil.isDescribedElement(e, 'textarea')) {
+        this.captureDomEvent('input', e, e.value);
+      } else if (domUtil.isDescribedElement(e, 'select') && e.options && e.options.length) {
+        this.handleSelectInputChanged(e);
+      } else if (domUtil.isDescribedElement(e, 'input') && !domUtil.isDescribedElement(e, 'input', ['button', 'submit', 'hidden', 'checkbox', 'radio'])) {
+        this.captureDomEvent('input', e, e.value);
+      }
+    }
+  } catch (exc) {
+    // TODO: Not sure what to do here
+  }
+};
+
+Instrumenter.prototype.handleSelectInputChanged = function(elem) {
+  if (elem.multiple) {
+    for (var i = 0; i < elem.options.length; i++) {
+      if (elem.options[i].selected) {
+        this.captureDomEvent('input', elem, elem.options[i].value);
+      }
+    }
+  } else if (elem.selectedIndex >= 0 && elem.options[elem.selectedIndex]) {
+    this.captureDomEvent('input', elem, elem.options[elem.selectedIndex].value);
+  }
+};
+
+Instrumenter.prototype.captureDomEvent = function(subtype, element, value, isChecked) {
+  if (value !== undefined) {
+    if (this.scrubTelemetryInputs || (domUtil.getElementType(element) === 'password')) {
+      value = '[scrubbed]';
+    } else {
+      var description = domUtil.describeElement(element);
+      if (this.telemetryScrubber) {
+        if (this.telemetryScrubber(description)) {
+          value = '[scrubbed]';
+        }
+      } else if (this.defaultValueScrubber(description)) {
+        value = '[scrubbed]';
+      }
+    }
+  }
+  var elementString = domUtil.elementArrayToString(domUtil.treeToArray(element));
+  this.telemeter.captureDom(subtype, elementString, value, isChecked);
+};
+
+Instrumenter.prototype.deinstrumentNavigation = function() {
+  var chrome = this._window.chrome;
+  var chromePackagedApp = chrome && chrome.app && chrome.app.runtime;
+  // See https://github.com/angular/angular.js/pull/13945/files
+  var hasPushState = !chromePackagedApp && this._window.history && this._window.history.pushState;
+  if (!hasPushState) {
+    return;
+  }
+  restore(this.replacements, 'navigation');
+};
+
+Instrumenter.prototype.instrumentNavigation = function() {
+  var chrome = this._window.chrome;
+  var chromePackagedApp = chrome && chrome.app && chrome.app.runtime;
+  // See https://github.com/angular/angular.js/pull/13945/files
+  var hasPushState = !chromePackagedApp && this._window.history && this._window.history.pushState;
+  if (!hasPushState) {
+    return;
+  }
+  var self = this;
+  replace(this._window, 'onpopstate', function(orig) {
+    return function() {
+      var current = self._location.href;
+      self.handleUrlChange(self._lastHref, current);
+      if (orig) {
+        orig.apply(this, arguments);
+      }
+    };
+  }, this.replacements, 'navigation');
+
+  replace(this._window.history, 'pushState', function(orig) {
+    return function() {
+      var url = arguments.length > 2 ? arguments[2] : undefined;
+      if (url) {
+        self.handleUrlChange(self._lastHref, url + '');
+      }
+      return orig.apply(this, arguments);
+    };
+  }, this.replacements, 'navigation');
+};
+
+Instrumenter.prototype.handleUrlChange = function(from, to) {
+  var parsedHref = urlparser.parse(this._location.href);
+  var parsedTo = urlparser.parse(to);
+  var parsedFrom = urlparser.parse(from);
+  this._lastHref = to;
+  if (parsedHref.protocol === parsedTo.protocol && parsedHref.host === parsedTo.host) {
+    to = parsedTo.path + (parsedTo.hash || '');
+  }
+  if (parsedHref.protocol === parsedFrom.protocol && parsedHref.host === parsedFrom.host) {
+    from = parsedFrom.path + (parsedFrom.hash || '');
+  }
+  this.telemeter.captureNavigation(from, to);
+};
+
+Instrumenter.prototype.deinstrumentConnectivity = function() {
+  if (!('addEventListener' in this._window || 'body' in this._document)) {
+    return;
+  }
+  if (this._window.addEventListener) {
+    this.removeListeners('connectivity');
+  } else {
+    restore(this.replacements, 'connectivity');
+  }
+};
+
+Instrumenter.prototype.instrumentConnectivity = function() {
+  if (!('addEventListener' in this._window || 'body' in this._document)) {
+    return;
+  }
+  if (this._window.addEventListener) {
+    this.addListener('connectivity', this._window, 'online', undefined, function() {
+      this.telemeter.captureConnectivityChange('online');
+    }.bind(this), true);
+    this.addListener('connectivity', this._window, 'offline', undefined, function() {
+      this.telemeter.captureConnectivityChange('offline');
+    }.bind(this), true);
+  } else {
+    var self = this;
+    replace(this._document.body, 'ononline', function(orig) {
+      return function() {
+        self.telemeter.captureConnectivityChange('online');
+        if (orig) {
+          orig.apply(this, arguments);
+        }
+      }
+    }, this.replacements, 'connectivity');
+    replace(this._document.body, 'onoffline', function(orig) {
+      return function() {
+        self.telemeter.captureConnectivityChange('offline');
+        if (orig) {
+          orig.apply(this, arguments);
+        }
+      }
+    }, this.replacements, 'connectivity');
+  }
+};
+
+Instrumenter.prototype.addListener = function(section, obj, type, altType, handler, capture) {
+  if (obj.addEventListener) {
+    obj.addEventListener(type, handler, capture);
+    this.eventRemovers[section].push(function() {
+      obj.removeEventListener(type, handler, capture);
+    });
+  } else if (altType) {
+    obj.attachEvent(altType, handler);
+    this.eventRemovers[section].push(function() {
+      obj.detachEvent(altType, handler);
+    });
+  }
+};
+
+Instrumenter.prototype.removeListeners = function(section) {
+  var r;
+  while (this.eventRemovers[section].length) {
+    r = this.eventRemovers[section].shift();
+    r();
+  }
+};
+
+module.exports = Instrumenter;
 
 
 /***/ }),
 /* 27 */
 /***/ (function(module, exports) {
 
-	'use strict';
-	
-	function getElementType(e) {
-	  return (e.getAttribute('type') || '').toLowerCase();
-	}
-	
-	function isDescribedElement(element, type, subtypes) {
-	  if (element.tagName.toLowerCase() !== type.toLowerCase()) {
-	    return false;
-	  }
-	  if (!subtypes) {
-	    return true;
-	  }
-	  element = getElementType(element);
-	  for (var i = 0; i < subtypes.length; i++) {
-	    if (subtypes[i] === element) {
-	      return true;
-	    }
-	  }
-	  return false;
-	}
-	
-	function getElementFromEvent(evt, doc) {
-	  if (evt.target) {
-	    return evt.target;
-	  }
-	  if (doc && doc.elementFromPoint) {
-	    return doc.elementFromPoint(evt.clientX, evt.clientY);
-	  }
-	  return undefined;
-	}
-	
-	function treeToArray(elem) {
-	  var MAX_HEIGHT = 5;
-	  var out = [];
-	  var nextDescription;
-	  for (var height = 0; elem && height < MAX_HEIGHT; height++) {
-	    nextDescription = describeElement(elem);
-	    if (nextDescription.tagName === 'html') {
-	      break;
-	    }
-	    out.unshift(nextDescription);
-	    elem = elem.parentNode;
-	  }
-	  return out;
-	}
-	
-	function elementArrayToString(a) {
-	  var MAX_LENGTH = 80;
-	  var separator = ' > ', separatorLength = separator.length;
-	  var out = [], len = 0, nextStr, totalLength;
-	
-	  for (var i = a.length - 1; i >= 0; i--) {
-	    nextStr = descriptionToString(a[i]);
-	    totalLength = len + (out.length * separatorLength) + nextStr.length;
-	    if (i < a.length - 1 && totalLength >= MAX_LENGTH + 3) {
-	      out.unshift('...');
-	      break;
-	    }
-	    out.unshift(nextStr);
-	    len += nextStr.length;
-	  }
-	  return out.join(separator);
-	}
-	
-	function descriptionToString(desc) {
-	  if (!desc || !desc.tagName) {
-	    return '';
-	  }
-	  var out = [desc.tagName];
-	  if (desc.id) {
-	    out.push('#' + desc.id);
-	  }
-	  if (desc.classes) {
-	    out.push('.' + desc.classes.join('.'));
-	  }
-	  for (var i = 0; i < desc.attributes.length; i++) {
-	    out.push('[' + desc.attributes[i].key + '="' + desc.attributes[i].value + '"]');
-	  }
-	
-	  return out.join('');
-	}
-	
-	/**
-	 * Input: a dom element
-	 * Output: null if tagName is falsey or input is falsey, else
-	 *  {
-	 *    tagName: String,
-	 *    id: String | undefined,
-	 *    classes: [String] | undefined,
-	 *    attributes: [
-	 *      {
-	 *        key: OneOf(type, name, title, alt),
-	 *        value: String
-	 *      }
-	 *    ]
-	 *  }
-	 */
-	function describeElement(elem) {
-	  if (!elem || !elem.tagName) {
-	    return null;
-	  }
-	  var out = {}, className, key, attr, i;
-	  out.tagName = elem.tagName.toLowerCase();
-	  if (elem.id) {
-	    out.id = elem.id;
-	  }
-	  className = elem.className;
-	  if (className && (typeof className === 'string')) {
-	    out.classes = className.split(/\s+/);
-	  }
-	  var attributes = ['type', 'name', 'title', 'alt'];
-	  out.attributes = [];
-	  for (i = 0; i < attributes.length; i++) {
-	    key = attributes[i];
-	    attr = elem.getAttribute(key);
-	    if (attr) {
-	      out.attributes.push({key: key, value: attr});
-	    }
-	  }
-	  return out;
-	}
-	
-	module.exports = {
-	  describeElement: describeElement,
-	  descriptionToString: descriptionToString,
-	  elementArrayToString: elementArrayToString,
-	  treeToArray: treeToArray,
-	  getElementFromEvent: getElementFromEvent,
-	  isDescribedElement: isDescribedElement,
-	  getElementType: getElementType
-	};
+function getElementType(e) {
+  return (e.getAttribute('type') || '').toLowerCase();
+}
+
+function isDescribedElement(element, type, subtypes) {
+  if (element.tagName.toLowerCase() !== type.toLowerCase()) {
+    return false;
+  }
+  if (!subtypes) {
+    return true;
+  }
+  element = getElementType(element);
+  for (var i = 0; i < subtypes.length; i++) {
+    if (subtypes[i] === element) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function getElementFromEvent(evt, doc) {
+  if (evt.target) {
+    return evt.target;
+  }
+  if (doc && doc.elementFromPoint) {
+    return doc.elementFromPoint(evt.clientX, evt.clientY);
+  }
+  return undefined;
+}
+
+function treeToArray(elem) {
+  var MAX_HEIGHT = 5;
+  var out = [];
+  var nextDescription;
+  for (var height = 0; elem && height < MAX_HEIGHT; height++) {
+    nextDescription = describeElement(elem);
+    if (nextDescription.tagName === 'html') {
+      break;
+    }
+    out.unshift(nextDescription);
+    elem = elem.parentNode;
+  }
+  return out;
+}
+
+function elementArrayToString(a) {
+  var MAX_LENGTH = 80;
+  var separator = ' > ', separatorLength = separator.length;
+  var out = [], len = 0, nextStr, totalLength;
+
+  for (var i = a.length - 1; i >= 0; i--) {
+    nextStr = descriptionToString(a[i]);
+    totalLength = len + (out.length * separatorLength) + nextStr.length;
+    if (i < a.length - 1 && totalLength >= MAX_LENGTH + 3) {
+      out.unshift('...');
+      break;
+    }
+    out.unshift(nextStr);
+    len += nextStr.length;
+  }
+  return out.join(separator);
+}
+
+function descriptionToString(desc) {
+  if (!desc || !desc.tagName) {
+    return '';
+  }
+  var out = [desc.tagName];
+  if (desc.id) {
+    out.push('#' + desc.id);
+  }
+  if (desc.classes) {
+    out.push('.' + desc.classes.join('.'));
+  }
+  for (var i = 0; i < desc.attributes.length; i++) {
+    out.push('[' + desc.attributes[i].key + '="' + desc.attributes[i].value + '"]');
+  }
+
+  return out.join('');
+}
+
+/**
+ * Input: a dom element
+ * Output: null if tagName is falsey or input is falsey, else
+ *  {
+ *    tagName: String,
+ *    id: String | undefined,
+ *    classes: [String] | undefined,
+ *    attributes: [
+ *      {
+ *        key: OneOf(type, name, title, alt),
+ *        value: String
+ *      }
+ *    ]
+ *  }
+ */
+function describeElement(elem) {
+  if (!elem || !elem.tagName) {
+    return null;
+  }
+  var out = {}, className, key, attr, i;
+  out.tagName = elem.tagName.toLowerCase();
+  if (elem.id) {
+    out.id = elem.id;
+  }
+  className = elem.className;
+  if (className && (typeof className === 'string')) {
+    out.classes = className.split(/\s+/);
+  }
+  var attributes = ['type', 'name', 'title', 'alt'];
+  out.attributes = [];
+  for (i = 0; i < attributes.length; i++) {
+    key = attributes[i];
+    attr = elem.getAttribute(key);
+    if (attr) {
+      out.attributes.push({key: key, value: attr});
+    }
+  }
+  return out;
+}
+
+module.exports = {
+  describeElement: describeElement,
+  descriptionToString: descriptionToString,
+  elementArrayToString: elementArrayToString,
+  treeToArray: treeToArray,
+  getElementFromEvent: getElementFromEvent,
+  isDescribedElement: isDescribedElement,
+  getElementType: getElementType
+};
 
 
 /***/ })
 /******/ ]);
 
 /***/ }),
-/* 188 */
+/* 154 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -28842,20 +25363,20 @@ if (!atom.inSpecMode()) {
 
 const KiteAPI = __webpack_require__(121);
 
-const KiteConnect = __webpack_require__(170);
+const KiteConnect = __webpack_require__(122);
 
-const metrics = __webpack_require__(183);
+const metrics = __webpack_require__(149);
 
 const {
   escapeHTML
-} = __webpack_require__(189);
+} = __webpack_require__(155);
 
 const {
   appendCompletionsFooter,
   parseSnippetCompletion,
   symbolTypeString,
   kindLabel
-} = __webpack_require__(193);
+} = __webpack_require__(159);
 
 const pendingStatusRequestByEditor = {};
 const DataLoader = {
@@ -28943,6 +25464,14 @@ const DataLoader = {
     });
   },
 
+  getKSGCompletions(query) {
+    return KiteAPI.getKSGCompletions(query);
+  },
+
+  getKSGCodeBlocks(query) {
+    return KiteAPI.getKSGCodeBlocks(query);
+  },
+
   getSignaturesAtPosition(editor, position) {
     const buffer = editor.getBuffer();
     const text = buffer.getText();
@@ -29011,13 +25540,13 @@ const DataLoader = {
 module.exports = DataLoader;
 
 /***/ }),
-/* 189 */
+/* 155 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-const _ = __webpack_require__(190);
+const _ = __webpack_require__(156);
 
 const {
   last
@@ -29167,14 +25696,14 @@ module.exports = {
 };
 
 /***/ }),
-/* 190 */
+/* 156 */
 /***/ (function(module, exports, __webpack_require__) {
 
 (function() {
   var isEqual, isPlainObject, macModifierKeyMap, nonMacModifierKeyMap, plus, shiftKeyMap, splitKeyPath, _,
     __slice = [].slice;
 
-  _ = __webpack_require__(191);
+  _ = __webpack_require__(157);
 
   macModifierKeyMap = {
     cmd: '\u2318',
@@ -29695,7 +26224,7 @@ module.exports = {
 
 
 /***/ }),
-/* 191 */
+/* 157 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;//     Underscore.js 1.9.1
@@ -31392,10 +27921,10 @@ module.exports = {
   }
 }());
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(192)(module)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(158)(module)))
 
 /***/ }),
-/* 192 */
+/* 158 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -31423,7 +27952,7 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 193 */
+/* 159 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -31445,7 +27974,7 @@ const {
 const {
   escapeHTML,
   highlightChunk
-} = __webpack_require__(189);
+} = __webpack_require__(155);
 
 const idIsEmpty = id => !id || id === '';
 
@@ -31722,7 +28251,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 194 */
+/* 160 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -31737,9 +28266,9 @@ const {
   compact
 } = __webpack_require__(5);
 
-const DataLoader = __webpack_require__(188);
+const DataLoader = __webpack_require__(154);
 
-const KiteEditor = __webpack_require__(195);
+const KiteEditor = __webpack_require__(161);
 
 const EXTENSIONS_BY_LANGUAGES = {
   python: ['py'],
@@ -31851,7 +28380,7 @@ module.exports = class KiteEditors {
 };
 
 /***/ }),
-/* 195 */
+/* 161 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -31885,9 +28414,9 @@ class KiteEditor {
         screenPositionForMouseEvent,
         pixelPositionForMouseEvent
       } = __webpack_require__(5));
-      WordHoverGesture = __webpack_require__(196);
-      DataLoader = __webpack_require__(188);
-      EditorEvents = __webpack_require__(200);
+      WordHoverGesture = __webpack_require__(162);
+      DataLoader = __webpack_require__(154);
+      EditorEvents = __webpack_require__(166);
     }
 
     const subs = new CompositeDisposable();
@@ -31910,7 +28439,7 @@ class KiteEditor {
     }) => {
       if (atom.config.get('kite.enableHoverUI')) {
         if (!OverlayManager) {
-          OverlayManager = __webpack_require__(202);
+          OverlayManager = __webpack_require__(168);
         }
 
         OverlayManager.showHoverAtPositionWithDelay(editor, position);
@@ -31920,7 +28449,7 @@ class KiteEditor {
     subs.add(this.hoverGesture.onDidDeactivate(() => {
       if (atom.config.get('kite.enableHoverUI')) {
         if (!OverlayManager) {
-          OverlayManager = __webpack_require__(202);
+          OverlayManager = __webpack_require__(168);
         }
 
         OverlayManager.setWordHoverActive(false);
@@ -31933,7 +28462,7 @@ class KiteEditor {
 
       if (atom.config.get('kite.enableHoverUI')) {
         if (!OverlayManager) {
-          OverlayManager = __webpack_require__(202);
+          OverlayManager = __webpack_require__(168);
         }
 
         OverlayManager.setWordHoverActive(false);
@@ -31943,7 +28472,7 @@ class KiteEditor {
 
   expandPosition(position) {
     if (!metrics) {
-      metrics = __webpack_require__(183);
+      metrics = __webpack_require__(149);
     }
 
     DataLoader.getHoverDataAtPosition(this.editor, position).then(data => {
@@ -31975,7 +28504,7 @@ class KiteEditor {
 
   openDefinition(definition) {
     if (!metrics) {
-      metrics = __webpack_require__(183);
+      metrics = __webpack_require__(149);
     }
 
     if (definition.filename.trim() === '') {
@@ -32012,7 +28541,7 @@ class KiteEditor {
 module.exports = KiteEditor;
 
 /***/ }),
-/* 196 */
+/* 162 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -32022,7 +28551,7 @@ const {
   CompositeDisposable
 } = __webpack_require__(2);
 
-const MouseEventGesture = __webpack_require__(197);
+const MouseEventGesture = __webpack_require__(163);
 
 const {
   DisposableEvent,
@@ -32079,7 +28608,7 @@ module.exports = class HoverGesture extends MouseEventGesture {
 };
 
 /***/ }),
-/* 197 */
+/* 163 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -32089,9 +28618,9 @@ const {
   Range
 } = __webpack_require__(2);
 
-const BaseGesture = __webpack_require__(198);
+const BaseGesture = __webpack_require__(164);
 
-const VirtualCursor = __webpack_require__(199);
+const VirtualCursor = __webpack_require__(165);
 
 const {
   screenPositionForMouseEvent
@@ -32127,7 +28656,7 @@ module.exports = class MouseEventGesture extends BaseGesture {
 };
 
 /***/ }),
-/* 198 */
+/* 164 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -32197,7 +28726,7 @@ module.exports = class BaseGesture {
 };
 
 /***/ }),
-/* 199 */
+/* 165 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -32256,7 +28785,7 @@ class VirtualCursor {
 module.exports = VirtualCursor.initClass();
 
 /***/ }),
-/* 200 */
+/* 166 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -32271,7 +28800,7 @@ const KiteAPI = __webpack_require__(121);
 const {
   MAX_FILE_SIZE,
   MAX_PAYLOAD_SIZE
-} = __webpack_require__(201);
+} = __webpack_require__(167);
 
 const {
   DisposableEvent
@@ -32279,7 +28808,7 @@ const {
 
 const {
   version: plugin_version
-} = __webpack_require__(183);
+} = __webpack_require__(149);
 
 let Kite;
 
@@ -32423,7 +28952,7 @@ class EditorEvents {
 module.exports = EditorEvents;
 
 /***/ }),
-/* 201 */
+/* 167 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -32451,7 +28980,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 202 */
+/* 168 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -32462,13 +28991,13 @@ const {
   CompositeDisposable
 } = __webpack_require__(2);
 
-const VirtualCursor = __webpack_require__(199);
+const VirtualCursor = __webpack_require__(165);
 
-const KiteHover = __webpack_require__(203);
+const KiteHover = __webpack_require__(169);
 
-const DataLoader = __webpack_require__(188);
+const DataLoader = __webpack_require__(154);
 
-const metrics = __webpack_require__(183);
+const metrics = __webpack_require__(149);
 
 const {
   DisposableEvent
@@ -32624,7 +29153,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 203 */
+/* 169 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -32640,16 +29169,16 @@ const {
 const {
   symbolName,
   symbolType
-} = __webpack_require__(193);
+} = __webpack_require__(159);
 
 const {
   internalGotoURL
-} = __webpack_require__(184);
+} = __webpack_require__(150);
 
 const {
   debugData,
   wrapAfterParenthesisAndDots
-} = __webpack_require__(204);
+} = __webpack_require__(170);
 
 const {
   DisposableEvent,
@@ -32710,7 +29239,7 @@ class KiteHover extends HTMLElement {
       if (links) {
         this.subscriptions.add(links.onDidClickMoreLink(() => {
           if (!OverlayManager) {
-            OverlayManager = __webpack_require__(202);
+            OverlayManager = __webpack_require__(168);
           }
 
           OverlayManager.dismiss();
@@ -32726,7 +29255,7 @@ class KiteHover extends HTMLElement {
 module.exports = KiteHover.initClass();
 
 /***/ }),
-/* 204 */
+/* 170 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const path = __webpack_require__(27);
@@ -32752,13 +29281,13 @@ const {
   parameterType,
   parameterDefault,
   symbolReturnType
-} = __webpack_require__(193);
+} = __webpack_require__(159);
 
 const {
   highlightChunk,
   wrapLine,
   wrapPre
-} = __webpack_require__(189);
+} = __webpack_require__(155);
 
 const pluralize = (a, s, p) => a === 1 ? s : p;
 
@@ -33088,7 +29617,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 205 */
+/* 171 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -33102,13 +29631,13 @@ const {
 
 const KiteAPI = __webpack_require__(121);
 
-const urls = __webpack_require__(156);
+const urls = __webpack_require__(138);
 
 const {
   MAX_FILE_SIZE
-} = __webpack_require__(201);
+} = __webpack_require__(167);
 
-__webpack_require__(206);
+__webpack_require__(172);
 
 const {
   STATES
@@ -33270,7 +29799,7 @@ module.exports = class Status {
 };
 
 /***/ }),
-/* 206 */
+/* 172 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -33308,13 +29837,274 @@ class KiteLogo extends HTMLElement {
 module.exports = KiteLogo.initClass();
 
 /***/ }),
-/* 207 */
+/* 173 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-__webpack_require__(206);
+const {
+  CompositeDisposable
+} = __webpack_require__(2);
+
+const KSGElement = __webpack_require__(174);
+/* 
+  Questions / Design / ToDos
+  - What are the component states? How do we communicate them to the elements appropriately?
+  - Do I want event Emitter functionality here? What would the use cases be?
+*/
+
+
+module.exports = class KSG {
+  constructor() {
+    this.element = new KSGElement();
+    this._visible = false;
+    this.currentEditor = null;
+    this.insertionMarker = null;
+    this.decoration = null;
+    this.searchQuery = '';
+  }
+
+  init(Kite) {
+    // will need to pay attention to a notion of 'editors'
+    this.subscriptions = new CompositeDisposable();
+  }
+
+  dispose() {
+    this.subscriptions && this.subscriptions.dispose();
+    delete this.element;
+    delete this.subscriptions;
+  }
+
+  show(editor) {
+    this._visible = true; // if we attempt to show, and there's another ksg panel in another editor
+    // we hide that other panel (we keep ksg as a singleton for now)
+
+    if (this.currentEditor && this.currentEditor.id !== editor.id) {
+      this.hide();
+    } // do nothing if already showing in current editor
+
+
+    if (this.currentEditor && this.currentEditor.id === editor.id) {
+      return;
+    }
+
+    this.currentEditor = editor;
+    const pos = this.currentEditor.getCursorScreenPosition();
+    const scrollBuffer = Math.ceil(this.currentEditor.rowsPerPage * 0.9);
+    console.log('editor', this.currentEditor);
+    console.log('position', pos, scrollBuffer); //TODO: with addition of codeblocks, may need more complex screen positioning logic
+    // especially if we're near a bottom row...
+    // eg whether to scroll (with codeblocks); whether to position element on top of current position...
+
+    editor.scrollToScreenPosition({
+      row: pos.row + scrollBuffer,
+      col: pos.col
+    });
+    this.insertionMarker = editor.markScreenPosition(pos, {
+      invalidate: 'never'
+    });
+    this.decoration = editor.decorateMarker(this.insertionMarker, {
+      type: 'block',
+      //could be 'overlay' too; test later
+      item: this.element,
+      "class": 'kite-ksg-wrapper'
+    });
+  }
+
+  scrollToInitialPosition() {//just "top" vs. "bottom"
+    // then use that generated information to subsequently position searchbar; searchbar + codeblocks
+  }
+
+  hide() {
+    if (this.element && this.element.parentNode) {
+      this.element.parentNode.removeChild(this.element);
+    }
+
+    this.insertionMarker && this.insertionMarker.destroy();
+    this.decoration && this.decoration.destroy();
+    this.insertionMarker = null;
+    this.decoration = null;
+    this.currentEditor = null;
+    this._visible = false;
+  }
+
+  get visible() {
+    return this._visible;
+  }
+
+  getElement() {
+    return this.element;
+  }
+
+};
+
+/***/ }),
+/* 174 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+const KSGCodeBlocks = __webpack_require__(175);
+
+const KSGSearch = __webpack_require__(176);
+/**
+ * will need to have nest custom elements...
+ * how to do that?
+ */
+
+
+class KSG extends HTMLElement {
+  constructor() {
+    super();
+    const shadow = this.attachShadow({
+      mode: 'open'
+    });
+    const wrapper = document.createElement('div');
+    wrapper.setAttribute('class', 'kite-ksg-inner');
+    const style = document.createElement('style');
+    style.textContent = `
+    .kite-ksg-inner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      z-index: 1000;
+    }
+    `;
+    shadow.appendChild(wrapper);
+    shadow.appendChild(style);
+    wrapper.appendChild(new KSGCodeBlocks());
+    wrapper.appendChild(new KSGSearch()); // TEST CASE
+
+    wrapper.appendChild(document.createTextNode('TEST BOLLOCKS'));
+  }
+
+  connectedCallback() {//console.log('KSG connected callback');
+  }
+
+  disconnectedCallback() {//console.log('KSG disconnected callback');
+  }
+
+}
+
+customElements.define('kite-ksg', KSG);
+module.exports = KSG;
+/* TODO:
+ - design element structure (attributes, events, etc.)
+ - what needs to happen on connection? on disconnection?
+ - what data does this element need to hold and communicate to its
+    two custom HTMLElement children?
+  - what different states is this element designed to handle? How can it appropriately
+      listen for changes?
+*/
+
+/*
+  Some notes on usage;
+  - controllers will get `new` elements to append to the DOM
+  - these HTMLElement instances will be manipulable through exposed APIs (e.g. `setData`)
+
+*/
+
+/***/ }),
+/* 175 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+ // rendering is handled via setting
+// this.innerHTML
+// OR
+// it may be handled by `this.attachShadow`, and then the manipulation of the 
+// structure contained in the shadow root
+
+class KSGCodeBlocks extends HTMLElement {
+  constructor() {
+    super();
+    const shadow = this.attachShadow({
+      mode: 'open'
+    });
+    const wrapper = document.createElement('div');
+    wrapper.setAttribute('class', 'kite-ksg-code-blocks-wrapper');
+    const style = document.createElement('style');
+    style.textContent = `
+    .kite-ksg-codeblock-wrapper {
+      position: relative;
+      color: blue;
+      font-size: 3.0rem;
+    }
+    `;
+    shadow.appendChild(style);
+    shadow.appendChild(wrapper); // TEST CASE
+
+    wrapper.appendChild(document.createTextNode('TEST CODEBLOCKS'));
+  }
+
+  connectedCallback() {//console.log('KSG codeblocks connected callback');
+  }
+
+  disconnectedCallback() {//console.log('KSG codeblocks disconnected callback');
+  }
+
+}
+
+customElements.define('kite-ksg-code-blocks', KSGCodeBlocks);
+module.exports = KSGCodeBlocks;
+/* TODO:
+ - design element structure (attributes, events, etc.)
+*/
+
+/***/ }),
+/* 176 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+class KSGSearch extends HTMLElement {
+  constructor() {
+    super();
+    this.shadow = this.attachShadow({
+      mode: 'open'
+    });
+    this.wrapper = document.createElement('div');
+    this.wrapper.setAttribute('class', 'kite-ksg-search-wrapper');
+    this.shadow.appendChild(this.wrapper);
+    this.searchInput = document.createElement('input');
+    this.searchInput.setAttribute('type', 'text');
+    this.searchInput.setAttribute('class', '.kite.-ksg-search-input');
+    this.searchInput.addEventListener('input', e => {
+      // e.data contains the character
+      // need to get the full present value...
+      // not registering backspace / delete - will need to take away buffer cursor as well
+      console.log('input evt', e, this.searchInput);
+    });
+    this.wrapper.appendChild(this.searchInput); // TEST CASE
+    //this.wrapper.appendChild(document.createTextNode('TEST SEARCH'));
+  }
+
+  connectedCallback() {//console.log('KSG search connected callback');
+  }
+
+  disconnectedCallback() {//console.log('KSG searchs disconnected callback');
+  }
+
+}
+
+customElements.define('kite-ksg-search', KSGSearch);
+module.exports = KSGSearch;
+/* TODO:
+ - design element structure (attributes, events, etc.)
+ - need for debouncing on keystrokes
+*/
+
+/***/ }),
+/* 177 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+__webpack_require__(172);
 
 const {
   CompositeDisposable,
@@ -33332,15 +30122,15 @@ const KiteAPI = __webpack_require__(121);
 
 const {
   retryPromise
-} = __webpack_require__(155);
+} = __webpack_require__(137);
 
 const LinkScheme = __webpack_require__(3);
 
-const DataLoader = __webpack_require__(188);
+const DataLoader = __webpack_require__(154);
 
 const {
   MAX_FILE_SIZE
-} = __webpack_require__(201);
+} = __webpack_require__(167);
 
 const {
   STATES
@@ -33667,15 +30457,15 @@ class KiteStatusPanel extends HTMLElement {
 module.exports = KiteStatusPanel.initClass();
 
 /***/ }),
-/* 208 */
+/* 178 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-const DataLoader = __webpack_require__(188);
+const DataLoader = __webpack_require__(154);
 
-const KiteSignature = __webpack_require__(209);
+const KiteSignature = __webpack_require__(179);
 
 const {
   delayPromise
@@ -33840,7 +30630,7 @@ const KiteProvider = {
 module.exports = KiteProvider;
 
 /***/ }),
-/* 209 */
+/* 179 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -33864,14 +30654,14 @@ const {
   valueName,
   callSignature,
   returnTypes
-} = __webpack_require__(193);
+} = __webpack_require__(159);
 
 const {
   highlightCode,
   wrapAfterParenthesis,
   debugData,
   renderParameter
-} = __webpack_require__(204);
+} = __webpack_require__(170);
 
 class KiteSignature extends HTMLElement {
   static initClass() {
