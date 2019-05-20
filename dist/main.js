@@ -30082,7 +30082,11 @@ class KSGSearch extends HTMLElement {
     //this.wrapper.appendChild(document.createTextNode('TEST SEARCH'));
   }
 
-  connectedCallback() {//console.log('KSG search connected callback');
+  connectedCallback() {
+    //console.log('KSG search connected callback');
+    this.searchInput.focus({
+      preventScroll: false
+    });
   }
 
   disconnectedCallback() {//console.log('KSG searchs disconnected callback');

@@ -1,6 +1,6 @@
 {
   "name": "kite",
-  "main": "./dist/main",
+  "main": "./lib/kite",
   "version": "0.157.0",
   "description": "Python coding assistant featuring AI-powered autocompletions, advanced function signatures, and instant documentation",
   "repository": "https://github.com/kiteco/atom-plugin",
