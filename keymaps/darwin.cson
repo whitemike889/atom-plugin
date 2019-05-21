@@ -2,7 +2,7 @@
 '.platform-darwin atom-text-editor:not([mini])':
   'ctrl-alt-k': 'kite:docs-at-cursor'
   'cmd-alt-k': 'kite:open-in-web'
-  'cmd-alt-f': 'kite:ksg'
+  'cmd-alt-l': 'kite:ksg'
 
 '.platform-darwin kite-login':
   'cmd-c': 'native!'
