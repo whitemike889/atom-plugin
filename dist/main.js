@@ -314,7 +314,6 @@ const Kite = module.exports = {
       }
     })); // START
 
-    console.log('MUSAH');
     this.patchCompletions(); // onboarding handling
     //open kite onboarding if flag indicates so
 
@@ -437,7 +436,7 @@ const Kite = module.exports = {
     }
 
     if (!KiteStatusPanel) {
-      KiteStatusPanel = __webpack_require__(177);
+      KiteStatusPanel = __webpack_require__(178);
     }
 
     this.statusPanel = new KiteStatusPanel();
@@ -446,7 +445,7 @@ const Kite = module.exports = {
 
   completions() {
     if (!completions) {
-      completions = __webpack_require__(178);
+      completions = __webpack_require__(179);
     }
 
     return completions;
@@ -454,6 +453,7 @@ const Kite = module.exports = {
 
   toggleKSG() {
     const KSGModule = this.getModule('ksg');
+    console.log('toggle', KSGModule);
 
     if (KSGModule) {
       const editor = atom.workspace.getActiveTextEditor();
@@ -29874,15 +29874,31 @@ module.exports = class KSG {
   init(Kite) {
     // will need to pay attention to a notion of 'editors'
     this.subscriptions = new CompositeDisposable();
+    this.subscriptions.add(atom.commands.add(this.element, {
+      'core:close': () => this.hide(),
+      'core:cancel': () => this.hide(),
+      // what other commands (e.g. `core:confirm`) need to be added here?
+      'kite:ksg': () => {
+        this.visible ? this.hide() : this.show(atom.workspace.getActiveTextEditor());
+      }
+    }));
+    this.subscriptions.add(this.element.onCodeBlocksEvent(payload => {
+      console.log('ONCODEBLOCKS EVENT', payload);
+    }));
+    this.subscriptions.add(this.element.onSearchEvent(payload => {
+      console.log('ONSEARCH EVENT', payload);
+    }));
   }
 
   dispose() {
     this.subscriptions && this.subscriptions.dispose();
+    this.element.dispose();
     delete this.element;
     delete this.subscriptions;
   }
 
   show(editor) {
+    console.log('show');
     this._visible = true; // if we attempt to show, and there's another ksg panel in another editor
     // we hide that other panel (we keep ksg as a singleton for now)
 
@@ -29907,6 +29923,11 @@ module.exports = class KSG {
   }
 
   hide() {
+    console.log('hide'); // currentEditor will insert the text at the last active cursor position
+    // below needs to be made more sophisticated
+
+    this.currentEditor.insertText('\nSTUB INSERTION\n');
+
     if (this.element && this.element.parentNode) {
       this.element.parentNode.removeChild(this.element);
     }
@@ -29934,9 +29955,19 @@ module.exports = class KSG {
 "use strict";
 
 
+const {
+  CompositeDisposable,
+  Emitter
+} = __webpack_require__(2);
+
 const KSGCodeBlocks = __webpack_require__(175);
 
-const KSGSearch = __webpack_require__(176);
+const KSGSearch = __webpack_require__(177);
+
+const {
+  CODEBLOCKS_EVENT,
+  SEARCH_EVENT
+} = __webpack_require__(176);
 /**
  * will need to have nest custom elements...
  * how to do that?
@@ -29947,26 +29978,52 @@ class KSG extends HTMLElement {
   constructor() {
     super();
     this.wrapper = document.createElement('div');
-    this.wrapper.setAttribute('class', 'kite-ksg-inner');
-    this.wrapper.appendChild(new KSGCodeBlocks());
-    this.wrapper.appendChild(new KSGSearch());
-    this.setAttribute('tabindex', -1);
-    this.classList.add('native-key-bindings'); // TEST CASE
+    this.wrapper.setAttribute('class', 'kite-ksg-inner'); // TEST CASE
 
     this.wrapper.appendChild(document.createTextNode('TEST BOLLOCKS'));
     this.appendChild(this.wrapper);
   }
 
-  connectedCallback() {//console.log('KSG connected callback');
+  connectedCallback() {
+    this.subscriptions = new CompositeDisposable();
+    this.emitter = new Emitter();
+    this.setAttribute('tabindex', -1);
+    this.codeBlocksElem = new KSGCodeBlocks();
+    this.searchElem = new KSGSearch();
+    this.subscriptions.add(this.codeBlocksElem.onDidGetClicked(payload => {
+      console.log('KITE KSG CODEBLOCKS CLICK LISTENER', payload);
+      this.emitter.emit(CODEBLOCKS_EVENT, {
+        payload: 'codeblocks event'
+      });
+    }));
+    this.subscriptions.add(this.searchElem.onDidGetClicked(payload => {
+      console.log('KITE KSG SEARCH CLICK LISTENER', payload);
+      this.emitter.emit(SEARCH_EVENT);
+    }));
+    this.wrapper.appendChild(this.codeBlocksElem);
+    this.wrapper.appendChild(this.searchElem);
   }
 
   disconnectedCallback() {
-    //console.log('KSG disconnected callback');
-    this.reset();
+    this.dispose();
   }
 
-  reset() {
+  onCodeBlocksEvent(callback) {
+    this.emitter.on(CODEBLOCKS_EVENT, callback);
+  }
+
+  onSearchEvent(callback) {
+    this.emitter.on(SEARCH_EVENT, callback);
+  }
+
+  dispose() {
     console.log('STUB RESET METHOD');
+    this.codeBlocksElem && this.wrapper.removeChild(this.codeBlocksElem);
+    this.searchElem && this.wrapper.removeChild(this.searchElem);
+    this.subscriptions && this.subscriptions.dispose();
+    this.emitter && this.emitter.dispose();
+    this.codeBlocksElem = null;
+    this.searchElem = null;
   }
 
 }
@@ -29994,15 +30051,33 @@ module.exports = KSG;
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
- // rendering is handled via setting
-// this.innerHTML
-// OR
-// it may be handled by `this.attachShadow`, and then the manipulation of the 
-// structure contained in the shadow root
+
+
+const {
+  TextEditor,
+  CompositeDisposable,
+  Emitter
+} = __webpack_require__(2);
+
+const {
+  DisposableEvent
+} = __webpack_require__(5);
+
+const {
+  CODEBLOCKS_CLICKED
+} = __webpack_require__(176);
 
 class KSGCodeBlocks extends HTMLElement {
   constructor() {
     super();
+    this.emitter = new Emitter();
+    this.subscriptions = new CompositeDisposable();
+    this.subscriptions.add(new DisposableEvent(this, 'click', e => {
+      console.log('CODEBLOCKS EVENT');
+      this.emitter.emit(CODEBLOCKS_CLICKED, {
+        payload: 'codeblocks'
+      });
+    }));
     const wrapper = document.createElement('div');
     wrapper.setAttribute('class', 'kite-ksg-code-blocks-wrapper'); // TEST CASE
 
@@ -30013,7 +30088,19 @@ class KSGCodeBlocks extends HTMLElement {
   connectedCallback() {//console.log('KSG codeblocks connected callback');
   }
 
-  disconnectedCallback() {//console.log('KSG codeblocks disconnected callback');
+  disconnectedCallback() {
+    //console.log('KSG codeblocks disconnected callback');
+    this.dispose();
+  }
+
+  dispose() {
+    this.emitter && this.emitter.dispose();
+    this.subscriptions && this.subscriptions.dispose();
+  } // STUB for wiring testing
+
+
+  onDidGetClicked(callback) {
+    return this.emitter.on(CODEBLOCKS_CLICKED, callback);
   }
 
 }
@@ -30031,19 +30118,42 @@ module.exports = KSGCodeBlocks;
 "use strict";
 
 
+const CODEBLOCKS_CLICKED = 'did-codeblocks-get-clicked';
+const SEARCH_CLICKED = 'did-search-get-clicked';
+const CODEBLOCKS_EVENT = 'did-codeblocks-event';
+const SEARCH_EVENT = 'did-search-event';
+module.exports = {
+  CODEBLOCKS_CLICKED,
+  SEARCH_CLICKED,
+  CODEBLOCKS_EVENT,
+  SEARCH_EVENT
+};
+
+/***/ }),
+/* 177 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
 const {
   TextEditor,
-  CompositeDisposable
+  CompositeDisposable,
+  Emitter
 } = __webpack_require__(2);
 
 const {
-  addDelegatedEventListener,
   DisposableEvent
 } = __webpack_require__(5);
+
+const {
+  SEARCH_CLICKED
+} = __webpack_require__(176);
 
 class KSGSearch extends HTMLElement {
   constructor() {
     super();
+    this.emitter = new Emitter();
     this.subscriptions = new CompositeDisposable();
     this.wrapper = document.createElement('div');
     this.wrapper.setAttribute('class', 'kite-ksg-search-wrapper');
@@ -30058,8 +30168,11 @@ class KSGSearch extends HTMLElement {
     */
 
     this.searchInputView = this.searchInput.getElement();
-    this.subscriptions.add(new DisposableEvent(this.searchInputView, 'click', () => {
-      this.setFocus();
+    this.subscriptions.add(new DisposableEvent(this.searchInputView, 'click', e => {
+      console.log('SEARCH EVENT');
+      this.emitter.emit(SEARCH_CLICKED, {
+        payload: 'search'
+      });
     }));
     this.wrapper.appendChild(this.searchInputView);
     this.appendChild(this.wrapper); // TEST CASE
@@ -30074,7 +30187,17 @@ class KSGSearch extends HTMLElement {
 
   disconnectedCallback() {
     //console.log('KSG searchs disconnected callback');
+    this.dispose();
+  }
+
+  dispose() {
     this.subscriptions && this.subscriptions.dispose();
+    this.emitter && this.emitter.dispose();
+  } // STUB for wiring testing
+
+
+  onDidGetClicked(callback) {
+    return this.emitter.on(SEARCH_CLICKED, callback);
   }
 
   setFocus() {
@@ -30093,7 +30216,7 @@ module.exports = KSGSearch;
 */
 
 /***/ }),
-/* 177 */
+/* 178 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -30452,7 +30575,7 @@ class KiteStatusPanel extends HTMLElement {
 module.exports = KiteStatusPanel.initClass();
 
 /***/ }),
-/* 178 */
+/* 179 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -30460,7 +30583,7 @@ module.exports = KiteStatusPanel.initClass();
 
 const DataLoader = __webpack_require__(154);
 
-const KiteSignature = __webpack_require__(179);
+const KiteSignature = __webpack_require__(180);
 
 const {
   delayPromise
@@ -30625,7 +30748,7 @@ const KiteProvider = {
 module.exports = KiteProvider;
 
 /***/ }),
-/* 179 */
+/* 180 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
