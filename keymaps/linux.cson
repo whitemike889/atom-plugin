@@ -4,6 +4,9 @@
   'ctrl-alt-k': 'kite:open-in-web'
   'ctrl-alt-l': 'kite:ksg'
 
+'.platform-linux .workspace':
+  'cmd-alt-l': 'kite:ksg'
+
 '.platform-linux kite-login':
   'ctrl-c': 'native!'
   'ctrl-x': 'native!'
