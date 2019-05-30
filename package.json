@@ -38,9 +38,9 @@
     },
     "enableSnippets": {
       "type": "boolean",
-      "default": false,
+      "default": true,
       "title": "Enable snippets",
-      "description": "Enable snippets feature (Experimental)"
+      "description": "Enable snippets feature."
     },
     "maxVisibleSuggestionsAlongSignature": {
       "type": "integer",
