@@ -6,8 +6,122 @@
 }
 
 kite-ksg {
+  atom-text-editor[mini] {
+    margin-bottom: 0 !important;
+  }
+}
 
-  .kite-ksg-inner {
+kite-ksg-code-blocks {
+  .kite-ksg-code-blocks-wrapper {
+    overflow-y: auto;
+    max-height: 70vh;
+  }
+  
+  kite-ksg-code-block-group {
+    background-color: @background-color-highlight;
+    display: block;
+    padding: 4px 8px;
+    margin-top: 7px;
+    border-radius: 3px;
 
+    .ksg-codeblock-group-top {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ksg-codeblock-group-meta {
+      display: block;
+
+      &.accepted {
+        &>* {
+          color: @background-color-success;
+        }
+      }
+    }
+
+    .ksg-codeblock-group-actions {
+      display: block;
+      .ksg-codeblock-group-addall {
+        float: right;
+        color: @text-color-info;
+        text-decoration: underline;
+        &:hover {
+          color: @text-color-highlight;
+          text-decoration: none;
+          cursor: pointer;
+        }
+      }
+    }
+
+    .ksg-codeblock-group-title {
+      :hover {
+        color: @text-color-highlight;
+        text-decoration: underline;
+        cursor: pointer;
+      }
+
+      a {
+        color: @text-color;
+      }
+
+      .ksg-codeblocks-title-link-icon,
+      .ksg-codeblocks-title-link-icon:hover {
+        color: @text-color;
+        text-decoration: none;
+      }
+    }
+
+    .ksg-codeblock-group-vote {
+      float: right;
+    }
+
+    kite-ksg-code-block {
+      font-family: var(--editor-font-family);
+      font-size: 1.1em;
+      display: block;
+      margin: 4px 0;
+      padding: 5px 3px;
+      padding-left: 3ch;
+      border-radius: 3px;
+      background-color: @base-background-color;
+      word-wrap: break-word;
+      white-space: pre-wrap;
+      line-height: 1.6em;
+
+      &:hover {
+        background-color: #29717c52;
+        color: @text-color-highlight;
+        cursor: pointer;
+      }
+    }
+  }
+}
+
+kite-ksg-search {
+
+  kite-ksg-search-results {
+    position: relative;
+    border: 2px solid #45cee352;
+    border-top: none;
+    border-radius: 3px;
+    display: block;
+  }
+
+  kite-ksg-search-result {
+    color: @text-color;
+    display: block;
+
+    padding-left: 0.5em;
+
+    font-size: 1.15em;
+    line-height: 1.75em;
+    font-family: var(--editor-font-family);
+
+    &:hover,
+    &.highlight-result {
+      background-color: #45cee352;
+      color: @text-color-highlight;
+      cursor: pointer;
+    }
   }
 }
