@@ -88,8 +88,33 @@ kite-ksg-code-blocks {
       white-space: pre-wrap;
       line-height: 1.6em;
 
+      .ksg-code-block-wrapper {
+
+      }
+
+      .ksg-code-block-code {
+
+      }
+
+      .ksg-code-block-toggle {
+        display: block;
+
+        &:hover {
+          color: @text-color-info;
+        }
+
+        .ellipsis {
+          font-size: 1.7em;
+        }
+
+        .arrow {
+          float: right;
+          font-size: 1.7em;
+        }
+      }
+
       &:hover {
-        background-color: #29717c52;
+        background-color: @hover-background-color;
         color: @text-color-highlight;
         cursor: pointer;
       }
@@ -101,7 +126,7 @@ kite-ksg-search {
 
   kite-ksg-search-results {
     position: relative;
-    border: 2px solid #45cee352;
+    border: 2px solid @border-color;
     border-top: none;
     border-radius: 3px;
     display: block;
@@ -119,7 +144,7 @@ kite-ksg-search {
 
     &:hover,
     &.highlight-result {
-      background-color: #45cee352;
+      background-color: @hover-background-color;
       color: @text-color-highlight;
       cursor: pointer;
     }
