@@ -132,6 +132,7 @@ kite-ksg-search {
     display: block;
   }
 
+  kite-ksg-default-search-result,
   kite-ksg-search-result {
     color: @text-color;
     display: block;
@@ -147,6 +148,11 @@ kite-ksg-search {
       background-color: @hover-background-color;
       color: @text-color-highlight;
       cursor: pointer;
+    }
+
+    .plain-text {
+      font-family: @font-family;
+      color: @text-color-subtle;
     }
   }
 }
