@@ -6,6 +6,11 @@
 }
 
 kite-ksg {
+  display: block;
+  min-width: 30rem;
+  background-color: @overlay-background-color;
+  padding: 10px;
+  border-radius: @component-border-radius;
   atom-text-editor[mini] {
     margin-bottom: 0 !important;
   }
@@ -22,11 +27,12 @@ kite-ksg-code-blocks {
     display: block;
     padding: 4px 8px;
     margin-top: 7px;
-    border-radius: 3px;
+    border-radius: @component-border-radius;
 
     .ksg-codeblock-group-top {
       display: flex;
       flex-direction: column;
+      font-family: @font-family;
     }
 
     .ksg-codeblock-group-meta {
@@ -82,7 +88,7 @@ kite-ksg-code-blocks {
       margin: 4px 0;
       padding: 5px 3px;
       padding-left: 3ch;
-      border-radius: 3px;
+      border-radius: @component-border-radius;
       background-color: @base-background-color;
       word-wrap: break-word;
       white-space: pre-wrap;
@@ -98,6 +104,7 @@ kite-ksg-code-blocks {
 
       .ksg-code-block-toggle {
         display: block;
+        font-family: @font-family;
 
         &:hover {
           color: @text-color-info;
@@ -123,13 +130,18 @@ kite-ksg-code-blocks {
 }
 
 kite-ksg-search {
-
+  display: block;
+  margin-bottom: @component-border-radius;
   kite-ksg-search-results {
     position: relative;
-    border: 2px solid @border-color;
-    border-top: none;
-    border-radius: 3px;
+    border: none;
+    border-radius: @component-border-radius;
     display: block;
+
+    &.bordered {
+      border: 2px solid @border-color;
+      border-top: none;
+    }
   }
 
   kite-ksg-default-search-result,
