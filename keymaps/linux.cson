@@ -2,10 +2,9 @@
 '.platform-linux atom-text-editor:not([mini])':
   'ctrl-alt-shift-k': 'kite:docs-at-cursor'
   'ctrl-alt-k': 'kite:open-in-web'
-  'ctrl-alt-l': 'kite:ksg'
 
 '.platform-linux .workspace':
-  'cmd-alt-l': 'kite:ksg'
+  'ctrl-alt-l': 'kite:ksg'
 
 '.platform-linux kite-login':
   'ctrl-c': 'native!'

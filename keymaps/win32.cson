@@ -4,7 +4,7 @@
   'ctrl-alt-k': 'kite:open-in-web'
 
 '.platform-win32 .workspace':
-  'cmd-alt-l': 'kite:ksg'
+  'ctrl-alt-l': 'kite:ksg'
 
 '.platform-win32 kite-login':
   'ctrl-c': 'native!'
