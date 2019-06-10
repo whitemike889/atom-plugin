@@ -172,6 +172,25 @@ kite-ksg-code-blocks {
 kite-ksg-search {
   display: block;
   margin-bottom: @component-border-radius;
+
+  .loading-spinner-wrapper {
+    position: relative;
+    padding-right: 5px;
+    margin: auto;
+  }
+  .loading-spinner {
+    border: 2px solid @text-color-subtle;
+    border-top: 2px solid @text-color-info;
+    border-radius: 50%;
+    width: 1em;
+    height: 1em;
+    animation: spin 2s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
   kite-ksg-search-results {
     position: relative;
     border: none;
