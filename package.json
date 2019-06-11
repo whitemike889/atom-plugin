@@ -114,7 +114,7 @@
     "element-resize-detector": "^1.1.11",
     "fuzzaldrin-plus": "^0.4.1",
     "getmac": "1.2.1",
-    "kite-api": "git://github.com/kiteco/kite-api-js.git#ksg-endpoints",
+    "kite-api": "^3.5.0",
     "kite-connector": "^3.0.0",
     "kite-installer": "^3.2.0",
     "lodash": "^4.17.11",
