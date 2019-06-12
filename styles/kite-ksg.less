@@ -166,6 +166,32 @@ kite-ksg-code-blocks {
         cursor: pointer;
       }
     }
+
+    kite-ksg-default-code-block {
+      font-family: var(--editor-font-family);
+      font-size: 1.1em;
+      display: block;
+      margin: 4px 0;
+      padding: 5px 3px;
+      padding-left: 3ch;
+      padding-right: 3ch;
+      border-radius: @component-border-radius;
+      background-color: @base-background-color;
+      word-wrap: break-word;
+      white-space: pre-wrap;
+      line-height: 1.6em;
+
+      .query {
+        color: @text-color-info;
+      }
+
+      &.highlighted,
+      &:hover {
+        background-color: @hover-background-color;
+        color: @text-color-highlight;
+        cursor: pointer;
+      }
+    }
   }
 }
 
