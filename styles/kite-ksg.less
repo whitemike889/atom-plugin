@@ -60,13 +60,13 @@ kite-ksg-code-blocks {
       }
     }
   }
-  
+
   kite-ksg-code-block-group {
-    background-color: @background-color-highlight;
+    background-color: @base-background-color;
     display: block;
     padding: 4px 8px;
     margin-top: 7px;
-    border-radius: @component-border-radius;
+    border-radius: 0;
 
     .ksg-codeblock-group-top {
       display: flex;
@@ -122,11 +122,10 @@ kite-ksg-code-blocks {
 
     kite-ksg-code-block {
       font-family: var(--editor-font-family);
-      font-size: 1.1em;
+      font-size: 1em;
       display: block;
       margin: 4px 0;
-      padding: 5px 3px;
-      padding-left: 3ch;
+      padding: 5px 0;
       border-radius: @component-border-radius;
       background-color: @base-background-color;
       word-wrap: break-word;
@@ -212,7 +211,7 @@ kite-ksg-search {
     height: 1em;
     animation: spin 2s linear infinite;
   }
-  
+
   @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
@@ -221,6 +220,8 @@ kite-ksg-search {
     position: relative;
     border: none;
     border-radius: @component-border-radius;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
     display: block;
 
     &.bordered {
@@ -236,9 +237,9 @@ kite-ksg-search {
 
     padding-left: 0.5em;
 
-    font-size: 1.15em;
+    font-size: 1.25em;
     line-height: 1.75em;
-    font-family: var(--editor-font-family);
+    font-family: system-ui;
 
     &:hover,
     &.highlight-result {

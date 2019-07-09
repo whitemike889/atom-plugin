@@ -1,7 +1,7 @@
 {
   "name": "kite",
-  "main": "./dist/main",
-  "version": "0.162.0",
+  "main": "./lib/kite",
+  "version": "0.165.0",
   "description": "Python coding assistant featuring AI-powered autocompletions, advanced function signatures, and instant documentation",
   "repository": "https://github.com/kiteco/atom-plugin",
   "keywords": [],
@@ -38,9 +38,9 @@
     },
     "enableSnippets": {
       "type": "boolean",
-      "default": false,
+      "default": true,
       "title": "Enable snippets",
-      "description": "Enable snippets feature (Experimental)"
+      "description": "Enable snippets feature."
     },
     "maxVisibleSuggestionsAlongSignature": {
       "type": "integer",
