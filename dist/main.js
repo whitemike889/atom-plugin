@@ -23316,7 +23316,7 @@ module.exports = {
 /* 165 */
 /***/ (function(module) {
 
-module.exports = JSON.parse("{\"name\":\"kite\",\"main\":\"./dist/main\",\"version\":\"0.165.0\",\"description\":\"Python coding assistant featuring AI-powered autocompletions, advanced function signatures, and instant documentation\",\"repository\":\"https://github.com/kiteco/atom-plugin\",\"keywords\":[],\"license\":\"SEE LICENSE IN LICENSE\",\"engines\":{\"atom\":\">=1.0.0 <2.0.0\"},\"scripts\":{\"lint\":\"eslint .\",\"lint:fix\":\"eslint --fix .\",\"build-prod\":\"webpack --config config/webpack.config.js --mode production\",\"prepublishOnly\":\"rm -rf node_modules && rm -f package-lock.json && apm install && rm -rf dist && npm run build-prod\",\"build-dev\":\"webpack --config config/webpack.config.js --mode none\",\"clean-dev-install\":\"apm unlink && rm -rf node_modules && rm -f package-lock.json && apm install && rm -rf dist && npm run build-dev && apm link\"},\"configSchema\":{\"showWelcomeNotificationOnStartup\":{\"type\":\"boolean\",\"default\":true,\"title\":\"Show welcome notification on startup\",\"description\":\"Whether or not to show the Kite welcome notification on startup.\"},\"enableCompletions\":{\"type\":\"boolean\",\"default\":true,\"title\":\"Enable completions\",\"description\":\"Automatically show completions from Kite as you type.\"},\"enableHoverUI\":{\"type\":\"boolean\",\"default\":true,\"title\":\"Enable hover\",\"description\":\"Show a quick summary of a symbol when you hover your mouse over it.\"},\"enableSnippets\":{\"type\":\"boolean\",\"default\":true,\"title\":\"Enable snippets\",\"description\":\"Enable snippets feature.\"},\"maxVisibleSuggestionsAlongSignature\":{\"type\":\"integer\",\"default\":5,\"title\":\"Completions limit with function signature\",\"description\":\"Maximum number of completions that can be shown when a function signature is also shown.\"},\"loggingLevel\":{\"type\":\"string\",\"default\":\"info\",\"enum\":[\"silly\",\"verbose\",\"debug\",\"info\",\"warning\",\"error\"],\"title\":\"Logging level\",\"description\":\"The verbosity level of Kite logs.\"},\"pollingInterval\":{\"type\":\"integer\",\"default\":15000,\"min\":1000,\"max\":60000,\"title\":\"Polling interval\",\"description\":\"Interval in milliseconds at which the Kite package polls Kite Engine to get the status of the current file.\"},\"developerMode\":{\"type\":\"boolean\",\"default\":false,\"title\":\"Developer mode\",\"description\":\"Displays JSON data from Kite Engine that's used when rendering a UI element.\"},\"startKiteAtStartup\":{\"type\":\"boolean\",\"default\":true,\"title\":\"Start Kite Engine on startup\",\"description\":\"Automatically start Kite Engine on editor startup if it's not already running.\"},\"signatureKwargsVisible\":{\"type\":\"boolean\",\"default\":false,\"title\":\"Show function keyword arguments\",\"description\":\"Show inferred keyword arguments for a function when the function signature panel is shown\"},\"signaturePopularPatternsVisible\":{\"type\":\"boolean\",\"default\":false,\"title\":\"Show function call examples\",\"description\":\"Show examples on how to call a function when the function signature panel is shown\"}},\"providedServices\":{\"autocomplete.provider\":{\"versions\":{\"2.0.0\":\"completions\"}}},\"consumedServices\":{\"status-bar\":{\"versions\":{\"^1.0.0\":\"consumeStatusBar\"}}},\"dependencies\":{\"analytics-node\":\"^3.1.1\",\"element-resize-detector\":\"^1.1.11\",\"fuzzaldrin-plus\":\"^0.4.1\",\"getmac\":\"1.2.1\",\"kite-api\":\"^3.5.0\",\"kite-connector\":\"^3.4.0\",\"kite-installer\":\"^3.2.0\",\"lodash\":\"^4.17.11\",\"md5\":\"^2.2.0\",\"rollbar\":\"^2.3.8\",\"tiny-relative-date\":\"^1.3.0\",\"underscore-plus\":\"^1\"},\"devDependencies\":{\"@babel/core\":\"^7.4.3\",\"@babel/preset-env\":\"^7.4.3\",\"babel-eslint\":\"^6.1.2\",\"babel-loader\":\"^8.0.5\",\"editors-json-tests\":\"git://github.com/kiteco/editors-json-tests.git#master\",\"eslint\":\"^3.11.1\",\"eslint-config\":\"^0.3.0\",\"eslint-config-fbjs\":\"^1.1.1\",\"eslint-plugin-babel\":\"^3.3.0\",\"eslint-plugin-flowtype\":\"^2.29.1\",\"eslint-plugin-jasmine\":\"^2.2.0\",\"eslint-plugin-prefer-object-spread\":\"^1.1.0\",\"eslint-plugin-react\":\"^5.2.2\",\"fbjs\":\"^0.8.6\",\"javascript-obfuscator\":\"^0.8.3\",\"sinon\":\"^2.3.5\",\"webpack\":\"^4.30.0\",\"webpack-cli\":\"^3.3.0\"}}");
+module.exports = JSON.parse("{\"name\":\"kite\",\"main\":\"./lib/kite\",\"version\":\"0.165.0\",\"description\":\"Python coding assistant featuring AI-powered autocompletions, advanced function signatures, and instant documentation\",\"repository\":\"https://github.com/kiteco/atom-plugin\",\"keywords\":[],\"license\":\"SEE LICENSE IN LICENSE\",\"engines\":{\"atom\":\">=1.0.0 <2.0.0\"},\"scripts\":{\"lint\":\"eslint .\",\"lint:fix\":\"eslint --fix .\",\"build-prod\":\"webpack --config config/webpack.config.js --mode production\",\"prepublishOnly\":\"rm -rf node_modules && rm -f package-lock.json && apm install && rm -rf dist && npm run build-prod\",\"build-dev\":\"webpack --config config/webpack.config.js --mode none\",\"clean-dev-install\":\"apm unlink && rm -rf node_modules && rm -f package-lock.json && apm install && rm -rf dist && npm run build-dev && apm link\"},\"configSchema\":{\"showWelcomeNotificationOnStartup\":{\"type\":\"boolean\",\"default\":true,\"title\":\"Show welcome notification on startup\",\"description\":\"Whether or not to show the Kite welcome notification on startup.\"},\"enableCompletions\":{\"type\":\"boolean\",\"default\":true,\"title\":\"Enable completions\",\"description\":\"Automatically show completions from Kite as you type.\"},\"enableHoverUI\":{\"type\":\"boolean\",\"default\":true,\"title\":\"Enable hover\",\"description\":\"Show a quick summary of a symbol when you hover your mouse over it.\"},\"enableSnippets\":{\"type\":\"boolean\",\"default\":true,\"title\":\"Enable snippets\",\"description\":\"Enable snippets feature.\"},\"maxVisibleSuggestionsAlongSignature\":{\"type\":\"integer\",\"default\":5,\"title\":\"Completions limit with function signature\",\"description\":\"Maximum number of completions that can be shown when a function signature is also shown.\"},\"loggingLevel\":{\"type\":\"string\",\"default\":\"info\",\"enum\":[\"silly\",\"verbose\",\"debug\",\"info\",\"warning\",\"error\"],\"title\":\"Logging level\",\"description\":\"The verbosity level of Kite logs.\"},\"pollingInterval\":{\"type\":\"integer\",\"default\":15000,\"min\":1000,\"max\":60000,\"title\":\"Polling interval\",\"description\":\"Interval in milliseconds at which the Kite package polls Kite Engine to get the status of the current file.\"},\"developerMode\":{\"type\":\"boolean\",\"default\":false,\"title\":\"Developer mode\",\"description\":\"Displays JSON data from Kite Engine that's used when rendering a UI element.\"},\"startKiteAtStartup\":{\"type\":\"boolean\",\"default\":true,\"title\":\"Start Kite Engine on startup\",\"description\":\"Automatically start Kite Engine on editor startup if it's not already running.\"},\"signatureKwargsVisible\":{\"type\":\"boolean\",\"default\":false,\"title\":\"Show function keyword arguments\",\"description\":\"Show inferred keyword arguments for a function when the function signature panel is shown\"},\"signaturePopularPatternsVisible\":{\"type\":\"boolean\",\"default\":false,\"title\":\"Show function call examples\",\"description\":\"Show examples on how to call a function when the function signature panel is shown\"}},\"providedServices\":{\"autocomplete.provider\":{\"versions\":{\"2.0.0\":\"completions\"}}},\"consumedServices\":{\"status-bar\":{\"versions\":{\"^1.0.0\":\"consumeStatusBar\"}}},\"dependencies\":{\"analytics-node\":\"^3.1.1\",\"element-resize-detector\":\"^1.1.11\",\"fuzzaldrin-plus\":\"^0.4.1\",\"getmac\":\"1.2.1\",\"kite-api\":\"^3.5.0\",\"kite-connector\":\"^3.4.0\",\"kite-installer\":\"^3.2.0\",\"lodash\":\"^4.17.11\",\"md5\":\"^2.2.0\",\"rollbar\":\"^2.3.8\",\"tiny-relative-date\":\"^1.3.0\",\"underscore-plus\":\"^1\"},\"devDependencies\":{\"@babel/core\":\"^7.4.3\",\"@babel/preset-env\":\"^7.4.3\",\"babel-eslint\":\"^6.1.2\",\"babel-loader\":\"^8.0.5\",\"editors-json-tests\":\"git://github.com/kiteco/editors-json-tests.git#master\",\"eslint\":\"^3.11.1\",\"eslint-config\":\"^0.3.0\",\"eslint-config-fbjs\":\"^1.1.1\",\"eslint-plugin-babel\":\"^3.3.0\",\"eslint-plugin-flowtype\":\"^2.29.1\",\"eslint-plugin-jasmine\":\"^2.2.0\",\"eslint-plugin-prefer-object-spread\":\"^1.1.0\",\"eslint-plugin-react\":\"^5.2.2\",\"fbjs\":\"^0.8.6\",\"javascript-obfuscator\":\"^0.8.3\",\"sinon\":\"^2.3.5\",\"webpack\":\"^4.30.0\",\"webpack-cli\":\"^3.3.0\"}}");
 
 /***/ }),
 /* 166 */
@@ -34225,56 +34225,58 @@ class KSGCodeBlockGroup extends HTMLElement {
         is_accepted,
         code_blocks,
         answer_id
-      } = answer;
-      const topEl = document.createElement('div');
-      const metaInfoEl = document.createElement('div');
-      const titleEl = document.createElement('span');
-      const voteEl = document.createElement('span');
-      const actionsEl = document.createElement('div');
-      const addAllEl = document.createElement('span');
-      topEl.setAttribute('class', 'ksg-codeblock-group-top');
-      metaInfoEl.setAttribute('class', 'ksg-codeblock-group-meta');
-      titleEl.setAttribute('class', 'ksg-codeblock-group-title');
-      voteEl.setAttribute('class', 'ksg-codeblock-group-vote');
-      actionsEl.setAttribute('class', 'ksg-codeblock-group-actions');
-      addAllEl.setAttribute('class', 'ksg-codeblock-group-addall');
-      this.subscriptions.add(new DisposableEvent(addAllEl, 'click', e => {
-        if (this.blocks && this.blocks.length > 0) {
-          const blockTexts = this.blocks.filter(block => block instanceof KSGCodeBlock).map(block => block.code);
-          this.emitter.emit(CODEBLOCKS_ADD, {
-            blocks: blockTexts,
-            link: this.link
-          });
-        }
-      }));
-      is_accepted && metaInfoEl.classList.add('accepted'); //TODO: find appropriate way to truncate title
-      // maybe add tooltip too?
-
-      if (question_title) {
-        const titleLink = document.createElement('a');
-        const titleLinkIcon = document.createElement('span');
-        titleLinkIcon.setAttribute('class', 'ksg-codeblocks-title-link-icon');
-        titleLinkIcon.textContent = ' ⇗';
-        this.link = `https://stackoverflow.com/a/${answer_id}`;
-        titleLink.href = this.link;
-        titleLink.appendChild(document.createTextNode(question_title));
-        titleEl.appendChild(titleLink);
-        titleEl.appendChild(titleLinkIcon);
-      }
-
-      typeof votes === 'number' && voteEl.appendChild(document.createTextNode(`${votes} votes ${is_accepted ? '✓' : ''}`));
-      code_blocks && code_blocks.length > 1 && addAllEl.appendChild(document.createTextNode(`Add all ${code_blocks.length} blocks`));
-      metaInfoEl.appendChild(titleEl);
-      metaInfoEl.appendChild(voteEl);
-      actionsEl.appendChild(addAllEl);
-      topEl.appendChild(metaInfoEl);
-      topEl.appendChild(actionsEl);
-      this.appendChild(topEl);
+      } = answer; // const topEl = document.createElement('div');
+      // const metaInfoEl = document.createElement('div');
+      // const titleEl = document.createElement('span');
+      // const voteEl = document.createElement('span');
+      // const actionsEl = document.createElement('div');
+      // const addAllEl = document.createElement('span');
+      // topEl.setAttribute('class', 'ksg-codeblock-group-top');
+      // metaInfoEl.setAttribute('class', 'ksg-codeblock-group-meta');
+      // titleEl.setAttribute('class', 'ksg-codeblock-group-title');
+      // voteEl.setAttribute('class', 'ksg-codeblock-group-vote');
+      // actionsEl.setAttribute('class', 'ksg-codeblock-group-actions');
+      // addAllEl.setAttribute('class', 'ksg-codeblock-group-addall');
+      // this.subscriptions.add(new DisposableEvent(addAllEl, 'click', (e) => {
+      //   if (this.blocks && this.blocks.length > 0) {
+      //     const blockTexts = this.blocks.filter(block => (block instanceof KSGCodeBlock)).map(block => block.code);
+      //     this.emitter.emit(CODEBLOCKS_ADD, {
+      //       blocks: blockTexts,
+      //       link: this.link,
+      //     });
+      //   }
+      // }));
+      // is_accepted && metaInfoEl.classList.add('accepted');
+      // // TODO: find appropriate way to truncate title
+      // // maybe add tooltip too?
+      // if (question_title) {
+      //   const titleLink = document.createElement('a');
+      //   const titleLinkIcon = document.createElement('span');
+      //   titleLinkIcon.setAttribute('class', 'ksg-codeblocks-title-link-icon');
+      //   titleLinkIcon.textContent = ' ⇗';
+      //   this.link = `https://stackoverflow.com/a/${answer_id}`;
+      //   titleLink.href = this.link;
+      //   titleLink.appendChild(document.createTextNode(question_title));
+      //   titleEl.appendChild(titleLink);
+      //   titleEl.appendChild(titleLinkIcon);
+      // }
+      // typeof votes === 'number' && voteEl.appendChild(document.createTextNode(
+      //   `${votes} votes ${is_accepted ? '✓' : ''}`
+      // ));
+      // code_blocks && code_blocks.length > 1 && addAllEl.appendChild(document.createTextNode(
+      //   `Add all ${code_blocks.length} blocks`
+      // ));
+      // metaInfoEl.appendChild(titleEl);
+      // metaInfoEl.appendChild(voteEl);
+      // actionsEl.appendChild(addAllEl);
+      // topEl.appendChild(metaInfoEl);
+      // topEl.appendChild(actionsEl);
+      // this.appendChild(topEl);
 
       if (code_blocks && code_blocks.length > 0) {
         const fragment = document.createDocumentFragment();
-        code_blocks.forEach(block => {
-          const blockEl = new KSGCodeBlock(block);
+        code_blocks.forEach((block, idx) => {
+          const blockEl = idx == 0 ? new KSGCodeBlock(block, question_title, answer_id, votes, is_accepted) : new KSGCodeBlock(block);
           this.subscriptions.add(blockEl.onClicked(({
             block
           }) => {
@@ -34407,13 +34409,44 @@ class KSGCodeBlock extends HTMLElement {
     return toggleSizeEl;
   }
 
-  constructor(codeblock) {
+  constructor(codeblock, title = null, answerId = null, votes = null, accepted = null) {
     super();
     this.subscriptions = new CompositeDisposable();
     this.emitter = new Emitter();
     this._code = codeblock;
     this.wrapper = document.createElement('div');
     this.wrapper.classList.add('ksg-code-block-wrapper');
+
+    if (title !== null) {
+      const topEl = document.createElement('div');
+      const metaInfoEl = document.createElement('div');
+      const titleEl = document.createElement('span');
+      const voteEl = document.createElement('span');
+      topEl.setAttribute('class', 'ksg-codeblock-group-top');
+      metaInfoEl.setAttribute('class', 'ksg-codeblock-group-meta');
+      titleEl.setAttribute('class', 'ksg-codeblock-group-title');
+      voteEl.setAttribute('class', 'ksg-codeblock-group-vote');
+
+      if (accepted) {
+        metaInfoEl.classList.add('accepted');
+      }
+
+      const titleLink = document.createElement('a');
+      const titleLinkIcon = document.createElement('span');
+      titleLinkIcon.setAttribute('class', 'ksg-codeblocks-title-link-icon');
+      titleLinkIcon.textContent = ' ⇗';
+      this.link = `https://stackoverflow.com/a/${answerId}`;
+      titleLink.href = this.link;
+      titleLink.appendChild(document.createTextNode(title));
+      titleEl.appendChild(titleLink);
+      titleEl.appendChild(titleLinkIcon);
+      typeof votes === 'number' && voteEl.appendChild(document.createTextNode(`${votes} votes ${accepted ? '✓' : ''}`));
+      metaInfoEl.appendChild(titleEl);
+      metaInfoEl.appendChild(voteEl);
+      topEl.appendChild(metaInfoEl);
+      this.wrapper.appendChild(topEl);
+    }
+
     this.codeblockEl = document.createElement('div');
     this.codeblockEl.classList.add('ksg-code-block-code');
     this._displayCode = KSGCodeBlock.truncateCode(codeblock);
@@ -34668,7 +34701,7 @@ class KSGSearch extends HTMLElement {
   constructor() {
     super();
     this.searchInput = new TextEditor({
-      placeholderText: 'Search the web...',
+      placeholderText: 'How do I...',
       mini: true
     });
     this.searchInputView = this.searchInput.getElement();
@@ -34691,16 +34724,16 @@ class KSGSearch extends HTMLElement {
     }
 
     this.loading = false;
-    this.shouldCancelChangeQuery = false;
-    this.subscriptions.add(new DisposableEvent(this.searchInputView, 'focusout', e => {
-      if (e.target !== this.searchInputView) {
-        this.searchResults && this.searchResults.clearHighlight();
-      }
-    }));
-    this.subscriptions.add(new DisposableEvent(this.searchInputView, 'blur', e => {
-      this.cursorPos = this.searchInput.getCursorBufferPosition();
-      this.searchInput.getLastCursor().destroy();
-    }));
+    this.shouldCancelChangeQuery = false; // this.subscriptions.add(new DisposableEvent(this.searchInputView, 'focusout', (e) => {
+    //   if (e.target !== this.searchInputView) {
+    //     this.searchResults && this.searchResults.clearHighlight();
+    //   }
+    // }));
+    // this.subscriptions.add(new DisposableEvent(this.searchInputView, 'blur', (e) => {
+    //   this.cursorPos = this.searchInput.getCursorBufferPosition();
+    //   this.searchInput.getLastCursor().destroy();
+    // }));
+
     this.subscriptions.add(new DisposableEvent(this.searchInputView, 'focus', e => {
       this.searchInput.setCursorBufferPosition(this.cursorPos);
     }));
@@ -35307,6 +35340,7 @@ function debounce(func, wait, options) {
       }
       if (maxing) {
         // Handle invocations in a tight loop.
+        clearTimeout(timerId);
         timerId = setTimeout(timerExpired, wait);
         return invokeFunc(lastCallTime);
       }
@@ -35789,7 +35823,7 @@ module.exports = class Codeblocks {
 # Source: ${link}
 ${blocks.join('\n# BLOCK\n')}
 >>>>>>> end of Kite Snippet
-    `;
+`;
   }
 
   constructor() {

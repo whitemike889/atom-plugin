@@ -20,6 +20,10 @@ kite-ksg-code-blocks {
   .kite-ksg-code-blocks-wrapper {
     overflow-y: auto;
     max-height: 70vh;
+
+    &::-webkit-scrollbar {
+      width: 0 !important;
+    }
   }
 
   kite-ksg-loading-block {
@@ -62,11 +66,18 @@ kite-ksg-code-blocks {
   }
 
   kite-ksg-code-block-group {
-    background-color: @base-background-color;
     display: block;
-    padding: 4px 8px;
-    margin-top: 7px;
+    padding: 0;
     border-radius: 0;
+    margin-right: 4px;
+
+    &.even {
+      border-right: 4px blue solid;
+    }
+
+    &.odd {
+      border-right: 4px red solid;
+    }
 
     .ksg-codeblock-group-top {
       display: flex;
@@ -124,9 +135,9 @@ kite-ksg-code-blocks {
       font-family: var(--editor-font-family);
       font-size: 1em;
       display: block;
-      margin: 4px 0;
-      padding: 5px 0;
-      border-radius: @component-border-radius;
+      margin: 5px 0;
+      padding: 5px 10px;
+      border-radius: 0;
       background-color: @base-background-color;
       word-wrap: break-word;
       white-space: pre-wrap;
