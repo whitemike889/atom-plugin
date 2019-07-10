@@ -4,7 +4,7 @@
   'ctrl-alt-k': 'kite:open-in-web'
 
 '.platform-linux .workspace':
-  'ctrl-alt-l': 'kite:ksg'
+  'ctrl-alt-l': 'kite:search-stack-overflow'
 
 '.platform-linux kite-login':
   'ctrl-c': 'native!'

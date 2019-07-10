@@ -4,7 +4,7 @@
   'cmd-alt-k': 'kite:open-in-web'
 
 '.platform-darwin .workspace':
-  'cmd-alt-l': 'kite:ksg'
+  'cmd-alt-l': 'kite:search-stack-overflow'
 
 '.platform-darwin kite-login':
   'cmd-c': 'native!'
