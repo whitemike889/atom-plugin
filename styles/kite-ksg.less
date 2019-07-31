@@ -91,7 +91,7 @@ kite-ksg-code-blocks {
       display: block;
 
       &.accepted {
-        &>* {
+        & > * {
           color: @background-color-success;
         }
       }
@@ -148,7 +148,6 @@ kite-ksg-code-blocks {
       line-height: 1.6em;
 
       .ksg-code-block-wrapper {
-
       }
 
       .ksg-code-block-code {
@@ -225,8 +224,12 @@ kite-ksg-search {
   }
 
   @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
   }
   kite-ksg-search-results {
     position: relative;
@@ -253,7 +256,6 @@ kite-ksg-search {
     line-height: 1.75em;
     font-family: system-ui;
 
-    &:hover,
     &.highlight-result {
       background-color: @hover-background-color;
       color: @text-color-highlight;
