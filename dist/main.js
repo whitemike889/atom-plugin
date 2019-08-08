@@ -93,7 +93,7 @@ module.exports =
  // Contents of this plugin will be reset by Kite on start.
 // Changes you make are not guaranteed to persist.
 
-let child_process, CompositeDisposable, AccountManager, Logger, completions, metrics, KiteApp, KiteStatusPanel, NotificationsCenter, RollbarReporter, OverlayManager, KiteEditors, DataLoader, KSG, DisposableEvent, Disposable, KiteAPI, VirtualCursor, NodeClient, KiteConnect, Status;
+let child_process, CompositeDisposable, AccountManager, Logger, completions, metrics, KiteApp, KiteStatusPanel, NotificationsCenter, RollbarReporter, OverlayManager, KiteEditors, DataLoader, KSG, KSGShortcut, DisposableEvent, Disposable, KiteAPI, VirtualCursor, NodeClient, KiteConnect, Status;
 const Kite = module.exports = {
   getModule(name) {
     return this.modules && this.modules[name];
@@ -165,9 +165,10 @@ const Kite = module.exports = {
       RollbarReporter = __webpack_require__(166);
       metrics = __webpack_require__(163);
       DataLoader = __webpack_require__(168);
-      KiteEditors = __webpack_require__(174);
+      KiteEditors = __webpack_require__(175);
       Status = __webpack_require__(185);
       KSG = __webpack_require__(187);
+      KSGShortcut = __webpack_require__(206);
     }
 
     metrics.featureRequested('starting'); // We store all the subscriptions into a composite disposable to release
@@ -187,7 +188,8 @@ const Kite = module.exports = {
 
     this.registerModule('editors', new KiteEditors());
     this.registerModule('status', new Status());
-    this.registerModule('ksg', new KSG()); // run "apm upgrade kite"
+    this.registerModule('ksg', new KSG());
+    this.registerModule('ksg-shortcut', new KSGShortcut()); // run "apm upgrade kite"
 
     this.selfUpdate();
     this.app = new KiteApp(this);
@@ -303,7 +305,7 @@ const Kite = module.exports = {
 
     }));
     this.subscriptions.add(atom.commands.add('atom-workspace', {
-      'kite:ksg': () => this.toggleKSG(),
+      'kite:search-stack-overflow': () => this.toggleKSG(),
       'kite:tutorial': () => this.openKiteTutorial(true),
       'kite:engine-settings': () => this.openSettings(),
       'kite:open-copilot': () => this.openCopilot(),
@@ -371,6 +373,9 @@ const Kite = module.exports = {
     statusbar.addRightTile({
       item: this.getStatusItem()
     });
+    statusbar.addRightTile({
+      item: this.getKSGShortcut()
+    });
   },
 
   activateAndShowItem(item) {
@@ -410,7 +415,7 @@ const Kite = module.exports = {
 
   highlightWordAtPosition(editor, position, cls = '') {
     if (!VirtualCursor) {
-      VirtualCursor = __webpack_require__(179);
+      VirtualCursor = __webpack_require__(180);
     }
 
     const cursor = new VirtualCursor(editor, position);
@@ -439,16 +444,20 @@ const Kite = module.exports = {
     }
 
     if (!KiteStatusPanel) {
-      KiteStatusPanel = __webpack_require__(206);
+      KiteStatusPanel = __webpack_require__(208);
     }
 
     this.statusPanel = new KiteStatusPanel();
     return this.statusPanel;
   },
 
+  getKSGShortcut() {
+    return this.getModule('ksg-shortcut').getElement();
+  },
+
   completions() {
     if (!completions) {
-      completions = __webpack_require__(207);
+      completions = __webpack_require__(209);
     }
 
     return completions;
@@ -459,6 +468,11 @@ const Kite = module.exports = {
 
     if (KSGModule) {
       const editor = atom.workspace.getActiveTextEditor();
+
+      if (!editor || editor.getGrammar().name !== 'Python') {
+        this.notifications.warnKSGNotSupported();
+        return;
+      }
 
       if (KSGModule.visible) {
         KSGModule.hide();
@@ -471,6 +485,7 @@ const Kite = module.exports = {
         editor.scrollToScreenPosition(cursor, {
           clip: false
         });
+        metrics.record('ksg', 'opened');
         KSGModule.show(editor);
       }
     }
@@ -719,8 +734,6 @@ const Kite = module.exports = {
           const position = event.newBufferPosition;
 
           if (completions && (completions.isInsideFunctionCall(editor, position) || completions.isOnFunctionCallBrackets(editor, position)) && completions.isSignaturePanelVisible()) {
-            manager.suggestionList.changeItems(null);
-            element.querySelector('.suggestion-description').style.display = 'none';
             completions.loadSignature({
               editor,
               position
@@ -741,9 +754,9 @@ const Kite = module.exports = {
             // 1 char trigger, we cancel the new suggestion request and hide
             // the suggestions using the same routine than autocomplete-plus
 
-            if (change.oldText.length === 1 && change.newText.length === 1 // If a non-snippet is inserted, don't fetch suggestions post-insertion.
+            if (change.oldText.length === 1 && change.newText.length === 1 || // If a non-snippet is inserted, don't fetch suggestions post-insertion.
             // Fix case where a user wants to insert a value but then we fetch suggestions, returning the same value.
-            || atom.config.get('kite.enableSnippets') && !wasSnippetConfirmed) {
+            atom.config.get('kite.enableSnippets') && !wasSnippetConfirmed) {
               manager.cancelNewSuggestionsRequest();
               manager.hideSuggestionList();
             } else {
@@ -6804,7 +6817,7 @@ module.exports = {
 /* 65 */
 /***/ (function(module) {
 
-module.exports = JSON.parse("{\"_from\":\"kite-installer@^3.2.0\",\"_id\":\"kite-installer@3.8.0\",\"_inBundle\":false,\"_integrity\":\"sha512-92rNi6BKMmBMRMzdd0ET1gBn7a7g6EYejTAuer+yq2f1Z4jnEAZH1JHeZgn/ukULUol5sCNdbUDVbAk7mbLxVQ==\",\"_location\":\"/kite-installer\",\"_phantomChildren\":{\"form-data\":\"2.5.0\",\"md5\":\"2.2.1\"},\"_requested\":{\"type\":\"range\",\"registry\":true,\"raw\":\"kite-installer@^3.2.0\",\"name\":\"kite-installer\",\"escapedName\":\"kite-installer\",\"rawSpec\":\"^3.2.0\",\"saveSpec\":null,\"fetchSpec\":\"^3.2.0\"},\"_requiredBy\":[\"/\"],\"_resolved\":\"https://registry.npmjs.org/kite-installer/-/kite-installer-3.8.0.tgz\",\"_shasum\":\"6a8c354b04a6a95d4577fdfee8ca4b3f94f754fb\",\"_spec\":\"kite-installer@^3.2.0\",\"_where\":\"/Users/dhung/src/github.com/kiteco/atom-plugin\",\"author\":{\"name\":\"Daniel Hung\"},\"bundleDependencies\":false,\"dependencies\":{\"kite-api\":\"2.14.0\",\"kite-connector\":\"2.8.0\",\"mixpanel\":\"^0.5.0\",\"rollbar\":\"^2.4.4\"},\"deprecated\":false,\"description\":\"Javascript library to install and manage Kite\",\"devDependencies\":{\"babel-eslint\":\"^7.1.1\",\"codecov\":\"^1.0.0\",\"eslint\":\"^3.6.0\",\"eslint-config\":\"^0.3.0\",\"eslint-config-fbjs\":\"^1.1.1\",\"eslint-plugin-babel\":\"^4.0.0\",\"eslint-plugin-flowtype\":\"^2.29.1\",\"eslint-plugin-jasmine\":\"^2.2.0\",\"eslint-plugin-prefer-object-spread\":\"^1.1.0\",\"eslint-plugin-react\":\"^6.8.0\",\"expect.js\":\"^0.3.1\",\"fbjs\":\"^0.8.6\",\"jsdom\":\"^9.8.3\",\"mocha\":\"^5.2.0\",\"mocha-jsdom\":\"^1.1.0\",\"nyc\":\"^13.0.1\",\"sinon\":\"^2.3.5\"},\"keywords\":[],\"license\":\"SEE LICENSE IN LICENSE\",\"main\":\"./lib/index.js\",\"name\":\"kite-installer\",\"scripts\":{\"coverage\":\"npm run lcov_report && codecov\",\"lcov_report\":\"nyc report --reporter=lcov\",\"lint\":\"eslint .\",\"lint:fix\":\"eslint --fix .\",\"test\":\"nyc mocha --timeout 20000 --recursive test/*.test.js test/**/*.test.js\",\"test-nocov\":\"mocha --timeout 20000 --recursive test/*.test.js test/**/*.test.js\"},\"version\":\"3.8.0\"}");
+module.exports = JSON.parse("{\"_from\":\"kite-installer@^3.2.0\",\"_id\":\"kite-installer@3.8.0\",\"_inBundle\":false,\"_integrity\":\"sha512-92rNi6BKMmBMRMzdd0ET1gBn7a7g6EYejTAuer+yq2f1Z4jnEAZH1JHeZgn/ukULUol5sCNdbUDVbAk7mbLxVQ==\",\"_location\":\"/kite-installer\",\"_phantomChildren\":{\"form-data\":\"2.5.0\",\"md5\":\"2.2.1\"},\"_requested\":{\"type\":\"range\",\"registry\":true,\"raw\":\"kite-installer@^3.2.0\",\"name\":\"kite-installer\",\"escapedName\":\"kite-installer\",\"rawSpec\":\"^3.2.0\",\"saveSpec\":null,\"fetchSpec\":\"^3.2.0\"},\"_requiredBy\":[\"/\"],\"_resolved\":\"https://registry.npmjs.org/kite-installer/-/kite-installer-3.8.0.tgz\",\"_shasum\":\"6a8c354b04a6a95d4577fdfee8ca4b3f94f754fb\",\"_spec\":\"kite-installer@^3.2.0\",\"_where\":\"/Users/edwardzhao/go/src/github.com/kiteco/atom-plugin\",\"author\":{\"name\":\"Daniel Hung\"},\"bundleDependencies\":false,\"dependencies\":{\"kite-api\":\"2.14.0\",\"kite-connector\":\"2.8.0\",\"mixpanel\":\"^0.5.0\",\"rollbar\":\"^2.4.4\"},\"deprecated\":false,\"description\":\"Javascript library to install and manage Kite\",\"devDependencies\":{\"babel-eslint\":\"^7.1.1\",\"codecov\":\"^1.0.0\",\"eslint\":\"^3.6.0\",\"eslint-config\":\"^0.3.0\",\"eslint-config-fbjs\":\"^1.1.1\",\"eslint-plugin-babel\":\"^4.0.0\",\"eslint-plugin-flowtype\":\"^2.29.1\",\"eslint-plugin-jasmine\":\"^2.2.0\",\"eslint-plugin-prefer-object-spread\":\"^1.1.0\",\"eslint-plugin-react\":\"^6.8.0\",\"expect.js\":\"^0.3.1\",\"fbjs\":\"^0.8.6\",\"jsdom\":\"^9.8.3\",\"mocha\":\"^5.2.0\",\"mocha-jsdom\":\"^1.1.0\",\"nyc\":\"^13.0.1\",\"sinon\":\"^2.3.5\"},\"keywords\":[],\"license\":\"SEE LICENSE IN LICENSE\",\"main\":\"./lib/index.js\",\"name\":\"kite-installer\",\"scripts\":{\"coverage\":\"npm run lcov_report && codecov\",\"lcov_report\":\"nyc report --reporter=lcov\",\"lint\":\"eslint .\",\"lint:fix\":\"eslint --fix .\",\"test\":\"nyc mocha --timeout 20000 --recursive test/*.test.js test/**/*.test.js\",\"test-nocov\":\"mocha --timeout 20000 --recursive test/*.test.js test/**/*.test.js\"},\"version\":\"3.8.0\"}");
 
 /***/ }),
 /* 66 */
@@ -8337,7 +8350,7 @@ module.exports = Rollbar;
 /* 81 */
 /***/ (function(module) {
 
-module.exports = JSON.parse("{\"_from\":\"rollbar@^2.3.8\",\"_id\":\"rollbar@2.8.1\",\"_inBundle\":false,\"_integrity\":\"sha512-Va/cdaZfLUbp7ZvHhWV/PY+HZLBcOghtKd/w64G/NC60Qpl7QM/xzZKLkDhwx3Z0kLtSMonqwE3l7p0fgL9gOQ==\",\"_location\":\"/rollbar\",\"_phantomChildren\":{},\"_requested\":{\"type\":\"range\",\"registry\":true,\"raw\":\"rollbar@^2.3.8\",\"name\":\"rollbar\",\"escapedName\":\"rollbar\",\"rawSpec\":\"^2.3.8\",\"saveSpec\":null,\"fetchSpec\":\"^2.3.8\"},\"_requiredBy\":[\"/\",\"/kite-installer\"],\"_resolved\":\"https://registry.npmjs.org/rollbar/-/rollbar-2.8.1.tgz\",\"_shasum\":\"f2a3edc58a8d00d4e1aab22d51ce9705858853cd\",\"_spec\":\"rollbar@^2.3.8\",\"_where\":\"/Users/dhung/src/github.com/kiteco/atom-plugin\",\"browser\":\"dist/rollbar.umd.min.js\",\"bugs\":{\"url\":\"https://github.com/rollbar/rollbar.js/issues\"},\"bundleDependencies\":false,\"cdn\":{\"host\":\"cdnjs.cloudflare.com\"},\"defaults\":{\"endpoint\":\"api.rollbar.com/api/1/item/\",\"browser\":{\"scrubFields\":[\"pw\",\"pass\",\"passwd\",\"password\",\"secret\",\"confirm_password\",\"confirmPassword\",\"password_confirmation\",\"passwordConfirmation\",\"access_token\",\"accessToken\",\"secret_key\",\"secretKey\",\"secretToken\",\"cc-number\",\"card number\",\"cardnumber\",\"cardnum\",\"ccnum\",\"ccnumber\",\"cc num\",\"creditcardnumber\",\"credit card number\",\"newcreditcardnumber\",\"new credit card\",\"creditcardno\",\"credit card no\",\"card#\",\"card #\",\"cc-csc\",\"cvc2\",\"cvv2\",\"ccv2\",\"security code\",\"card verification\",\"name on credit card\",\"name on card\",\"nameoncard\",\"cardholder\",\"card holder\",\"name des karteninhabers\",\"card type\",\"cardtype\",\"cc type\",\"cctype\",\"payment type\",\"expiration date\",\"expirationdate\",\"expdate\",\"cc-exp\"]},\"server\":{\"scrubHeaders\":[\"authorization\",\"www-authorization\",\"http_authorization\",\"omniauth.auth\",\"cookie\",\"oauth-access-token\",\"x-access-token\",\"x_csrf_token\",\"http_x_csrf_token\",\"x-csrf-token\"],\"scrubFields\":[\"pw\",\"pass\",\"passwd\",\"password\",\"password_confirmation\",\"passwordConfirmation\",\"confirm_password\",\"confirmPassword\",\"secret\",\"secret_token\",\"secretToken\",\"secret_key\",\"secretKey\",\"api_key\",\"access_token\",\"accessToken\",\"authenticity_token\",\"oauth_token\",\"token\",\"user_session_secret\",\"request.session.csrf\",\"request.session._csrf\",\"request.params._csrf\",\"request.cookie\",\"request.cookies\"]},\"logLevel\":\"debug\",\"reportLevel\":\"debug\",\"uncaughtErrorLevel\":\"error\",\"maxItems\":0,\"itemsPerMin\":60},\"dependencies\":{\"async\":\"~1.2.1\",\"buffer-from\":\">=1.1\",\"console-polyfill\":\"0.3.0\",\"debug\":\"2.6.9\",\"decache\":\"^3.0.5\",\"error-stack-parser\":\"1.3.3\",\"json-stringify-safe\":\"~5.0.0\",\"lru-cache\":\"~2.2.1\",\"request-ip\":\"~2.0.1\",\"source-map\":\">=0.5.0\",\"uuid\":\"3.0.x\"},\"deprecated\":false,\"description\":\"Error tracking and logging from JS to Rollbar\",\"devDependencies\":{\"babel-core\":\"^6.26.3\",\"babel-eslint\":\"^10.0.1\",\"babel-loader\":\"^8.0.4\",\"bluebird\":\"^3.3.5\",\"browserstack-api\":\"0.0.5\",\"chai\":\"^4.2.0\",\"chalk\":\"^1.1.1\",\"eslint\":\"^5.16.0\",\"eslint-loader\":\"^2.1.2\",\"express\":\"^4.16.4\",\"glob\":\"^5.0.14\",\"grunt\":\"^1.0.3\",\"grunt-blanket-mocha\":\"^1.0.0\",\"grunt-bumpup\":\"^0.6.3\",\"grunt-cli\":\"^1.3.2\",\"grunt-contrib-concat\":\"~0.3.0\",\"grunt-contrib-connect\":\"^2.0.0\",\"grunt-contrib-copy\":\"~0.5.0\",\"grunt-contrib-jshint\":\"^2.0.0\",\"grunt-contrib-uglify\":\"^4.0.0\",\"grunt-contrib-watch\":\"^1.1.0\",\"grunt-express\":\"^1.4.1\",\"grunt-karma\":\"^3.0.1\",\"grunt-karma-coveralls\":\"^2.5.4\",\"grunt-mocha\":\"^1.1.0\",\"grunt-mocha-cov\":\"^0.4.0\",\"grunt-parallel\":\"^0.5.1\",\"grunt-saucelabs\":\"^9.0.0\",\"grunt-tagrelease\":\"~0.3.0\",\"grunt-text-replace\":\"^0.4.0\",\"grunt-vows\":\"^0.4.2\",\"grunt-webpack\":\"^3.1.3\",\"istanbul-instrumenter-loader\":\"^2.0.0\",\"jade\":\"~0.27.7\",\"jasmine-core\":\"^2.3.4\",\"jquery-mockjax\":\"^2.0.1\",\"karma\":\"^4.0.1\",\"karma-browserstack-launcher\":\"^0.1.5\",\"karma-chai\":\"^0.1.0\",\"karma-chrome-launcher\":\"^2.2.0\",\"karma-expect\":\"^1.1.0\",\"karma-firefox-launcher\":\"^0.1.6\",\"karma-html2js-preprocessor\":\"^1.1.0\",\"karma-jquery\":\"^0.1.0\",\"karma-mocha\":\"^0.2.0\",\"karma-mocha-reporter\":\"^1.1.1\",\"karma-phantomjs-launcher\":\"^1.0.4\",\"karma-requirejs\":\"^0.2.2\",\"karma-safari-launcher\":\"^0.1.1\",\"karma-sinon\":\"^1.0.4\",\"karma-sourcemap-loader\":\"^0.3.5\",\"karma-webpack\":\"^3.0.5\",\"mocha\":\"^5.2.0\",\"mootools\":\"^1.5.1\",\"natives\":\"^1.1.6\",\"nock\":\"^9.0.7\",\"node-libs-browser\":\"^0.5.2\",\"phantomjs\":\"^2.1.0\",\"request\":\"^2.88.0\",\"requirejs\":\"^2.1.20\",\"script-loader\":\"0.6.1\",\"sinon\":\"^7.3.0\",\"stackframe\":\"^0.2.2\",\"strict-loader\":\"^0.1.2\",\"time-grunt\":\"^1.0.0\",\"uglifyjs-webpack-plugin\":\"^2.1.2\",\"vows\":\"~0.7.0\",\"webpack\":\"^4.30.0\",\"webpack-dev-server\":\"^3.1.10\"},\"homepage\":\"https://github.com/rollbar/rollbar.js#readme\",\"license\":\"MIT\",\"main\":\"src/server/rollbar.js\",\"name\":\"rollbar\",\"optionalDependencies\":{\"decache\":\"^3.0.5\"},\"plugins\":{\"jquery\":{\"version\":\"0.0.8\"}},\"repository\":{\"type\":\"git\",\"url\":\"git+ssh://git@github.com/rollbar/rollbar.js.git\"},\"scripts\":{\"build\":\"grunt\",\"lint\":\"eslint\",\"test\":\"grunt test\",\"test-browser\":\"grunt test-browser\",\"test-server\":\"grunt test-server\",\"test_ci\":\"grunt test\"},\"types\":\"./index.d.ts\",\"version\":\"2.8.1\"}");
+module.exports = JSON.parse("{\"_from\":\"rollbar@^2.3.8\",\"_id\":\"rollbar@2.8.1\",\"_inBundle\":false,\"_integrity\":\"sha512-Va/cdaZfLUbp7ZvHhWV/PY+HZLBcOghtKd/w64G/NC60Qpl7QM/xzZKLkDhwx3Z0kLtSMonqwE3l7p0fgL9gOQ==\",\"_location\":\"/rollbar\",\"_phantomChildren\":{},\"_requested\":{\"type\":\"range\",\"registry\":true,\"raw\":\"rollbar@^2.3.8\",\"name\":\"rollbar\",\"escapedName\":\"rollbar\",\"rawSpec\":\"^2.3.8\",\"saveSpec\":null,\"fetchSpec\":\"^2.3.8\"},\"_requiredBy\":[\"/\",\"/kite-installer\"],\"_resolved\":\"https://registry.npmjs.org/rollbar/-/rollbar-2.8.1.tgz\",\"_shasum\":\"f2a3edc58a8d00d4e1aab22d51ce9705858853cd\",\"_spec\":\"rollbar@^2.3.8\",\"_where\":\"/Users/edwardzhao/go/src/github.com/kiteco/atom-plugin\",\"browser\":\"dist/rollbar.umd.min.js\",\"bugs\":{\"url\":\"https://github.com/rollbar/rollbar.js/issues\"},\"bundleDependencies\":false,\"cdn\":{\"host\":\"cdnjs.cloudflare.com\"},\"defaults\":{\"endpoint\":\"api.rollbar.com/api/1/item/\",\"browser\":{\"scrubFields\":[\"pw\",\"pass\",\"passwd\",\"password\",\"secret\",\"confirm_password\",\"confirmPassword\",\"password_confirmation\",\"passwordConfirmation\",\"access_token\",\"accessToken\",\"secret_key\",\"secretKey\",\"secretToken\",\"cc-number\",\"card number\",\"cardnumber\",\"cardnum\",\"ccnum\",\"ccnumber\",\"cc num\",\"creditcardnumber\",\"credit card number\",\"newcreditcardnumber\",\"new credit card\",\"creditcardno\",\"credit card no\",\"card#\",\"card #\",\"cc-csc\",\"cvc2\",\"cvv2\",\"ccv2\",\"security code\",\"card verification\",\"name on credit card\",\"name on card\",\"nameoncard\",\"cardholder\",\"card holder\",\"name des karteninhabers\",\"card type\",\"cardtype\",\"cc type\",\"cctype\",\"payment type\",\"expiration date\",\"expirationdate\",\"expdate\",\"cc-exp\"]},\"server\":{\"scrubHeaders\":[\"authorization\",\"www-authorization\",\"http_authorization\",\"omniauth.auth\",\"cookie\",\"oauth-access-token\",\"x-access-token\",\"x_csrf_token\",\"http_x_csrf_token\",\"x-csrf-token\"],\"scrubFields\":[\"pw\",\"pass\",\"passwd\",\"password\",\"password_confirmation\",\"passwordConfirmation\",\"confirm_password\",\"confirmPassword\",\"secret\",\"secret_token\",\"secretToken\",\"secret_key\",\"secretKey\",\"api_key\",\"access_token\",\"accessToken\",\"authenticity_token\",\"oauth_token\",\"token\",\"user_session_secret\",\"request.session.csrf\",\"request.session._csrf\",\"request.params._csrf\",\"request.cookie\",\"request.cookies\"]},\"logLevel\":\"debug\",\"reportLevel\":\"debug\",\"uncaughtErrorLevel\":\"error\",\"maxItems\":0,\"itemsPerMin\":60},\"dependencies\":{\"async\":\"~1.2.1\",\"buffer-from\":\">=1.1\",\"console-polyfill\":\"0.3.0\",\"debug\":\"2.6.9\",\"decache\":\"^3.0.5\",\"error-stack-parser\":\"1.3.3\",\"json-stringify-safe\":\"~5.0.0\",\"lru-cache\":\"~2.2.1\",\"request-ip\":\"~2.0.1\",\"source-map\":\">=0.5.0\",\"uuid\":\"3.0.x\"},\"deprecated\":false,\"description\":\"Error tracking and logging from JS to Rollbar\",\"devDependencies\":{\"babel-core\":\"^6.26.3\",\"babel-eslint\":\"^10.0.1\",\"babel-loader\":\"^8.0.4\",\"bluebird\":\"^3.3.5\",\"browserstack-api\":\"0.0.5\",\"chai\":\"^4.2.0\",\"chalk\":\"^1.1.1\",\"eslint\":\"^5.16.0\",\"eslint-loader\":\"^2.1.2\",\"express\":\"^4.16.4\",\"glob\":\"^5.0.14\",\"grunt\":\"^1.0.3\",\"grunt-blanket-mocha\":\"^1.0.0\",\"grunt-bumpup\":\"^0.6.3\",\"grunt-cli\":\"^1.3.2\",\"grunt-contrib-concat\":\"~0.3.0\",\"grunt-contrib-connect\":\"^2.0.0\",\"grunt-contrib-copy\":\"~0.5.0\",\"grunt-contrib-jshint\":\"^2.0.0\",\"grunt-contrib-uglify\":\"^4.0.0\",\"grunt-contrib-watch\":\"^1.1.0\",\"grunt-express\":\"^1.4.1\",\"grunt-karma\":\"^3.0.1\",\"grunt-karma-coveralls\":\"^2.5.4\",\"grunt-mocha\":\"^1.1.0\",\"grunt-mocha-cov\":\"^0.4.0\",\"grunt-parallel\":\"^0.5.1\",\"grunt-saucelabs\":\"^9.0.0\",\"grunt-tagrelease\":\"~0.3.0\",\"grunt-text-replace\":\"^0.4.0\",\"grunt-vows\":\"^0.4.2\",\"grunt-webpack\":\"^3.1.3\",\"istanbul-instrumenter-loader\":\"^2.0.0\",\"jade\":\"~0.27.7\",\"jasmine-core\":\"^2.3.4\",\"jquery-mockjax\":\"^2.0.1\",\"karma\":\"^4.0.1\",\"karma-browserstack-launcher\":\"^0.1.5\",\"karma-chai\":\"^0.1.0\",\"karma-chrome-launcher\":\"^2.2.0\",\"karma-expect\":\"^1.1.0\",\"karma-firefox-launcher\":\"^0.1.6\",\"karma-html2js-preprocessor\":\"^1.1.0\",\"karma-jquery\":\"^0.1.0\",\"karma-mocha\":\"^0.2.0\",\"karma-mocha-reporter\":\"^1.1.1\",\"karma-phantomjs-launcher\":\"^1.0.4\",\"karma-requirejs\":\"^0.2.2\",\"karma-safari-launcher\":\"^0.1.1\",\"karma-sinon\":\"^1.0.4\",\"karma-sourcemap-loader\":\"^0.3.5\",\"karma-webpack\":\"^3.0.5\",\"mocha\":\"^5.2.0\",\"mootools\":\"^1.5.1\",\"natives\":\"^1.1.6\",\"nock\":\"^9.0.7\",\"node-libs-browser\":\"^0.5.2\",\"phantomjs\":\"^2.1.0\",\"request\":\"^2.88.0\",\"requirejs\":\"^2.1.20\",\"script-loader\":\"0.6.1\",\"sinon\":\"^7.3.0\",\"stackframe\":\"^0.2.2\",\"strict-loader\":\"^0.1.2\",\"time-grunt\":\"^1.0.0\",\"uglifyjs-webpack-plugin\":\"^2.1.2\",\"vows\":\"~0.7.0\",\"webpack\":\"^4.30.0\",\"webpack-dev-server\":\"^3.1.10\"},\"homepage\":\"https://github.com/rollbar/rollbar.js#readme\",\"license\":\"MIT\",\"main\":\"src/server/rollbar.js\",\"name\":\"rollbar\",\"optionalDependencies\":{\"decache\":\"^3.0.5\"},\"plugins\":{\"jquery\":{\"version\":\"0.0.8\"}},\"repository\":{\"type\":\"git\",\"url\":\"git+ssh://git@github.com/rollbar/rollbar.js.git\"},\"scripts\":{\"build\":\"grunt\",\"lint\":\"eslint\",\"test\":\"grunt test\",\"test-browser\":\"grunt test-browser\",\"test-server\":\"grunt test-server\",\"test_ci\":\"grunt test\"},\"types\":\"./index.d.ts\",\"version\":\"2.8.1\"}");
 
 /***/ }),
 /* 82 */
@@ -19486,9 +19499,9 @@ const BrowserClient = __webpack_require__(143);
 const EventEmitter = __webpack_require__(14);
 const EditorConfig = __webpack_require__(148);
 const MemoryStore = __webpack_require__(149);
-const {STATES} = KiteConnector;
-const {MAX_FILE_SIZE} = __webpack_require__(150);
-const {merge, checkArguments, checkArgumentKeys} = __webpack_require__(151);
+const { STATES } = KiteConnector;
+const { MAX_FILE_SIZE } = __webpack_require__(150);
+const { merge, checkArguments, checkArgumentKeys } = __webpack_require__(151);
 const urls = __webpack_require__(152);
 
 const KiteAPI = {
@@ -19505,8 +19518,8 @@ const KiteAPI = {
 
   requestJSON(...args) {
     return this.request(...args)
-    .then(resp => utils.handleResponseData(resp))
-    .then(data => JSON.parse(data));
+      .then(resp => utils.handleResponseData(resp))
+      .then(data => JSON.parse(data));
   },
 
   isKiteLocal() {
@@ -19514,15 +19527,18 @@ const KiteAPI = {
       path: '/clientapi/iskitelocal',
       method: 'GET',
     })
-    .then(() => true)
-    .catch(() => false);
+      .then(() => true)
+      .catch(() => false);
   },
 
   setKiteSetting(key, value) {
-    return this.requestJSON({
-      path: `/clientapi/settings/${key}`,
-      method: 'POST',
-    }, JSON.stringify(value));
+    return this.requestJSON(
+      {
+        path: `/clientapi/settings/${key}`,
+        method: 'POST',
+      },
+      JSON.stringify(value)
+    );
   },
 
   getKiteSetting(key) {
@@ -19541,29 +19557,36 @@ const KiteAPI = {
   getOnboardingFilePath(editor, language = 'python') {
     checkArguments(this.getOnboardingFilePath, editor, language);
     const path = urls.onboardingFilePath(editor, language);
-    return this.requestJSON({path});
+    return this.requestJSON({ path });
   },
 
   canAuthenticateUser() {
-    return KiteConnector.isKiteReachable()
-    .then(() => utils.reversePromise(
-      KiteConnector.isUserAuthenticated(),
-      new KiteStateError('Kite is already authenticated', {
-        state: STATES.AUTHENTICATED,
-      })));
+    return KiteConnector.isKiteReachable().then(() =>
+      utils.reversePromise(
+        KiteConnector.isUserAuthenticated(),
+        new KiteStateError('Kite is already authenticated', {
+          state: STATES.AUTHENTICATED,
+        })
+      )
+    );
   },
 
   authenticateUser(email, password) {
     checkArguments(this.authenticateUser, email, password);
     return this.canAuthenticateUser()
-    .then(() => this.request({
-      path: '/clientapi/login',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    }, {email, password}))
-    .then(() => this.saveUserID());
+      .then(() =>
+        this.request(
+          {
+            path: '/clientapi/login',
+            method: 'POST',
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          },
+          { email, password }
+        )
+      )
+      .then(() => this.saveUserID());
   },
 
   authenticateSessionID(key) {
@@ -19573,14 +19596,19 @@ const KiteAPI = {
     // here.
     checkArguments(this.authenticateSessionID, key);
     return KiteConnector.isKiteReachable()
-    .then(() => this.request({
-      path: '/clientapi/authenticate',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    }, {key}))
-    .then(resp => this.saveUserID());
+      .then(() =>
+        this.request(
+          {
+            path: '/clientapi/authenticate',
+            method: 'POST',
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          },
+          { key }
+        )
+      )
+      .then(resp => this.saveUserID());
   },
 
   saveUserID() {
@@ -19588,21 +19616,22 @@ const KiteAPI = {
       path: '/clientapi/user',
       method: 'GET',
     })
-    .then(data => data.id && this.editorConfig.set('distinctID', data.id))
-    .catch(() => {});
+      .then(data => data.id && this.editorConfig.set('distinctID', data.id))
+      .catch(() => {});
   },
 
   getHoverDataAtPosition(filename, source, position, editor, encoding = 'utf-16') {
     checkArguments(this.getHoverDataAtPosition, filename, source, position, encoding);
     const path = urls.hoverPath(filename, source, position, editor, encoding);
 
-    return this.requestJSON({path});
+    return this.requestJSON({ path });
   },
 
   getReportDataAtPosition(filename, source, position, editor, encoding = 'utf-16') {
     checkArguments(this.getReportDataAtPosition, filename, source, position, editor, encoding);
-    return this.getHoverDataAtPosition(filename, source, position, editor, encoding)
-    .then(data => this.getReportDataFromHover(data));
+    return this.getHoverDataAtPosition(filename, source, position, editor, encoding).then(data =>
+      this.getReportDataFromHover(data)
+    );
   },
 
   getReportDataFromHover(data) {
@@ -19625,8 +19654,7 @@ const KiteAPI = {
     checkArguments(this.getValueReportDataForId, id);
     return this.requestJSON({
       path: `/api/editor/value/${id}`,
-    })
-    .then(report => {
+    }).then(report => {
       if (report.value && idIsEmpty(report.value.id)) {
         report.value.id = id;
       }
@@ -19638,22 +19666,21 @@ const KiteAPI = {
     checkArguments(this.getMembersDataForId, id);
     const path = urls.membersPath(id, page, limit);
 
-    return this.requestJSON({path});
+    return this.requestJSON({ path });
   },
 
   getUsagesDataForValueId(id, page = 0, limit = 999) {
     checkArguments(this.getUsagesDataForValueId, id);
     const path = urls.usagesPath(id, page, limit);
 
-    return this.requestJSON({path});
+    return this.requestJSON({ path });
   },
 
   getUsageDataForId(id) {
     checkArguments(this.getUsageDataForId, id);
     return this.requestJSON({
       path: `/api/editor/usages/${id}`,
-    })
-    .then(report => {
+    }).then(report => {
       if (report.value && idIsEmpty(report.value.id)) {
         report.value.id = id;
       }
@@ -19669,19 +19696,20 @@ const KiteAPI = {
   },
 
   getUserAccountInfo() {
-    return this.requestJSON({path: '/api/account/user'});
+    return this.requestJSON({ path: '/api/account/user' });
   },
 
   getStatus(filename) {
     return filename
-      ? this.requestJSON({path: urls.statusPath(filename)})
-        .catch((err) => ({status: 'ready'}))
-      : Promise.resolve({status: 'ready'});
+      ? this.requestJSON({ path: urls.statusPath(filename) }).catch(err => ({ status: 'ready' }))
+      : Promise.resolve({ status: 'ready' });
   },
 
   getCompletionsAtPosition(filename, source, position, editor, encoding = 'utf-16') {
     checkArguments(this.getCompletionsAtPosition, filename, source, position, editor, encoding);
-    if (source.length > MAX_FILE_SIZE) { return Promise.resolve([]); }
+    if (source.length > MAX_FILE_SIZE) {
+      return Promise.resolve([]);
+    }
 
     const payload = {
       text: source,
@@ -19691,18 +19719,37 @@ const KiteAPI = {
       offset_encoding: encoding,
     };
 
-    return this.requestJSON({
-      path: '/clientapi/editor/completions',
-      method: 'POST',
-    }, JSON.stringify(payload))
-    .then(data => data.completions || [])
-    .catch(err => []);
+    return this.requestJSON(
+      {
+        path: '/clientapi/editor/completions',
+        method: 'POST',
+      },
+      JSON.stringify(payload)
+    )
+      .then(data => data.completions || [])
+      .catch(err => []);
   },
 
-  getSnippetCompletionsAtPosition(filename, source, editor, start_position, end_position = start_position, encoding = 'utf-16') {
-    checkArguments(this.getSnippetCompletionsAtPosition, filename, source, editor, 
-      start_position, end_position, encoding);
-    if (source.length > MAX_FILE_SIZE) { return Promise.resolve([]); }
+  getSnippetCompletionsAtPosition(
+    filename,
+    source,
+    editor,
+    start_position,
+    end_position = start_position,
+    encoding = 'utf-16'
+  ) {
+    checkArguments(
+      this.getSnippetCompletionsAtPosition,
+      filename,
+      source,
+      editor,
+      start_position,
+      end_position,
+      encoding
+    );
+    if (source.length > MAX_FILE_SIZE) {
+      return Promise.resolve([]);
+    }
     const payload = {
       text: source,
       editor,
@@ -19713,17 +19760,23 @@ const KiteAPI = {
       },
       offset_encoding: encoding,
     };
-    return this.requestJSON({
-      path: '/clientapi/editor/complete',
-      method: 'POST',
-    }, JSON.stringify(payload))
-    .then(data => data.completions || [])
-    .catch(_ => []);
+    console.log(JSON.stringify(payload));
+    return this.requestJSON(
+      {
+        path: '/clientapi/editor/complete',
+        method: 'POST',
+      },
+      JSON.stringify(payload)
+    )
+      .then(data => data.completions || [])
+      .catch(_ => []);
   },
 
   getSignaturesAtPosition(filename, source, position, editor, encoding = 'utf-16') {
     checkArguments(this.getSignaturesAtPosition, filename, source, position, editor, encoding);
-    if (source.length > MAX_FILE_SIZE) { return Promise.resolve(); }
+    if (source.length > MAX_FILE_SIZE) {
+      return Promise.resolve();
+    }
 
     const payload = {
       text: source,
@@ -19733,29 +19786,33 @@ const KiteAPI = {
       offset_encoding: encoding,
     };
 
-    return this.requestJSON({
-      path: '/clientapi/editor/signatures',
-      method: 'POST',
-    }, JSON.stringify(payload))
-    .catch(() => {});
+    return this.requestJSON(
+      {
+        path: '/clientapi/editor/signatures',
+        method: 'POST',
+      },
+      JSON.stringify(payload)
+    ).catch(() => {});
   },
 
   getKSGCompletions(query) {
     checkArguments(this.getKSGCompletions, query);
-    return this.requestJSON({ path: `/clientapi/ksg/completions?query=${encodeURIComponent(query)}` })
-      .catch(() => {});
+    return this.requestJSON({ path: `/clientapi/ksg/completions?query=${encodeURIComponent(query)}` }).catch(() => {});
   },
 
   getKSGCodeBlocks(query, results = 3) {
     checkArguments(this.getKSGCodeBlocks, query, results);
-    return this.requestJSON({ path: `/clientapi/ksg/codeblocks?query=${encodeURIComponent(query)}&results=${results}` })
-      .catch(() => {});
+    return this.requestJSON({
+      path: `/clientapi/ksg/codeblocks?query=${encodeURIComponent(query)}&results=${results}`,
+    }).catch(() => {});
   },
 
   getAutocorrectData(filename, source, editorMeta) {
     checkArguments(this.getAutocorrectData, filename, source, editorMeta);
 
-    if (source.length > MAX_FILE_SIZE) { return Promise.resolve(); }
+    if (source.length > MAX_FILE_SIZE) {
+      return Promise.resolve();
+    }
 
     const payload = {
       metadata: this.getAutocorrectMetadata('autocorrect_request', editorMeta),
@@ -19764,11 +19821,13 @@ const KiteAPI = {
       language: 'python',
     };
 
-    return this.requestJSON({
-      path: '/clientapi/editor/autocorrect',
-      method: 'POST',
-    }, JSON.stringify(payload))
-    .catch(() => {});
+    return this.requestJSON(
+      {
+        path: '/clientapi/editor/autocorrect',
+        method: 'POST',
+      },
+      JSON.stringify(payload)
+    ).catch(() => {});
   },
 
   getAutocorrectModelInfo(version, editorMeta) {
@@ -19780,20 +19839,25 @@ const KiteAPI = {
       version,
     };
 
-    return this.requestJSON({
-      path: '/api/editor/autocorrect/model-info',
-      method: 'POST',
-    }, JSON.stringify(payload))
-    .catch(() => {});
+    return this.requestJSON(
+      {
+        path: '/api/editor/autocorrect/model-info',
+        method: 'POST',
+      },
+      JSON.stringify(payload)
+    ).catch(() => {});
   },
 
   getAutocorrectMetadata(event, editorMeta) {
     checkArguments(this.getAutocorrectMetadata, event, editorMeta);
     checkArgumentKeys(this.getAutocorrectMetadata, editorMeta, 'editorMeta', 'source', 'plugin_version');
-    return merge({
-      event,
-      os_name: this.getOsName(),
-    }, editorMeta);
+    return merge(
+      {
+        event,
+        os_name: this.getOsName(),
+      },
+      editorMeta
+    );
   },
 
   getOsName() {
@@ -19807,7 +19871,9 @@ const KiteAPI = {
   postSaveValidationData(filename, source, editorMeta) {
     checkArguments(this.postSaveValidationData, filename, source, editorMeta);
 
-    if (source.length > MAX_FILE_SIZE) { return Promise.resolve(); }
+    if (source.length > MAX_FILE_SIZE) {
+      return Promise.resolve();
+    }
 
     const payload = {
       metadata: this.getAutocorrectMetadata('validation_onsave', editorMeta),
@@ -19816,11 +19882,13 @@ const KiteAPI = {
       language: 'python',
     };
 
-    return this.request({
-      path: '/clientapi/editor/autocorrect/validation/on-save',
-      method: 'POST',
-    }, JSON.stringify(payload))
-    .catch(() => {});
+    return this.request(
+      {
+        path: '/clientapi/editor/autocorrect/validation/on-save',
+        method: 'POST',
+      },
+      JSON.stringify(payload)
+    ).catch(() => {});
   },
 
   postAutocorrectFeedbackData(response, feedback, editorMeta) {
@@ -19832,11 +19900,13 @@ const KiteAPI = {
       feedback,
     };
 
-    return this.request({
-      path: '/clientapi/editor/autocorrect/feedback',
-      method: 'POST',
-    }, JSON.stringify(payload))
-    .catch(() => {});
+    return this.request(
+      {
+        path: '/clientapi/editor/autocorrect/feedback',
+        method: 'POST',
+      },
+      JSON.stringify(payload)
+    ).catch(() => {});
   },
 
   postAutocorrectHashMismatchData(response, requestStartTime, editorMeta) {
@@ -19848,23 +19918,28 @@ const KiteAPI = {
       response_time: new Date() - requestStartTime,
     };
 
-    return this.request({
-      path: '/clientapi/editor/autocorrect/metrics',
-      method: 'POST',
-    }, JSON.stringify(payload))
-    .catch(() => {});
+    return this.request(
+      {
+        path: '/clientapi/editor/autocorrect/metrics',
+        method: 'POST',
+      },
+      JSON.stringify(payload)
+    ).catch(() => {});
   },
 
   sendFeatureMetric(name) {
     checkArguments(this.sendFeatureMetric, name);
 
-    return this.request({
-      path: '/clientapi/metrics/counters',
-      method: 'POST',
-    }, JSON.stringify({
-      name,
-      value: 1,
-    }));
+    return this.request(
+      {
+        path: '/clientapi/metrics/counters',
+        method: 'POST',
+      },
+      JSON.stringify({
+        name,
+        value: 1,
+      })
+    );
   },
 
   featureRequested(name, editor) {
@@ -19896,9 +19971,19 @@ const KiteAPI = {
 
     toggleRequestDebug() {
       if (this.client instanceof NodeClient) {
-        this.client = new BrowserClient(this.client.hostname, this.client.port, this.client.base, this.client.protocol === https);
+        this.client = new BrowserClient(
+          this.client.hostname,
+          this.client.port,
+          this.client.base,
+          this.client.protocol === https
+        );
       } else {
-        this.client = new NodeClient(this.client.hostname, this.client.port, this.client.base, this.client.protocol === 'https');
+        this.client = new NodeClient(
+          this.client.hostname,
+          this.client.port,
+          this.client.base,
+          this.client.protocol === 'https'
+        );
       }
     },
 
@@ -19906,11 +19991,15 @@ const KiteAPI = {
       if (!data || !data.email) {
         return Promise.reject(new Error('No email provided'));
       }
-      return this.client.request({
-        path: '/api/account/check-email',
-        method: 'POST',
-      }, JSON.stringify(data))
-      .then(checkStatusAndInvokeCallback('Unable to check email'));
+      return this.client
+        .request(
+          {
+            path: '/api/account/check-email',
+            method: 'POST',
+          },
+          JSON.stringify(data)
+        )
+        .then(checkStatusAndInvokeCallback('Unable to check email'));
     },
 
     createAccount(data, callback) {
@@ -19921,21 +20010,27 @@ const KiteAPI = {
       const content = querystring.stringify(data);
       let promise;
       if (data.password) {
-        promise = this.client.request({
-          path: '/api/account/create',
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
+        promise = this.client.request(
+          {
+            path: '/api/account/create',
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
           },
-        }, content);
+          content
+        );
       } else {
-        promise = this.client.request({
-          path: '/api/account/createPasswordless',
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
+        promise = this.client.request(
+          {
+            path: '/api/account/createPasswordless',
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
           },
-        }, content);
+          content
+        );
       }
 
       return promise.then(checkStatusAndInvokeCallback('Unable to create an account', callback));
@@ -19952,14 +20047,18 @@ const KiteAPI = {
         return Promise.reject(new Error('No password provided'));
       }
       const content = querystring.stringify(data);
-      return this.client.request({
-        path: '/api/account/login',
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      }, content)
-      .then(checkStatusAndInvokeCallback('Unable to login into Kite', callback));
+      return this.client
+        .request(
+          {
+            path: '/api/account/login',
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+          },
+          content
+        )
+        .then(checkStatusAndInvokeCallback('Unable to login into Kite', callback));
     },
 
     resetPassword(data, callback) {
@@ -19967,24 +20066,26 @@ const KiteAPI = {
         return Promise.reject(new Error('No email provided'));
       }
       const content = querystring.stringify(data);
-      return this.client.request({
-        path: '/api/account/reset-password/request',
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      }, content)
-      .then(checkStatusAndInvokeCallback('Unable to reset passwords', callback));
+      return this.client
+        .request(
+          {
+            path: '/api/account/reset-password/request',
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+          },
+          content
+        )
+        .then(checkStatusAndInvokeCallback('Unable to reset passwords', callback));
     },
   },
 };
 
-const idIsEmpty = (id) =>
-  !id || id === '' ||
-  (id.indexOf(';') !== -1 && id.split(';')[1] === '');
+const idIsEmpty = id => !id || id === '' || (id.indexOf(';') !== -1 && id.split(';')[1] === '');
 
 const delegate = (methods, source, target) => {
-  methods.forEach(method => target[method] = (...args) => source[method](...args));
+  methods.forEach(method => (target[method] = (...args) => source[method](...args)));
   return target;
 };
 
@@ -19993,11 +20094,13 @@ const checkStatusAndInvokeCallback = (message, callback) => resp => {
   return new Promise((resolve, reject) => {
     if (resp.statusCode >= 400) {
       utils.handleResponseData(resp).then(respData => {
-        reject(new KiteRequestError(message, {
-          responseStatus: resp.statusCode,
-          response: resp,
-          responseData: respData,
-        }));
+        reject(
+          new KiteRequestError(message, {
+            responseStatus: resp.statusCode,
+            response: resp,
+            responseData: respData,
+          })
+        );
       }, reject);
     } else {
       resolve(resp);
@@ -20005,37 +20108,41 @@ const checkStatusAndInvokeCallback = (message, callback) => resp => {
   });
 };
 
-delegate([
-  'arch',
-  'canInstallKite',
-  'canRunKite',
-  'canRunKiteEnterprise',
-  'checkHealth',
-  'downloadKite',
-  'downloadKiteRelease',
-  'hasBothKiteInstalled',
-  'hasManyKiteEnterpriseInstallation',
-  'hasManyKiteInstallation',
-  'installKite',
-  'isAdmin',
-  'isKiteEnterpriseInstalled',
-  'isKiteEnterpriseRunning',
-  'isKiteInstalled',
-  'isKiteReachable',
-  'isKiteRunning',
-  'isKiteSupported',
-  'isOSSupported',
-  'isOSVersionSupported',
-  'isUserAuthenticated',
-  'onDidFailRequest',
-  'request',
-  'runKite',
-  'runKiteAndWait',
-  'runKiteEnterprise',
-  'runKiteEnterpriseAndWait',
-  'toggleRequestDebug',
-  'waitForKite',
-], KiteConnector, KiteAPI);
+delegate(
+  [
+    'arch',
+    'canInstallKite',
+    'canRunKite',
+    'canRunKiteEnterprise',
+    'checkHealth',
+    'downloadKite',
+    'downloadKiteRelease',
+    'hasBothKiteInstalled',
+    'hasManyKiteEnterpriseInstallation',
+    'hasManyKiteInstallation',
+    'installKite',
+    'isAdmin',
+    'isKiteEnterpriseInstalled',
+    'isKiteEnterpriseRunning',
+    'isKiteInstalled',
+    'isKiteReachable',
+    'isKiteRunning',
+    'isKiteSupported',
+    'isOSSupported',
+    'isOSVersionSupported',
+    'isUserAuthenticated',
+    'onDidFailRequest',
+    'request',
+    'runKite',
+    'runKiteAndWait',
+    'runKiteEnterprise',
+    'runKiteEnterpriseAndWait',
+    'toggleRequestDebug',
+    'waitForKite',
+  ],
+  KiteConnector,
+  KiteAPI
+);
 
 module.exports = KiteAPI;
 
@@ -22625,6 +22732,16 @@ class NotificationsCenter {
     });
   }
 
+  warnKSGNotSupported() {
+    this.queue.addWarning('This feature is only available for Python files.', {
+      description: "Kite's Search Stack Overflow is specialized for Python.",
+      buttons: [{
+        text: 'OK',
+        onDidClick: dismiss => dismiss && dismiss()
+      }]
+    });
+  }
+
   notifyReady(state) {
     this.queue.addSuccess('The Kite engine is ready', {
       description: 'We checked that the autocomplete engine is installed, running, responsive, and authenticated.'
@@ -23060,6 +23177,7 @@ function distinctID() {
 
 function sendFeatureMetric(name) {
   const path = metricsCounterPath();
+  console.log(name);
   return !atom.inSpecMode() && KiteAPI.request({
     path,
     method: 'POST'
@@ -23079,6 +23197,10 @@ function featureFulfilled(name) {
 
 function featureApplied(name, suffix = '') {
   sendFeatureMetric(`atom_${name}_applied${suffix}`);
+}
+
+function record(name, action) {
+  sendFeatureMetric(`atom_${name}_${action}`);
 }
 
 function getOsName() {
@@ -23103,6 +23225,7 @@ module.exports = {
   sendFeatureMetric,
   featureRequested,
   featureFulfilled,
+  record,
   getOsName,
   version,
   EDITOR_UUID,
@@ -23316,7 +23439,7 @@ module.exports = {
 /* 165 */
 /***/ (function(module) {
 
-module.exports = JSON.parse("{\"name\":\"kite\",\"main\":\"./lib/kite\",\"version\":\"0.165.0\",\"description\":\"Python coding assistant featuring AI-powered autocompletions, advanced function signatures, and instant documentation\",\"repository\":\"https://github.com/kiteco/atom-plugin\",\"keywords\":[],\"license\":\"SEE LICENSE IN LICENSE\",\"engines\":{\"atom\":\">=1.0.0 <2.0.0\"},\"scripts\":{\"lint\":\"eslint .\",\"lint:fix\":\"eslint --fix .\",\"build-prod\":\"webpack --config config/webpack.config.js --mode production\",\"prepublishOnly\":\"rm -rf node_modules && rm -f package-lock.json && apm install && rm -rf dist && npm run build-prod\",\"build-dev\":\"webpack --config config/webpack.config.js --mode none\",\"clean-dev-install\":\"apm unlink && rm -rf node_modules && rm -f package-lock.json && apm install && rm -rf dist && npm run build-dev && apm link\"},\"configSchema\":{\"showWelcomeNotificationOnStartup\":{\"type\":\"boolean\",\"default\":true,\"title\":\"Show welcome notification on startup\",\"description\":\"Whether or not to show the Kite welcome notification on startup.\"},\"enableCompletions\":{\"type\":\"boolean\",\"default\":true,\"title\":\"Enable completions\",\"description\":\"Automatically show completions from Kite as you type.\"},\"enableHoverUI\":{\"type\":\"boolean\",\"default\":true,\"title\":\"Enable hover\",\"description\":\"Show a quick summary of a symbol when you hover your mouse over it.\"},\"enableSnippets\":{\"type\":\"boolean\",\"default\":true,\"title\":\"Enable snippets\",\"description\":\"Enable snippets feature.\"},\"maxVisibleSuggestionsAlongSignature\":{\"type\":\"integer\",\"default\":5,\"title\":\"Completions limit with function signature\",\"description\":\"Maximum number of completions that can be shown when a function signature is also shown.\"},\"loggingLevel\":{\"type\":\"string\",\"default\":\"info\",\"enum\":[\"silly\",\"verbose\",\"debug\",\"info\",\"warning\",\"error\"],\"title\":\"Logging level\",\"description\":\"The verbosity level of Kite logs.\"},\"pollingInterval\":{\"type\":\"integer\",\"default\":15000,\"min\":1000,\"max\":60000,\"title\":\"Polling interval\",\"description\":\"Interval in milliseconds at which the Kite package polls Kite Engine to get the status of the current file.\"},\"developerMode\":{\"type\":\"boolean\",\"default\":false,\"title\":\"Developer mode\",\"description\":\"Displays JSON data from Kite Engine that's used when rendering a UI element.\"},\"startKiteAtStartup\":{\"type\":\"boolean\",\"default\":true,\"title\":\"Start Kite Engine on startup\",\"description\":\"Automatically start Kite Engine on editor startup if it's not already running.\"},\"signatureKwargsVisible\":{\"type\":\"boolean\",\"default\":false,\"title\":\"Show function keyword arguments\",\"description\":\"Show inferred keyword arguments for a function when the function signature panel is shown\"},\"signaturePopularPatternsVisible\":{\"type\":\"boolean\",\"default\":false,\"title\":\"Show function call examples\",\"description\":\"Show examples on how to call a function when the function signature panel is shown\"}},\"providedServices\":{\"autocomplete.provider\":{\"versions\":{\"2.0.0\":\"completions\"}}},\"consumedServices\":{\"status-bar\":{\"versions\":{\"^1.0.0\":\"consumeStatusBar\"}}},\"dependencies\":{\"analytics-node\":\"^3.1.1\",\"element-resize-detector\":\"^1.1.11\",\"fuzzaldrin-plus\":\"^0.4.1\",\"getmac\":\"1.2.1\",\"kite-api\":\"^3.5.0\",\"kite-connector\":\"^3.4.0\",\"kite-installer\":\"^3.2.0\",\"lodash\":\"^4.17.11\",\"md5\":\"^2.2.0\",\"rollbar\":\"^2.3.8\",\"tiny-relative-date\":\"^1.3.0\",\"underscore-plus\":\"^1\"},\"devDependencies\":{\"@babel/core\":\"^7.4.3\",\"@babel/preset-env\":\"^7.4.3\",\"babel-eslint\":\"^6.1.2\",\"babel-loader\":\"^8.0.5\",\"editors-json-tests\":\"git://github.com/kiteco/editors-json-tests.git#master\",\"eslint\":\"^3.11.1\",\"eslint-config\":\"^0.3.0\",\"eslint-config-fbjs\":\"^1.1.1\",\"eslint-plugin-babel\":\"^3.3.0\",\"eslint-plugin-flowtype\":\"^2.29.1\",\"eslint-plugin-jasmine\":\"^2.2.0\",\"eslint-plugin-prefer-object-spread\":\"^1.1.0\",\"eslint-plugin-react\":\"^5.2.2\",\"fbjs\":\"^0.8.6\",\"javascript-obfuscator\":\"^0.8.3\",\"sinon\":\"^2.3.5\",\"webpack\":\"^4.30.0\",\"webpack-cli\":\"^3.3.0\"}}");
+module.exports = JSON.parse("{\"name\":\"kite\",\"main\":\"./dist/main\",\"version\":\"0.167.0\",\"description\":\"Python coding assistant featuring AI-powered autocompletions, advanced function signatures, and instant documentation\",\"repository\":\"https://github.com/kiteco/atom-plugin\",\"keywords\":[],\"license\":\"SEE LICENSE IN LICENSE\",\"engines\":{\"atom\":\">=1.0.0 <2.0.0\"},\"scripts\":{\"lint\":\"eslint .\",\"lint:fix\":\"eslint --fix .\",\"build-prod\":\"webpack --config config/webpack.config.js --mode production\",\"prepublishOnly\":\"rm -rf node_modules && rm -f package-lock.json && apm install && rm -rf dist && npm run build-prod\",\"build-dev\":\"webpack --config config/webpack.config.js --mode none\",\"clean-dev-install\":\"apm unlink && rm -rf node_modules && rm -f package-lock.json && apm install && rm -rf dist && npm run build-dev && apm link\"},\"configSchema\":{\"showWelcomeNotificationOnStartup\":{\"type\":\"boolean\",\"default\":true,\"title\":\"Show welcome notification on startup\",\"description\":\"Whether or not to show the Kite welcome notification on startup.\"},\"enableCompletions\":{\"type\":\"boolean\",\"default\":true,\"title\":\"Enable completions\",\"description\":\"Automatically show completions from Kite as you type.\"},\"enableHoverUI\":{\"type\":\"boolean\",\"default\":true,\"title\":\"Enable hover\",\"description\":\"Show a quick summary of a symbol when you hover your mouse over it.\"},\"enableSnippets\":{\"type\":\"boolean\",\"default\":true,\"title\":\"Enable snippets\",\"description\":\"Enable snippets feature.\"},\"maxVisibleSuggestionsAlongSignature\":{\"type\":\"integer\",\"default\":5,\"title\":\"Completions limit with function signature\",\"description\":\"Maximum number of completions that can be shown when a function signature is also shown.\"},\"loggingLevel\":{\"type\":\"string\",\"default\":\"info\",\"enum\":[\"silly\",\"verbose\",\"debug\",\"info\",\"warning\",\"error\"],\"title\":\"Logging level\",\"description\":\"The verbosity level of Kite logs.\"},\"pollingInterval\":{\"type\":\"integer\",\"default\":15000,\"min\":1000,\"max\":60000,\"title\":\"Polling interval\",\"description\":\"Interval in milliseconds at which the Kite package polls Kite Engine to get the status of the current file.\"},\"developerMode\":{\"type\":\"boolean\",\"default\":false,\"title\":\"Developer mode\",\"description\":\"Displays JSON data from Kite Engine that's used when rendering a UI element.\"},\"startKiteAtStartup\":{\"type\":\"boolean\",\"default\":true,\"title\":\"Start Kite Engine on startup\",\"description\":\"Automatically start Kite Engine on editor startup if it's not already running.\"},\"signatureKwargsVisible\":{\"type\":\"boolean\",\"default\":false,\"title\":\"Show function keyword arguments\",\"description\":\"Show inferred keyword arguments for a function when the function signature panel is shown\"},\"signaturePopularPatternsVisible\":{\"type\":\"boolean\",\"default\":false,\"title\":\"Show function call examples\",\"description\":\"Show examples on how to call a function when the function signature panel is shown\"}},\"providedServices\":{\"autocomplete.provider\":{\"versions\":{\"2.0.0\":\"completions\"}}},\"consumedServices\":{\"status-bar\":{\"versions\":{\"^1.0.0\":\"consumeStatusBar\"}}},\"dependencies\":{\"analytics-node\":\"^3.1.1\",\"element-resize-detector\":\"^1.1.11\",\"fuzzaldrin-plus\":\"^0.4.1\",\"getmac\":\"1.2.1\",\"kite-api\":\"^3.5.0\",\"kite-connector\":\"^3.4.0\",\"kite-installer\":\"^3.2.0\",\"lodash\":\"^4.17.11\",\"md5\":\"^2.2.0\",\"rollbar\":\"^2.3.8\",\"tiny-relative-date\":\"^1.3.0\",\"underscore-plus\":\"^1\"},\"devDependencies\":{\"@babel/core\":\"^7.4.3\",\"@babel/preset-env\":\"^7.4.3\",\"babel-eslint\":\"^6.1.2\",\"babel-loader\":\"^8.0.5\",\"editors-json-tests\":\"git://github.com/kiteco/editors-json-tests.git#master\",\"eslint\":\"^4.18.2\",\"eslint-config\":\"^0.3.0\",\"eslint-config-fbjs\":\"^1.1.1\",\"eslint-plugin-babel\":\"^3.3.0\",\"eslint-plugin-flowtype\":\"^2.29.1\",\"eslint-plugin-jasmine\":\"^2.2.0\",\"eslint-plugin-prefer-object-spread\":\"^1.1.0\",\"eslint-plugin-react\":\"^5.2.2\",\"fbjs\":\"^0.8.6\",\"javascript-obfuscator\":\"^0.8.3\",\"sinon\":\"^2.3.5\",\"webpack\":\"^4.30.0\",\"webpack-cli\":\"^3.3.0\"}}");
 
 /***/ }),
 /* 166 */
@@ -31708,6 +31831,10 @@ const {
   highlightChunk
 } = __webpack_require__(169);
 
+const {
+  UNKNOWN_TYPE
+} = __webpack_require__(174);
+
 const idIsEmpty = id => !id || id === '';
 
 const isFunctionKind = kind => ['function', 'type'].includes(kind);
@@ -31956,7 +32083,7 @@ const parseSnippetCompletion = (editor, c, displayPrefix) => {
     completion.snippet = snippetStr;
   }
 
-  completion.type = c.hint;
+  completion.type = c.hint ? c.hint : UNKNOWN_TYPE;
   completion.rightLabelHTML = kindLabel(c.hint);
 
   if (c.documentation.text) {
@@ -32005,6 +32132,36 @@ module.exports = {
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+ // Enable or disable debug mode
+
+const DEBUG = false; // MAX_FILE_SIZE is the maximum file size to send to Kite
+
+const MAX_FILE_SIZE = 75 * Math.pow(2, 10); // 75 KB
+// MAX_PAYLOAD_SIZE is the maximum length for a POST reqest body
+
+const MAX_PAYLOAD_SIZE = 2 ** 21; // 2097152
+// minimum interval in seconds between sending "could not connect..."
+// events
+
+const CONNECT_ERROR_LOCKOUT = 15 * 60;
+const ERROR_RESCUE_SHOW_SIDEBAR = 'Reopen sidebar';
+const ERROR_RESCUE_DONT_SHOW_SIDEBAR = 'Fix code quietly';
+const UNKNOWN_TYPE = 'unknown';
+module.exports = {
+  CONNECT_ERROR_LOCKOUT,
+  DEBUG,
+  MAX_FILE_SIZE,
+  MAX_PAYLOAD_SIZE,
+  ERROR_RESCUE_SHOW_SIDEBAR,
+  ERROR_RESCUE_DONT_SHOW_SIDEBAR,
+  UNKNOWN_TYPE
+};
+
+/***/ }),
+/* 175 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
 
 
 const {
@@ -32018,7 +32175,7 @@ const {
 
 const DataLoader = __webpack_require__(168);
 
-const KiteEditor = __webpack_require__(175);
+const KiteEditor = __webpack_require__(176);
 
 const EXTENSIONS_BY_LANGUAGES = {
   python: ['py'],
@@ -32130,7 +32287,7 @@ module.exports = class KiteEditors {
 };
 
 /***/ }),
-/* 175 */
+/* 176 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -32164,9 +32321,9 @@ class KiteEditor {
         screenPositionForMouseEvent,
         pixelPositionForMouseEvent
       } = __webpack_require__(5));
-      WordHoverGesture = __webpack_require__(176);
+      WordHoverGesture = __webpack_require__(177);
       DataLoader = __webpack_require__(168);
-      EditorEvents = __webpack_require__(180);
+      EditorEvents = __webpack_require__(181);
     }
 
     const subs = new CompositeDisposable();
@@ -32291,7 +32448,7 @@ class KiteEditor {
 module.exports = KiteEditor;
 
 /***/ }),
-/* 176 */
+/* 177 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -32301,7 +32458,7 @@ const {
   CompositeDisposable
 } = __webpack_require__(2);
 
-const MouseEventGesture = __webpack_require__(177);
+const MouseEventGesture = __webpack_require__(178);
 
 const {
   DisposableEvent,
@@ -32358,7 +32515,7 @@ module.exports = class HoverGesture extends MouseEventGesture {
 };
 
 /***/ }),
-/* 177 */
+/* 178 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -32368,9 +32525,9 @@ const {
   Range
 } = __webpack_require__(2);
 
-const BaseGesture = __webpack_require__(178);
+const BaseGesture = __webpack_require__(179);
 
-const VirtualCursor = __webpack_require__(179);
+const VirtualCursor = __webpack_require__(180);
 
 const {
   screenPositionForMouseEvent
@@ -32406,7 +32563,7 @@ module.exports = class MouseEventGesture extends BaseGesture {
 };
 
 /***/ }),
-/* 178 */
+/* 179 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -32476,7 +32633,7 @@ module.exports = class BaseGesture {
 };
 
 /***/ }),
-/* 179 */
+/* 180 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -32535,7 +32692,7 @@ class VirtualCursor {
 module.exports = VirtualCursor.initClass();
 
 /***/ }),
-/* 180 */
+/* 181 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -32550,7 +32707,7 @@ const KiteAPI = __webpack_require__(135);
 const {
   MAX_FILE_SIZE,
   MAX_PAYLOAD_SIZE
-} = __webpack_require__(181);
+} = __webpack_require__(174);
 
 const {
   DisposableEvent
@@ -32702,34 +32859,6 @@ class EditorEvents {
 module.exports = EditorEvents;
 
 /***/ }),
-/* 181 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
- // Enable or disable debug mode
-
-const DEBUG = false; // MAX_FILE_SIZE is the maximum file size to send to Kite
-
-const MAX_FILE_SIZE = 75 * Math.pow(2, 10); // 75 KB
-// MAX_PAYLOAD_SIZE is the maximum length for a POST reqest body
-
-const MAX_PAYLOAD_SIZE = 2 ** 21; // 2097152
-// minimum interval in seconds between sending "could not connect..."
-// events
-
-const CONNECT_ERROR_LOCKOUT = 15 * 60;
-const ERROR_RESCUE_SHOW_SIDEBAR = 'Reopen sidebar';
-const ERROR_RESCUE_DONT_SHOW_SIDEBAR = 'Fix code quietly';
-module.exports = {
-  CONNECT_ERROR_LOCKOUT,
-  DEBUG,
-  MAX_FILE_SIZE,
-  MAX_PAYLOAD_SIZE,
-  ERROR_RESCUE_SHOW_SIDEBAR,
-  ERROR_RESCUE_DONT_SHOW_SIDEBAR
-};
-
-/***/ }),
 /* 182 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -32741,7 +32870,7 @@ const {
   CompositeDisposable
 } = __webpack_require__(2);
 
-const VirtualCursor = __webpack_require__(179);
+const VirtualCursor = __webpack_require__(180);
 
 const KiteHover = __webpack_require__(183);
 
@@ -33385,7 +33514,7 @@ const urls = __webpack_require__(152);
 
 const {
   MAX_FILE_SIZE
-} = __webpack_require__(181);
+} = __webpack_require__(174);
 
 __webpack_require__(186);
 
@@ -33604,10 +33733,6 @@ const {
   KSGDefaultSearchResult
 } = __webpack_require__(191);
 
-const {
-  KSGCodeBlocks
-} = __webpack_require__(189);
-
 const SearchModel = __webpack_require__(204);
 
 const CodeblocksModel = __webpack_require__(205);
@@ -33623,6 +33748,8 @@ const {
 const {
   DisposableEvent
 } = __webpack_require__(5);
+
+const metrics = __webpack_require__(163);
 
 module.exports = class KSG {
   constructor() {
@@ -33646,13 +33773,14 @@ module.exports = class KSG {
       'core:close': () => this.hide(),
       'core:cancel': () => this.hide(),
       // what other commands (e.g. `core:confirm`) need to be added here?
-      'kite:ksg': () => {
+      'kite:search-stack-overflow': () => {
         this.visible ? this.hide() : this.show(atom.workspace.getActiveTextEditor());
       }
     }));
     this.subscriptions.add(this.element.onCodeBlocksEvent(payload => {
       switch (payload.type) {
         case SEARCH_QUERY_SELECTION_EVENT:
+          metrics.record('ksg_query', 'searched');
           this.codeblocks.executeQuery(payload);
           break;
 
@@ -33694,6 +33822,7 @@ module.exports = class KSG {
     query
   }) {
     atom.applicationDelegate.openExternal(`https://www.google.com/search?q=${encodeURIComponent(query)}`);
+    metrics.record('ksg_google', 'opened');
     this.hide();
   }
 
@@ -33706,7 +33835,8 @@ module.exports = class KSG {
 
     this.currentEditor && this.currentEditor.insertText(decoratedBlocks, {
       select: true
-    }); // we close the KSG widget on the completion of this action
+    });
+    metrics.record('ksg_snippet', 'selected'); // we close the KSG widget on the completion of this action
 
     this.hide();
   }
@@ -33729,13 +33859,12 @@ module.exports = class KSG {
 
   static shouldStopPropagation(event) {
     if (event instanceof KeyboardEvent) {
-      // basic idea is to let commands pass through
-      if (event.altKey || event.metaKey || event.ctrlKey || event.code === 'Escape') {
-        return false;
+      if (event.code === 'Enter' || event.code === 'ArrowUp' || event.code === 'ArrowDown' || event.code === 'Tab') {
+        return true;
       }
     }
 
-    return true;
+    return false;
   }
 
   shouldHideForTarget(target) {
@@ -33748,7 +33877,7 @@ module.exports = class KSG {
         return false;
       }
 
-      if (target && target.classList && target.classList.contains('ksg-code-block-toggle')) {
+      if (target && target.classList && (target.classList.contains('ksg-code-block-toggle') || target.classList.contains('ksg-shortcut'))) {
         return false;
       }
 
@@ -33853,13 +33982,20 @@ const {
 } = __webpack_require__(191);
 
 const {
+  DisposableEvent
+} = __webpack_require__(5);
+
+const {
   CODEBLOCKS_EVENT,
   CODEBLOCKS_SELECTION_EVENT,
   DEFAULT_CODEBLOCKS_SELECTION_EVENT,
   SEARCH_EVENT,
   SEARCH_QUERY_EVENT,
   SEARCH_QUERY_SELECTION_EVENT,
-  DEFAULT_QUERY_SELECTION_EVENT
+  DEFAULT_QUERY_SELECTION_EVENT,
+  KSG_NAV_UP_EVENT,
+  KSG_NAV_DOWN_EVENT,
+  KSG_SELECTION_EVENT
 } = __webpack_require__(190);
 /**
  * will need to have nest custom elements...
@@ -33896,8 +34032,8 @@ class KSG extends HTMLElement {
 
     this._disposed = false;
     this.setAttribute('tabindex', -1);
-    this.codeBlocksElem = new KSGCodeBlocks();
-    this.searchElem = new KSGSearch();
+    this.codeBlocksElem = new KSGCodeBlocks(this);
+    this.searchElem = new KSGSearch(this);
     this.subscriptions.add(this.codeBlocksElem.onCodeblocksSelected(payload => {
       payload.type = CODEBLOCKS_SELECTION_EVENT;
       this.emitter.emit(CODEBLOCKS_EVENT, payload);
@@ -33922,6 +34058,21 @@ class KSG extends HTMLElement {
       payload.type = DEFAULT_QUERY_SELECTION_EVENT;
       this.emitter.emit(SEARCH_EVENT, payload);
     }));
+    this.subscriptions.add(new DisposableEvent(this, 'keydown', e => {
+      switch (e.code) {
+        case 'ArrowDown':
+          this.emitter.emit(KSG_NAV_DOWN_EVENT);
+          break;
+
+        case 'ArrowUp':
+          this.emitter.emit(KSG_NAV_UP_EVENT);
+          break;
+
+        case 'Enter':
+          this.emitter.emit(KSG_SELECTION_EVENT);
+          break;
+      }
+    }));
     this.wrapper.appendChild(this.searchElem);
     this.wrapper.appendChild(this.codeBlocksElem);
   }
@@ -33936,6 +34087,18 @@ class KSG extends HTMLElement {
 
   onSearchEvent(callback) {
     return this.emitter.on(SEARCH_EVENT, callback);
+  }
+
+  onNavUpEvent(callback) {
+    return this.emitter.on(KSG_NAV_UP_EVENT, callback);
+  }
+
+  onNavDownEvent(callback) {
+    return this.emitter.on(KSG_NAV_DOWN_EVENT, callback);
+  }
+
+  onSelectionEvent(callback) {
+    return this.emitter.on(KSG_SELECTION_EVENT, callback);
   }
 
   updateSearch(payload) {
@@ -33954,9 +34117,24 @@ class KSG extends HTMLElement {
     this.searchElem && this.searchElem.toggleLoading();
   }
 
+  toggleErrorMessage(shouldDisplay) {
+    if (!this.errorMsg) {
+      this.errorMsg = document.createElement('div');
+      this.errorMsg.className = 'ksg-search-error';
+      this.errorMsg.innerHTML = 'An error occurred! Please make sure that Kite is running and that you have an Internet connection.';
+    }
+
+    if (shouldDisplay) {
+      this.wrapper && !(this.wrapper.lastElementChild.className === 'ksg-search-error') && this.wrapper.appendChild(this.errorMsg);
+    } else {
+      this.errorMsg.parentNode && this.wrapper && this.wrapper.removeChild(this.errorMsg);
+    }
+  }
+
   dispose() {
     this.codeBlocksElem && this.wrapper.removeChild(this.codeBlocksElem);
     this.searchElem && this.wrapper.removeChild(this.searchElem);
+    this.errorMsg && this.errorMsg.parentNode && this.wrapper && this.wrapper.removeChild(this.errorMsg);
     this.wrapper && this.wrapper.parentNode && this.wrapper.parentNode.removeChild(this.wrapper);
     this.wrapper = null;
     this.subscriptions && this.subscriptions.dispose();
@@ -33999,8 +34177,9 @@ const {
 } = __webpack_require__(190);
 
 class KSGCodeBlocks extends HTMLElement {
-  constructor() {
+  constructor(parentElement) {
     super();
+    this.parent = parentElement;
     this.emitter = new Emitter();
     this.subscriptions = new CompositeDisposable();
     this.groups = [];
@@ -34049,21 +34228,6 @@ class KSGCodeBlocks extends HTMLElement {
       this.addWrapper();
     }
 
-    this.subscriptions.add(new DisposableEvent(this, 'keydown', e => {
-      switch (e.code) {
-        case 'ArrowDown':
-          this.moveSelection(CODEBLOCKS_NAV_DOWN);
-          break;
-
-        case 'ArrowUp':
-          this.moveSelection(CODEBLOCKS_NAV_UP);
-          break;
-
-        case 'Enter':
-          this.makeSelection();
-          break;
-      }
-    }));
     this.instantiated = true;
   }
 
@@ -34142,6 +34306,7 @@ class KSGCodeBlocks extends HTMLElement {
       const loadingEl = new KSGLoadingBlock();
       this.groups.push(loadingEl);
       this.wrapper.appendChild(loadingEl);
+      this.focus();
     } else {
       this.groups = this.groups.filter(group => !(group instanceof KSGLoadingBlock));
     }
@@ -34150,35 +34315,49 @@ class KSGCodeBlocks extends HTMLElement {
   }
 
   updateView({
+    payload,
     data
   }) {
     this.clearGroups();
+
+    if (payload === 'error') {
+      this.parent.toggleErrorMessage(true);
+      this.parent.searchElem && this.parent.searchElem.setFocus();
+      return;
+    }
+
+    this.parent.toggleErrorMessage(false);
     this.loading = false; // add default group logic here...
+
+    let idx = 0;
 
     if (data && data.answers && data.answers.length > 0) {
       // fragment strategy for appending
       const groupFragment = document.createDocumentFragment();
       data.answers.forEach(answer => {
-        const groupEl = new KSGCodeBlockGroup(data.query, answer); // we assume that subscriptions is only holding codeblock related Disposables
+        const groupEl = new KSGCodeBlockGroup(data.query, idx, this, answer); // we assume that subscriptions is only holding codeblock related Disposables
 
         this.subscriptions.add(groupEl.onAddAll(payload => {
           this.emitter.emit(CODEBLOCKS_SELECTED, payload);
         }));
         groupFragment.appendChild(groupEl);
         this.groups.push(groupEl);
+        idx++;
       });
       this.wrapper.appendChild(groupFragment);
     }
 
     if (data && data.query) {
-      const defaultGroupEl = new KSGCodeBlockGroup(data.query, {}, true);
+      const defaultGroupEl = new KSGCodeBlockGroup(data.origQuery, idx, this, {}, true);
       this.subscriptions.add(defaultGroupEl.onAddAll(payload => {
         this.emitter.emit(CODEBLOCKS_DEFAULT_SELECTED, payload);
       }));
       this.groups.push(defaultGroupEl);
-      this.wrapper.appendChild(defaultGroupEl);
-      this.focus();
+      this.wrapper.appendChild(defaultGroupEl); // Subscribe callbacks to parent up, down, selection events after view is updated.
+
+      this.subscriptions.add(this.parent.onNavDownEvent(() => this.moveSelection(CODEBLOCKS_NAV_DOWN)), this.parent.onNavUpEvent(() => this.moveSelection(CODEBLOCKS_NAV_UP)), this.parent.onSelectionEvent(() => this.makeSelection()));
       this.moveSelection(CODEBLOCKS_NAV_DOWN);
+      this.parent.searchElem && this.parent.searchElem.setFocus();
     }
   }
 
@@ -34198,8 +34377,11 @@ class KSGLoadingBlock extends HTMLElement {
 }
 
 class KSGCodeBlockGroup extends HTMLElement {
-  constructor(query, answer = {}, isDefaultGroup = false) {
+  constructor(query, position, parent, answer = {}, isDefaultGroup = false) {
     super();
+    this.position = position;
+    this.parent = parent;
+    this.setAttribute('class', this.position % 2 === 0 ? 'even' : 'odd');
     this.isDefaultGroup = isDefaultGroup;
     this.highlightedIdx = null;
     this.subscriptions = new CompositeDisposable();
@@ -34208,7 +34390,8 @@ class KSGCodeBlockGroup extends HTMLElement {
     this.blocks = [];
 
     if (this.isDefaultGroup) {
-      const defaultBlock = new KSGDefaultCodeBlock(query);
+      const defaultBlock = new KSGDefaultCodeBlock(query, this);
+      defaultBlock.id = this.blocks.length;
       this.subscriptions.add(defaultBlock.onClicked(({
         query
       }) => {
@@ -34225,64 +34408,19 @@ class KSGCodeBlockGroup extends HTMLElement {
         is_accepted,
         code_blocks,
         answer_id
-      } = answer; // const topEl = document.createElement('div');
-      // const metaInfoEl = document.createElement('div');
-      // const titleEl = document.createElement('span');
-      // const voteEl = document.createElement('span');
-      // const actionsEl = document.createElement('div');
-      // const addAllEl = document.createElement('span');
-      // topEl.setAttribute('class', 'ksg-codeblock-group-top');
-      // metaInfoEl.setAttribute('class', 'ksg-codeblock-group-meta');
-      // titleEl.setAttribute('class', 'ksg-codeblock-group-title');
-      // voteEl.setAttribute('class', 'ksg-codeblock-group-vote');
-      // actionsEl.setAttribute('class', 'ksg-codeblock-group-actions');
-      // addAllEl.setAttribute('class', 'ksg-codeblock-group-addall');
-      // this.subscriptions.add(new DisposableEvent(addAllEl, 'click', (e) => {
-      //   if (this.blocks && this.blocks.length > 0) {
-      //     const blockTexts = this.blocks.filter(block => (block instanceof KSGCodeBlock)).map(block => block.code);
-      //     this.emitter.emit(CODEBLOCKS_ADD, {
-      //       blocks: blockTexts,
-      //       link: this.link,
-      //     });
-      //   }
-      // }));
-      // is_accepted && metaInfoEl.classList.add('accepted');
-      // // TODO: find appropriate way to truncate title
-      // // maybe add tooltip too?
-      // if (question_title) {
-      //   const titleLink = document.createElement('a');
-      //   const titleLinkIcon = document.createElement('span');
-      //   titleLinkIcon.setAttribute('class', 'ksg-codeblocks-title-link-icon');
-      //   titleLinkIcon.textContent = ' ⇗';
-      //   this.link = `https://stackoverflow.com/a/${answer_id}`;
-      //   titleLink.href = this.link;
-      //   titleLink.appendChild(document.createTextNode(question_title));
-      //   titleEl.appendChild(titleLink);
-      //   titleEl.appendChild(titleLinkIcon);
-      // }
-      // typeof votes === 'number' && voteEl.appendChild(document.createTextNode(
-      //   `${votes} votes ${is_accepted ? '✓' : ''}`
-      // ));
-      // code_blocks && code_blocks.length > 1 && addAllEl.appendChild(document.createTextNode(
-      //   `Add all ${code_blocks.length} blocks`
-      // ));
-      // metaInfoEl.appendChild(titleEl);
-      // metaInfoEl.appendChild(voteEl);
-      // actionsEl.appendChild(addAllEl);
-      // topEl.appendChild(metaInfoEl);
-      // topEl.appendChild(actionsEl);
-      // this.appendChild(topEl);
+      } = answer;
 
       if (code_blocks && code_blocks.length > 0) {
         const fragment = document.createDocumentFragment();
         code_blocks.forEach((block, idx) => {
-          const blockEl = idx == 0 ? new KSGCodeBlock(block, question_title, answer_id, votes, is_accepted) : new KSGCodeBlock(block);
+          const blockEl = idx == 0 ? new KSGCodeBlock(block, this, question_title, answer_id, votes, is_accepted) : new KSGCodeBlock(block, this);
+          blockEl.id = this.blocks.length;
           this.subscriptions.add(blockEl.onClicked(({
             block
           }) => {
             this.emitter.emit(CODEBLOCKS_ADD, {
               blocks: [block],
-              link: this.link
+              link: blockEl.link
             });
           }));
           fragment.appendChild(blockEl);
@@ -34316,6 +34454,10 @@ class KSGCodeBlockGroup extends HTMLElement {
     if (this.blocks && this.blocks.length) {
       this.highlightedIdx = 0;
       this.blocks[this.highlightedIdx].highlight();
+      this.blocks[this.highlightedIdx].scrollIntoView({
+        block: 'center',
+        inline: 'nearest'
+      });
     }
   }
 
@@ -34327,6 +34469,10 @@ class KSGCodeBlockGroup extends HTMLElement {
     if (this.blocks && this.blocks.length) {
       this.highlightedIdx = this.blocks.length - 1;
       this.blocks[this.highlightedIdx].highlight();
+      this.blocks[this.highlightedIdx].scrollIntoView({
+        block: 'center',
+        inline: 'nearest'
+      });
     }
   }
 
@@ -34338,6 +34484,10 @@ class KSGCodeBlockGroup extends HTMLElement {
       this.blocks[this.highlightedIdx].unhighlight();
       this.highlightedIdx++;
       this.blocks[this.highlightedIdx].highlight();
+      this.blocks[this.highlightedIdx].scrollIntoView({
+        block: 'center',
+        inline: 'nearest'
+      });
       return true;
     }
 
@@ -34352,6 +34502,10 @@ class KSGCodeBlockGroup extends HTMLElement {
       this.blocks[this.highlightedIdx].unhighlight();
       this.highlightedIdx--;
       this.blocks[this.highlightedIdx].highlight();
+      this.blocks[this.highlightedIdx].scrollIntoView({
+        block: 'center',
+        inline: 'nearest'
+      });
       return true;
     }
 
@@ -34409,11 +34563,12 @@ class KSGCodeBlock extends HTMLElement {
     return toggleSizeEl;
   }
 
-  constructor(codeblock, title = null, answerId = null, votes = null, accepted = null) {
+  constructor(codeblock, group, title = null, answerId = null, votes = null, accepted = null) {
     super();
     this.subscriptions = new CompositeDisposable();
     this.emitter = new Emitter();
     this._code = codeblock;
+    this.group = group;
     this.wrapper = document.createElement('div');
     this.wrapper.classList.add('ksg-code-block-wrapper');
 
@@ -34438,6 +34593,13 @@ class KSGCodeBlock extends HTMLElement {
       this.link = `https://stackoverflow.com/a/${answerId}`;
       titleLink.href = this.link;
       titleLink.appendChild(document.createTextNode(title));
+
+      titleLink.onclick = () => {
+        const metrics = __webpack_require__(163);
+
+        metrics.record('ksg_so', 'opened');
+      };
+
       titleEl.appendChild(titleLink);
       titleEl.appendChild(titleLinkIcon);
       typeof votes === 'number' && voteEl.appendChild(document.createTextNode(`${votes} votes ${accepted ? '✓' : ''}`));
@@ -34464,6 +34626,22 @@ class KSGCodeBlock extends HTMLElement {
       this.instantiateToggleEl();
       this.wrapper.appendChild(this.toggleSizeEl);
     }
+
+    this.onmouseover = () => {
+      const groupParent = this.group.parent;
+      const highlightedGroupIdx = groupParent.highlightedGroupIdx;
+
+      if (highlightedGroupIdx !== null) {
+        // Unhighlight currently higlighted code block
+        groupParent.groups[highlightedGroupIdx].unhighlight();
+      } // Updated codeBlockGroup's highlightedIdx
+
+
+      this.group.highlightedIdx = this.id; // Update codeBlockGroup parent highlightedGroupIdx with codeBlockGroup position
+
+      groupParent.highlightedGroupIdx = this.group.position;
+      this.highlight();
+    };
 
     this.appendChild(this.wrapper);
   }
@@ -34513,10 +34691,6 @@ class KSGCodeBlock extends HTMLElement {
 
   highlight() {
     this.classList.add('highlighted');
-    this.scrollIntoView({
-      block: 'center',
-      inline: 'nearest'
-    });
   }
 
   unhighlight() {
@@ -34545,14 +34719,15 @@ class KSGCodeBlock extends HTMLElement {
 }
 
 class KSGDefaultCodeBlock extends HTMLElement {
-  constructor(query) {
+  constructor(query, group) {
     super();
     this.emitter = new Emitter();
     this.subscriptions = new CompositeDisposable();
     this.query = query;
+    this.group = group;
     const fragment = document.createDocumentFragment();
     const cantFindSpan = document.createElement('span');
-    cantFindSpan.textContent = 'Can\'t find what you\'re looking for? ';
+    cantFindSpan.textContent = "Can't find what you're looking for? ";
     fragment.appendChild(cantFindSpan);
     const searchForSpan = document.createElement('span');
     searchForSpan.textContent = 'Search for ';
@@ -34565,14 +34740,32 @@ class KSGDefaultCodeBlock extends HTMLElement {
     onGoogleSpan.textContent = ' on Google ⇗';
     fragment.appendChild(onGoogleSpan);
     this.appendChild(fragment);
+
+    this.onmouseover = () => {
+      const groupParent = this.group.parent;
+      const highlightedGroupIdx = groupParent.highlightedGroupIdx;
+
+      if (highlightedGroupIdx) {
+        // Unhighlight currently higlighted code block
+        groupParent.groups[highlightedGroupIdx].unhighlight();
+      } // Updated codeBlockGroup's highlightedIdx
+
+
+      this.group.highlightedIdx = this.id; // Update codeBlockGroup parent highlightedGroupIdx with codeBlockGroup position
+
+      groupParent.highlightedGroupIdx = this.group.position;
+      this.highlight();
+    };
+
     this.subscriptions.add(new DisposableEvent(this, 'click', this.clickHandler));
     this.query = query;
   } // what methods of KSGCodeblock does this need to implement?
 
 
   clickHandler(e) {
+    const query = !this.query.toLowerCase().includes('python') ? `python ${this.query}` : this.query;
     this.emitter.emit(CODEBLOCK_CLICKED, {
-      query: this.query
+      query: query
     });
   }
 
@@ -34586,10 +34779,6 @@ class KSGDefaultCodeBlock extends HTMLElement {
 
   highlight() {
     this.classList.add('highlighted');
-    this.scrollIntoView({
-      block: 'center',
-      inline: 'nearest'
-    });
   }
 
   makeSelection() {
@@ -34645,6 +34834,9 @@ const SEARCH_NAV_UP = -1;
 const SEARCH_NAV_DOWN = 1;
 const CODEBLOCKS_NAV_UP = -1;
 const CODEBLOCKS_NAV_DOWN = 1;
+const KSG_NAV_UP_EVENT = 'did-nav-up-event';
+const KSG_NAV_DOWN_EVENT = 'did-nav-down-event';
+const KSG_SELECTION_EVENT = 'did-select-event';
 module.exports = {
   CODEBLOCKS_ADD,
   CODEBLOCK_CLICKED,
@@ -34666,7 +34858,10 @@ module.exports = {
   SEARCH_NAV_DOWN,
   SEARCH_NAV_UP,
   CODEBLOCKS_NAV_UP,
-  CODEBLOCKS_NAV_DOWN
+  CODEBLOCKS_NAV_DOWN,
+  KSG_NAV_UP_EVENT,
+  KSG_NAV_DOWN_EVENT,
+  KSG_SELECTION_EVENT
 };
 
 /***/ }),
@@ -34698,15 +34893,23 @@ const {
 } = __webpack_require__(190);
 
 class KSGSearch extends HTMLElement {
-  constructor() {
+  constructor(parentElement) {
     super();
+    this.parent = parentElement;
     this.searchInput = new TextEditor({
       placeholderText: 'How do I...',
       mini: true
     });
     this.searchInputView = this.searchInput.getElement();
+    this.appendLogo();
     this.cursorPos = [0, 0];
     this.instantiate();
+  }
+
+  appendLogo() {
+    const logoSpan = document.createElement('span');
+    logoSpan.className = 'ksg-kite-logo';
+    this.searchInputView.appendChild(logoSpan);
   }
 
   instantiate() {
@@ -34724,19 +34927,7 @@ class KSGSearch extends HTMLElement {
     }
 
     this.loading = false;
-    this.shouldCancelChangeQuery = false; // this.subscriptions.add(new DisposableEvent(this.searchInputView, 'focusout', (e) => {
-    //   if (e.target !== this.searchInputView) {
-    //     this.searchResults && this.searchResults.clearHighlight();
-    //   }
-    // }));
-    // this.subscriptions.add(new DisposableEvent(this.searchInputView, 'blur', (e) => {
-    //   this.cursorPos = this.searchInput.getCursorBufferPosition();
-    //   this.searchInput.getLastCursor().destroy();
-    // }));
-
-    this.subscriptions.add(new DisposableEvent(this.searchInputView, 'focus', e => {
-      this.searchInput.setCursorBufferPosition(this.cursorPos);
-    }));
+    this.shouldCancelChangeQuery = false;
     const debouncedSearchHandler = debounce(e => {
       if (!this.shouldCancelChangeQuery) {
         this.emitter && this.emitter.emit(SEARCH_QUERY_EVENT, {
@@ -34749,6 +34940,14 @@ class KSGSearch extends HTMLElement {
       leading: true
     });
     this.subscriptions.add(this.searchInput.onDidChange(debouncedSearchHandler));
+    this.subscriptions.add(this.searchInput.onWillInsertText(() => {
+      // Record when new query is started (first char inserted)
+      if (this.searchInput.getText().length === 0) {
+        const metrics = __webpack_require__(163);
+
+        metrics.record('ksg_query', 'started');
+      }
+    }));
     this.subscriptions.add(new DisposableEvent(this, 'keydown', e => {
       switch (e.code) {
         case 'ArrowDown':
@@ -34757,22 +34956,6 @@ class KSGSearch extends HTMLElement {
 
         case 'ArrowUp':
           this.searchResults && this.searchResults.moveSelection(SEARCH_NAV_UP);
-          break;
-
-        case 'ArrowRight':
-          this.searchInput && this.searchInput.moveRight();
-          break;
-
-        case 'ArrowLeft':
-          this.searchInput && this.searchInput.moveLeft();
-          break;
-
-        case 'Backspace':
-          this.searchInput && this.searchInput.backspace();
-          break;
-
-        case 'Delete':
-          this.searchInput && this.searchInput["delete"]();
           break;
 
         case 'Enter':
@@ -34837,8 +35020,10 @@ class KSGSearch extends HTMLElement {
     this.searchInput && this.searchInput.setText('');
     this.searchResults && this.searchResults.dispose();
     this.searchResults = null;
-    this.wrapper && this.wrapper.parentNode && this.wrapper.parentNode.removeChild(this.wrapper);
-    this.loadingSpinnerEl && this.loadingSpinnerEl.parentNode && this.searchInputView.removeChild(this.loadingSpinnerEl);
+    this.wrapper && this.wrapper.parentNode && this.wrapper.parentNode.removeChild(this.wrapper); // this.loadingSpinnerEl &&
+    //   this.loadingSpinnerEl.parentNode &&
+    //   this.searchInputView.removeChild(this.loadingSpinnerEl);
+
     this.wrapper && this.searchInputView && this.wrapper.removeChild(this.searchInputView);
     this.wrapper = null;
     this.subscriptions && this.subscriptions.dispose();
@@ -34863,25 +35048,23 @@ class KSGSearch extends HTMLElement {
     this.searchResults && this.searchResults.clear();
   }
 
-  toggleLoading() {
-    if (!this.loading) {
-      if (!this.loadingSpinnerEl) {
-        this.loadingSpinnerEl = document.createElement('div');
-        this.loadingSpinnerEl.classList.add('loading-spinner-wrapper');
-        const spinner = document.createElement('div');
-        spinner.classList.add('loading-spinner');
-        this.loadingSpinnerEl.appendChild(spinner);
-      }
-
-      this.searchInputView.appendChild(this.loadingSpinnerEl);
-    } else {
-      this.loadingSpinnerEl.parentNode && this.searchInputView.removeChild(this.loadingSpinnerEl);
-    }
-
-    this.loading = !this.loading;
+  toggleLoading() {// if (!this.loading) {
+    //   if (!this.loadingSpinnerEl) {
+    //     this.loadingSpinnerEl = document.createElement('div');
+    //     this.loadingSpinnerEl.classList.add('loading-spinner-wrapper');
+    //     const spinner = document.createElement('div');
+    //     spinner.classList.add('loading-spinner');
+    //     this.loadingSpinnerEl.appendChild(spinner);
+    //   }
+    //   this.searchInputView.appendChild(this.loadingSpinnerEl);
+    // } else {
+    //   this.loadingSpinnerEl.parentNode && this.searchInputView.removeChild(this.loadingSpinnerEl);
+    // }
+    // this.loading = !this.loading;
   }
 
   updateView({
+    payload,
     data
   }) {
     this.toggleLoading();
@@ -34911,16 +35094,28 @@ class KSGSearch extends HTMLElement {
             break;
         }
       }));
+    } // If code blocks are loading, ignore update requests to search results list.
+
+
+    if (this.parent && this.parent.codeBlocksElem && this.parent.codeBlocksElem.loading) {
+      return;
     }
 
     this.clearSearchResults();
 
+    if (payload === 'error') {
+      this.parent.toggleErrorMessage(true);
+      return;
+    }
+
+    this.parent.toggleErrorMessage(false);
+
     if (data && data.completions && data.completions.length > 0) {
-      this.searchResults.appendResults(data.completions);
+      this.searchResults.appendResults(data.completions, data.query);
     }
 
     if (data && data.query && !data.completions) {
-      this.searchResults.appendResults([data.query]);
+      this.searchResults.appendResults([data.query], data.query);
     }
 
     const query = this.searchInput.getText();
@@ -34961,12 +35156,13 @@ class KSGSearchResults extends HTMLElement {
     return false;
   }
 
-  appendResults(results) {
+  appendResults(results, query) {
     // to batch the DOM changes
     const fragment = document.createDocumentFragment();
     results.forEach(result => {
-      const el = new KSGSearchResult(result);
+      const el = new KSGSearchResult(result, query, this);
       el.initialize();
+      el.id = this.results.length;
       fragment.appendChild(el);
       this.results.push(el);
       this.subscriptions.add(el.onResultClick(resultText => {
@@ -34981,8 +35177,9 @@ class KSGSearchResults extends HTMLElement {
   }
 
   appendDefault(query) {
-    const searchResult = new KSGDefaultSearchResult(query);
+    const searchResult = new KSGDefaultSearchResult(query, this);
     searchResult.initialize();
+    searchResult.id = this.results.length;
     this.subscriptions.add(searchResult.onResultClick(resultText => {
       this.emitter.emit('did-search-result-propagate', {
         resultText,
@@ -35077,21 +35274,44 @@ class KSGSearchResults extends HTMLElement {
 }
 
 class KSGSearchResult extends HTMLElement {
-  constructor(resultText) {
+  constructor(resultText, query, parent) {
     super();
+    this.parent = parent;
     this.emitter = new Emitter();
     this.subscriptions = new CompositeDisposable();
     this.resultText = resultText;
+    this.query = query;
     this.isHighlighted = false;
   }
 
   initialize() {
     this.subscriptions.add(new DisposableEvent(this, 'click', this.clickHandler));
-    this.appendChild(this.resultContent);
+    const div = this.resultContent;
+
+    div.onmouseover = () => {
+      this.parent.clearHighlight();
+      this.parent.selectedIdx = this.id;
+      this.toggleHighlight();
+    };
+
+    this.appendChild(div);
   }
 
   get resultContent() {
-    return document.createTextNode(this.resultText);
+    const div = document.createElement('div');
+    const remainder = document.createElement('span');
+    remainder.classList.add('ksg-search-result-remainder'); // Only concatenate query with resultText if resultText starts with query.
+    // Otherwise, we may execute a query that doesn't match with the selection text.
+
+    if (this.resultText.startsWith(this.query)) {
+      div.appendChild(document.createTextNode(this.query));
+      remainder.textContent = this.resultText.substring(this.query.length);
+    } else {
+      remainder.textContent = this.resultText;
+    }
+
+    div.appendChild(remainder);
+    return div;
   }
 
   clickHandler(e) {
@@ -35120,24 +35340,23 @@ class KSGSearchResult extends HTMLElement {
 }
 
 class KSGDefaultSearchResult extends KSGSearchResult {
-  constructor(query) {
-    super();
-    this.query = query;
+  constructor(query, parent) {
+    super(null, query, parent);
   }
 
   get resultContent() {
-    const fragment = document.createDocumentFragment();
+    const div = document.createElement('div');
     const searchForSpan = document.createElement('span');
     searchForSpan.classList.add('plain-text');
     searchForSpan.textContent = 'Search for ';
-    fragment.appendChild(searchForSpan);
+    div.appendChild(searchForSpan);
     const queryEl = document.createTextNode(this.query);
-    fragment.appendChild(queryEl);
+    div.appendChild(queryEl);
     const onGoogleSpan = document.createElement('span');
     onGoogleSpan.classList.add('plain-text');
     onGoogleSpan.textContent = ' on Google ⇗';
-    fragment.appendChild(onGoogleSpan);
-    return fragment;
+    div.appendChild(onGoogleSpan);
+    return div;
   }
 
   clickHandler(e) {
@@ -35761,7 +35980,12 @@ module.exports = class Search {
   executeQuery({
     query
   }) {
-    // make sure results include only python related stuff
+    if (!query || query.length === 0) {
+      this.emitter.emit(SEARCH_MODEL_UPDATE, {});
+      return;
+    } // make sure results include only python related stuff
+
+
     let newQuery = query;
 
     if (!query.includes('python')) {
@@ -35770,7 +35994,14 @@ module.exports = class Search {
 
     this.emitter.emit(SEARCH_LOADING);
     getKSGCompletions(newQuery).then(data => {
-      // scrub preceding pythons from the data
+      if (!data) {
+        this.emitter.emit(SEARCH_MODEL_UPDATE, {
+          payload: 'error'
+        });
+        return;
+      } // scrub preceding pythons from the data
+
+
       data.query = query;
 
       if (data.completions) {
@@ -35787,8 +36018,7 @@ module.exports = class Search {
         payload: 'search model update',
         data
       });
-    }); // TODO: add error handling (what should that look like?)
-    // maybe just an emission of `empty res`?
+    });
   }
 
 };
@@ -35845,14 +36075,22 @@ ${blocks.join('\n# BLOCK\n')}
   executeQuery({
     query
   }) {
-    // make sure results include only python related stuff
+    const origQuery = query; // make sure results include only python related stuff
+
     if (!query.toLowerCase().includes('python')) {
       query = `python ${query}`;
     }
 
     this.emitter.emit(CODEBLOCKS_LOADING);
     getKSGCodeBlocks(query).then(data => {
-      // we want more votes appearing first
+      if (!data) {
+        this.emitter.emit(CODEBLOCKS_MODEL_UPDATE, {
+          payload: 'error'
+        });
+        return;
+      } // we want more votes appearing first
+
+
       if (data && data.answers) {
         data.answers = data.answers.filter(answer => {
           if (answer.votes <= 0) {
@@ -35868,6 +36106,7 @@ ${blocks.join('\n# BLOCK\n')}
         data.answers.sort((a, b) => b.votes - a.votes);
       }
 
+      data.origQuery = origQuery;
       this.emitter.emit(CODEBLOCKS_MODEL_UPDATE, {
         payload: 'codeblocks model update',
         data
@@ -35879,6 +36118,89 @@ ${blocks.join('\n# BLOCK\n')}
 
 /***/ }),
 /* 206 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+const {
+  CompositeDisposable
+} = __webpack_require__(2);
+
+__webpack_require__(207);
+
+module.exports = class KSGShortcut {
+  constructor() {
+    this.element = document.createElement('div');
+    this.element.className = 'ksg-shortcut';
+    this.element.innerHTML = '<so-logo class="badge"></so-logo>';
+    this.element.classList.add('inline-block');
+  }
+
+  init(Kite) {
+    this.subscriptions = new CompositeDisposable();
+    this.subscriptions.add(atom.tooltips.add(this.element, {
+      title: () => 'Kite: Search Stack Overflow'
+    }));
+    this.subscriptions.add(atom.workspace.onDidChangeActiveTextEditor(() => this.toggleVisibility()));
+
+    this.clickListener = () => Kite.toggleKSG();
+
+    this.element.addEventListener('click', this.clickListener);
+    this.toggleVisibility();
+  }
+
+  toggleVisibility() {
+    const editor = atom.workspace.getActiveTextEditor();
+
+    if (!editor || editor.getGrammar().name !== 'Python') {
+      this.element.classList.add('hidden');
+    } else {
+      this.element.classList.remove('hidden');
+    }
+  }
+
+  dispose() {
+    this.subscriptions && this.subscriptions.dispose();
+    delete this.subscriptions;
+    this.element.removeEventListener('click', this.clickListener);
+  }
+
+  getElement() {
+    return this.element;
+  }
+
+};
+
+/***/ }),
+/* 207 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+const path = __webpack_require__(27);
+
+const ASSETS_PATH =  true ? path.resolve(__dirname, '..', 'assets') : undefined;
+const logoPath = path.join(ASSETS_PATH, 'so.png');
+
+class SOLogo extends HTMLElement {
+  static initClass() {
+    customElements.define('so-logo', this);
+    return this;
+  }
+
+  constructor() {
+    super();
+    this.innerHTML = `<img src=${logoPath}></img>`;
+  }
+
+}
+
+module.exports = SOLogo.initClass();
+
+/***/ }),
+/* 208 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -35910,7 +36232,7 @@ const DataLoader = __webpack_require__(168);
 
 const {
   MAX_FILE_SIZE
-} = __webpack_require__(181);
+} = __webpack_require__(174);
 
 const {
   STATES
@@ -36237,7 +36559,7 @@ class KiteStatusPanel extends HTMLElement {
 module.exports = KiteStatusPanel.initClass();
 
 /***/ }),
-/* 207 */
+/* 209 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -36245,7 +36567,7 @@ module.exports = KiteStatusPanel.initClass();
 
 const DataLoader = __webpack_require__(168);
 
-const KiteSignature = __webpack_require__(208);
+const KiteSignature = __webpack_require__(210);
 
 const {
   delayPromise
@@ -36410,7 +36732,7 @@ const KiteProvider = {
 module.exports = KiteProvider;
 
 /***/ }),
-/* 208 */
+/* 210 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

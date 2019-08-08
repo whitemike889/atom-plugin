@@ -1,7 +1,7 @@
 {
   "name": "kite",
   "main": "./dist/main",
-  "version": "0.165.0",
+  "version": "0.167.0",
   "description": "Python coding assistant featuring AI-powered autocompletions, advanced function signatures, and instant documentation",
   "repository": "https://github.com/kiteco/atom-plugin",
   "keywords": [],
@@ -129,7 +129,7 @@
     "babel-eslint": "^6.1.2",
     "babel-loader": "^8.0.5",
     "editors-json-tests": "git://github.com/kiteco/editors-json-tests.git#master",
-    "eslint": "^3.11.1",
+    "eslint": "^4.18.2",
     "eslint-config": "^0.3.0",
     "eslint-config-fbjs": "^1.1.1",
     "eslint-plugin-babel": "^3.3.0",
