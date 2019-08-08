@@ -3,6 +3,9 @@
   'ctrl-alt-k': 'kite:docs-at-cursor'
   'cmd-alt-k': 'kite:open-in-web'
 
+'.platform-darwin .workspace':
+  'cmd-alt-l': 'kite:search-stack-overflow'
+
 '.platform-darwin kite-login':
   'cmd-c': 'native!'
   'cmd-x': 'native!'

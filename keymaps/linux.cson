@@ -3,6 +3,9 @@
   'ctrl-alt-shift-k': 'kite:docs-at-cursor'
   'ctrl-alt-k': 'kite:open-in-web'
 
+'.platform-linux .workspace':
+  'ctrl-alt-l': 'kite:search-stack-overflow'
+
 '.platform-linux kite-login':
   'ctrl-c': 'native!'
   'ctrl-x': 'native!'
