@@ -41,7 +41,7 @@ __Linux Instructions__
 2. The installer should run the Kite Engine automatically after installation is complete.
 
 
-### Installing the Kite Assistant for Atom
+### Installing the Kite Plugin for Atom
 
 When running the Kite Engine for the first time, you'll be guided through a setup process which will allow you to install
 the Atom package. You can also install or uninstall the Atom package at any time using the Kite Engine's [plugin
