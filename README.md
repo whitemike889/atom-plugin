@@ -51,7 +51,7 @@ Alternatively, you have 2 options to manually install the package:
 1. Search for "Kite" in Atom's built-in package manager and install from there.
 2. Run the command `apm install kite` in your terminal.
 
-[Learn more about why to use Kite with Atom.](https://www.kite.com/integrations/atom-editor/)
+[Learn more about why to use Kite with Atom.](https://kite.com/integrations/atom-editor/)
 
 
 ## Usage
