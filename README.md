@@ -10,8 +10,8 @@ provides the frontend that interfaces with the Kite Engine, which runs 100% loca
 Kite helps you write code faster by showing you the right information at the right time. Learn more about how Kite boosts your Atom editor's capabilities at https://kite.com/integrations/atom-editor/. 
 
 At a high level, Kite provides you with:
-* 🧠 __Line-of-Code Completions__ powered by machine learning models trained on the entire open source code universe
-* 📝 __Intelligent Snippets__ that automatically provide context-relevant code snippets for your function calls
+* 🧠 __[Line-of-Code Completions](https://kite.com/blog/product/launching-line-of-code-completions-going-cloudless-and-17-million-in-funding/)__ powered by machine learning models trained on the entire open source code universe
+* 📝 __[Intelligent Snippets](https://kite.com/blog/product/announcing-intelligent-snippets-for-python/)__ that automatically provide context-relevant code snippets for your function calls
 * 🔍 __[Instant documentation](https://kite.com/copilot/)__ for the symbol underneath your cursor so you save time searching for Python docs
 
 
