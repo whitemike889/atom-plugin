@@ -21,7 +21,7 @@ Use another editor? Check out [Kite’s other editor integrations](https://kite.
 ### Installing the Kite Engine
 
 The [Kite Engine](https://kite.com/) needs to be installed in order for the package to work properly. The package itself
-provides the frontend that interfaces with the Kite Engine, which runs 100% locally on your computer performing all the code analysis and machine learning (no code is sent to a cloud server).
+provides the frontend that interfaces with the Kite Engine, which performs all the code analysis and machine learning 100% locally on your computer (no code is sent to a cloud server).
 
 __macOS Instructions__
 1. Download the [installer](https://kite.com/download) and open the downloaded `.dmg` file.
