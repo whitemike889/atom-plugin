@@ -17,6 +17,9 @@ const config = {
     libraryTarget: 'commonjs2',
     library: '',
   },
+  resolve: {
+    modules: ['../node_modules']
+  },
   module: {
     rules: [
       {
@@ -26,6 +29,13 @@ const config = {
           { loader: 'babel-loader' },
         ],
       },
+      {
+        test: /\.(png|svg|jpg|gif)$/,
+        loader: 'file-loader',
+        options: {
+          outputPath: 'dependency-assets',
+        },
+      }
     ],
   },
   plugins: [

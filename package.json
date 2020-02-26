@@ -144,6 +144,7 @@
     "eslint-plugin-prefer-object-spread": "^1.1.0",
     "eslint-plugin-react": "^5.2.2",
     "fbjs": "^0.8.6",
+    "file-loader": "^5.1.0",
     "javascript-obfuscator": "^0.8.3",
     "sinon": "^2.3.5",
     "webpack": "^4.30.0",
