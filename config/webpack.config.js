@@ -30,7 +30,7 @@ const config = {
         ],
       },
       {
-        test: /\.(png|svg|jpg|gif)$/,
+        test: /\.(png|svg|jpg|gif|mp4|less)$/,
         loader: 'file-loader',
         options: {
           outputPath: 'dependency-assets',
