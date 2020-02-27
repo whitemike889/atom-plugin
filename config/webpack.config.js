@@ -42,6 +42,9 @@ const config = {
     new webpack.EnvironmentPlugin({
       PRODUCTION: JSON.stringify(true),
     }),
+    new webpack.DefinePlugin({
+      "process.env.USING_WEBPACK_FILELOADER_TO_BUNDLE": true
+    })
   ],
   node: {
     __dirname: false,
