@@ -18,7 +18,7 @@ const config = {
     library: '',
   },
   resolve: {
-    modules: ['../node_modules']
+    modules: ['node_modules']
   },
   module: {
     rules: [
