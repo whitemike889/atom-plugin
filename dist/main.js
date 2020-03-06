@@ -16304,6 +16304,10 @@ class KiteApp {
   showInstallFlow(variant) {
     ensureKiteDeps();
 
+    if (!os) {
+      os = __webpack_require__(6);
+    }
+
     if (!errors) {
       errors = Errors();
     }
@@ -23279,22 +23283,20 @@ class NotificationsCenter {
   }
 
   warnNotInstalled(state) {
-    if (!this.app.wasInstalledOnce()) {
-      this.queue.addWarning('The Kite engine is not installed', {
-        description: 'Install Kite to get Python completions, documentation, and examples.',
-        icon: 'circle-slash',
-        buttons: [{
-          text: 'Install Kite',
-          metric: 'install',
-          onDidClick: dismiss => {
-            dismiss && dismiss();
-            this.app && this.app.installFlow();
-          }
-        }]
-      }, {
-        metric: state
-      });
-    }
+    this.queue.addWarning('The Kite engine is not installed', {
+      description: 'Install Kite to get Python completions, documentation, and examples.',
+      icon: 'circle-slash',
+      buttons: [{
+        text: 'Install Kite',
+        metric: 'install',
+        onDidClick: dismiss => {
+          dismiss && dismiss();
+          this.app && this.app.installFlow();
+        }
+      }]
+    }, {
+      metric: state
+    });
   }
 
   warnNotRunning(state) {
@@ -23921,7 +23923,7 @@ if (!atom.inSpecMode()) {
 /* 193 */
 /***/ (function(module) {
 
-module.exports = JSON.parse("{\"name\":\"kite\",\"main\":\"./dist/main\",\"version\":\"0.178.0\",\"description\":\"Python coding assistant featuring AI-powered autocompletions, advanced function signatures, and instant documentation\",\"repository\":\"https://github.com/kiteco/atom-plugin\",\"keywords\":[],\"license\":\"SEE LICENSE IN LICENSE\",\"engines\":{\"atom\":\">=1.0.0 <2.0.0\"},\"scripts\":{\"lint\":\"eslint .\",\"lint:fix\":\"eslint --fix .\",\"build-prod\":\"webpack --config config/webpack.config.js --mode production\",\"prepublishOnly\":\"rm -rf node_modules && rm -f package-lock.json && apm install && rm -rf dist && npm run build-prod\",\"build-dev\":\"webpack --config config/webpack.config.js --mode none\",\"clean-dev-install\":\"apm unlink && rm -rf node_modules && rm -f package-lock.json && apm install && rm -rf dist && npm run build-dev && apm link\"},\"configSchema\":{\"showGoBetaNotification\":{\"type\":\"boolean\",\"default\":true,\"title\":\"Show Go beta notification\",\"description\":\"Whether or not to show the Go beta notification.\"},\"showWelcomeNotificationOnStartup\":{\"type\":\"boolean\",\"default\":true,\"title\":\"Show welcome notification on startup\",\"description\":\"Whether or not to show the Kite welcome notification on startup.\"},\"enableCompletions\":{\"type\":\"boolean\",\"default\":true,\"title\":\"Enable completions\",\"description\":\"Automatically show completions from Kite as you type.\"},\"enableHoverUI\":{\"type\":\"boolean\",\"default\":true,\"title\":\"Enable hover\",\"description\":\"Show a quick summary of a symbol when you hover your mouse over it.\"},\"enableSnippets\":{\"type\":\"boolean\",\"default\":true,\"title\":\"Enable snippets\",\"description\":\"Enable snippets feature.\"},\"maxVisibleSuggestionsAlongSignature\":{\"type\":\"integer\",\"default\":5,\"title\":\"Completions limit with function signature\",\"description\":\"Maximum number of completions that can be shown when a function signature is also shown.\"},\"loggingLevel\":{\"type\":\"string\",\"default\":\"info\",\"enum\":[\"silly\",\"verbose\",\"debug\",\"info\",\"warning\",\"error\"],\"title\":\"Logging level\",\"description\":\"The verbosity level of Kite logs.\"},\"pollingInterval\":{\"type\":\"integer\",\"default\":15000,\"min\":1000,\"max\":60000,\"title\":\"Polling interval\",\"description\":\"Interval in milliseconds at which the Kite package polls Kite Engine to get the status of the current file.\"},\"developerMode\":{\"type\":\"boolean\",\"default\":false,\"title\":\"Developer mode\",\"description\":\"Displays JSON data from Kite Engine that's used when rendering a UI element.\"},\"startKiteAtStartup\":{\"type\":\"boolean\",\"default\":true,\"title\":\"Start Kite Engine on startup\",\"description\":\"Automatically start Kite Engine on editor startup if it's not already running.\"},\"signatureKwargsVisible\":{\"type\":\"boolean\",\"default\":false,\"title\":\"Show function keyword arguments\",\"description\":\"Show inferred keyword arguments for a function when the function signature panel is shown\"},\"signaturePopularPatternsVisible\":{\"type\":\"boolean\",\"default\":false,\"title\":\"Show function call examples\",\"description\":\"Show examples on how to call a function when the function signature panel is shown\"}},\"providedServices\":{\"autocomplete.provider\":{\"versions\":{\"2.0.0\":\"completions\"}}},\"consumedServices\":{\"status-bar\":{\"versions\":{\"^1.0.0\":\"consumeStatusBar\"}}},\"dependencies\":{\"analytics-node\":\"^3.1.1\",\"element-resize-detector\":\"^1.1.11\",\"fuzzaldrin-plus\":\"^0.4.1\",\"getmac\":\"1.2.1\",\"kite-api\":\"=3.12.0\",\"kite-connector\":\"=3.12.0\",\"kite-installer\":\"file:../kite-installer\",\"lodash\":\"^4.17.11\",\"md5\":\"^2.2.0\",\"rollbar\":\"^2.3.8\",\"tiny-relative-date\":\"^1.3.0\",\"underscore-plus\":\"^1\"},\"devDependencies\":{\"@babel/core\":\"^7.4.3\",\"@babel/preset-env\":\"^7.4.3\",\"babel-eslint\":\"^6.1.2\",\"babel-loader\":\"^8.0.5\",\"editors-json-tests\":\"git://github.com/kiteco/editors-json-tests.git#master\",\"eslint\":\"^4.18.2\",\"eslint-config\":\"^0.3.0\",\"eslint-config-fbjs\":\"^1.1.1\",\"eslint-plugin-babel\":\"^3.3.0\",\"eslint-plugin-flowtype\":\"^2.29.1\",\"eslint-plugin-jasmine\":\"^2.2.0\",\"eslint-plugin-prefer-object-spread\":\"^1.1.0\",\"eslint-plugin-react\":\"^5.2.2\",\"fbjs\":\"^0.8.6\",\"file-loader\":\"^5.1.0\",\"javascript-obfuscator\":\"^0.8.3\",\"sinon\":\"^2.3.5\",\"webpack\":\"^4.30.0\",\"webpack-cli\":\"^3.3.0\"}}");
+module.exports = JSON.parse("{\"name\":\"kite\",\"main\":\"./dist/main\",\"version\":\"0.178.0\",\"description\":\"Python coding assistant featuring AI-powered autocompletions, advanced function signatures, and instant documentation\",\"repository\":\"https://github.com/kiteco/atom-plugin\",\"keywords\":[],\"license\":\"SEE LICENSE IN LICENSE\",\"engines\":{\"atom\":\">=1.0.0 <2.0.0\"},\"scripts\":{\"lint\":\"eslint .\",\"lint:fix\":\"eslint --fix .\",\"build-prod\":\"webpack --config config/webpack.config.js --mode production\",\"prepublishOnly\":\"rm -rf node_modules && rm -f package-lock.json && apm install && rm -rf dist && npm run build-prod\",\"build-dev\":\"webpack --config config/webpack.config.js --mode none\",\"clean-dev-install\":\"apm unlink && rm -rf node_modules && rm -f package-lock.json && apm install && rm -rf dist && npm run build-dev && apm link\"},\"configSchema\":{\"showGoBetaNotification\":{\"type\":\"boolean\",\"default\":true,\"title\":\"Show Go beta notification\",\"description\":\"Whether or not to show the Go beta notification.\"},\"showWelcomeNotificationOnStartup\":{\"type\":\"boolean\",\"default\":true,\"title\":\"Show welcome notification on startup\",\"description\":\"Whether or not to show the Kite welcome notification on startup.\"},\"enableCompletions\":{\"type\":\"boolean\",\"default\":true,\"title\":\"Enable completions\",\"description\":\"Automatically show completions from Kite as you type.\"},\"enableHoverUI\":{\"type\":\"boolean\",\"default\":true,\"title\":\"Enable hover\",\"description\":\"Show a quick summary of a symbol when you hover your mouse over it.\"},\"enableSnippets\":{\"type\":\"boolean\",\"default\":true,\"title\":\"Enable snippets\",\"description\":\"Enable snippets feature.\"},\"maxVisibleSuggestionsAlongSignature\":{\"type\":\"integer\",\"default\":5,\"title\":\"Completions limit with function signature\",\"description\":\"Maximum number of completions that can be shown when a function signature is also shown.\"},\"loggingLevel\":{\"type\":\"string\",\"default\":\"info\",\"enum\":[\"silly\",\"verbose\",\"debug\",\"info\",\"warning\",\"error\"],\"title\":\"Logging level\",\"description\":\"The verbosity level of Kite logs.\"},\"pollingInterval\":{\"type\":\"integer\",\"default\":15000,\"min\":1000,\"max\":60000,\"title\":\"Polling interval\",\"description\":\"Interval in milliseconds at which the Kite package polls Kite Engine to get the status of the current file.\"},\"developerMode\":{\"type\":\"boolean\",\"default\":false,\"title\":\"Developer mode\",\"description\":\"Displays JSON data from Kite Engine that's used when rendering a UI element.\"},\"startKiteAtStartup\":{\"type\":\"boolean\",\"default\":true,\"title\":\"Start Kite Engine on startup\",\"description\":\"Automatically start Kite Engine on editor startup if it's not already running.\"},\"signatureKwargsVisible\":{\"type\":\"boolean\",\"default\":false,\"title\":\"Show function keyword arguments\",\"description\":\"Show inferred keyword arguments for a function when the function signature panel is shown\"},\"signaturePopularPatternsVisible\":{\"type\":\"boolean\",\"default\":false,\"title\":\"Show function call examples\",\"description\":\"Show examples on how to call a function when the function signature panel is shown\"}},\"providedServices\":{\"autocomplete.provider\":{\"versions\":{\"2.0.0\":\"completions\"}}},\"consumedServices\":{\"status-bar\":{\"versions\":{\"^1.0.0\":\"consumeStatusBar\"}}},\"dependencies\":{\"analytics-node\":\"^3.1.1\",\"element-resize-detector\":\"^1.1.11\",\"fuzzaldrin-plus\":\"^0.4.1\",\"getmac\":\"1.2.1\",\"kite-api\":\"=3.12.0\",\"kite-connector\":\"=3.12.0\",\"kite-installer\":\"=3.16.0\",\"lodash\":\"^4.17.11\",\"md5\":\"^2.2.0\",\"rollbar\":\"^2.3.8\",\"tiny-relative-date\":\"^1.3.0\",\"underscore-plus\":\"^1\"},\"devDependencies\":{\"@babel/core\":\"^7.4.3\",\"@babel/preset-env\":\"^7.4.3\",\"babel-eslint\":\"^6.1.2\",\"babel-loader\":\"^8.0.5\",\"editors-json-tests\":\"git://github.com/kiteco/editors-json-tests.git#master\",\"eslint\":\"^4.18.2\",\"eslint-config\":\"^0.3.0\",\"eslint-config-fbjs\":\"^1.1.1\",\"eslint-plugin-babel\":\"^3.3.0\",\"eslint-plugin-flowtype\":\"^2.29.1\",\"eslint-plugin-jasmine\":\"^2.2.0\",\"eslint-plugin-prefer-object-spread\":\"^1.1.0\",\"eslint-plugin-react\":\"^5.2.2\",\"fbjs\":\"^0.8.6\",\"file-loader\":\"^5.1.0\",\"javascript-obfuscator\":\"^0.8.3\",\"sinon\":\"^2.3.5\",\"webpack\":\"^4.30.0\",\"webpack-cli\":\"^3.3.0\"}}");
 
 /***/ }),
 /* 194 */
