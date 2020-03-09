@@ -17,6 +17,9 @@ const config = {
     libraryTarget: 'commonjs2',
     library: '',
   },
+  resolve: {
+    modules: ['node_modules']
+  },
   module: {
     rules: [
       {
@@ -26,12 +29,22 @@ const config = {
           { loader: 'babel-loader' },
         ],
       },
+      {
+        test: /\.(png|svg|jpg|gif|mp4|less)$/,
+        loader: 'file-loader',
+        options: {
+          outputPath: 'dependency-assets',
+        },
+      }
     ],
   },
   plugins: [
     new webpack.EnvironmentPlugin({
       PRODUCTION: JSON.stringify(true),
     }),
+    new webpack.DefinePlugin({
+      "process.env.USING_WEBPACK_FILELOADER_TO_BUNDLE": true
+    })
   ],
   node: {
     __dirname: false,
