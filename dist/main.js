@@ -37302,6 +37302,7 @@ module.exports = class BracketMarker {
       if (this.isClosingBracket(text.charAt(i))) {
         const range = [cursorPosBeforeInsert.traverse([0, i - 1]), cursorPosBeforeInsert.traverse([0, i])];
         const marker = editor.markBufferRange(range);
+        marker.onDidDestroy(() => _.remove(this.bracketMarkersByEditorID[editor.id], marker));
         bracketMarkers.push(marker);
       }
     }
@@ -37322,9 +37323,6 @@ module.exports = class BracketMarker {
 
       if (bracketMarker) {
         bracketMarker.destroy();
-
-        _.remove(bracketMarkers, bracketMarker);
-
         editor.moveRight();
         event.cancel();
       }
