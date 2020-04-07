@@ -19,6 +19,23 @@ autocomplete-suggestion-list {
             i.icon {
               position: relative;
 
+              &.kite-empty-type {
+                .icon-letter {
+                  visibility: hidden;
+                }
+                &::after {
+                  mask-image: url('atom://kite/assets/logo-small.svg');
+                  -webkit-mask-image: url('atom://kite/assets/logo-small.svg');
+                  bottom: 50%;
+                  right: 50%;
+                  // in theory, this should be half the width/height of the icon,
+                  // but that results in the icon appearing too far to the left,
+                  // so push it rightwards.
+                  margin-right: -0.54em;
+                  margin-bottom: -0.42em;
+                }
+              }
+
               &::after {
                 content: '';
                 display: block;
@@ -45,7 +62,7 @@ autocomplete-suggestion-list {
               }
 
               &.type {
-                
+
               }
 
               .icon-package {
