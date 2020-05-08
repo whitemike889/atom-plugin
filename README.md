@@ -1,10 +1,9 @@
-# Kite Python Plugin for Atom
+# Kite Autocomplete Plugin for Atom
 
-Kite is an AI-powered programming assistant that helps you write Python code inside Atom. Kite helps you write code faster by showing you the right information at the right time. Learn more about how Kite boosts your Atom editor's capabilities at https://kite.com/integrations/atom-editor/. 
+Kite is an AI-powered programming assistant that helps you write Python & JavaScript code inside Atom. Kite helps you write code faster by saving you keystrokes and showing you the right information at the right time. Learn more about how Kite boosts your Atom editor's capabilities at https://kite.com/integrations/atom-editor/. 
 
 At a high level, Kite provides you with:
 * 🧠 __[Line-of-Code Completions](https://kite.com/blog/product/launching-line-of-code-completions-going-cloudless-and-17-million-in-funding/)__ powered by machine learning models trained on the entire open source code universe
-* 📝 __[Intelligent Snippets](https://kite.com/blog/product/announcing-intelligent-snippets-for-python/)__ that automatically provide context-relevant code snippets for your function calls
 * 🔍 __[Instant documentation](https://kite.com/copilot/)__ for the symbol underneath your cursor so you save time searching for Python docs
 
 
@@ -83,7 +82,8 @@ If a `Def` link is available in the hover popup, clicking on it will jump to the
 
 ### Autocompletions
 
-Simply start typing in a saved Python file and Kite will automatically suggest completions for what you're typing.
+Simply start typing in a saved Python or JavaScript file and Kite will automatically suggest completions for what you're 
+typing. Kite's autocompletions are all labeled with the `⟠` symbol.
 
 ![completions](https://github.com/kiteco/atom-plugin/blob/master/docs/images/completions.png?raw=true)
 
@@ -121,9 +121,9 @@ You can view and change the Kite Assistant's settings by finding Kite in your li
 the `Settings` button. Alternatively, you can run the command `Kite: Package Settings` from the command palette.
 
 
-## Contact Us
+## Troubleshooting
 
-Feel free to contact us with bug reports, feature requests, or general comments at feedback@kite.com.
+Visit our [help docs](https://help.kite.com) for FAQs and troubleshooting support.
 
 Happy coding!
 
