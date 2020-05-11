@@ -103,15 +103,15 @@ Kite comes with sevaral commands that you can run from Atom's command palette.
 
 |Command|Description|
 |:---|:---|
-|`Kite: Open copilot`|Open the Copilot|
-|`Kite: Docs at cursor`|Show documentation of the symbol underneath your cursor in the Copilot|
-|`Kite: Status`|Show the current status of Kite in the status panel|
-|`Kite: Package Settings`|Open the settings for the Kite Atom package|
-|`Kite: Engine Settings`|Open the settings for the Kite Engine|
-|`Kite: Python Tutorial`|Open the Kite Python tutorial file|
-|`Kite: JavaScript Tutorial`|Open the Kite JavaScript tutorial file|
-|`Kite: Go Tutorial`|Open the Kite Go tutorial file|
-|`Kite: Help`|Open Kite's help website in the browser|
+|`kite:open-copilot`|Open the Copilot|
+|`kite:docs-at-cursor`|Show documentation of the symbol underneath your cursor in the Copilot|
+|`kite:status`|Show the current status of Kite in the status panel|
+|`kite:package-settings`|Open the settings for the Kite Atom package|
+|`kite:engine-settings`|Open the settings for the Kite Engine|
+|`kite:python-tutorial`|Open the Kite Python tutorial file|
+|`kite:javascript-tutorial`|Open the Kite JavaScript tutorial file|
+|`kite:go-tutorial`|Open the Kite Go tutorial file|
+|`kite:help`|Open Kite's help website in the browser|
 
 If you wish, you may also setup keybindings for the commands listed above.
 
