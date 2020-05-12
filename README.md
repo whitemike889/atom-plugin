@@ -60,25 +60,7 @@ use Kite.
 
 ![tutorial](https://github.com/kiteco/atom-plugin/blob/master/docs/images/tutorial.png?raw=true)
 
-This tutorial will only be displayed once. You can show it again at any time by running the command `Kite: Tutorial` from
-Atom's command palette.
-
-### Hover
-
-Hover your mouse cursor over a symbol to view a short summary of what the symbol represents.
-
-![hover](https://github.com/kiteco/atom-plugin/blob/master/docs/images/hover.png?raw=true)
-
-### Documentation
-
-Click on the `Docs` link in the hover popup to open the documentation for the symbol inside the Copilot, Kite's standalone
-reference tool.
-
-![copilot](https://github.com/kiteco/atom-plugin/blob/master/docs/images/copilot.png?raw=true)
-
-### Definitions
-
-If a `Def` link is available in the hover popup, clicking on it will jump to the definition of the symbol.
+This tutorial will only be displayed once. You can show it again at any time by running the command `Kite: Python Tutorial` or `Kite: JavaScript Tutorial` from Atom's command palette.
 
 ### Autocompletions
 
@@ -87,7 +69,24 @@ typing. Kite's autocompletions are all labeled with the `⟠` symbol.
 
 ![completions](https://github.com/kiteco/atom-plugin/blob/master/docs/images/completions.png?raw=true)
 
-### Function Signatures
+### Hover (Python only)
+
+Hover your mouse cursor over a symbol to view a short summary of what the symbol represents.
+
+![hover](https://github.com/kiteco/atom-plugin/blob/master/docs/images/hover.png?raw=true)
+
+### Documentation (Python only)
+
+Click on the `Docs` link in the hover popup to open the documentation for the symbol inside the Copilot, Kite's standalone
+reference tool.
+
+![copilot](https://github.com/kiteco/atom-plugin/blob/master/docs/images/copilot.png?raw=true)
+
+### Definitions (Python only)
+
+If a `Def` link is available in the hover popup, clicking on it will jump to the definition of the symbol.
+
+### Function Signatures (Python only)
 
 When you call a function, Kite will show you the arguments required to call it.
 
@@ -109,11 +108,12 @@ Kite comes with sevaral commands that you can run from Atom's command palette.
 |`kite:status`|Show the current status of Kite in the status panel|
 |`kite:package-settings`|Open the settings for the Kite Atom package|
 |`kite:engine-settings`|Open the settings for the Kite Engine|
-|`kite:tutorial`|Open the Kite tutorial file|
+|`kite:python-tutorial`|Open the Kite Python tutorial file|
+|`kite:javascript-tutorial`|Open the Kite JavaScript tutorial file|
+|`kite:go-tutorial`|Open the Kite Go tutorial file|
 |`kite:help`|Open Kite's help website in the browser|
 
 If you wish, you may also setup keybindings for the commands listed above.
-
 
 ## Configuration
 
