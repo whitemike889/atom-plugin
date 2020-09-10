@@ -98,6 +98,7 @@ describe('editors module', () => {
               selections: [{
                 start: cursorOffset,
                 end: cursorOffset,
+                encoding: 'utf-16',
               }],
             }));
           });
