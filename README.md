@@ -104,6 +104,8 @@ Kite comes with sevaral commands that you can run from Atom's command palette.
 
 |Command|Description|
 |:---|:---|
+|`kite.related-code-from-file`|Search for code related to the current file in the Copilot|
+|`kite.related-code-from-line`|Search for code related to the current line in the Copilot|
 |`kite:open-copilot`|Open the Copilot|
 |`kite:docs-at-cursor`|Show documentation of the symbol underneath your cursor in the Copilot|
 |`kite:status`|Show the current status of Kite in the status panel|
